@@ -36,29 +36,7 @@ deploy:
       echo "🔄 Récupération des dernières modifications..."
       git pull origin master
 
-      echo "🛑 Suppression forcée de l'ancien container..."
-      docker rm -f $DOCKER_CONTAINER_NAME || true
-
-      echo "🧹 Nettoyage des anciennes images..."
-      docker system prune -f
-
-      echo "🔨 Construction de la nouvelle image..."
-      docker build -t $DOCKER_IMAGE_NAME .
-
-      echo "🚀 Déploiement du nouveau container..."
-      docker run -d \
-        --name $DOCKER_CONTAINER_NAME \
-        -p $HOST_PORT:$DOCKER_PORT \
-        --restart unless-stopped \
-        $DOCKER_IMAGE_NAME
-
-      echo "📊 État du container:"
-      docker ps | grep $DOCKER_CONTAINER_NAME
-
-      echo "📋 Logs du container:"
-      docker logs $DOCKER_CONTAINER_NAME --tail 10
-
-      echo "✅ Déploiement terminé avec succès!"
+      
       EOF
 
   only:
