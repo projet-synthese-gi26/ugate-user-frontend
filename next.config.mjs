@@ -26,7 +26,7 @@ const nextConfig = {
         return [
             {
                 source: '/api/:path*',
-                destination: 'http://localhost:9005/api/:path*', // URL de votre backend
+                destination: 'http://167.235.62.116:7014/api/:path*', // URL de votre backend
             },
         ]
     },
