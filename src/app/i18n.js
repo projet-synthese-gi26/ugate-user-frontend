@@ -1,0 +1,42 @@
+
+import { createInstance } from 'i18next';
+import { initReactI18next } from 'react-i18next/initReactI18next';
+import resourcesToBackend from 'i18next-resources-to-backend';
+import i18nConfig from '../../i18nextConfig';
+
+export default async function initTranslations(
+    locale,
+    namespaces,
+    i18nInstance,
+    resources
+) {
+    i18nInstance = i18nInstance || createInstance();
+
+    i18nInstance.use(initReactI18next);
+
+    if (!resources) {
+        i18nInstance.use(
+            resourcesToBackend(
+                (language, namespace) =>
+                    import(`../../public/locales/${language}/${namespace}.json`)
+            )
+        );
+    }
+
+    await i18nInstance.init({
+        lng: locale,
+        resources,
+        fallbackLng: i18nConfig.fallbackLng,
+        supportedLngs: i18nConfig.supportedLngs,
+        defaultNS: i18nConfig.defaultNS,
+        fallbackNS: i18nConfig.defaultNS,
+        ns: namespaces,
+        preload: resources ? [] : i18nConfig.supportedLngs
+    });
+
+    return {
+        i18n: i18nInstance,
+        resources: i18nInstance.services.resourceStore.data,
+        t: i18nInstance.t
+    };
+}
