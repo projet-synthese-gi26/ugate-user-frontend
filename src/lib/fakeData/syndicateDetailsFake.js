@@ -123,3 +123,16 @@ export const fakePublications = [
         comments: []
     }
 ];
+
+    export const fakeEvents = [
+    {
+        id: 1, title: "Assemblée Générale Annuelle", description: "Rejoignez-nous pour discuter des réalisations de l'année et planifier l'avenir. Votre voix compte !", location: "Salle de conférence principale", startDate: "2024-06-15T09:00:00", endDate: "2024-06-15T17:00:00", author: { name: "Marie Dupont", profileImage: "https://i.pravatar.cc/150?img=25" }, images: ["https://images.unsplash.com/photo-1527192491265-7e15c55b1ed2?w=1200&h=600&fit=crop"], isUpcoming: true, participants: [{ name: "Jean Dupont" }, { name: "Pierre Martin" }]
+    },
+    {
+        id: 2, title: "Formation sur les Droits du Travail", description: "Ne manquez pas notre session intensive sur les dernières mises à jour des lois du travail.", location: "Salle de formation B", startDate: "2024-07-10T14:00:00", endDate: "2024-07-10T18:00:00", author: { name: "Pierre Martin", profileImage: "https://i.pravatar.cc/150?img=60" }, images: ["https://images.unsplash.com/photo-1517048676732-d65bc937f952?w=1200&h=600&fit=crop"], isUpcoming: true, participants: [{ name: "Lucie Moreau" }]
+    },
+    {
+        id: 3, title: "Barbecue Annuel du Syndicat", description: "C'est l'heure de notre barbecue annuel ! Venez vous détendre et rencontrer vos collègues.", location: "Parc Municipal", startDate: "2023-08-05T12:00:00", endDate: "2023-08-05T20:00:00", author: { name: "Sophie Lefebvre", profileImage: "https://i.pravatar.cc/150?img=27" }, images: ["https://images.unsplash.com/photo-1528605248644-14dd04022da1?w=1200&h=600&fit=crop"], isUpcoming: false, participants: [{ name: "Antoine Dubois" }, { name: "Émilie Lambert" }]
+    },
+
+];
