@@ -1,26 +1,26 @@
+// src/app/(main)/syndicats/page.jsx
 
 import initTranslations from "@/app/i18n";
-import MySyndicatesPage from "@/components/syndicats/MySyndicatesPage";
-import SyndicateHeader from "@/components/syndicats/SyndicateHeader";
-
+import MySyndicatesHeader from "@/components/syndicats/MySyndicatesHeader";
+import SyndicateList from "@/components/syndicats/SyndicateList"; // <-- Assurez-vous d'appeler ce composant
+import { fakeData } from "@/lib/fakeData/mySyndicatFake.js";
 
 async function getUserSyndicates() {
-    const { fakeData } = require('@/lib/fakeData/mySyndicatFake');
     await new Promise(resolve => setTimeout(resolve, 300));
     return fakeData;
 }
 
-export default async function SyndicatsPage({ params: { locale } }) {
+export default async function MySyndicatesPage({ params: { locale } }) { // Le nom de la fonction n'a pas d'importance
     const { t } = await initTranslations(locale, ['translation']);
     const userSyndicates = await getUserSyndicates();
 
     return (
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
-
-            <SyndicateHeader />
-
-
-            <MySyndicatesPage initialSyndicates={userSyndicates} />
+        <div className="min-h-screen ...">
+            <div className="container ...">
+                <MySyndicatesHeader />
+                {/* On s'assure d'appeler SyndicateList et de lui passer la prop */}
+                <SyndicateList initialSyndicates={userSyndicates} />
+            </div>
         </div>
     );
 }
