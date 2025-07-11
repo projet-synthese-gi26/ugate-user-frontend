@@ -2,23 +2,27 @@
 "use client";
 
 import { useState } from "react";
-import { usePathname } from 'next/navigation';
+// Importez les hooks nécessaires
+import { usePathname, useParams } from 'next/navigation'; 
 import { motion } from "framer-motion";
 import SyndicateHeader from "@/components/syndicate-space/SyndicateHeader";
 import SyndicateSidebar from "@/components/syndicate-space/SyndicateSidebar";
 import SyndicateNotificationsPanel from "@/components/syndicate-space/SyndicateNotificationsPanel";
 
-// Dans une vraie app, ces infos viendraient d'un appel API basé sur syndicatId
 const fakeSyndicateData = {
     name: "Syndicat National des Développeurs",
     bannerImage: "https://images.unsplash.com/photo-1541888946425-d81bb19240f5?crop=entropy&q=80&w=1200",
 };
 
-export default function SyndicateSpaceLayout({ children, params }) {
-    const { syndicatId } = params;
+// Le layout ne reçoit plus `params` en prop car on va utiliser le hook
+export default function SyndicateSpaceLayout({ children }) { 
     const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
     const [isNotificationOpen, setIsNotificationOpen] = useState(false);
+    
+    // On utilise les hooks pour obtenir les informations de la route
     const pathname = usePathname();
+    const params = useParams(); // <-- Ce hook retourne { syndicatId: '123' }
+    const { syndicatId } = params; // <-- C'est maintenant sûr et synchrone
 
     return (
         <div className="flex flex-col h-screen bg-gray-50 dark:bg-gray-900">
@@ -30,11 +34,11 @@ export default function SyndicateSpaceLayout({ children, params }) {
             <div className="flex flex-1 overflow-hidden">
                 <SyndicateSidebar
                     isCollapsed={isSidebarCollapsed}
+                    onToggle={() => setIsSidebarCollapsed(!isSidebarCollapsed)} // On peut ajouter le toggle ici
                     activeRoute={pathname}
-                    syndicatId={syndicatId} // On passe l'ID pour construire les liens
+                    syndicatId={syndicatId} // On passe l'ID récupéré du hook
                 />
                 <main className="flex-1 overflow-y-auto bg-gray-50 dark:bg-gray-900 p-4 sm:p-6">
-                    {/* Le contenu de la page active sera inséré ici par Next.js */}
                     {children}
                 </main>
                 <SyndicateNotificationsPanel

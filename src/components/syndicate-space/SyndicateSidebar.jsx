@@ -7,7 +7,7 @@ import { useTranslation } from 'react-i18next';
 
 // Import des icônes de lucide-react
 import { 
-    Users, Calendar, MessageCircle, Vote, CreditCard, 
+    Users, Calendar, MessageCircle, Vote, CreditCard,  MessageSquare,
     Handshake, Info, Home, ChevronLeft, ChevronRight, Menu
 } from 'lucide-react';
 
