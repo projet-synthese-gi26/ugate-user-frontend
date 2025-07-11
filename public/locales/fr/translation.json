@@ -284,6 +284,14 @@
   "image": "Image de l'événement (optionnel)",
   "submit_button": "Créer l'événement",
   "success_toast": "Événement créé avec succès !"
+},
+
+"chat": {
+  "search_placeholder": "Rechercher...",
+  "new_discussion": "Nouvelle discussion",
+  "message_placeholder": "Écrivez votre message...",
+  "select_conversation": "Sélectionnez une conversation pour commencer",
+  "search_member": "Rechercher un membre pour discuter"
 }
 
 
