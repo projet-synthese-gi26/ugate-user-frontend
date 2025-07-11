@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { useTranslation } from 'react-i18next';
 import { 
     Users, Calendar, MessageCircle, Vote, CreditCard, Handshake, 
-    Info, Home, ChevronLeft, ChevronRight 
+    Info, Home, ChevronLeft, ChevronRight, MessageSquare 
 } from 'lucide-react';
 import { SyndicatDefaultAvatar } from '@/components/shared/SyndicatDefaultAvatar.jsx'; // Réutilisation pour le logo
 import { usePathname, useParams } from 'next/navigation';
