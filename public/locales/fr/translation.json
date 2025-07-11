@@ -21,6 +21,7 @@
     "like": "J'aime",
     "like_plural": "J'aime",
     "comment": "Commenter",
+    "comment_plural": "Commentaires",
     "save": "Enregistrer",
     "see_all": "Voir tout",
     "error_title": "Erreur",
@@ -36,8 +37,7 @@
     "not_certified": "Non-certifié",
     "login": "Se connecter",
     "register": "S'inscrire",
-
-    "comment_plural": "Commentaires"
+    "cancel": "Annuler"
   },
   "errors": {
     "required_field": "Ce champ est requis.",
@@ -138,6 +138,18 @@
     "settings_desc": "Configuration du compte",
     "logout": "Déconnexion"
   },
+  "syndicats_page": {
+    "header_badge": "Gestion Personnelle",
+    "title": "Mes Syndicats",
+    "description": "Votre hub central pour accéder et gérer toutes vos affiliations syndicales.",
+    "search_placeholder": "Rechercher dans mes syndicats...",
+    "empty_list_title": "Vous n'avez rejoint aucun syndicat",
+    "empty_list_desc": "Explorez et rejoignez des syndicats ou créez le vôtre pour commencer.",
+    "empty_search_title": "Aucun syndicat ne correspond",
+    "empty_search_desc": "Essayez un autre terme de recherche ou vérifiez l'orthographe.",
+    "create_button": "Créer un syndicat",
+    "access_space": "Accéder à l'espace"
+  },
   "explorer_page": {
     "title": "Explorer les Syndicats",
     "description": "Trouvez la communauté professionnelle qui correspond à vos besoins et à vos ambitions.",
@@ -145,8 +157,7 @@
     "search_placeholder": "Rechercher un syndicat, lieu ou spécialité...",
     "no_results_title": "Aucun syndicat trouvé",
     "no_results_description": "Essayez d'ajuster vos critères de recherche ou de réinitialiser les filtres.",
-    "reset_filters": "Réinitialiser les filtres",
-    "access_space": "Accéder à l'espace"
+    "reset_filters": "Réinitialiser les filtres"
   },
   "profile_page": {
     "back_to_explorer": "Retour à l'exploration",
@@ -168,6 +179,40 @@
     "order_button": "Commander",
     "no_products": "Aucun produit n'est actuellement disponible dans la boutique."
   },
+  "syndicate_space": {
+    "sidebar": {
+        "home": "Tableau de bord",
+        "members": "Membres",
+        "events": "Événements",
+        "express": "S'exprimer",
+        "chat": "Messagerie",
+        "votes": "Votes",
+        "contributions": "Cotisations",
+        "partnerships": "Partenariats",
+        "about": "À Propos"
+    }
+  },
+  "members_page": {
+    "title": "Gestion des Membres",
+    "subtitle": "Gérez efficacement les membres et les demandes d'adhésion.",
+    "add_member": "Ajouter un membre",
+    "tab_members": "Membres",
+    "tab_requests": "Demandes d'adhésion",
+    "search_placeholder": "Rechercher un membre...",
+    "active_members": "Membres actifs",
+    "participation_rate": "Taux de participation",
+    "board_members": "Membres du bureau",
+    "monthly_growth": "Croissance mensuelle",
+    "contributions": "Cotisations",
+    "confirm_action_title": "Confirmer l'action",
+    "confirm_action_subtitle": "Cette action est irréversible.",
+    "confirm_action_text": "Êtes-vous sûr de vouloir {{action}} le membre {{memberName}} ?"
+  },
+  "notifications": {
+    "title": "Notifications",
+    "subtitle": "Vous avez {{count}} nouvelles notifications",
+    "see_all": "Voir toutes les notifications"
+  },
   "adhesion_modal": {
     "title": "Adhésion à {{syndicatName}}",
     "subtitle": "Processus d'adhésion en quelques étapes simples."
@@ -177,9 +222,7 @@
     "step2_name": "Type de membre",
     "step3_name": "Vos informations",
     "step4_name": "Confirmation",
-    "step_of": "Étape {{current}} sur {{total}}",
-    "previous": "Précédent",
-    "next": "Suivant"
+    "step_of": "Étape {{current}} sur {{total}}"
   },
   "adhesion_form": {
     "title": "Formulaire d'adhésion individuel",
