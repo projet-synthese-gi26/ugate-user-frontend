@@ -35,6 +35,8 @@ deploy:
 
       echo "🔄 Récupération des dernières modifications..."
       git pull origin master
+      pkill -f "npm run dev"
+      npm run dev
 
       
       EOF
