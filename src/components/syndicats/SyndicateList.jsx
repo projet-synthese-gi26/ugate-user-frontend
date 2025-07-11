@@ -18,7 +18,7 @@ const containerVariants = {
  * Gère la recherche, le filtrage, l'affichage de la liste et la modale de création.
  * @param {Array} initialSyndicates - La liste des syndicats de l'utilisateur, passée par le serveur.
  */
-export default function SyndicateList({ initialSyndicates }) {
+export default function SyndicateList({ initialSyndicates = [] }) {
     const { t } = useTranslation();
     const [searchTerm, setSearchTerm] = useState("");
     const [isModalOpen, setIsModalOpen] = useState(false);
