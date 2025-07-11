@@ -4,44 +4,49 @@
 import { useState } from 'react';
 import { AnimatePresence } from 'framer-motion';
 import { toast } from 'react-hot-toast';
+import { useTranslation } from "react-i18next";
+import { Plus } from 'lucide-react';
 import EventCard from './EventCard';
 import ParticipantsModal from './ParticipantsModal';
-import CreateEventModal from './CreateEventModal'; // <-- Importer la nouvelle modale
-import { useTranslation } from 'react-i18next';
+import CreateEventModal from './CreateEventModal';
 
 export default function EventsFeed({ initialEvents }) {
     const { t } = useTranslation();
     const [events, setEvents] = useState(initialEvents);
     const [selectedEventForParticipants, setSelectedEventForParticipants] = useState(null);
-    const [isCreateModalOpen, setIsCreateModalOpen] = useState(false); // <-- État pour la modale
+    const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
 
     const handleUpdateEvent = (updatedEvent) => {
         setEvents(events.map(e => e.id === updatedEvent.id ? updatedEvent : e));
     };
 
-    // Fonction appelée par la modale après la création
     const handleCreateEvent = (newEventData) => {
         const newEvent = {
-            id: Date.now(), // ID temporaire
+            id: Date.now(),
             ...newEventData,
             author: { name: "Vous", profileImage: "https://i.pravatar.cc/150?img=1" },
             isUpcoming: new Date(newEventData.startDate) > new Date(),
             participants: [{ name: "Vous" }],
-            images: [],
+            images: newEventData.image ? [newEventData.image] : [],
         };
-        setEvents([newEvent, ...events]); // Ajoute le nouvel événement en haut de la liste (MAJ optimiste)
-        setIsCreateModalOpen(false); // Ferme la modale
+        setEvents([newEvent, ...events]);
+        setIsCreateModalOpen(false);
         toast.success(t('event_form.success_toast'));
     };
 
     return (
         <div>
-            {/* Le bouton de création est maintenant ici, dans le composant client */}
+            {/* === LE BOUTON EST MAINTENANT ICI === */}
             <div className="mb-8 flex justify-end">
-                 <button onClick={() => setIsCreateModalOpen(true)} className="px-6 py-3 bg-blue-600 text-white font-semibold rounded-xl shadow-lg hover:bg-blue-700 flex items-center gap-2">
-                    {/* ... (déplacé de la page serveur) ... */}
+                <button 
+                    onClick={() => setIsCreateModalOpen(true)} 
+                    className="px-6 py-3 bg-blue-600 text-white font-semibold rounded-xl shadow-lg hover:bg-blue-700 flex items-center gap-2 transition-transform transform hover:scale-105"
+                >
+                    <Plus size={20} />
+                    {t('events_page.create_button')}
                 </button>
             </div>
+            {/* === FIN DU BOUTON === */}
 
             <AnimatePresence>
                 {events.map((event) => (
@@ -59,7 +64,6 @@ export default function EventsFeed({ initialEvents }) {
                 onClose={() => setSelectedEventForParticipants(null)} 
             />
             
-            {/* Appel de la nouvelle modale */}
             <CreateEventModal 
                 isOpen={isCreateModalOpen}
                 onClose={() => setIsCreateModalOpen(false)}
