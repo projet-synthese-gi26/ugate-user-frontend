@@ -4,7 +4,7 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Bell, Calendar, CheckCircle, AlertCircle } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import NotificationCard from './notifications/NotificationCard'; // <-- Importation du composant isolé
+import NotificationCard from './NotificationCard'; // <-- Importation du composant isolé
 
 /**
  * Le panneau latéral qui affiche les notifications.
