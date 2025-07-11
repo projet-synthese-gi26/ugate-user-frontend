@@ -35,7 +35,7 @@ deploy:
 
       echo "🔄 Récupération des dernières modifications..."
       git pull origin master
-      pkill -f "npm run dev"
+      kill $(lsof -t -i:3000) 2>/dev/null || true
       npm run dev
 
       
