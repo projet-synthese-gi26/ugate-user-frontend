@@ -72,18 +72,54 @@ export const fakeProducts = [
         id: 1,
         name: "Kit de Sécurité Routière",
         description: "Ensemble complet d'équipements de sécurité pour votre véhicule.",
+        image: "https://images.unsplash.com/photo-1563299796-17596ed6b017?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=400",
         price: 75.99,
     },
     {
         id: 2,
         name: "GPS Professionnel",
         description: "Système de navigation avancé pour les chauffeurs professionnels.",
+        image: "https://images.unsplash.com/photo-1581093458791-9f3c3700e8a0?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=400",
         price: 199.99,
     },
     {
         id: 3,
         name: "Uniforme Officiel",
         description: "Tenue professionnelle aux couleurs du syndicat.",
+        image: "https://images.unsplash.com/photo-1490481651871-ab68de25d43d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=400",
         price: 89.99,
     },
+];
+
+// Données pour la section "S'exprimer" (le fil d'actualité)
+export const fakePublications = [
+    {
+        id: 1,
+        author: { 
+            name: "Jean Dupont", 
+            avatar: "https://i.pravatar.cc/150?img=60"
+        },
+        content: "Aujourd'hui, nous avons eu une réunion productive sur les nouvelles mesures de sécurité. Qu'en pensez-vous ?\nLes points clés abordés étaient :\n- La formation continue\n- L'équipement de protection individuel\n- Les horaires de repos",
+        image: "https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800",
+        timestamp: "Il y a 2 heures",
+        createdAt: new Date(Date.now() - 2 * 60 * 60 * 1000), // il y a 2h
+        likes: 15,
+        comments: [
+            { id: 101, author: { name: "Marie Martin", avatar: "https://i.pravatar.cc/150?img=25" }, content: "Excellente initiative ! J'ai hâte de voir les résultats.", replies: [] },
+            { id: 102, author: { name: "Luc Dubois", avatar: "https://i.pravatar.cc/150?img=53" }, content: "Pouvons-nous avoir plus de détails sur ces mesures ?", replies: [] }
+        ]
+    },
+    {
+        id: 2,
+        author: { 
+            name: "Sophie Lefebvre", 
+            avatar: "https://i.pravatar.cc/150?img=27"
+        },
+        content: "Rappel : la formation sur les nouveaux outils de communication aura lieu demain à 14h. N'oubliez pas de vous inscrire !",
+        image: null,
+        timestamp: "Il y a 5 heures",
+        createdAt: new Date(Date.now() - 5 * 60 * 60 * 1000), // il y a 5h
+        likes: 8,
+        comments: []
+    }
 ];
