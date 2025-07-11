@@ -1,7 +1,7 @@
 // src/app/(main)/syndicats/page.jsx
 
 import initTranslations from "@/app/i18n";
-import MySyndicatesHeader from "@/components/syndicats/MySyndicatesHeader";
+import MySyndicatesHeader from "@/components/syndicats/SyndicatesHeader";
 import SyndicateList from "@/components/syndicats/SyndicateList"; // <-- Assurez-vous d'appeler ce composant
 import { fakeData } from "@/lib/fakeData/mySyndicatFake.js";
 
