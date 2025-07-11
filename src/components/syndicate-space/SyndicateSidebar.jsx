@@ -4,26 +4,26 @@
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { useTranslation } from 'react-i18next';
-
-// Import des icônes de lucide-react
 import { 
-    Users, Calendar, MessageCircle, Vote, CreditCard,  MessageSquare,
-    Handshake, Info, Home, ChevronLeft, ChevronRight, Menu
+    Users, Calendar, MessageCircle, Vote, CreditCard, Handshake, 
+    Info, Home, ChevronLeft, ChevronRight 
 } from 'lucide-react';
+import { SyndicatDefaultAvatar } from '../HomePage/localcomponent/SyndicatDefaultAvatar.jsx'; // Réutilisation pour le logo
+import { usePathname, useParams } from 'next/navigation';
 
 /**
- * La barre de navigation latérale pour un espace syndicat spécifique.
+ * La barre de navigation latérale, améliorée pour un design professionnel et une UX fluide.
  * @param {boolean} isCollapsed - Indique si la sidebar est repliée.
  * @param {function} onToggle - Fonction pour changer l'état de la sidebar.
- * @param {string} activeRoute - Le chemin de l'URL actuelle pour la mise en surbrillance.
- * @param {string} syndicatId - L'ID du syndicat actuel pour construire les liens.
  */
-export default function SyndicateSidebar({ isCollapsed, onToggle, activeRoute, syndicatId }) {
+export default function SyndicateSidebar({ isCollapsed, onToggle }) {
     const { t } = useTranslation();
+    const pathname = usePathname(); // Hook pour obtenir le chemin actuel
+    const params = useParams();   // Hook pour obtenir les paramètres de la route
+    const { syndicatId } = params;
 
-    // Configuration des éléments de navigation
     const navItems = [
-        { id: 'accueil', icon: Home, label: t('syndicate_space.sidebar.home'), route: '' }, // Route de base
+        { id: 'accueil', icon: Home, label: t('syndicate_space.sidebar.home'), route: '' },
         { id: 'membres', icon: Users, label: t('syndicate_space.sidebar.members'), route: 'membres' },
         { id: 'evenements', icon: Calendar, label: t('syndicate_space.sidebar.events'), route: 'evenements' },
         { id: 'exprimer', icon: MessageCircle, label: t('syndicate_space.sidebar.express'), route: 'exprimer' },
@@ -33,36 +33,27 @@ export default function SyndicateSidebar({ isCollapsed, onToggle, activeRoute, s
         { id: 'partnerships', icon: Handshake, label: t('syndicate_space.sidebar.partnerships'), route: 'partenariats' },
         { id: 'about', icon: Info, label: t('syndicate_space.sidebar.about'), route: 'a-propos' },
     ];
-    
-    // Fonction pour construire l'URL complète pour chaque lien
-    const buildLink = (route) => `/syndicat-space/${syndicatId}${route ? `/${route}` : ''}`;
 
-    // Fonction pour déterminer si un lien est actif
-    const isActive = (route) => {
-        const fullPath = buildLink(route);
-        // La page d'accueil (route vide) est active seulement si le chemin est exactement celui de la base
-        if (route === '') {
-            return activeRoute === fullPath;
-        }
-        return activeRoute.startsWith(fullPath);
-    };
+    const buildLink = (route) => `/syndicat-space/${syndicatId}${route ? `/${route}` : ''}`;
 
     return (
         <motion.nav
-            // Anime la largeur de la sidebar
-            animate={{ width: isCollapsed ? 80 : 256 }}
+            animate={{ width: isCollapsed ? 96 : 280 }} // Largeurs ajustées pour un meilleur look
             transition={{ duration: 0.3, ease: 'easeInOut' }}
-            // Cachée sur mobile, affichée en flex sur les écrans plus grands
-            className="hidden lg:flex bg-white dark:bg-gray-800 shadow-xl flex-col z-10 border-r dark:border-gray-700"
+            className="hidden lg:flex bg-white/80 dark:bg-gray-800/50 backdrop-blur-sm flex-col z-10 border-r border-gray-200/80 dark:border-white/10"
         >
-            {/* Bouton pour replier/déplier la sidebar */}
-            <div className={`p-4 flex ${isCollapsed ? 'justify-center' : 'justify-end'} border-b dark:border-gray-700`}>
+            {/* Header de la Sidebar */}
+            <div className={`p-4 flex items-center gap-4 border-b border-gray-200/80 dark:border-white/10 transition-all duration-300 ${isCollapsed ? 'justify-center' : 'justify-between'}`}>
+                {!isCollapsed && (
+                    <div className="flex items-center gap-2 overflow-hidden">
+                        <SyndicatDefaultAvatar name="Syndicat" size={40} />
+                        <span className="font-bold text-lg text-gray-800 dark:text-white truncate">Espace Membre</span>
+                    </div>
+                )}
                 <motion.button
-                    whileHover={{ scale: 1.1 }}
-                    whileTap={{ scale: 0.9 }}
                     onClick={onToggle}
                     className="p-2 text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg"
-                    aria-label={isCollapsed ? "Déplier la barre latérale" : "Replier la barre latérale"}
+                    aria-label={isCollapsed ? "Déplier" : "Replier"}
                 >
                     {isCollapsed ? <ChevronRight size={20} /> : <ChevronLeft size={20} />}
                 </motion.button>
@@ -71,27 +62,36 @@ export default function SyndicateSidebar({ isCollapsed, onToggle, activeRoute, s
             {/* Liste des liens de navigation */}
             <div className="flex-grow overflow-y-auto p-4 space-y-2">
                 {navItems.map((item) => {
-                    const active = isActive(item.route);
+                    const fullPath = buildLink(item.route);
+                    const isActive = pathname === fullPath || (item.route !== '' && pathname.startsWith(fullPath));
+                    
                     return (
-                        <Link href={buildLink(item.route)} key={item.id} passHref>
+                        <Link href={fullPath} key={item.id} passHref>
                             <motion.div
-                                className={`group flex items-center w-full px-4 py-3 rounded-xl cursor-pointer transition-all duration-200 ${
+                                className={`relative group flex items-center w-full px-4 py-3 rounded-xl cursor-pointer transition-colors duration-200 ${
                                     isCollapsed ? 'justify-center' : ''
                                 } ${
-                                    active 
-                                        ? 'bg-blue-500 text-white shadow-md' 
-                                        : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
+                                    isActive 
+                                        ? 'text-blue-600 dark:text-blue-300' 
+                                        : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-white'
                                 }`}
-                                whileHover={{ scale: 1.05 }} 
-                                whileTap={{ scale: 0.98 }}
-                                title={isCollapsed ? item.label : ''} // Affiche le nom au survol en mode replié
+                                title={isCollapsed ? item.label : ''}
                             >
-                                <item.icon 
-                                    className={`h-6 w-6 flex-shrink-0 ${isCollapsed ? '' : 'mr-3'}`} 
-                                />
-                                {!isCollapsed && (
-                                    <span className="font-semibold truncate">{item.label}</span>
+                                {/* Indicateur d'activité animé */}
+                                {isActive && (
+                                    <motion.div
+                                        layoutId="active-sidebar-indicator"
+                                        className="absolute inset-0 bg-blue-50 dark:bg-blue-900/50 rounded-xl"
+                                        transition={{ type: 'spring', stiffness: 300, damping: 25 }}
+                                    />
                                 )}
+                                
+                                <div className="relative z-10 flex items-center">
+                                    <item.icon className="h-5 w-5 flex-shrink-0" />
+                                    {!isCollapsed && (
+                                        <span className="font-semibold truncate ml-3">{item.label}</span>
+                                    )}
+                                </div>
                             </motion.div>
                         </Link>
                     );
