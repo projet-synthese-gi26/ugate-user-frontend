@@ -22,18 +22,11 @@ deploy:
       set -e
       echo "📂 Positionnement dans le projet..."
       
-      # Si le dossier n'existe pas, on le clone
-      if [ ! -d "$PROJECT_PATH/.git" ]; then
-        echo "🚧 Clonage du dépôt..."
-        git clone $GIT_REPO $PROJECT_PATH
-      fi
       
       cd $PROJECT_PATH
       echo "🔄 Mise à jour du code..."
       git pull origin master
       
-      echo "📦 Installation des dépendances..."
-      npm install
       
       echo "🛑 Arrêt d’un éventuel process Node sur le port 3000..."
       pkill -f "npm run dev" || true
