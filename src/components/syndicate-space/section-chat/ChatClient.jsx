@@ -3,7 +3,7 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, Send, Paperclip, Mic, ArrowLeft, MoreVertical, Plus, Phone, Video, Lock } from 'lucide-react';
+import { Search, Send, Paperclip, MessageCircle, Mic, ArrowLeft, MoreVertical, Plus, Phone, Video, Lock } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import Image from 'next/image';
 
