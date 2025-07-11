@@ -1,44 +1,97 @@
-
+// src/components/syndicats/SyndicateCard.jsx
 "use client";
 
 import { motion } from "framer-motion";
 import Image from "next/image";
 import { useRouter } from 'next/navigation';
-import { ArrowRightCircle, Users, BarChart2 } from "lucide-react";
-import { useTranslation } from 'react-i18next';
+import { ArrowRightCircle, Users, BarChart2, TrendingUp } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
+const itemVariants = {
+    hidden: { y: 20, opacity: 0 },
+    visible: { y: 0, opacity: 1 },
+};
+
+/**
+ * Affiche la carte d'un syndicat dans la liste "Mes Syndicats".
+ * Gère sa propre navigation vers l'espace du syndicat.
+ * @param {object} syndicat - L'objet syndicat à afficher.
+ */
 export default function SyndicateCard({ syndicat }) {
     const router = useRouter();
     const { t } = useTranslation();
 
-    const handleJoin = () => {
-        // Redirige vers la page de détail ou d'adhésion du syndicat
-        router.push(`/syndicat/${syndicat.id}`);
+    const handleAccessSpace = (syndicatId) => {
+        // Logique de navigation vers l'espace dédié
+        router.push(`/syndicat-space/${syndicatId}`);
+    };
+
+    // Un petit composant pour afficher l'indicateur de tendance
+    const TrendIndicator = ({ trend }) => {
+        switch (trend) {
+            case "up":
+                return <TrendingUp className="h-5 w-5 text-green-500" title="Tendance à la hausse" />;
+            case "down":
+                return <TrendingUp className="h-5 w-5 text-red-500 rotate-180" title="Tendance à la baisse" />;
+            default:
+                return <BarChart2 className="h-5 w-5 text-gray-400 dark:text-gray-500" title="Tendance stable" />;
+        }
     };
 
     return (
         <motion.div
-            className="group bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 border overflow-hidden"
+            className="group bg-white dark:bg-gray-800/50 rounded-2xl shadow-xl hover:shadow-2xl dark:shadow-black/20 transition-all duration-300 border border-gray-100 dark:border-gray-700 overflow-hidden flex flex-col"
+            variants={itemVariants}
             whileHover={{ y: -8 }}
         >
+            {/* --- Image Header --- */}
             <div className="relative aspect-video">
-                <Image src={syndicat.image} alt={syndicat.name} fill style={{ objectFit: 'cover' }} className="transition-transform group-hover:scale-105" />
-                <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-4">
-                    <span className="text-sm font-semibold text-white bg-blue-600/90 rounded-lg px-3 py-1.5">{syndicat.type}</span>
+                <Image
+                    src={syndicat.image || "/placeholder-cover.jpg"}
+                    alt={syndicat.name}
+                    fill
+                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                    style={{ objectFit: 'cover' }}
+                    className="transition-transform duration-500 group-hover:scale-105"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent"></div>
+                <div className="absolute bottom-4 left-4">
+                    <span className="text-sm font-semibold text-white bg-blue-600/90 rounded-lg px-3 py-1.5 shadow-md">
+                        {syndicat.type}
+                    </span>
                 </div>
             </div>
-            <div className="p-6 space-y-4">
-                <h2 className="text-xl font-bold text-gray-900 line-clamp-2 h-14">{syndicat.name}</h2>
-                <div className="flex items-center space-x-2 text-gray-600">
-                    <Users className="h-5 w-5 text-blue-500" />
-                    <span className="text-sm font-medium">{syndicat.members.toLocaleString()} membres</span>
+
+            {/* --- Contenu de la Carte --- */}
+            <div className="p-6 flex flex-col flex-grow">
+                <h2 className="text-xl font-bold text-gray-900 dark:text-white line-clamp-2 leading-snug h-14">
+                    {syndicat.name}
+                </h2>
+
+                <div className="flex items-center justify-between text-gray-600 dark:text-gray-400 my-4">
+                    <div className="flex items-center space-x-2">
+                        <Users className="h-5 w-5 text-blue-500" />
+                        <span className="text-sm font-medium">
+                            {syndicat.members.toLocaleString()} membres
+                        </span>
+                    </div>
+                    <TrendIndicator trend={syndicat.trend} />
                 </div>
-            </div>
-            <div className="px-6 pb-6">
-                <button onClick={handleJoin} className="w-full bg-blue-600 text-white py-3 rounded-xl font-semibold flex items-center justify-center group-hover:bg-blue-700 transition">
-                    <span>{t("syndicats.access_space")}</span>
-                    <ArrowRightCircle className="h-5 w-5 ml-2 group-hover:translate-x-1 transition-transform" />
-                </button>
+                
+                {/* On utilise mt-auto pour pousser le bouton vers le bas */}
+                <div className="mt-auto pt-4 border-t border-gray-100 dark:border-gray-700">
+                    <motion.button
+                        className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-3 rounded-xl hover:shadow-lg transition-all flex items-center justify-center font-semibold group-hover:from-blue-700 group-hover:to-indigo-700"
+                        whileHover={{ scale: 1.03 }}
+                        whileTap={{ scale: 0.98 }}
+                        onClick={() => handleAccessSpace(syndicat.id)}
+                    >
+                        <span>{t("syndicats_page.access_space")}</span>
+                        <ArrowRightCircle
+                            className="h-5 w-5 ml-2 transition-transform duration-300 group-hover:translate-x-1"
+                        />
+                    </motion.button>
+                </div>
             </div>
         </motion.div>
     );
