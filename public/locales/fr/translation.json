@@ -269,6 +269,22 @@
     "save_button": "Enregistrer les modifications",
     "saving_button": "Enregistrement...",
     "success_toast": "Profil mis à jour avec succès !"
-  }
+  },
+
+  "event_form": {
+  "modal_title": "Créer un nouvel événement",
+  "title": "Titre de l'événement",
+  "title_placeholder": "Ex: Assemblée Générale Annuelle",
+  "description": "Description",
+  "description_placeholder": "Décrivez l'objectif et le programme de l'événement...",
+  "start_date": "Date et heure de début",
+  "end_date": "Date et heure de fin",
+  "location": "Lieu",
+  "location_placeholder": "Ex: Salle de conférence principale, 123 Rue du Syndicat",
+  "image": "Image de l'événement (optionnel)",
+  "submit_button": "Créer l'événement",
+  "success_toast": "Événement créé avec succès !"
+}
+
 
 }
