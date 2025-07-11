@@ -8,7 +8,7 @@ import {
     Users, Calendar, MessageCircle, Vote, CreditCard, Handshake, 
     Info, Home, ChevronLeft, ChevronRight 
 } from 'lucide-react';
-import { SyndicatDefaultAvatar } from '../HomePage/localcomponent/SyndicatDefaultAvatar.jsx'; // Réutilisation pour le logo
+import { SyndicatDefaultAvatar } from '@/components/shared/SyndicatDefaultAvatar.jsx'; // Réutilisation pour le logo
 import { usePathname, useParams } from 'next/navigation';
 
 /**
