@@ -1,4 +1,3 @@
-// src/components/dashboard/AppHeader.jsx
 "use client";
 
 import { motion } from "framer-motion";
@@ -7,20 +6,21 @@ import { useTranslation } from "react-i18next";
 import Link from 'next/link';
 import ThemeSwitcher from '../layout/ThemeSwitcher';
 import LanguageSwitcher from '../layout/LanguageSwitcher';
-import { SyndicatDefaultAvatar } from '@/components/shared/SyndicatDefaultAvatar.jsx'; // Pour l'avatar par défaut
+import { SyndicatDefaultAvatar } from '@/components/shared/SyndicatDefaultAvatar.jsx';
+import { useUser } from "@/context/UserContext"; // Import du hook
 
-export default function AppHeader({ isSidebarOpen, userData, onSidebarToggle, onNotificationToggle }) {
+export default function AppHeader({ isSidebarOpen, onSidebarToggle, onNotificationToggle }) { // Ne reçoit plus userData
+    const { user, isLoading } = useUser(); // Récupère les données depuis le contexte
     const { t } = useTranslation();
 
-    // Utilise une image par défaut ou notre avatar générique si profilePictureUrl n'est pas défini
-    const profileImageSrc = userData?.profilePictureUrl || ""; 
-    const displayUserName = userData?.firstName || "Chargement...";
+    const profileImageSrc = !isLoading ? user?.profilePictureUrl : "";
+    const displayUserName = isLoading ? "..." : user?.firstName || "Invité";
 
     return (
         <header className="bg-white dark:bg-gray-900 shadow-md z-30 sticky top-0 border-b dark:border-gray-700">
             <div className="flex justify-between items-center py-3 px-4 sm:px-6 lg:px-8">
-                {/* Left Side */}
-                <div className="flex items-center space-x-4">
+                {/* ... (partie gauche inchangée) ... */}
+                 <div className="flex items-center space-x-4">
                     <button onClick={onSidebarToggle} className="text-gray-600 dark:text-gray-300 hover:text-blue-600">
                         {isSidebarOpen ? <ChevronLeft size={24} /> : <ChevronRight size={24} />}
                     </button>
@@ -32,8 +32,9 @@ export default function AppHeader({ isSidebarOpen, userData, onSidebarToggle, on
 
                 {/* Right Side */}
                 <div className="flex items-center space-x-2 md:space-x-4">
-                    {/* Le champ de recherche */}
-                    <div className="relative hidden sm:block">
+                    {/* ... (recherche, switchers, cloche inchangés) ... */}
+
+                     <div className="relative hidden sm:block">
                         <input type="text" placeholder={t("rechercherPlaceholder1")} className="w-40 md:w-64 pl-10 pr-4 py-2 rounded-full border bg-gray-100 dark:bg-gray-800 dark:border-gray-700" />
                         <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
                     </div>
