@@ -10,8 +10,9 @@ import { useRouter } from 'next/navigation';
 import Swal from 'sweetalert2';
 import { registerWithEmail } from '@/lib/api/auth';
 import PasswordStrengthIndicator from './PasswordStrength';
+import Link from 'next/link'; // Ajouté pour le lien "Déjà enregistré ?"
 
-
+// Composant Alert pour les messages d'erreur de validation
 const Alert = ({ children }) => (
     <div className="flex items-center p-2 mt-1 text-xs text-red-700 bg-red-50 rounded-md">
         <AlertCircle className="w-4 h-4 mr-2 flex-shrink-0" />
@@ -19,7 +20,7 @@ const Alert = ({ children }) => (
     </div>
 );
 
-
+// Composant Input réutilisable avec icône et gestion des erreurs
 const Input = React.forwardRef(({ icon: Icon, error, ...props }, ref) => (
     <div>
         <div className="relative">
@@ -39,7 +40,7 @@ const Input = React.forwardRef(({ icon: Icon, error, ...props }, ref) => (
 ));
 Input.displayName = 'Input';
 
-
+// Composant Button avec animations Framer Motion
 const Button = ({ children, ...props }) => (
     <motion.button
         whileHover={{ scale: 1.05 }}
@@ -51,16 +52,16 @@ const Button = ({ children, ...props }) => (
     </motion.button>
 );
 
-
 export default function RegisterForm() {
     const { register, handleSubmit, formState: { errors }, watch } = useForm({
-        mode: 'onTouched' // La validation se déclenche quand on quitte un champ
+        mode: 'onTouched' // Validation au blur
     });
     const [isLoading, setIsLoading] = useState(false);
     const router = useRouter();
     const { t } = useTranslation();
-    const password = watch('password', '');
+    const password = watch('password', ''); // Surveille le champ password pour l'indicateur de force
 
+    // Valide la complexité du mot de passe
     const validatePassword = (value) => {
         const passwordErrors = [];
         if (value.length < 8) passwordErrors.push(t('register_page.password_strength_8_chars'));
@@ -68,14 +69,16 @@ export default function RegisterForm() {
         if (!/[0-9]/.test(value)) passwordErrors.push(t('register_page.password_strength_number'));
         if (!/[^A-Za-z0-9]/.test(value)) passwordErrors.push(t('register_page.password_strength_special'));
 
-        // Retourne `true` si valide, ou la chaîne des erreurs sinon.
         return passwordErrors.length === 0 || passwordErrors.join(', ');
     };
 
+    // Soumission du formulaire
     const onSubmit = async (data) => {
         setIsLoading(true);
         try {
-            const result = await registerWithEmail(data);
+            // Le backend attend "dateOfBirth" au format YYYY-MM-DD,
+            // ce qui est le format par défaut des inputs type="date".
+            await registerWithEmail(data);
 
             await Swal.fire({
                 icon: 'success',
@@ -85,10 +88,22 @@ export default function RegisterForm() {
             router.push('/login');
 
         } catch (error) {
+            console.error("Erreur d'inscription:", error);
+            let errorMessage = t('register_page.generic_error');
+
+            if (error.response) {
+                // Si le backend renvoie un message d'erreur spécifique (ex: email déjà utilisé)
+                if (error.response.data && error.response.data.message) {
+                    errorMessage = error.response.data.message;
+                } else if (error.response.status === 400) {
+                    errorMessage = t('register_page.validation_error');
+                }
+            }
+            
             Swal.fire({
                 icon: 'error',
                 title: t('register_page.error_title'),
-                text: error.response?.data?.errors?.email || 'Une erreur est survenue lors de l\'inscription.',
+                text: errorMessage,
             });
         } finally {
             setIsLoading(false);
@@ -123,7 +138,7 @@ export default function RegisterForm() {
             <Input
                 icon={Mail}
                 type="email"
-                placeholder={t("login_page.email_placeholder")} // Réutilisation de la clé de la page login
+                placeholder={t("login_page.email_placeholder")}
                 error={errors.email}
                 {...register("email", {
                     required: t("login_page.email_required"),
@@ -152,7 +167,7 @@ export default function RegisterForm() {
                 <Input
                     icon={Lock}
                     type="password"
-                    placeholder={t("login_page.password_placeholder")} // Réutilisation
+                    placeholder={t("login_page.password_placeholder")}
                     error={errors.password}
                     {...register("password", {
                         required: t("login_page.password_required"),
@@ -168,7 +183,7 @@ export default function RegisterForm() {
                 placeholder={t("register_page.password_confirm_placeholder")}
                 error={errors.passwordConfirm}
                 {...register("passwordConfirm", {
-                    required: "Veuillez confirmer votre mot de passe",
+                    required: t("register_page.password_confirm_required"),
                     validate: value => value === password || t("register_page.password_mismatch")
                 })}
             />
@@ -177,6 +192,15 @@ export default function RegisterForm() {
                 <Button type="submit" disabled={isLoading}>
                     {isLoading ? t('register_page.register_button_loading') : t('register_page.register_button')}
                 </Button>
+            </div>
+
+            <div className="mt-8 text-center">
+                <p className="text-gray-600">
+                    {t("register_page.already_registered")}{' '}
+                    <Link href="/login" className="text-blue-500 hover:underline">
+                        {t("register_page.login_here")}
+                    </Link>
+                </p>
             </div>
         </form>
     );

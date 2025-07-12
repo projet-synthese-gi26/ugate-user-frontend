@@ -28,12 +28,6 @@ deploy:
       git pull origin master
       
       
-      echo "🛑 Arrêt d’un éventuel process Node sur le port 3000..."
-      pkill -f "npm run dev" || true
-      kill \$(lsof -t -i:3000) 2>/dev/null || true
-      
-      echo "🚀 Lancement de l’application frontend..."
-      nohup npm run dev > dev.log 2>&1 &
       echo "✅ Déploiement terminé"
       EOF
   only:

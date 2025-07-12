@@ -1,76 +1,42 @@
-
-import api from './instance';
+// src/lib/api/auth.js
+import axios from './instance';
+import Cookies from 'js-cookie';
 
 /**
- * Se connecte avec email et mot de passe.
- * @param {string} email
- * @param {string} password
- * @returns {Promise<any>}
+ * Appelle l'API de connexion et stocke le token JWT en cas de succès.
  */
 export const loginWithEmail = async (email, password) => {
-    const basicAuth = 'Basic ' + btoa('test-client:secret');
-
-
-    const response = await api.post('/login',
-        { username: email, password },
-        {
-            headers: {
-                'Authorization': basicAuth,
-                'Content-Type': 'application/json'
-            }
+    try {
+        const response = await axios.post('/auth/login', { email, password });
+        if (response.data && response.data.token) {
+            // Stocke le token dans un cookie pour la persistance de la session.
+            // `expires: 1` signifie 1 jour. `secure` et `sameSite` sont importants pour la sécurité.
+            Cookies.set('token', response.data.token, { expires: 1, secure: process.env.NODE_ENV === 'production', sameSite: 'Lax' });
         }
-    );
-
-
-    if (response.data.token) {
-        localStorage.setItem('token', response.data.token);
-        localStorage.setItem('user', JSON.stringify(response.data.user));
+        return response.data;
+    } catch (error) {
+        throw error;
     }
-
-    return response.data;
-};
-
-
-/**
- * Gère la connexion avec un code d'autorisation Google.
- * @param {string} authCode
- * @returns {Promise<any>}
- */
-export const loginWithGoogle = async (authCode) => {
-
-    const response = await api.post('/api/google-login', { authCode });
-    // Gérer le stockage du token...
-    return response.data;
 };
 
 /**
- * Gère la connexion avec un code d'autorisation Apple.
- * @param {string} authCode
- * @returns {Promise<any>}
+ * Appelle l'API d'inscription et stocke le token JWT en cas de succès (si l'API le retourne).
  */
-export const loginWithApple = async (authCode) => {
-    const response = await api.post('/api/apple-login', { authorizationCode: authCode, type: "LONG" });
-    // Gérer le stockage du token...
-    return response.data;
+export const registerWithEmail = async (userData) => {
+    try {
+        const response = await axios.post('/auth/register', userData);
+        if (response.data && response.data.token) {
+            Cookies.set('token', response.data.token, { expires: 1, secure: process.env.NODE_ENV === 'production', sameSite: 'Lax' });
+        }
+        return response.data;
+    } catch (error) {
+        throw error;
+    }
 };
 
-
-
 /**
- * Inscrit un nouvel utilisateur.
- * @param {object} data - Les données du formulaire d'inscription.
- * @returns {Promise<any>}
+ * Supprime le token JWT des cookies pour déconnecter l'utilisateur.
  */
-export const registerWithEmail = async (data) => {
-
-    const response = await api.post('/api/register', {
-        username: data.email,
-        name: `${data.firstName} ${data.lastName}`,
-        email: data.email,
-        dateOfBirth: data.dateOfBirth,
-        password: data.password,
-        phone_number: null,
-    });
-
-    return response.data;
+export const logout = () => {
+    Cookies.remove('token');
 };

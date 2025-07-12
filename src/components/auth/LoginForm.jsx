@@ -4,30 +4,44 @@
 import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { motion } from 'framer-motion';
-import { Mail, Lock } from 'lucide-react';
+import { Mail, Lock, AlertCircle } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useRouter } from 'next/navigation';
 import Swal from 'sweetalert2';
 import Link from 'next/link';
-import { loginWithEmail } from '@/lib/api/auth';
+import { loginWithEmail } from '@/lib/api/auth'; // Importe la fonction API de login
 
-const Input = React.forwardRef(({ icon: Icon, ...props }, ref) => (
-    <div className="relative mb-4">
-        <input
-            {...props}
-            ref={ref}
-            className="w-full px-4 py-3 text-gray-700 bg-white border rounded-lg focus:border-blue-400 focus:outline-none focus:ring focus:ring-blue-300 focus:ring-opacity-40 pl-12"
-        />
-        <Icon className="absolute left-3 top-1/2 transform -translate-y-1/2 text-blue-400" size={20} />
+// Composant Input réutilisable avec icône
+const Input = React.forwardRef(({ icon: Icon, error, ...props }, ref) => (
+    <div>
+        <div className="relative mb-4">
+            <input
+                {...props}
+                ref={ref}
+                className={`w-full px-4 py-3 text-gray-700 bg-white border rounded-lg focus:border-blue-400 focus:outline-none focus:ring focus:ring-blue-300 focus:ring-opacity-40 pl-12 transition-colors ${
+                    error ? 'border-red-500' : 'border-gray-300'
+                }`}
+            />
+            <Icon className={`absolute left-3 top-1/2 transform -translate-y-1/2 ${
+                error ? 'text-red-500' : 'text-blue-400'
+            }`} size={20} />
+        </div>
+        {error && (
+            <div className="flex items-center p-2 mt-1 text-xs text-red-700 bg-red-50 rounded-md">
+                <AlertCircle className="w-4 h-4 mr-2 flex-shrink-0" />
+                <span>{error.message}</span>
+            </div>
+        )}
     </div>
 ));
-Input.displayName = 'Input'; // Important pour React DevTools
+Input.displayName = 'Input';
 
+// Composant Button avec animations Framer Motion
 const Button = ({ children, ...props }) => (
     <motion.button
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
-        className="w-full px-6 py-3 text-white bg-blue-500 rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
+        className="w-full px-6 py-3 text-white bg-blue-500 rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 disabled:bg-blue-300 disabled:cursor-not-allowed transition-all duration-200"
         {...props}
     >
         {children}
@@ -40,6 +54,7 @@ export default function LoginForm() {
     const router = useRouter();
     const { t } = useTranslation();
 
+    // Gestionnaire de soumission du formulaire
     const onSubmit = async (data) => {
         setIsLoading(true);
         try {
@@ -52,13 +67,31 @@ export default function LoginForm() {
                 timer: 1500,
                 showConfirmButton: false,
             });
-            router.push('/dashboard'); // Ou la page d'accueil de l'utilisateur connecté
+            router.push('/home'); // Redirige vers la page d'accueil de l'utilisateur connecté
 
         } catch (error) {
+            console.error("Erreur de connexion:", error);
+            let errorMessage = t('login_page.generic_error');
+
+            if (error.response) {
+                // Erreurs HTTP spécifiques de l'API (401 BadCredentialsException, 403 DisabledException)
+                if (error.response.status === 401) {
+                    errorMessage = t('login_page.invalid_credentials');
+                } else if (error.response.status === 403) {
+                    errorMessage = t('login_page.account_disabled');
+                } else if (error.response.data && error.response.data.message) {
+                    // Si le backend renvoie un DTO d'erreur avec un message spécifique
+                    errorMessage = error.response.data.message;
+                }
+            } else if (error.message === "Token expiré" || error.message === "Token invalide") {
+                // Erreur de token détectée côté client par l'intercepteur de requête
+                errorMessage = t('login_page.token_invalid_expired');
+            }
+
             Swal.fire({
                 icon: 'error',
-                title: 'Erreur de connexion',
-                text: error.response?.data?.message || 'Vos identifiants sont incorrects. Veuillez réessayer.',
+                title: t('login_page.error_title'),
+                text: errorMessage,
             });
         } finally {
             setIsLoading(false);
@@ -72,6 +105,7 @@ export default function LoginForm() {
                     icon={Mail}
                     type="email"
                     placeholder={t('login_page.email_placeholder')}
+                    error={errors.email}
                     {...register("email", {
                         required: t('login_page.email_required'),
                         pattern: {
@@ -80,7 +114,6 @@ export default function LoginForm() {
                         }
                     })}
                 />
-                {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email.message}</p>}
             </div>
 
             <div>
@@ -88,14 +121,15 @@ export default function LoginForm() {
                     icon={Lock}
                     type="password"
                     placeholder={t('login_page.password_placeholder')}
+                    error={errors.password}
                     {...register("password", {
                         required: t('login_page.password_required'),
                     })}
                 />
-                {errors.password && <p className="text-red-500 text-xs mt-1">{errors.password.message}</p>}
             </div>
 
             <div className="flex items-center justify-between mb-4">
+                {/* Checkbox "Se souvenir de moi" (logique non implémentée côté client/server pour le moment) */}
                 <div className="flex items-center">
                     <input
                         type="checkbox"
@@ -107,13 +141,15 @@ export default function LoginForm() {
                         {t("login_page.remember_me")}
                     </label>
                 </div>
+                {/* Lien "Mot de passe oublié ?" */}
                 <div className="text-sm">
-                    <Link href="/forgot-password" className="font-medium text-blue-600 hover:text-blue-500">
+                    <Link href="/forgot-password" className="font-medium text-blue-600 hover:underline">
                         {t("login_page.forgot_password")} ?
                     </Link>
                 </div>
             </div>
 
+            {/* Bouton de soumission */}
             <Button type="submit" disabled={isLoading}>
                 {isLoading ? t('login_page.login_button_loading') : t("login_page.login_button")}
             </Button>
