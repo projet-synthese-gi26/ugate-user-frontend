@@ -11,7 +11,7 @@ export const loginWithEmail = async (email, password) => {
     const basicAuth = 'Basic ' + btoa('test-client:secret');
 
 
-    const response = await api.post('/api/login',
+    const response = await api.post('/login',
         { username: email, password },
         {
             headers: {
