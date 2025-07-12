@@ -20,7 +20,7 @@ export const getAuthenticatedUserProfile = async () => {
       
         const response = axios.get(`/profile?email=${email}`);
           console.log("API a répondu avec le profil :", response);
-          console.log("API a répondu avec le profil :", response.data);
+          console.log("API a répondu avec le profil 2 :", response.data);
         return response.data;
     } catch (error) {
         console.error(`Erreur lors de la récupération du profil pour l'utilisateur ${email}:`, error);
