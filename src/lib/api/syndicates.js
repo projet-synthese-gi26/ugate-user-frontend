@@ -25,18 +25,25 @@ export const createSyndicateAPI = async (formData) => {
 
 
 export const getMySyndicatesAPI = async () => {
-    const userEmail = localStorage.getItem('userEmail');
+    console.log("getMySyndicatesAPI: Fonction appelée.");
+
+    const userEmail = localStorage.getItem('email');
+    
+    console.log("getMySyndicatesAPI: userEmail récupéré du localStorage :", userEmail);
+
     if (!userEmail) {
+        console.error("getMySyndicatesAPI: userEmail est manquant. Annulation de l'appel API.");
         return Promise.reject(new Error("Utilisateur non connecté."));
     }
 
     try {
+        console.log(`getMySyndicatesAPI: Envoi de la requête GET à /syndicates/my-syndicates avec l'email: ${userEmail}`);
         const response = await axios.get('/syndicates/my-syndicates', {
-            params: { userEmail } // Envoie l'email comme paramètre de requête
+            params: { userEmail }
         });
-        return response.data; // Renvoie la liste des syndicats
+        return response.data;
     } catch (error) {
-        console.error("Erreur lors de la récupération de 'Mes Syndicats':", error);
+        console.error("getMySyndicatesAPI: Erreur lors de l'appel Axios:", error);
         throw error;
     }
 };
