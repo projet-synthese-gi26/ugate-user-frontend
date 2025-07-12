@@ -1,23 +1,25 @@
-// src/components/dashboard/WelcomeSection.jsx
 "use client";
 
 import { useState } from "react";
 import { Zap } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import CreateSyndicateModal from "@/components/syndicats/CreateSyndicateModal";
+import { useUser } from "@/context/UserContext"; // Importe notre hook
 
-export default function WelcomeSection({ userData }) { // Reçoit userData du layout
+export default function WelcomeSection() { // Plus besoin de props
+    const { user, isLoading } = useUser(); // Récupère les données depuis le contexte
     const { t } = useTranslation();
     const [isModalOpen, setIsModalOpen] = useState(false);
 
-    const fullName = `${userData?.firstName || ''} ${userData?.lastName || ''}`.trim(); // Construit le nom complet
+    // Construit le nom complet. Gère le cas où `user` n'est pas encore chargé.
+    const fullName = isLoading ? "..." : `${user?.firstName || ''} ${user?.lastName || ''}`.trim();
 
     return (
         <>
             <div className="text-center mb-12">
                 <h1 className="text-4xl md:text-5xl font-bold mb-4">
                     <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                        {t('dashboard.welcome', { name: fullName || "Cher utilisateur" })} {/* Fallback si nom pas encore chargé */}
+                        {t('dashboard.welcome', { name: fullName || t('dashboard.dear_user') })}
                     </span>
                 </h1>
                 <p className="text-xl text-gray-600 mb-8">
