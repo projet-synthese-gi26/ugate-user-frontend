@@ -1,4 +1,3 @@
-// src/components/syndicats/SyndicateCard.jsx
 "use client";
 
 import { motion } from "framer-motion";
@@ -12,21 +11,14 @@ const itemVariants = {
     visible: { y: 0, opacity: 1 },
 };
 
-/**
- * Affiche la carte d'un syndicat dans la liste "Mes Syndicats".
- * Gère sa propre navigation vers l'espace du syndicat.
- * @param {object} syndicat - L'objet syndicat à afficher.
- */
 export default function SyndicateCard({ syndicat }) {
     const router = useRouter();
     const { t } = useTranslation();
 
     const handleAccessSpace = (syndicatId) => {
-        // Logique de navigation vers l'espace dédié
         router.push(`/syndicat-space/${syndicatId}`);
     };
 
-    // Un petit composant pour afficher l'indicateur de tendance
     const TrendIndicator = ({ trend }) => {
         switch (trend) {
             case "up":
@@ -38,16 +30,18 @@ export default function SyndicateCard({ syndicat }) {
         }
     };
 
+    // CORRECTION ICI : On utilise syndicat.memberCount et on ajoute un fallback `|| 0`
+    const memberDisplayCount = (syndicat.memberCount || 0).toLocaleString();
+
     return (
         <motion.div
             className="group bg-white dark:bg-gray-800/50 rounded-2xl shadow-xl hover:shadow-2xl dark:shadow-black/20 transition-all duration-300 border border-gray-100 dark:border-gray-700 overflow-hidden flex flex-col"
             variants={itemVariants}
             whileHover={{ y: -8 }}
         >
-            {/* --- Image Header --- */}
             <div className="relative aspect-video">
                 <Image
-                    src={syndicat.image || "/placeholder-cover.jpg"}
+                    src={syndicat.bannerUrl || "/placeholder-cover.jpg"}
                     alt={syndicat.name}
                     fill
                     sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
@@ -57,12 +51,11 @@ export default function SyndicateCard({ syndicat }) {
                 <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent"></div>
                 <div className="absolute bottom-4 left-4">
                     <span className="text-sm font-semibold text-white bg-blue-600/90 rounded-lg px-3 py-1.5 shadow-md">
-                        {syndicat.type}
+                        {syndicat.type || 'Syndicat'}
                     </span>
                 </div>
             </div>
 
-            {/* --- Contenu de la Carte --- */}
             <div className="p-6 flex flex-col flex-grow">
                 <h2 className="text-xl font-bold text-gray-900 dark:text-white line-clamp-2 leading-snug h-14">
                     {syndicat.name}
@@ -72,13 +65,13 @@ export default function SyndicateCard({ syndicat }) {
                     <div className="flex items-center space-x-2">
                         <Users className="h-5 w-5 text-blue-500" />
                         <span className="text-sm font-medium">
-                            {syndicat.members.toLocaleString()} membres
+                            {/* On utilise la variable corrigée */}
+                            {memberDisplayCount} membres
                         </span>
                     </div>
                     <TrendIndicator trend={syndicat.trend} />
                 </div>
                 
-                {/* On utilise mt-auto pour pousser le bouton vers le bas */}
                 <div className="mt-auto pt-4 border-t border-gray-100 dark:border-gray-700">
                     <motion.button
                         className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-3 rounded-xl hover:shadow-lg transition-all flex items-center justify-center font-semibold group-hover:from-blue-700 group-hover:to-indigo-700"
