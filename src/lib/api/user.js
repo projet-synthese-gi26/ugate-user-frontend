@@ -6,24 +6,25 @@ import axios from './instance';
  * @returns {Promise<object>} Le DTO UserProfileResponse.
  */
 export const getAuthenticatedUserProfile = async () => {
-    // Récupère l'ID de l'utilisateur depuis le localStorage
     const email = localStorage.getItem('email');
 
-    // Si aucun ID n'est trouvé, l'utilisateur n'est pas "connecté".
     if (!email) {
-        console.error("Aucun userId trouvé dans le localStorage. L'utilisateur doit se connecter.");
-        // Rejette la promesse pour que le composant appelant sache qu'il y a une erreur.
+        console.error("Aucun email trouvé dans le localStorage. L'utilisateur doit se connecter.");
         return Promise.reject(new Error("Utilisateur non connecté."));
     }
 
     try {
-      
-        const response = axios.get(`/profile?email=${email}`);
-          console.log("API a répondu avec le profil :", response);
-          console.log("API a répondu avec le profil 2 :", response.data);
+        const response = await axios.get('/profile', {
+            params: {
+                email: email
+            }
+        });
+        
+        console.log("API a répondu avec le profil :", response);
+        console.log("API a répondu avec le profil 2 :", response.data);
         return response.data;
     } catch (error) {
         console.error(`Erreur lors de la récupération du profil pour l'utilisateur ${email}:`, error);
-        throw error; // Propage l'erreur
+        throw error;
     }
 };
