@@ -40,3 +40,22 @@ export const registerWithEmail = async (userData) => {
 export const logout = () => {
     Cookies.remove('token');
 };
+
+
+
+export const loginWithGoogle = async (authCode) => {
+    console.warn("Fonction loginWithGoogle non implémentée côté backend.");
+    
+    return Promise.reject(new Error("Login Google non implémenté pour l'instant.")); // Rejette pour que le toast d'erreur s'affiche
+};
+
+/**
+ * Simule la connexion avec Apple. Nécessitera une implémentation backend réelle.
+ * @param {string} authCode Le code d'autorisation d'Apple.
+ * @returns {Promise<object>}
+ */
+export const loginWithApple = async (authCode) => {
+    console.warn("Fonction loginWithApple non implémentée côté backend.");
+   
+    return Promise.reject(new Error("Login Apple non implémenté pour l'instant.")); // Rejette pour que le toast d'erreur s'affiche
+};
