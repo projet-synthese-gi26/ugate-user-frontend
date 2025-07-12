@@ -8,7 +8,7 @@ import { useTranslation } from "react-i18next";
 import { Calendar, MapPin, Clock, Users, User, CheckCircle } from "lucide-react";
 import { SyndicatDefaultAvatar } from '@/components/shared/SyndicatDefaultAvatar.jsx'; // Import du composant d'avatar par défaut
 
-// Composant InfoPill (inchangé)
+// InfoPill (inchangé)
 const InfoPill = ({ icon: Icon, text, colorClass = 'blue' }) => (
     <div className={`flex items-center px-3 py-1.5 bg-${colorClass}-50 dark:bg-${colorClass}-900/50 rounded-full`}>
         <Icon className={`w-4 h-4 mr-2 text-${colorClass}-500 dark:text-${colorClass}-400`} />
@@ -28,7 +28,6 @@ export default function EventCard({ event, onUpdateEvent, onShowParticipants }) 
         const newParticipationState = !isParticipating;
         setIsParticipating(newParticipationState);
         
-        // Assure-toi que event.participants est toujours un tableau
         const currentParticipants = event.participants || []; 
         const updatedParticipants = newParticipationState
             ? [...currentParticipants, { name: "Vous" }]
@@ -73,20 +72,23 @@ export default function EventCard({ event, onUpdateEvent, onShowParticipants }) 
 
             <div className="p-6">
                 <div className="flex items-center mb-5">
-                    {/* LOGIQUE D'AFFICHAGE DE L'AVATAR MISE À JOUR */}
-                    {event.author?.profileImage ? (
+                    {/* LOGIQUE D'AFFICHAGE DE L'AVATAR MISE À JOUR : Plus robuste */}
+                    {event.author && event.author.profileImage ? ( // Vérifie si event.author existe ET si profileImage est truthy
                         <Image 
-                            src={event.author.profileImage} 
+                            // Ici, nous sommes certains que event.author et event.author.profileImage existent et ne sont pas null/undefined.
+                            // L'ajout de || "/default-avatar.png" est une double sécurité, au cas où profileImage serait "" (chaîne vide)
+                            src={event.author.profileImage || "/default-avatar.png"} 
                             alt={event.author.name || "Auteur"} 
                             width={40} height={40} 
                             className="w-10 h-10 rounded-full object-cover" 
                         />
                     ) : (
-                        // Utilise SyndicatDefaultAvatar pour une image par défaut adaptée au contexte
+                        // Cette branche est exécutée si event.author est null/undefined, 
+                        // ou si event.author.profileImage est falsy (null, undefined, "" vide).
                         <SyndicatDefaultAvatar 
-                            name={event.author?.name || "User"} // Passe le nom de l'auteur ou "User" comme fallback
-                            size={40} // La même taille que l'image standard
-                            className="w-10 h-10" // Assure que les classes Tailwind pour la taille sont appliquées
+                            name={event.author?.name || "User"} // Utilise toujours le chaînage optionnel pour le nom
+                            size={40} 
+                            className="w-10 h-10" 
                         />
                     )}
                     <div className="ml-3">
