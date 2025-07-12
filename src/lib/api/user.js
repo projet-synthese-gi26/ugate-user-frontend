@@ -17,9 +17,8 @@ export const getAuthenticatedUserProfile = async () => {
     }
 
     try {
-        // Construit l'URL avec l'ID de l'utilisateur.
-        // Assure-toi que ton UserController backend est sur `/api/users`.
-        const response = await axios.get(`/users/${email}/profile`);
+      
+        const response = await axios.post('/profile', { email });
         return response.data;
     } catch (error) {
         console.error(`Erreur lors de la récupération du profil pour l'utilisateur ${email}:`, error);
