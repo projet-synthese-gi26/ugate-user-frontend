@@ -1,17 +1,15 @@
-// src/components/forms/create-syndicate/CreateSyndicateWizard.jsx
 "use client";
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Swal from 'sweetalert2';
-import { createSyndicate } from '@/lib/api/syndicates'; // Importation de la fonction API
+import { createSyndicateAPI } from '@/lib/api/syndicates';
+import { useUser } from '@/context/UserContext';
 
-// Importation des composants pour chaque étape
 import Step1_TypeSelection from './Step1_TypeSelection';
 import Step2_AnonymousForm from './Step2_AnonymousForm';
 import Step3_Antennes from './Step3_Antennes';
 
-// Ce composant est un placeholder pour l'étape de création de syndicat accrédité
 const Step2Accredited = ({ goBackToStep1 }) => (
     <div className="p-8 text-center">
         <h2 className="text-2xl font-bold mb-4">Fonctionnalité à venir</h2>
@@ -20,33 +18,24 @@ const Step2Accredited = ({ goBackToStep1 }) => (
     </div>
 );
 
-
-/**
- * Le "wizard" ou assistant qui guide l'utilisateur à travers les étapes
- * de la création d'un syndicat.
- */
 export function CreateSyndicateWizard({ onSuccess }) {
+    const { user } = useUser();
     const [currentStep, setCurrentStep] = useState(1);
-    const [syndicatType, setSyndicatType] = useState(""); // "anonymous" ou "accredited"
+    const [syndicatType, setSyndicatType] = useState("");
 
-    // État centralisé pour toutes les données du formulaire
     const [formData, setFormData] = useState({
-        long_name: "",
-        short_name: "",
+        name: "",
+        shortName: "",
         email: "",
         description: "",
-        type: "SOLE_PROPRIETORSHIP", // Valeur par défaut
-        business_domains: [],
-        web_site_url: "",
-        social_network: "",
-        logo_url: null,
-        ceo_name: "",
+        type: "SOLE_PROPRIETORSHIP",
+        foundedDate: new Date().toISOString().split('T')[0],
+        logoFile: null,
     });
 
     const [antennes, setAntennes] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
 
-    // Fonctions de navigation entre les étapes
     const handleTypeSelection = (type) => {
         setSyndicatType(type);
         setCurrentStep(2);
@@ -59,42 +48,63 @@ export function CreateSyndicateWizard({ onSuccess }) {
     };
     const goBackToStep2 = () => setCurrentStep(2);
 
-    // Soumission finale du formulaire
     const handleSubmit = async () => {
         setIsLoading(true);
         try {
-            const payload = { ...formData, antennes };
+            const submissionFormData = new FormData();
 
-            // On peut ajouter une validation finale ici si besoin
-            if (!payload.long_name || !payload.email) {
-                throw new Error("Le nom et l'email du syndicat sont obligatoires.");
+            const syndicateData = {
+                name: formData.name,
+                shortName: formData.shortName,
+                email: formData.email,
+                description: formData.description,
+                type: formData.type,
+                foundedDate: formData.foundedDate,
+                creatorEmail: user.email,
+                branches: antennes.map(antenne => ({
+                    name: antenne.name,
+                    locationText: antenne.name,
+                    latitude: antenne.latitude,
+                    longitude: antenne.longitude
+                }))
+            };
+
+            submissionFormData.append(
+                'syndicateData', 
+                new Blob([JSON.stringify(syndicateData)], { type: 'application/json' })
+            );
+
+            if (formData.logoFile) {
+                submissionFormData.append('logoFile', formData.logoFile);
+            } else {
+                throw new Error("Le logo est obligatoire.");
             }
 
-            const result = await createSyndicate(payload);
+            const result = await createSyndicateAPI(submissionFormData);
 
             await Swal.fire({
                 icon: 'success',
                 title: 'Syndicat créé !',
-                text: `Le syndicat "${result.long_name}" a été créé avec succès.`,
+                text: `Le syndicat "${result.name}" a été créé avec succès.`,
                 timer: 2000,
                 showConfirmButton: false,
             });
 
             if (onSuccess) {
-                onSuccess(); // Appelle la fonction pour fermer la modale
+                onSuccess();
             }
 
         } catch (err) {
             Swal.fire({
                 icon: 'error',
                 title: 'Erreur',
-                text: err.message || "Une erreur est survenue lors de la création.",
+                text: err.response?.data?.message || "Une erreur est survenue lors de la création.",
             });
         } finally {
             setIsLoading(false);
         }
     };
-
+    
     const animationProps = {
         initial: { opacity: 0, x: 30 },
         animate: { opacity: 1, x: 0 },
@@ -118,18 +128,14 @@ export function CreateSyndicateWizard({ onSuccess }) {
                                 initialData={formData}
                                 onNext={goToStep3}
                                 onBack={goBackToStep1}
+                                setFormData={setFormData}
                             />
                         </motion.div>
                     );
                 }
                 if (syndicatType === "accredited") {
-                    return (
-                        <motion.div key="step2-accred" {...animationProps}>
-                            <Step2Accredited goBackToStep1={goBackToStep1} />
-                        </motion.div>
-                    );
+                    return <Step2Accredited goBackToStep1={goBackToStep1} />;
                 }
-                // Fallback si le type n'est pas défini, retourne à l'étape 1
                 return goBackToStep1();
             case 3:
                 return (
@@ -144,11 +150,7 @@ export function CreateSyndicateWizard({ onSuccess }) {
                     </motion.div>
                 );
             default:
-                return (
-                    <motion.div key="default" {...animationProps}>
-                        <Step1_TypeSelection handleTypeSelection={handleTypeSelection} />
-                    </motion.div>
-                );
+                return <Step1_TypeSelection handleTypeSelection={handleTypeSelection} />;
         }
     };
 
