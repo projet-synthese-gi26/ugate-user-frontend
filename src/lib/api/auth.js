@@ -12,7 +12,7 @@ export const loginWithEmail = async (email, password) => {
                 localStorage.setItem('token', response.data.token);
             }
             if (response.data.userId) {
-                localStorage.setItem('userId', response.data.userId);
+                localStorage.setItem('email', response.data.email);
                 console.log("UserID a été stocké dans le localStorage:", response.data.userId);
             }
         }
@@ -30,7 +30,7 @@ export const registerWithEmail = async (userData) => {
         const response = await axios.post('/auth/register', userData);
         if (response.data) {
             if (response.data.token) localStorage.setItem('token', response.data.token);
-            if (response.data.userId) localStorage.setItem('userId', response.data.userId);
+            if (response.data.userId) localStorage.setItem('email', response.data.email);
         }
         return response.data;
     } catch (error) {
@@ -41,7 +41,7 @@ export const registerWithEmail = async (userData) => {
 
 export const logout = () => {
     localStorage.removeItem('token');
-    localStorage.removeItem('userId');
+    localStorage.removeItem('email');
 };
 
 
