@@ -1,4 +1,5 @@
-import axios from './instance';
+// src/lib/api/syndicates.js
+import axios from './instance'; // On utilise toujours notre instance configurée
 
 /**
  * Crée un nouveau syndicat en envoyant les données et le logo.
@@ -7,9 +8,14 @@ import axios from './instance';
  */
 export const createSyndicateAPI = async (formData) => {
     try {
-        // CORRECTION : On ne spécifie PAS le Content-Type.
-        // On laisse le navigateur le générer automatiquement pour multipart/form-data.
-        const response = await axios.post('/syndicates', formData);
+        // CORRECTION : On surcharge l'en-tête Content-Type pour cet appel spécifique.
+        // En passant 'multipart/form-data', on dit à Axios de NE PAS sérialiser en JSON
+        // et de laisser le navigateur construire la requête multipart correctement avec le bon 'boundary'.
+        const response = await axios.post('/syndicates', formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data',
+            },
+        });
         return response.data;
     } catch (error) {
         console.error("Erreur lors de la création du syndicat :", error.response?.data || error.message);
