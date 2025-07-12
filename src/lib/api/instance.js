@@ -8,34 +8,12 @@ const axiosInstance = axios.create({
     },
 });
 
-// Intercepteur pour ajouter le token JWT à chaque requête sortante.
-axiosInstance.interceptors.request.use(
-    (config) => {
-        // Lecture du token depuis le localStorage
-        const token = localStorage.getItem('token');
-        
-        console.log("Interceptor: Token from localStorage:", token);
-
-        if (token) {
-            config.headers.Authorization = `Bearer ${token}`;
-            console.log("Interceptor: Authorization header set.");
-        } else {
-            console.warn("Interceptor: No token found in localStorage.");
-        }
-        return config;
-    },
-    (error) => {
-        return Promise.reject(error);
-    }
-);
-
-// L'intercepteur de réponse pour la redirection en cas de 401/403
 axiosInstance.interceptors.response.use(
     (response) => response,
     (error) => {
         if (error.response && (error.response.status === 401 || error.response.status === 403)) {
-            console.error(`Interceptor: Authentication/Authorization error (${error.response.status}). Removing token and redirecting to login.`);
-            localStorage.removeItem('token'); // Nettoie le token invalide
+            localStorage.removeItem('token');
+            localStorage.removeItem('userId');
             if (typeof window !== 'undefined' && window.location.pathname !== '/login') {
                 window.location.href = '/login';
             }
@@ -43,5 +21,6 @@ axiosInstance.interceptors.response.use(
         return Promise.reject(error);
     }
 );
+
 
 export default axiosInstance;

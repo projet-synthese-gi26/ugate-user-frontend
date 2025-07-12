@@ -5,9 +5,16 @@ import Cookies from 'js-cookie';
 export const loginWithEmail = async (email, password) => {
     try {
         const response = await axios.post('/auth/login', { email, password });
-        if (response.data && response.data.token) {
-            localStorage.setItem('token', response.data.token);
-            console.log("Token a été stocké dans le localStorage.");
+        
+        // La réponse contient maintenant { token: "...", userId: "..." }
+        if (response.data) {
+            if (response.data.token) {
+                localStorage.setItem('token', response.data.token);
+            }
+            if (response.data.userId) {
+                localStorage.setItem('userId', response.data.userId);
+                console.log("UserID a été stocké dans le localStorage:", response.data.userId);
+            }
         }
         return response.data;
     } catch (error) {
@@ -16,13 +23,14 @@ export const loginWithEmail = async (email, password) => {
 };
 
 /**
- * Appelle l'API d'inscription et stocke le token JWT dans le localStorage.
+ * Appelle l'API d'inscription et stocke les informations reçues.
  */
 export const registerWithEmail = async (userData) => {
     try {
         const response = await axios.post('/auth/register', userData);
-        if (response.data && response.data.token) {
-            localStorage.setItem('token', response.data.token);
+        if (response.data) {
+            if (response.data.token) localStorage.setItem('token', response.data.token);
+            if (response.data.userId) localStorage.setItem('userId', response.data.userId);
         }
         return response.data;
     } catch (error) {
@@ -30,8 +38,10 @@ export const registerWithEmail = async (userData) => {
     }
 };
 
+
 export const logout = () => {
     localStorage.removeItem('token');
+    localStorage.removeItem('userId');
 };
 
 
