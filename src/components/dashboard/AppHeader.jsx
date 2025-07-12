@@ -5,11 +5,16 @@ import { motion } from "framer-motion";
 import { Bell, Building, ChevronLeft, ChevronRight, Search } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import Link from 'next/link';
-import ThemeSwitcher from '../layout/ThemeSwitcher'; // <-- Importer le sélecteur de thème
-import LanguageSwitcher from '../layout/LanguageSwitcher'; // <-- Importer le sélecteur de langue
+import ThemeSwitcher from '../layout/ThemeSwitcher';
+import LanguageSwitcher from '../layout/LanguageSwitcher';
+import { SyndicatDefaultAvatar } from '@/components/shared/SyndicatDefaultAvatar.jsx'; // Pour l'avatar par défaut
 
 export default function AppHeader({ isSidebarOpen, userData, onSidebarToggle, onNotificationToggle }) {
     const { t } = useTranslation();
+
+    // Utilise une image par défaut ou notre avatar générique si profilePictureUrl n'est pas défini
+    const profileImageSrc = userData?.profilePictureUrl || ""; 
+    const displayUserName = userData?.firstName || "Chargement...";
 
     return (
         <header className="bg-white dark:bg-gray-900 shadow-md z-30 sticky top-0 border-b dark:border-gray-700">
@@ -27,13 +32,12 @@ export default function AppHeader({ isSidebarOpen, userData, onSidebarToggle, on
 
                 {/* Right Side */}
                 <div className="flex items-center space-x-2 md:space-x-4">
-                    {/* Le champ de recherche peut être masqué sur les petits écrans */}
+                    {/* Le champ de recherche */}
                     <div className="relative hidden sm:block">
                         <input type="text" placeholder={t("rechercherPlaceholder1")} className="w-40 md:w-64 pl-10 pr-4 py-2 rounded-full border bg-gray-100 dark:bg-gray-800 dark:border-gray-700" />
                         <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
                     </div>
 
-                    {/* --- NOUVEAUX COMPOSANTS AJOUTÉS ICI --- */}
                     <ThemeSwitcher />
                     <LanguageSwitcher />
 
@@ -44,8 +48,12 @@ export default function AppHeader({ isSidebarOpen, userData, onSidebarToggle, on
 
                     <Link href="/parametres" passHref>
                         <div className="flex items-center space-x-2 cursor-pointer p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800">
-                            <img src={userData?.profile} alt="Profil" className="w-9 h-9 rounded-full object-cover" />
-                            <span className="hidden lg:inline font-semibold text-gray-700 dark:text-gray-300">{userData?.firstName}</span>
+                            {profileImageSrc ? (
+                                <img src={profileImageSrc} alt="Profil" className="w-9 h-9 rounded-full object-cover" />
+                            ) : (
+                                <SyndicatDefaultAvatar name={displayUserName} size={36} className="w-9 h-9" />
+                            )}
+                            <span className="hidden lg:inline font-semibold text-gray-700 dark:text-gray-300">{displayUserName}</span>
                         </div>
                     </Link>
                 </div>
