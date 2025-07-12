@@ -6,9 +6,9 @@ import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import { useTranslation } from "react-i18next";
 import { Calendar, MapPin, Clock, Users, User, CheckCircle } from "lucide-react";
-import { SyndicatDefaultAvatar } from '@/components/shared/SyndicatDefaultAvatar.jsx'; // Import du composant d'avatar par défaut
+import { SyndicatDefaultAvatar } from '@/components/shared/SyndicatDefaultAvatar.jsx';
 
-// InfoPill (inchangé)
+// Composant InfoPill (inchangé)
 const InfoPill = ({ icon: Icon, text, colorClass = 'blue' }) => (
     <div className={`flex items-center px-3 py-1.5 bg-${colorClass}-50 dark:bg-${colorClass}-900/50 rounded-full`}>
         <Icon className={`w-4 h-4 mr-2 text-${colorClass}-500 dark:text-${colorClass}-400`} />
@@ -21,14 +21,19 @@ export default function EventCard({ event, onUpdateEvent, onShowParticipants }) 
     const [isParticipating, setIsParticipating] = useState(false);
     const { t } = useTranslation();
 
-    const formattedDate = new Date(event.startDate).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
-    const formattedTime = `${new Date(event.startDate).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })} - ${new Date(event.endDate).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}`;
+    // S'assurer que event.startDate et event.endDate sont des objets Date valides
+    const startDate = event.startDate ? new Date(event.startDate) : new Date();
+    const endDate = event.endDate ? new Date(event.endDate) : new Date();
+
+    const formattedDate = startDate.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
+    const formattedTime = `${startDate.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })} - ${endDate.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}`;
 
     const handleParticipate = () => {
         const newParticipationState = !isParticipating;
         setIsParticipating(newParticipationState);
         
-        const currentParticipants = event.participants || []; 
+        // S'assurer que event.participants est un tableau avant de le manipuler
+        const currentParticipants = Array.isArray(event.participants) ? [...event.participants] : [];
         const updatedParticipants = newParticipationState
             ? [...currentParticipants, { name: "Vous" }]
             : currentParticipants.filter(p => p.name !== "Vous");
@@ -37,6 +42,10 @@ export default function EventCard({ event, onUpdateEvent, onShowParticipants }) 
             onUpdateEvent({ ...event, participants: updatedParticipants });
         }
     };
+
+    // Utilisation de Array.isArray pour la robustesse sur le nombre de participants
+    const participantsCount = Array.isArray(event.participants) ? event.participants.length : 0;
+    const participantsToDisplay = Array.isArray(event.participants) ? event.participants : [];
 
     return (
         <motion.div
@@ -72,21 +81,16 @@ export default function EventCard({ event, onUpdateEvent, onShowParticipants }) 
 
             <div className="p-6">
                 <div className="flex items-center mb-5">
-                    {/* LOGIQUE D'AFFICHAGE DE L'AVATAR MISE À JOUR : Plus robuste */}
-                    {event.author && event.author.profileImage ? ( // Vérifie si event.author existe ET si profileImage est truthy
+                    {event.author && event.author.profileImage ? (
                         <Image 
-                            // Ici, nous sommes certains que event.author et event.author.profileImage existent et ne sont pas null/undefined.
-                            // L'ajout de || "/default-avatar.png" est une double sécurité, au cas où profileImage serait "" (chaîne vide)
                             src={event.author.profileImage || "/default-avatar.png"} 
                             alt={event.author.name || "Auteur"} 
                             width={40} height={40} 
                             className="w-10 h-10 rounded-full object-cover" 
                         />
                     ) : (
-                        // Cette branche est exécutée si event.author est null/undefined, 
-                        // ou si event.author.profileImage est falsy (null, undefined, "" vide).
                         <SyndicatDefaultAvatar 
-                            name={event.author?.name || "User"} // Utilise toujours le chaînage optionnel pour le nom
+                            name={event.author?.name || "User"}
                             size={40} 
                             className="w-10 h-10" 
                         />
@@ -103,24 +107,30 @@ export default function EventCard({ event, onUpdateEvent, onShowParticipants }) 
                 </div>
 
                 <motion.p layout className="text-gray-700 dark:text-gray-300 mb-5 leading-relaxed text-sm">
-                    {isExpanded ? event.description : `${event.description.slice(0, 120)}...`}
-                    <button onClick={() => setIsExpanded(!isExpanded)} className="ml-1 text-blue-500 hover:underline font-semibold text-sm">
-                        {isExpanded ? t("events_page.see_less") : t("events_page.see_more")}
-                    </button>
+                    {isExpanded ? event.description : `${(event.description || '').slice(0, 120)}...`}
+                    {(event.description || '').length > 120 && (
+                        <button onClick={() => setIsExpanded(!isExpanded)} className="ml-1 text-blue-500 hover:underline font-semibold text-sm">
+                            {isExpanded ? t("events_page.see_less") : t("events_page.see_more")}
+                        </button>
+                    )}
                 </motion.p>
                 
                 <button onClick={() => onShowParticipants(event)} className="flex items-center justify-between w-full text-sm text-gray-600 dark:text-gray-400 mb-6 p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700/50">
                     <div className="flex items-center">
                         <Users className="w-4 h-4 mr-2" />
-                        <span className="font-medium">{(event.participants?.length || 0)} {t("participants", { count: (event.participants?.length || 0) })}</span>
+                        {/* Utilise participantsCount pour la fiabilité */}
+                        <span className="font-medium">{participantsCount} {t("participants", { count: participantsCount })}</span>
                     </div>
                     <div className="flex -space-x-3">
-                        {(event.participants || []).slice(0, 4).map((p, i) => (
+                        {/* Utilise participantsToDisplay qui est garanti être un tableau */}
+                        {participantsToDisplay.slice(0, 4).map((p, i) => (
                              <div key={i} className="w-7 h-7 bg-gray-300 rounded-full border-2 border-white dark:border-gray-800 flex items-center justify-center text-xs font-bold text-gray-600">
                                 {p.name.charAt(0)}
                              </div>
                         ))}
-                        {(event.participants?.length || 0) > 4 && <div className="w-7 h-7 bg-gray-200 text-gray-600 text-xs font-bold rounded-full border-2 border-white dark:border-gray-800 flex items-center justify-center">+{event.participants.length - 4}</div>}
+                        {participantsCount > 4 && 
+                            <div className="w-7 h-7 bg-gray-200 text-gray-600 text-xs font-bold rounded-full border-2 border-white dark:border-gray-800 flex items-center justify-center">+{participantsCount - 4}</div>
+                        }
                     </div>
                 </button>
 
