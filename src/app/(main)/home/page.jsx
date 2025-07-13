@@ -1,14 +1,13 @@
 import initTranslations from "@/app/i18n";
 import Feed from "@/components/dashboard/Feed"; // On réutilise le Feed existant
 import WelcomeSection from "@/components/dashboard/WelcomeSection";
-import { fakePublications, fakeEvents } from '@/lib/fakeData/homeFeedFake'; // Assure-toi que ce fichier contient les données mises à jour
+import { homeFeedFakeData } from "@/lib/fakeData/homeFeedFake";
+
 
 async function getDashboardData() {
     await new Promise(resolve => setTimeout(resolve, 300));
-    // On mélange les publications et les événements pour un fil d'actualité réaliste
-    const combinedFeed = [...fakePublications, ...fakeEvents].sort((a, b) => new Date(b.createdAt || b.startDate) - new Date(a.createdAt || a.startDate));
     return {
-        feed: combinedFeed
+        feed: homeFeedFakeData
     };
 }
 
