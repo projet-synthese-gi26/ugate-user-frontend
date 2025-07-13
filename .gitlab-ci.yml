@@ -33,5 +33,4 @@ deploy:
       
       echo "✅ Déploiement terminé"
       EOF
-  only:
-    - master
+  
