@@ -2,7 +2,7 @@ import axios from 'axios';
 import Cookies from 'js-cookie';
 
 const instance = axios.create({
-    baseURL: 'http://localhost:7014/synd'
+    baseURL: 'http://167.235.62.116:7014/synd'
 });
 
 instance.interceptors.request.use(
