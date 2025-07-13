@@ -16,23 +16,26 @@ export default function SyndicateCard({ syndicat }) {
     const router = useRouter();
     const { t } = useTranslation();
 
+    // DÉFINITION DE L'URL EN DUR
+    const staticFilesUrl = 'http://167.235.62.116:7014';
+
     const handleAccessSpace = (syndicatId) => {
         router.push(`/syndicat-space/${syndicatId}`);
     };
 
     const TrendIndicator = ({ trend }) => {
-        // Fallback simple
         return <BarChart2 className="h-5 w-5 text-gray-400 dark:text-gray-500" title="Tendance stable" />;
     };
 
     const memberDisplayCount = (syndicat.memberCount || 0).toLocaleString();
 
+    // Construction des URL complètes avec la variable locale
     const logoCompleteUrl = syndicat.logoUrl 
-        ? `${process.env.NEXT_PUBLIC_STATIC_FILES_URL}${syndicat.logoUrl}`
+        ? `${staticFilesUrl}${syndicat.logoUrl}`
         : null;
 
     const bannerCompleteUrl = syndicat.bannerUrl && syndicat.bannerUrl.startsWith('/')
-        ? `${process.env.NEXT_PUBLIC_STATIC_FILES_URL}${syndicat.bannerUrl}`
+        ? `${staticFilesUrl}${syndicat.bannerUrl}`
         : "https://images.unsplash.com/photo-1541888946425-d81bb19240f5?crop=entropy&q=80&w=1200";
 
     return (
