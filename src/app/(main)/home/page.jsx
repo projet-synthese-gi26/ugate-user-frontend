@@ -1,37 +1,30 @@
-
 import initTranslations from "@/app/i18n";
-import Feed from "@/components/dashboard/Feed";
-import WelcomeSection from "@/components/dashboard/WelcomeSection"; // <-- On importe notre nouveau composant
-import { fakePublications, fakeEvents } from '@/lib/fakeData';
+import Feed from "@/components/dashboard/Feed"; // On réutilise le Feed existant
+import WelcomeSection from "@/components/dashboard/WelcomeSection";
+import { fakePublications, fakeEvents } from '@/lib/fakeData/homeFeedFake'; // Assure-toi que ce fichier contient les données mises à jour
 
 async function getDashboardData() {
-    await new Promise(resolve => setTimeout(resolve, 500));
-    const combinedFeed = [...fakePublications, ...fakeEvents].sort(() => Math.random() - 0.5);
+    await new Promise(resolve => setTimeout(resolve, 300));
+    // On mélange les publications et les événements pour un fil d'actualité réaliste
+    const combinedFeed = [...fakePublications, ...fakeEvents].sort((a, b) => new Date(b.createdAt || b.startDate) - new Date(a.createdAt || a.startDate));
     return {
-        feed: combinedFeed,
-        fullName: "John Doe"
+        feed: combinedFeed
     };
 }
 
 export default async function HomePage({ params: { locale } }) {
-    // 1. La page serveur récupère toujours les données
-    const { feed, fullName } = await getDashboardData();
+    const { feed } = await getDashboardData();
     const { t } = await initTranslations(locale, ['translation']);
 
     return (
-        <div className="container mx-auto">
-            {/*
-                2. On appelle le composant client et on lui passe les données
-                   dont il a besoin (juste le nom de l'utilisateur).
-                   Ce composant gère maintenant sa propre interactivité.
-            */}
-            <WelcomeSection fullName={fullName} />
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+            <WelcomeSection />
 
-            {/* La section du fil d'actualité reste la même */}
-            <div className="max-w-3xl mx-auto">
-                <h2 className="text-2xl font-bold mb-6 text-gray-800">
+            <div className="max-w-3xl mx-auto mt-12">
+                <h2 className="text-2xl font-bold mb-6 text-gray-800 dark:text-gray-200">
                     {t("dashboard.news_and_events")}
                 </h2>
+                {/* Le composant Feed existant fonctionnera parfaitement avec le FeedCard amélioré */}
                 <Feed initialFeed={feed} />
             </div>
         </div>
