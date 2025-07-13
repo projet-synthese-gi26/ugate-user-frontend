@@ -27,6 +27,7 @@ deploy:
       echo "🔄 Mise à jour du code..."
       git pull origin master
       
+    
       
       
       echo "✅ Déploiement terminé"
