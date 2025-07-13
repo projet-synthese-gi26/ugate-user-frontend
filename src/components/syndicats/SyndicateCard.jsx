@@ -5,6 +5,7 @@ import Image from "next/image";
 import { useRouter } from 'next/navigation';
 import { ArrowRightCircle, Users, BarChart2, TrendingUp } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { SyndicatDefaultAvatar } from "@/components/shared/SyndicatDefaultAvatar";
 
 const itemVariants = {
     hidden: { y: 20, opacity: 0 },
@@ -20,18 +21,19 @@ export default function SyndicateCard({ syndicat }) {
     };
 
     const TrendIndicator = ({ trend }) => {
-        switch (trend) {
-            case "up":
-                return <TrendingUp className="h-5 w-5 text-green-500" title="Tendance à la hausse" />;
-            case "down":
-                return <TrendingUp className="h-5 w-5 text-red-500 rotate-180" title="Tendance à la baisse" />;
-            default:
-                return <BarChart2 className="h-5 w-5 text-gray-400 dark:text-gray-500" title="Tendance stable" />;
-        }
+        // Fallback simple
+        return <BarChart2 className="h-5 w-5 text-gray-400 dark:text-gray-500" title="Tendance stable" />;
     };
 
-    // CORRECTION ICI : On utilise syndicat.memberCount et on ajoute un fallback `|| 0`
     const memberDisplayCount = (syndicat.memberCount || 0).toLocaleString();
+
+    const logoCompleteUrl = syndicat.logoUrl 
+        ? `${process.env.NEXT_PUBLIC_STATIC_FILES_URL}${syndicat.logoUrl}`
+        : null;
+
+    const bannerCompleteUrl = syndicat.bannerUrl && syndicat.bannerUrl.startsWith('/')
+        ? `${process.env.NEXT_PUBLIC_STATIC_FILES_URL}${syndicat.bannerUrl}`
+        : "https://images.unsplash.com/photo-1541888946425-d81bb19240f5?crop=entropy&q=80&w=1200";
 
     return (
         <motion.div
@@ -41,35 +43,45 @@ export default function SyndicateCard({ syndicat }) {
         >
             <div className="relative aspect-video">
                 <Image
-                    src={syndicat.bannerUrl || "/placeholder-cover.jpg"}
+                    src={bannerCompleteUrl}
                     alt={syndicat.name}
                     fill
                     sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                     style={{ objectFit: 'cover' }}
                     className="transition-transform duration-500 group-hover:scale-105"
+                    onError={(e) => e.target.src = 'https://images.unsplash.com/photo-1541888946425-d81bb19240f5?crop=entropy&q=80&w=1200'}
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent"></div>
-                <div className="absolute bottom-4 left-4">
-                    <span className="text-sm font-semibold text-white bg-blue-600/90 rounded-lg px-3 py-1.5 shadow-md">
-                        {syndicat.type || 'Syndicat'}
-                    </span>
-                </div>
             </div>
 
-            <div className="p-6 flex flex-col flex-grow">
-                <h2 className="text-xl font-bold text-gray-900 dark:text-white line-clamp-2 leading-snug h-14">
-                    {syndicat.name}
-                </h2>
+            <div className="p-6 flex flex-col flex-grow relative">
+                <div className="absolute -top-10 left-6 w-20 h-20 bg-white dark:bg-gray-800 rounded-full p-1 shadow-lg border-4 border-white dark:border-gray-800">
+                    {logoCompleteUrl ? (
+                        <Image 
+                            src={logoCompleteUrl} 
+                            alt={`${syndicat.name} logo`} 
+                            width={80} 
+                            height={80} 
+                            className="rounded-full object-cover w-full h-full"
+                        />
+                    ) : (
+                        <SyndicatDefaultAvatar name={syndicat.name} size={72} />
+                    )}
+                </div>
 
-                <div className="flex items-center justify-between text-gray-600 dark:text-gray-400 my-4">
-                    <div className="flex items-center space-x-2">
-                        <Users className="h-5 w-5 text-blue-500" />
-                        <span className="text-sm font-medium">
-                            {/* On utilise la variable corrigée */}
-                            {memberDisplayCount} membres
-                        </span>
+                <div className="pt-12">
+                    <h2 className="text-xl font-bold text-gray-900 dark:text-white line-clamp-2 leading-snug h-14">
+                        {syndicat.name}
+                    </h2>
+                    <div className="flex items-center justify-between text-gray-600 dark:text-gray-400 my-4">
+                        <div className="flex items-center space-x-2">
+                            <Users className="h-5 w-5 text-blue-500" />
+                            <span className="text-sm font-medium">
+                                {memberDisplayCount} membres
+                            </span>
+                        </div>
+                        <TrendIndicator trend={syndicat.trend} />
                     </div>
-                    <TrendIndicator trend={syndicat.trend} />
                 </div>
                 
                 <div className="mt-auto pt-4 border-t border-gray-100 dark:border-gray-700">

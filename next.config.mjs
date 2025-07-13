@@ -1,5 +1,3 @@
-
-
 /** @type {import('next').NextConfig} */
 const nextConfig = {
     reactStrictMode: true,
@@ -14,11 +12,17 @@ const nextConfig = {
                 port: '',
                 pathname: '/**',
             },
-            { // --- AJOUTEZ CE NOUVEL OBJET ---
+            {
                 protocol: 'https',
-                hostname: 'i.pravatar.cc', // Le nouveau domaine à autoriser
+                hostname: 'i.pravatar.cc',
                 port: '',
-                pathname: '/**', // Autorise toutes les images de ce domaine
+                pathname: '/**',
+            },
+            {
+                protocol: 'http',
+                hostname: '167.235.62.116',
+                port: '7014',
+                pathname: '/**',
             },
         ],
     },
@@ -26,7 +30,7 @@ const nextConfig = {
         return [
             {
                 source: '/api/:path*',
-                destination: 'http://167.235.62.116:7014/api/:path*', // URL de votre backend
+                destination: 'http://167.235.62.116:7014/api/:path*',
             },
         ]
     },
