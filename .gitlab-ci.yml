@@ -25,6 +25,7 @@ deploy:
       
       cd $PROJECT_PATH
       echo "🔄 Mise à jour du code..."
+      
       git checkout backend_v2
     
       git pull origin backend_v2
