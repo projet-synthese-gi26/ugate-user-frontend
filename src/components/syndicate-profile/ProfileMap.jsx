@@ -5,24 +5,27 @@ import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 
 // =================================================================
-// CORRECTION APPLIQUÉE CI-DESSOUS
+// CORRECTION ALTERNATIVE
 // =================================================================
 
-// On supprime les anciens imports d'images car ils ne sont pas fiables avec les bundlers modernes.
-// import iconMarker from 'leaflet/dist/images/marker-icon.png';
-// import iconRetina from 'leaflet/dist/images/marker-icon-2x.png';
-// import iconShadow from 'leaflet/dist/images/marker-shadow.png';
+// On importe les objets d'image directement
+import markerIcon2x from 'leaflet/dist/images/marker-icon-2x.png';
+import markerIcon from 'leaflet/dist/images/marker-icon.png';
+import markerShadow from 'leaflet/dist/images/marker-shadow.png';
 
-// On "répare" la configuration par défaut de l'icône de Leaflet.
-// Cela garantit que la librairie sait où trouver ses propres images.
-// C'est la méthode la plus robuste et recommandée.
+// On réinitialise la configuration de l'icône par défaut
+// Ceci est nécessaire pour s'assurer que nos nouvelles options sont bien prises en compte
+// dans certains environnements Next.js / Turbopack
+// @ts-ignore
 delete L.Icon.Default.prototype._getIconUrl;
 
+// On configure l'icône par défaut en utilisant la propriété .src des objets importés
 L.Icon.Default.mergeOptions({
-    iconRetinaUrl: require('leaflet/dist/images/marker-icon-2x.png').default,
-    iconUrl: require('leaflet/dist/images/marker-icon.png').default,
-    shadowUrl: require('leaflet/dist/images/marker-shadow.png').default,
+    iconUrl: markerIcon.src,
+    iconRetinaUrl: markerIcon2x.src,
+    shadowUrl: markerShadow.src,
 });
+
 // =================================================================
 // FIN DE LA CORRECTION
 // =================================================================
@@ -35,7 +38,6 @@ export default function ProfileMap({ antennes = [] }) {
         return <p className="text-sm text-center text-gray-500 dark:text-gray-400 py-8">Aucune antenne géolocalisée.</p>;
     }
 
-    // Le reste du composant n'a pas besoin de changer, car la configuration par défaut est maintenant correcte.
     const bounds = L.latLngBounds(validAntennes.map(a => [a.latitude, a.longitude]));
     const center = bounds.getCenter();
 
