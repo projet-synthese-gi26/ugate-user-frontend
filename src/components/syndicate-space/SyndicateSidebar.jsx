@@ -4,8 +4,8 @@ import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { useTranslation } from 'react-i18next';
 import { 
-    Users, Calendar, MessageCircle, Vote, CreditCard, Handshake, 
-    Info, Home, ChevronLeft, ChevronRight, MessageSquare 
+    Users, Calendar, MessageCircle, Vote,
+    Home, ChevronLeft, ChevronRight, MessageSquare 
 } from 'lucide-react';
 import { SyndicatDefaultAvatar } from '@/components/shared/SyndicatDefaultAvatar.jsx';
 import { usePathname, useParams } from 'next/navigation';
@@ -18,7 +18,25 @@ export default function SyndicateSidebar({ isCollapsed, onToggle, syndicateData 
     const params = useParams();
     const { syndicatId } = params;
 
-    const logoUrl = syndicateData.logoUrl ? `${STATIC_FILES_URL}${syndicateData.logoUrl}` : null;
+    if (!syndicateData) {
+        return (
+            <motion.nav
+                animate={{ width: isCollapsed ? 80 : 280 }}
+                className="hidden lg:flex bg-white/80 dark:bg-gray-800/50 flex-col z-10 border-r"
+            >
+                <div className="p-4 border-b animate-pulse">
+                    <div className="w-full h-10 bg-gray-200 dark:bg-gray-700 rounded-md"></div>
+                </div>
+                <div className="flex-grow p-4 space-y-2">
+                    {[...Array(5)].map((_, i) => (
+                        <div key={i} className="w-full h-12 bg-gray-200 dark:bg-gray-700 rounded-xl animate-pulse"></div>
+                    ))}
+                </div>
+            </motion.nav>
+        );
+    }
+    
+    const imageUrl = syndicateData.bannerUrl ? `${STATIC_FILES_URL}${syndicateData.bannerUrl}` : null;
 
     const navItems = [
         { id: 'accueil', icon: Home, label: t('syndicate_space.sidebar.home'), route: '' },
@@ -40,8 +58,8 @@ export default function SyndicateSidebar({ isCollapsed, onToggle, syndicateData 
             <div className={`p-4 flex items-center gap-4 border-b border-gray-200/80 dark:border-white/10 transition-all duration-300 ${isCollapsed ? 'justify-center' : 'justify-between'}`}>
                 {!isCollapsed && (
                     <div className="flex items-center gap-2 overflow-hidden">
-                        {logoUrl ? (
-                             <Image src={logoUrl} alt={syndicateData.name} width={40} height={40} className="w-10 h-10 rounded-full object-cover" />
+                        {imageUrl ? (
+                             <Image src={imageUrl} alt={`${syndicateData.name} logo`} width={40} height={40} className="w-10 h-10 rounded-full object-cover" />
                         ) : (
                             <SyndicatDefaultAvatar name={syndicateData.name} size={40} />
                         )}

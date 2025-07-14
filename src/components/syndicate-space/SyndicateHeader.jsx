@@ -1,6 +1,6 @@
 "use client";
 
-import { Building, Bell, LogOut, Menu } from 'lucide-react';
+import { Bell, LogOut, Menu } from 'lucide-react';
 import Link from 'next/link';
 import { STATIC_FILES_URL } from '@/lib/constants';
 import { SyndicatDefaultAvatar } from '../shared/SyndicatDefaultAvatar';
@@ -8,7 +8,7 @@ import Image from 'next/image';
 
 export default function SyndicateHeader({ syndicateData, onSidebarToggle, onNotificationToggle }) {
     
-    const logoUrl = syndicateData.logoUrl ? `${STATIC_FILES_URL}${syndicateData.logoUrl}` : null;
+    const imageUrl = syndicateData.bannerUrl ? `${STATIC_FILES_URL}${syndicateData.bannerUrl}` : null;
 
     return (
         <header className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm z-30 sticky top-0 border-b border-gray-200/80 dark:border-white/10">
@@ -19,8 +19,8 @@ export default function SyndicateHeader({ syndicateData, onSidebarToggle, onNoti
                             <Menu size={24} />
                         </button>
                         <div className="flex items-center">
-                            {logoUrl ? (
-                                <Image src={logoUrl} alt={syndicateData.name} width={32} height={32} className="h-8 w-8 rounded-md object-cover" />
+                            {imageUrl ? (
+                                <Image src={imageUrl} alt={`${syndicateData.name} logo`} width={32} height={32} className="h-8 w-8 rounded-md object-cover" />
                             ) : (
                                 <SyndicatDefaultAvatar name={syndicateData.name} size={32} className="rounded-md"/>
                             )}
