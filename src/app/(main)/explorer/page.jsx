@@ -1,58 +1,96 @@
-import { notFound } from 'next/navigation';
-import Link from 'next/link';
-import { ChevronLeft } from 'lucide-react';
-import initTranslations from '@/app/i18n'; // L'import correct pour la traduction côté serveur
-import { getSyndicateDetailsAPI } from '@/lib/api/syndicates'; // L'appel API réel
-import SyndicateProfileClient from '@/components/syndicate-profile/SyndicateProfileClient';
+"use client";
 
-// Fonction pour récupérer les données d'un seul syndicat via l'API
-async function getSyndicateDetails(id) {
-    try {
-        const syndicate = await getSyndicateDetailsAPI(id);
-        return syndicate;
-    } catch (error) {
-        if (error.response?.status === 404) {
-            return null; // Le syndicat n'a pas été trouvé, on gèrera le notFound() plus bas
+import { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
+import { motion } from "framer-motion";
+import { Loader2 } from "lucide-react";
+import { toast } from "react-hot-toast";
+
+import { getAllSyndicatesAPI } from "@/lib/api/syndicates";
+import ExplorerClient from "@/components/explorer/ExplorerClient";
+import ExploreHeader from "@/components/explorer/ExploreHeader";
+
+export default function ExplorerPage() {
+    const { t } = useTranslation();
+
+    const [syndicates, setSyndicates] = useState([]);
+    const [page, setPage] = useState(0);
+    const [hasNextPage, setHasNextPage] = useState(true);
+    const [isLoading, setIsLoading] = useState(false);
+    const [isInitialLoad, setIsInitialLoad] = useState(true);
+    const [totalElements, setTotalElements] = useState(0);
+
+    const loadSyndicates = async (pageNum) => {
+        if (isLoading) return;
+
+        if (pageNum > 0 && !hasNextPage) {
+            toast.success(t('explorer_page.end_of_list_toast', "Vous avez atteint la fin de la liste !"));
+            return;
         }
-        // Pour les autres erreurs, on peut logger et renvoyer null aussi
-        console.error(`Erreur lors de la récupération du syndicat ${id}`, error.message);
-        return null;
-    }
-}
 
-// Génération des métadonnées dynamiques pour le SEO
-export async function generateMetadata({ params }) {
-    const syndicate = await getSyndicateDetails(params.syndicatId);
-    if (!syndicate) {
-        return { title: 'Syndicat non trouvé' };
-    }
-    return {
-        title: `${syndicate.name} | U-Gate`,
-        description: syndicate.description,
+        setIsLoading(true);
+
+        try {
+            const data = await getAllSyndicatesAPI(pageNum, 12);
+            if (pageNum === 0) {
+                setSyndicates(data.content);
+            } else {
+                setSyndicates(prev => [...prev, ...data.content]);
+            }
+            setHasNextPage(data.hasNext);
+            setTotalElements(data.totalElements || 0);
+            setPage(pageNum + 1);
+        } catch (error) {
+            console.error("Impossible de charger plus de syndicats", error);
+            toast.error(t('explorer_page.load_more_error_toast', "Une erreur est survenue lors du chargement."));
+        } finally {
+            setIsLoading(false);
+            if (isInitialLoad) setIsInitialLoad(false);
+        }
     };
-}
 
-export default async function SyndicateProfilePage({ params }) {
-    const { syndicatId, locale } = params;
-    const { t } = await initTranslations(locale, ['translation']);
+    useEffect(() => {
+        loadSyndicates(0);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
 
-    const syndicateData = await getSyndicateDetails(syndicatId);
-
-    // Si aucune donnée n'est retournée, on affiche la page 404 de Next.js
-    if (!syndicateData) {
-        notFound();
+    if (isInitialLoad) {
+        return (
+            <div className="flex justify-center items-center min-h-[calc(100vh-200px)]">
+                <Loader2 className="w-12 h-12 animate-spin text-blue-500" />
+            </div>
+        );
     }
 
     return (
-        <div className="bg-gray-50 dark:bg-gray-900 min-h-screen">
-            <div className="container mx-auto px-4 py-8">
-                <Link href="/explorer" className="inline-flex items-center space-x-2 text-blue-600 dark:text-blue-400 hover:underline mb-6 group">
-                    <ChevronLeft className="h-5 w-5 transition-transform group-hover:-translate-x-1" />
-                    <span className="font-semibold">{t('profile_page.back_to_explorer', 'Retour à l\'exploration')}</span>
-                </Link>
+        <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-indigo-50 dark:from-gray-900 dark:via-blue-900/20 dark:to-indigo-900/10 py-12">
+            <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+                
+                <ExploreHeader syndicatesCount={totalElements} t={t} />
 
-                {/* On délègue tout l'affichage au composant client en lui passant les vraies données */}
-                <SyndicateProfileClient syndicate={syndicateData} />
+                <ExplorerClient initialSyndicates={syndicates} />
+
+                <div className="text-center mt-12">
+                    {hasNextPage ? (
+                        <motion.button
+                            onClick={() => loadSyndicates(page)}
+                            disabled={isLoading}
+                            className="px-8 py-3 bg-blue-600 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700 disabled:bg-gray-400 transition-colors"
+                            whileHover={{ scale: 1.05 }}
+                        >
+                            {isLoading ? (
+                                <span className="flex items-center">
+                                    <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                                    {t('common.loading_dots', "Chargement...")}
+                                </span>
+                            ) : (
+                                t('explorer_page.load_more_button', "Charger plus")
+                            )}
+                        </motion.button>
+                    ) : (
+                        syndicates.length > 0 && <p className="text-gray-500">{t('explorer_page.end_of_list_message', "Vous avez atteint la fin de la liste.")}</p>
+                    )}
+                </div>
             </div>
         </div>
     );
