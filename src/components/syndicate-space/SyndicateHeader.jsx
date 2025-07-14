@@ -1,11 +1,15 @@
-// src/components/syndicate-space/SyndicateHeader.jsx
 "use client";
 
-import { motion } from 'framer-motion';
 import { Building, Bell, LogOut, Menu } from 'lucide-react';
 import Link from 'next/link';
+import { STATIC_FILES_URL } from '@/lib/constants';
+import { SyndicatDefaultAvatar } from '../shared/SyndicatDefaultAvatar';
+import Image from 'next/image';
 
 export default function SyndicateHeader({ syndicateData, onSidebarToggle, onNotificationToggle }) {
+    
+    const logoUrl = syndicateData.logoUrl ? `${STATIC_FILES_URL}${syndicateData.logoUrl}` : null;
+
     return (
         <header className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm z-30 sticky top-0 border-b border-gray-200/80 dark:border-white/10">
             <div className="container mx-auto px-4 sm:px-6 lg:px-8">
@@ -15,8 +19,13 @@ export default function SyndicateHeader({ syndicateData, onSidebarToggle, onNoti
                             <Menu size={24} />
                         </button>
                         <div className="flex items-center">
-                            <Building className="h-8 w-8 text-blue-500" />
-                            <h1 className="ml-3 text-xl font-bold text-gray-800 dark:text-white">
+                            {logoUrl ? (
+                                <Image src={logoUrl} alt={syndicateData.name} width={32} height={32} className="h-8 w-8 rounded-md object-cover" />
+                            ) : (
+                                <SyndicatDefaultAvatar name={syndicateData.name} size={32} className="rounded-md"/>
+                            )}
+                            
+                            <h1 className="ml-3 text-xl font-bold text-gray-800 dark:text-white truncate">
                                 {syndicateData.name}
                             </h1>
                         </div>

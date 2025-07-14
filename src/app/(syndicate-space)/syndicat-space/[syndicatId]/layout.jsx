@@ -1,51 +1,37 @@
-// src/app/(syndicate-space)/syndicat-space/[syndicatId]/layout.jsx
-"use client";
+import { notFound } from 'next/navigation';
+import { getSyndicateDetailsAPI } from '@/lib/api/syndicates';
+import SyndicateSpaceClientLayout from './SyndicateSpaceClientLayout'; 
 
-import { useState } from "react";
-// Importez les hooks nécessaires
-import { usePathname, useParams } from 'next/navigation'; 
-import { motion } from "framer-motion";
-import SyndicateHeader from "@/components/syndicate-space/SyndicateHeader";
-import SyndicateSidebar from "@/components/syndicate-space/SyndicateSidebar";
-import SyndicateNotificationsPanel from "@/components/syndicate-space/SyndicateNotificationsPanel";
+async function getSyndicateHeaderData(syndicateId) {
+    try {
+        // Note: Pour un appel Serveur vers API, il faut s'assurer que l'authentification
+        // passe si nécessaire (ex: via cookies), ou que l'endpoint est public.
+        // Notre endpoint GET /api/syndicates/{id} est actuellement public.
+        const data = await getSyndicateDetailsAPI(syndicateId);
+        return {
+            id: data.id,
+            name: data.name,
+            logoUrl: data.logoUrl,
+            bannerUrl: data.bannerUrl
+        };
+    } catch (error) {
+        console.error(`Failed to fetch syndicate data for layout (${syndicateId}):`, error);
+        return null;
+    }
+}
 
-const fakeSyndicateData = {
-    name: "Syndicat National des Développeurs",
-    bannerImage: "https://images.unsplash.com/photo-1541888946425-d81bb19240f5?crop=entropy&q=80&w=1200",
-};
+export default async function SyndicateSpaceLayout({ children, params }) {
+    const { syndicatId } = params;
+    const syndicateData = await getSyndicateHeaderData(syndicatId);
 
-// Le layout ne reçoit plus `params` en prop car on va utiliser le hook
-export default function SyndicateSpaceLayout({ children }) { 
-    const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
-    const [isNotificationOpen, setIsNotificationOpen] = useState(false);
-    
-    // On utilise les hooks pour obtenir les informations de la route
-    const pathname = usePathname();
-    const params = useParams(); // <-- Ce hook retourne { syndicatId: '123' }
-    const { syndicatId } = params; // <-- C'est maintenant sûr et synchrone
+    if (!syndicateData) {
+        notFound();
+    }
 
+    // Passe les données chargées au composant client qui gère l'interface
     return (
-        <div className="flex flex-col h-screen bg-gray-50 dark:bg-gray-900">
-            <SyndicateHeader
-                syndicateData={fakeSyndicateData}
-                onSidebarToggle={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
-                onNotificationToggle={() => setIsNotificationOpen(!isNotificationOpen)}
-            />
-            <div className="flex flex-1 overflow-hidden">
-                <SyndicateSidebar
-                    isCollapsed={isSidebarCollapsed}
-                    onToggle={() => setIsSidebarCollapsed(!isSidebarCollapsed)} // On peut ajouter le toggle ici
-                    activeRoute={pathname}
-                    syndicatId={syndicatId} // On passe l'ID récupéré du hook
-                />
-                <main className="flex-1 overflow-y-auto bg-gray-50 dark:bg-gray-900 p-4 sm:p-6">
-                    {children}
-                </main>
-                <SyndicateNotificationsPanel
-                    isOpen={isNotificationOpen}
-                    onClose={() => setIsNotificationOpen(false)}
-                />
-            </div>
-        </div>
+        <SyndicateSpaceClientLayout syndicateData={syndicateData}>
+            {children}
+        </SyndicateSpaceClientLayout>
     );
 }

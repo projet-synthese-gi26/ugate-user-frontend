@@ -1,4 +1,3 @@
-// src/components/syndicats/SyndicateList.jsx
 "use client";
 
 import { useState, useMemo } from "react";
@@ -13,11 +12,6 @@ const containerVariants = {
     visible: { opacity: 1, transition: { staggerChildren: 0.08 } },
 };
 
-/**
- * Le composant client principal pour la page "Mes Syndicats".
- * Gère la recherche, le filtrage, l'affichage de la liste et la modale de création.
- * @param {Array} initialSyndicates - La liste des syndicats de l'utilisateur, passée par le serveur.
- */
 export default function SyndicateList({ initialSyndicates = [] }) {
     const { t } = useTranslation();
     const [searchTerm, setSearchTerm] = useState("");
@@ -34,7 +28,6 @@ export default function SyndicateList({ initialSyndicates = [] }) {
 
     return (
         <>
-            {/* Barre de recherche et actions */}
             <motion.div 
                 className="mb-12 max-w-4xl mx-auto"
                 initial={{ opacity: 0 }}
@@ -44,7 +37,7 @@ export default function SyndicateList({ initialSyndicates = [] }) {
                     <input
                         type="text"
                         placeholder={t("syndicats_page.search_placeholder")}
-                        className="w-full pl-14 pr-6 py-4 rounded-2xl border-2 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-100 dark:focus:ring-blue-900/50 transition-all text-lg placeholder-gray-400 dark:placeholder-gray-500 shadow-lg"
+                        className="w-full pl-14 pr-6 py-4 rounded-2xl border-2 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-100 dark:focus:ring-blue-900/50 transition-all text-lg"
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                     />
@@ -52,7 +45,6 @@ export default function SyndicateList({ initialSyndicates = [] }) {
                 </div>
             </motion.div>
 
-            {/* Grille des syndicats ou état vide */}
             <AnimatePresence>
                 {filteredSyndicates.length > 0 ? (
                     <motion.div
@@ -92,8 +84,6 @@ export default function SyndicateList({ initialSyndicates = [] }) {
                     </motion.div>
                 )}
             </AnimatePresence>
-
-            {/* Le composant de la modale est appelé ici */}
             <CreateSyndicateModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
         </>
     );

@@ -1,17 +1,20 @@
-// src/app/(syndicate-space)/syndicat-space/[syndicatId]/(sections)/exprimer/page.jsx
-import initTranslations from "@/app/i18n";
+import { getTranslations } from "next-intl/server";
 import PublicationsFeed from "@/components/syndicate-space/section-exprimer/PublicationsFeed";
-import { fakePublications } from "@/lib/fakeData/syndicateDetailsFake"; // On utilisera un fichier de données dédié
+import { getPostsAPI } from "@/lib/api/posts";
 
 async function getPublications(syndicatId) {
-    console.log(`Récupération des publications pour le syndicat ${syndicatId}...`);
-    await new Promise(resolve => setTimeout(resolve, 300));
-    return fakePublications; // Dans une vraie app, cet appel serait filtré par syndicatId
+    try {
+        const posts = await getPostsAPI(syndicatId);
+        return posts;
+    } catch (error) {
+        console.error(`Failed to fetch posts for syndicate ${syndicatId}:`, error);
+        return [];
+    }
 }
 
 export default async function ExprimerPage({ params }) {
     const { locale, syndicatId } = params;
-    const { t } = await initTranslations(locale, ['translation']);
+    const t = await getTranslations({ locale, namespace: "translation" });
     const initialPosts = await getPublications(syndicatId);
 
     return (
@@ -24,9 +27,7 @@ export default async function ExprimerPage({ params }) {
                     {t("express_page.subtitle")}
                 </p>
             </div>
-
-            {/* Le composant client prend le relais pour l'affichage interactif */}
-            <PublicationsFeed initialPosts={initialPosts} />
+            <PublicationsFeed initialPosts={initialPosts} syndicatId={syndicatId} />
         </div>
     );
 }

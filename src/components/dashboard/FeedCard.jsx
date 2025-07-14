@@ -4,97 +4,71 @@ import { motion } from 'framer-motion';
 import Image from 'next/image';
 import { formatDistanceToNow, format } from 'date-fns';
 import { fr } from 'date-fns/locale';
-import { Clock, Heart, MessageCircle, Share2, Bookmark, Calendar, User, MapPin } from 'lucide-react';
+import { Clock, Heart, MessageCircle, Share2, MapPin, User } from 'lucide-react';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import FeedItemHeader from './FeedItemHeader';
+import { SyndicatDefaultAvatar } from '../shared/SyndicatDefaultAvatar';
+import { STATIC_FILES_URL } from '@/lib/constants';
 
-const itemVariants = {
-    hidden: { opacity: 0, y: 30 },
-    visible: { opacity: 1, y: 0, transition: { type: 'spring', duration: 0.8 } },
-};
-
-// Bouton d'action réutilisable pour Like, Comment, Share
 const ActionButton = ({ icon: Icon, text, onClick, active, activeColor = 'text-red-500' }) => (
-    <motion.button
-        onClick={onClick}
-        className={`flex items-center justify-center w-full gap-2 py-2.5 rounded-lg transition-all duration-200 ${
-            active 
-                ? `${activeColor.replace('text-', 'bg-').replace('-500', '-100')} dark:${activeColor.replace('text-', 'bg-').replace('-500', '-900/50')} ${activeColor}` 
-                : 'text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700'
-        }`}
-        whileHover={{ scale: 1.05 }}
-        whileTap={{ scale: 0.95 }}
-    >
+    <motion.button onClick={onClick} className={`flex items-center justify-center w-full gap-2 py-2.5 rounded-lg transition-all duration-200 ${ active ? `${activeColor.replace('text-', 'bg-').replace('-500', '-100')} dark:${activeColor.replace('text-', 'bg-').replace('-500', '-900/50')} ${activeColor}` : 'text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700' }`} whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
         <Icon size={18} fill={active ? 'currentColor' : 'none'} />
         <span className="font-medium text-sm">{text}</span>
     </motion.button>
 );
 
-
 export default function FeedCard({ item }) {
     const { t } = useTranslation();
     const [liked, setLiked] = useState(false);
-    const [bookmarked, setBookmarked] = useState(false);
 
     const dateToUse = item.createdAt || item.startDate;
-    let timeAgo = t('common.unknown_date');
-    if (dateToUse) {
-        try {
-            timeAgo = formatDistanceToNow(new Date(dateToUse), { addSuffix: true, locale: fr });
-        } catch (e) { console.error("Erreur de formatage de date", e); }
-    }
+    const timeAgo = dateToUse ? formatDistanceToNow(new Date(dateToUse), { addSuffix: true, locale: fr }) : t('common.unknown_date');
+    const imageUrl = item.image && item.image.startsWith('/') ? `${STATIC_FILES_URL}${item.image}` : item.image;
 
-    // Rendu pour une PUBLICATION
     if (item.type === 'publication') {
-        return (
-            <motion.div variants={itemVariants} className="bg-white dark:bg-gray-800/60 rounded-2xl shadow-xl border border-gray-200/50 dark:border-white/10 overflow-hidden">
-                <FeedItemHeader syndicat={item.syndicat} branch={item.branch} />
+        const authorAvatarUrl = item.author.avatar && item.author.avatar.startsWith('/') ? `${STATIC_FILES_URL}${item.author.avatar}` : item.author.avatar;
 
+        return (
+            <div className="bg-white dark:bg-gray-800/60 rounded-2xl shadow-xl border border-gray-200/50 dark:border-white/10 overflow-hidden">
+                <FeedItemHeader syndicat={item.syndicat} branch={item.branch} />
                 <div className="p-5 sm:p-6">
                     <div className="flex items-start gap-4 mb-4">
-                        <Image src={item.author.avatar} alt={item.author.name} width={48} height={48} className="w-12 h-12 rounded-full object-cover ring-2 ring-white/50 dark:ring-white/10" />
+                        {authorAvatarUrl ? <Image src={authorAvatarUrl} alt={item.author.name} width={48} height={48} className="w-12 h-12 rounded-full object-cover ring-2 ring-white/50 dark:ring-white/10" /> : <SyndicatDefaultAvatar name={item.author.name} size={48} />}
                         <div>
                             <p className="font-bold text-gray-900 dark:text-white">{item.author.name}</p>
                             <p className="text-xs text-gray-500 dark:text-gray-400 flex items-center gap-1.5"><Clock size={12}/> {timeAgo}</p>
                         </div>
                     </div>
                     <p className="text-gray-700 dark:text-gray-300 mb-5 whitespace-pre-wrap text-base leading-relaxed">{item.content}</p>
-                    {item.image && <div className="rounded-xl overflow-hidden shadow-lg"><Image src={item.image} alt="Contenu de la publication" width={800} height={500} className="w-full h-auto"/></div>}
-                    
+                    {imageUrl && <div className="rounded-xl overflow-hidden shadow-lg"><Image src={imageUrl} alt="Contenu" width={800} height={500} className="w-full h-auto"/></div>}
                     <div className="flex justify-between items-center text-sm text-gray-500 dark:text-gray-400 my-4">
                         <span>{item.likes} {t('common.like', {count: item.likes})}</span>
-                        <span>{item.comments} {t('common.comment', {count: item.comments})}</span>
+                        <span>{item.comments?.length || 0} {t('common.comment', {count: item.comments?.length || 0})}</span>
                     </div>
-
                     <div className="flex items-center justify-around border-t border-gray-100 dark:border-gray-700/50 pt-3 gap-2">
                         <ActionButton icon={Heart} text={t('common.like')} onClick={() => setLiked(!liked)} active={liked} activeColor="text-red-500" />
                         <ActionButton icon={MessageCircle} text={t('common.comment')} activeColor="text-blue-500" />
                         <ActionButton icon={Share2} text={t('common.share')} activeColor="text-green-500" />
                     </div>
                 </div>
-            </motion.div>
+            </div>
         );
     } 
-    // Rendu pour un EVENEMENT
-    else {
+
+    if (item.type === 'event') {
         const startDate = new Date(dateToUse);
         return (
-             <motion.div variants={itemVariants} className="bg-white dark:bg-gray-800/60 rounded-2xl shadow-xl border border-gray-200/50 dark:border-white/10 overflow-hidden">
+             <div className="bg-white dark:bg-gray-800/60 rounded-2xl shadow-xl border border-gray-200/50 dark:border-white/10 overflow-hidden">
                 <FeedItemHeader syndicat={item.syndicat} branch={item.branch} />
-                
-                <div className="relative h-52 group">
-                    <Image src={item.image} alt="Image de l'événement" fill style={{ objectFit: 'cover' }} className="transition-transform duration-300 group-hover:scale-105" />
+                {imageUrl && <div className="relative h-52 group">
+                    <Image src={imageUrl} alt={item.title} fill style={{ objectFit: 'cover' }} className="transition-transform duration-300 group-hover:scale-105" />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent"></div>
-                    <div className="absolute top-4 right-4 bg-red-500/90 text-white px-3 py-1 text-xs font-bold rounded-full shadow-lg backdrop-blur-sm">
-                        ÉVÉNEMENT À VENIR
-                    </div>
                     <div className="absolute bottom-4 left-5">
                          <h3 className="text-2xl font-bold text-white drop-shadow-lg">{item.title}</h3>
                          <p className="text-sm text-white/90 drop-shadow-md">{item.description}</p>
                     </div>
-                </div>
-
+                </div>}
                 <div className="p-5 sm:p-6">
                     <div className="grid grid-cols-3 gap-4 text-center mb-5">
                         <div className="p-3 bg-blue-50 dark:bg-blue-900/40 rounded-lg">
@@ -106,17 +80,16 @@ export default function FeedCard({ item }) {
                             <p className="text-xs text-green-600 dark:text-green-400">{format(startDate, 'HH:mm')}</p>
                         </div>
                     </div>
-
                     <div className="text-sm text-gray-600 dark:text-gray-400 space-y-2 mb-6">
                         <p className="flex items-center gap-2"><MapPin size={16} className="text-purple-500"/> {item.location}</p>
                         <p className="flex items-center gap-2"><User size={16} className="text-purple-500"/> Organisé par <strong>{item.author.name}</strong></p>
                     </div>
-
                     <motion.button className="w-full py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all" whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-                        {t('events.see_and_join')} ({item.participants} {t('participants')})
+                        {t('events.see_and_join')} ({item.participants?.length || 0} {t('participants')})
                     </motion.button>
                 </div>
-            </motion.div>
+            </div>
         );
     }
+    return null;
 }

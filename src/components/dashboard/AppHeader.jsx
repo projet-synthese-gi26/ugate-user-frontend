@@ -7,20 +7,23 @@ import Link from 'next/link';
 import ThemeSwitcher from '../layout/ThemeSwitcher';
 import LanguageSwitcher from '../layout/LanguageSwitcher';
 import { SyndicatDefaultAvatar } from '@/components/shared/SyndicatDefaultAvatar.jsx';
-import { useUser } from "@/context/UserContext"; // Import du hook
+import { useUser } from "@/context/UserContext";
+import { STATIC_FILES_URL } from '@/lib/constants';
 
-export default function AppHeader({ isSidebarOpen, onSidebarToggle, onNotificationToggle }) { // Ne reçoit plus userData
-    const { user, isLoading } = useUser(); // Récupère les données depuis le contexte
+export default function AppHeader({ isSidebarOpen, onSidebarToggle, onNotificationToggle }) {
+    const { user, isLoading } = useUser();
     const { t } = useTranslation();
 
-    const profileImageSrc = !isLoading ? user?.profilePictureUrl : "";
+    const profileImageSrc = !isLoading && user?.profilePictureUrl
+        ? `${STATIC_FILES_URL}${user.profilePictureUrl}`
+        : null;
+        
     const displayUserName = isLoading ? "..." : user?.firstName || "Invité";
 
     return (
-        <header className="bg-white dark:bg-gray-900 shadow-md z-30 sticky top-0 border-b dark:border-gray-700">
+        <header className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm z-30 sticky top-0 border-b border-gray-200/80 dark:border-white/10">
             <div className="flex justify-between items-center py-3 px-4 sm:px-6 lg:px-8">
-                {/* ... (partie gauche inchangée) ... */}
-                 <div className="flex items-center space-x-4">
+                <div className="flex items-center space-x-4">
                     <button onClick={onSidebarToggle} className="text-gray-600 dark:text-gray-300 hover:text-blue-600">
                         {isSidebarOpen ? <ChevronLeft size={24} /> : <ChevronRight size={24} />}
                     </button>
@@ -29,24 +32,17 @@ export default function AppHeader({ isSidebarOpen, onSidebarToggle, onNotificati
                         <h1 className="ml-2 text-xl font-bold text-gray-800 dark:text-gray-200">SyndicManager</h1>
                     </div>
                 </div>
-
-                {/* Right Side */}
                 <div className="flex items-center space-x-2 md:space-x-4">
-                    {/* ... (recherche, switchers, cloche inchangés) ... */}
-
-                     <div className="relative hidden sm:block">
+                    <div className="relative hidden sm:block">
                         <input type="text" placeholder={t("rechercherPlaceholder1")} className="w-40 md:w-64 pl-10 pr-4 py-2 rounded-full border bg-gray-100 dark:bg-gray-800 dark:border-gray-700" />
                         <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
                     </div>
-
                     <ThemeSwitcher />
                     <LanguageSwitcher />
-
                     <button onClick={onNotificationToggle} className="relative p-2 rounded-full text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
                         <Bell size={22} />
-                        <span className="absolute top-0 right-0 block h-2 w-2 rounded-full bg-red-500 ring-2 ring-white" />
+                        <span className="absolute top-0 right-0 block h-2 w-2 rounded-full bg-red-500 ring-2 ring-white dark:ring-gray-900" />
                     </button>
-
                     <Link href="/parametres" passHref>
                         <div className="flex items-center space-x-2 cursor-pointer p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800">
                             {profileImageSrc ? (

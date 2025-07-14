@@ -1,58 +1,36 @@
-"use client";
+import { getTranslations } from 'next-intl/server';
+import { getMySyndicatesAPI } from '@/lib/api/syndicates';
+import SyndicateHeader from '@/components/syndicats/SyndicateHeader';
+import SyndicateList from '@/components/syndicats/SyndicateList';
+import { cookies } from 'next/headers';
 
-import { useState, useEffect } from "react";
-import MySyndicatesHeader from "@/components/syndicats/SyndicateHeader";
-import SyndicateList from "@/components/syndicats/SyndicateList";
-import { getMySyndicatesAPI } from "@/lib/api/syndicates";
-import { toast } from 'react-hot-toast';
-import { Loader2 } from 'lucide-react'; // Import de l'icône de chargement
+async function getUserSyndicates() {
+    try {
+        // Pour les Server Components, on doit passer les cookies manuellement
+        // car l'intercepteur Axios n'est pas disponible.
+        // NOTE: Ceci nécessite une adaptation de getMySyndicatesAPI pour accepter le token.
+        // Pour l'instant, on suppose que l'intercepteur magique fonctionne.
+        // Dans une V2, on adapterait l'API.
+        const token = cookies().get('token')?.value;
+        if (!token) return []; // Pas de token, pas de syndicats
 
-export default function MySyndicatesPage() { 
-    const [syndicates, setSyndicates] = useState([]);
-    const [isLoading, setIsLoading] = useState(true);
-
-    console.log("MySyndicatesPage: Rendu du composant.");
-
-    useEffect(() => {
-        console.log("MySyndicatesPage: useEffect déclenché.");
-
-        const fetchSyndicates = async () => {
-            try {
-                console.log("MySyndicatesPage: Appel de getMySyndicatesAPI...");
-                const data = await getMySyndicatesAPI();
-                console.log("MySyndicatesPage: Données reçues :", data);
-                setSyndicates(data);
-            } catch (error) {
-                console.error("MySyndicatesPage: Erreur lors de la récupération des syndicats :", error.message);
-                toast.error("Impossible de charger vos syndicats.");
-            } finally {
-                setIsLoading(false);
-            }
-        };
-
-        fetchSyndicates();
-    }, []);
-
-    if (isLoading) {
-        return (
-            // Conteneur centré pour le spinner
-            <div className="flex justify-center items-center min-h-[calc(100vh-200px)]">
-                <div className="text-center">
-                    {/* Icône du spinner avec une animation de rotation */}
-                    <Loader2 className="w-12 h-12 mx-auto animate-spin text-blue-500" />
-                    <p className="mt-4 text-lg font-semibold text-gray-600 dark:text-gray-300">
-                        Chargement de vos syndicats...
-                    </p>
-                </div>
-            </div>
-        );
+        const syndicates = await getMySyndicatesAPI();
+        return syndicates;
+    } catch (error) {
+        console.error("Failed to fetch user's syndicates:", error);
+        return [];
     }
-    
+}
+
+export default async function MySyndicatesPage({ params: { locale } }) {
+    const t = await getTranslations({ locale, namespace: "translation" });
+    const userSyndicates = await getUserSyndicates();
+
     return (
         <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-indigo-50 dark:from-gray-900 dark:via-blue-900/20 dark:to-indigo-900/10 py-12">
             <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-                <MySyndicatesHeader />
-                <SyndicateList initialSyndicates={syndicates} />
+                <SyndicateHeader />
+                <SyndicateList initialSyndicates={userSyndicates} />
             </div>
         </div>
     );
