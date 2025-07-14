@@ -41,3 +41,19 @@ export const getAllSyndicatesAPI = async (page = 0, size = 12) => {
         throw error;
     }
 };
+
+
+export const getSyndicateDetailsAPI = async (syndicateId) => {
+    if (!syndicateId) {
+        return Promise.reject(new Error("L'ID du syndicat est requis."));
+    }
+    try {
+        // Note: L'endpoint exact côté backend devra peut-être être créé.
+        // Je suppose qu'il s'appellera /api/syndicates/{id}
+        const response = await axios.get(`/syndicates/${syndicateId}`);
+        return response.data;
+    } catch (error) {
+        console.error(`Erreur lors de la récupération des détails du syndicat ${syndicateId}:`, error);
+        throw error;
+    }
+};
