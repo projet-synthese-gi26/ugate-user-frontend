@@ -1,9 +1,18 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+    // Mode strict React
     reactStrictMode: true,
-    turbopack: {
-        enabled: true,
-    },
+    
+    // ESSENTIEL pour Docker - génère le dossier standalone
+    output: 'standalone',
+    
+    // Turbopack - retiré l'option 'enabled' qui causait l'avertissement
+    // Note: Turbopack est automatiquement utilisé en développement avec Next.js 15+
+    // turbopack: {
+    //     enabled: true, // <- Cette ligne causait l'avertissement
+    // },
+    
+    // Configuration des images
     images: {
         remotePatterns: [
             {
@@ -26,6 +35,8 @@ const nextConfig = {
             },
         ],
     },
+    
+    // Réécriture des URLs pour l'API
     async rewrites() {
         return [
             {
@@ -33,6 +44,12 @@ const nextConfig = {
                 destination: 'http://167.235.62.116:7014/api/:path*',
             },
         ]
+    },
+    
+    // Optimisations pour Docker
+    experimental: {
+        // Optimise le tracing des fichiers pour Docker
+        outputFileTracingRoot: process.cwd(),
     },
 };
 
