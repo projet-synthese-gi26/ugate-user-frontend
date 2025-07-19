@@ -2,15 +2,15 @@
 "use client";
 
 import { useState } from 'react';
-import Link from 'next/link';
+import { Link } from '@/navigation';
 import { usePathname } from 'next/navigation';
-import { useTranslation } from 'react-i18next';
+import { useTranslations } from 'next-intl';
 import { motion } from 'framer-motion';
 import { Building, LogIn, UserPlus, Home, Globe } from 'lucide-react';
 
 
 export default function LandingPageHeader() {
-    const { t, i18n } = useTranslation();
+    const t = useTranslations('header');
     const pathname = usePathname();
     const [openDropdown, setOpenDropdown] = useState(false);
 

@@ -7,7 +7,7 @@ import { CreateSyndicateWizard } from '../forms/create-syndicate/CreateSyndicate
 import { useTranslation } from "react-i18next";
 
 export default function CreateSyndicateModal({ isOpen, onClose }) {
-    const { t } = useTranslation();
+    const t = useTranslations('syndicats_page');
 
     return (
         <AnimatePresence>

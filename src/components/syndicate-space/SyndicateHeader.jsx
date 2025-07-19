@@ -1,7 +1,7 @@
 "use client";
 
 import { Bell, LogOut, Menu } from 'lucide-react';
-import Link from 'next/link';
+import { Link } from '@/navigation';
 import { STATIC_FILES_URL } from '@/lib/constants';
 import { SyndicatDefaultAvatar } from '../shared/SyndicatDefaultAvatar';
 import Image from 'next/image';

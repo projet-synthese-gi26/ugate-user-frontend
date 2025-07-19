@@ -4,7 +4,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Search, Send, Paperclip, Mic, ArrowLeft, MoreVertical, Plus, Phone, Video, Lock, Users, MessageCircle } from 'lucide-react';
-import { useTranslation } from 'react-i18next';
+import { useTranslations } from 'next-intl';
 import Image from 'next/image';
 
 // --- SOUS-COMPOSANTS DE STYLE AMÉLIORÉS ---
@@ -54,7 +54,7 @@ const Message = ({ msg, isSent, isGroup }) => (
 
 // --- COMPOSANT PRINCIPAL ---
 export default function ChatClient({ initialChats, initialMessages, initialMembers }) {
-    const { t } = useTranslation();
+    const t = useTranslations('chat');
     const [view, setView] = useState('list');
     const [chats, setChats] = useState(initialChats);
     const [messages, setMessages] = useState(initialMessages);

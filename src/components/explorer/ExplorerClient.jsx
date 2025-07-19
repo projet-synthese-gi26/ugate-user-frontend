@@ -20,7 +20,7 @@ const itemVariants = {
 };
 
 export default function ExplorerClient({ initialSyndicates, initialHasNextPage }) {
-    const { t } = useTranslation();
+    const t = useTranslations('explorer_page');
     const router = useRouter();
 
     const [syndicates, setSyndicates] = useState(initialSyndicates);

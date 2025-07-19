@@ -15,7 +15,7 @@ import timeAgo from "@/lib/utils/timeAgo"; // On supposera un utilitaire pour le
  * @param {function} onUpdatePost - Callback pour mettre à jour le post dans la liste parente.
  */
 export default function Post({ post, onUpdatePost }) {
-    const { t } = useTranslation();
+    const t = useTranslations('express_page');
     const [liked, setLiked] = useState(false);
     const [bookmarked, setBookmarked] = useState(false);
     const [isCommentModalOpen, setIsCommentModalOpen] = useState(false);

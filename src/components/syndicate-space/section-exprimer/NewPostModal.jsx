@@ -7,7 +7,7 @@ import { useTranslation } from "react-i18next";
 import Image from 'next/image';
 
 export default function NewPostModal({ isOpen, onClose, onNewPost }) {
-    const { t } = useTranslation();
+    const t = useTranslations('express_page');
     const [content, setContent] = useState('');
     const [imagePreview, setImagePreview] = useState(null);
     const [imageFile, setImageFile] = useState(null);

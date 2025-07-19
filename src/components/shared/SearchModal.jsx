@@ -21,7 +21,7 @@ export default function SearchModal({ isOpen, onClose }) {
     const [selectedCategory, setSelectedCategory] = useState("Tous");
     const [hasSearched, setHasSearched] = useState(false);
     const router = useRouter(); // Remplacement de useNavigate
-    const { t } = useTranslation();
+    const t = useTranslations('common');
 
     const handleSearch = useCallback(() => {
         const filtered = allSyndicats.filter(

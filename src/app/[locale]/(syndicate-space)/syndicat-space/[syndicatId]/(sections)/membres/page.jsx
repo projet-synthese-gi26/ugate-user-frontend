@@ -1,4 +1,4 @@
-import initTranslations from "@/app/i18n"; // CORRECTION : On importe le bon helper
+import {getTranslations} from 'next-intl/server'; // CORRECTION : On importe le bon helper
 import { getBranchMembersAPI, getAdhesionRequestsAPI } from '@/lib/api/membership';
 import { getSyndicateDetailsAPI } from '@/lib/api/syndicates';
 import MembersClient from '@/components/syndicate-space/section-membres/MembersClient';
@@ -40,7 +40,7 @@ async function getMembersData(syndicateId) {
 export default async function MembersPage({ params }) {
     const { locale, syndicatId } = params;
     // CORRECTION : On utilise `initTranslations` au lieu de `getTranslations`
-    const { t } = await initTranslations(locale, ['translation']);
+    const t = await getTranslations();
     const data = await getMembersData(syndicatId);
 
     // Bien que getMembersData soit robuste, on garde le notFound au cas où

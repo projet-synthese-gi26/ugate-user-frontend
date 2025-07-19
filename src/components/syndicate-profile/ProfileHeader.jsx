@@ -3,11 +3,11 @@
 import { motion } from 'framer-motion';
 import Image from 'next/image';
 import { LogIn } from 'lucide-react';
-import { useTranslation } from 'react-i18next';
+import { useTranslations } from 'next-intl';
 import { STATIC_FILES_URL } from '@/lib/constants';
 
 export default function ProfileHeader({ syndicate, variants }) {
-    const { t } = useTranslation();
+    const t = useTranslations('profile_page');
     const bannerUrl = syndicate.bannerUrl ? `${STATIC_FILES_URL}${syndicate.bannerUrl}` : "/placeholder-cover.jpg";
 
     return (

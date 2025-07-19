@@ -14,7 +14,7 @@ import { AdhereSyndicatForm } from "../forms/adhesion/AdhereSyndicatForm"; // As
  * @param {object} syndicat - L'objet syndicat auquel l'utilisateur souhaite adhérer.
  */
 export default function AdhesionModal({ isOpen, onClose, syndicat }) {
-    const { t } = useTranslation();
+    const t = useTranslations('adhesion_modal');
 
     return (
         <AnimatePresence>

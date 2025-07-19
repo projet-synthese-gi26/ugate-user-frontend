@@ -3,10 +3,10 @@
 
 import { motion } from 'framer-motion';
 import { Facebook, Twitter, Linkedin, Mail } from 'lucide-react';
-import { useTranslation } from 'react-i18next';
+import { useTranslations } from 'next-intl';
 
 export default function AppFooter() {
-    const { t } = useTranslation();
+    const t = useTranslations('footer');
 
     const socialLinks = [
         { icon: Facebook, href: '#', label: 'Facebook' },

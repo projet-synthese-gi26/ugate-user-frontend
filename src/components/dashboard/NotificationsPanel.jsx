@@ -4,7 +4,7 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { X } from "lucide-react";
 import { useTranslation } from'react-i18next';
-import Link from 'next/link';
+import { Link } from '@/navigation';
 
 
 function NotificationItem({ title, description, time, icon: Icon, gradient }) {
@@ -34,7 +34,7 @@ function NotificationItem({ title, description, time, icon: Icon, gradient }) {
 import { notificationsData } from '@/lib/fakeData';
 
 export default function NotificationsPanel({ isOpen, onClose }) {
-    const { t } = useTranslation();
+    const t = useTranslations('dashboard');
 
     return (
         <AnimatePresence>

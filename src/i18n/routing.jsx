@@ -2,8 +2,11 @@ import {defineRouting} from 'next-intl/routing';
  
 export const routing = defineRouting({
   // A list of all locales that are supported
-  locales: ['en','fr', 'de'],
+  locales: ['en', 'fr', 'de'],
  
   // Used when no locale matches
-  defaultLocale: 'fr'
+  defaultLocale: 'fr',
+  
+  // AJOUT IMPORTANT : Force l'affichage de la locale dans l'URL
+  localePrefix: 'always' // ou 'as-needed'
 });

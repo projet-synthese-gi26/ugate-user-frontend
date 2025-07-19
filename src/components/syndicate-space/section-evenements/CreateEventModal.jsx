@@ -3,11 +3,11 @@
 
 import { motion, AnimatePresence } from 'framer-motion';
 import { X } from 'lucide-react';
-import { useTranslation } from 'react-i18next';
+import { useTranslations } from 'next-intl';
 import EventForm from './EventForm';
 
 export default function CreateEventModal({ isOpen, onClose, onCreateEvent }) {
-    const { t } = useTranslation();
+    const t = useTranslations('event_form');
 
     const handleFormSubmit = async (data) => {
         // Simuler un appel API

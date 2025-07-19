@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from 'framer-motion';
-import { useTranslation } from 'react-i18next';
+import { useTranslations } from 'next-intl';
 import dynamic from 'next/dynamic';
 import ProfileHeader from './ProfileHeader';
 import ProfileKeyInfoCard from './ProfileKeyInfoCard';
@@ -19,7 +19,7 @@ const DynamicProfileMap = dynamic(() => import('./ProfileMap'), {
 });
 
 export default function SyndicateProfileClient({ syndicate }) {
-    const { t } = useTranslation();
+    const t = useTranslations('profile_page');
 
     const containerVariants = {
         hidden: { opacity: 0 },

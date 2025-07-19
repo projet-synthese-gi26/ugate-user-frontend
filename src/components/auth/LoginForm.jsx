@@ -5,10 +5,10 @@ import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { motion } from 'framer-motion';
 import { Mail, Lock, AlertCircle } from 'lucide-react';
-import { useTranslation } from 'react-i18next';
+import { useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
 import Swal from 'sweetalert2';
-import Link from 'next/link';
+import { Link } from '@/navigation';
 import { loginWithEmail } from '@/lib/api/auth'; // Importe la fonction API de login
 
 // Composant Input réutilisable avec icône
@@ -52,7 +52,7 @@ export default function LoginForm() {
     const { register, handleSubmit, formState: { errors } } = useForm();
     const [isLoading, setIsLoading] = useState(false);
     const router = useRouter();
-    const { t } = useTranslation();
+    const t = useTranslations('login_page');
 
     // Gestionnaire de soumission du formulaire
     const onSubmit = async (data) => {

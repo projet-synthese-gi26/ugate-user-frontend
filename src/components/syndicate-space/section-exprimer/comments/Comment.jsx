@@ -5,11 +5,11 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Image from 'next/image';
 import { Heart, MessageCircle, Eye, X } from 'lucide-react';
-import { useTranslation } from 'react-i18next';
+import { useTranslations } from 'next-intl';
 import Reply from './Reply';
 
 export default function Comment({ comment, onReply }) {
-    const { t } = useTranslation();
+    const t = useTranslations('comments');
     const [liked, setLiked] = useState(false);
     const [likes, setLikes] = useState(comment.likes || 0);
     const [showReplies, setShowReplies] = useState(false);

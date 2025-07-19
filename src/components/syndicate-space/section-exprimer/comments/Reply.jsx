@@ -5,10 +5,10 @@ import { useState } from 'react';
 import { motion } from 'framer-motion';
 import Image from 'next/image';
 import { Heart } from 'lucide-react';
-import { useTranslation } from 'react-i18next';
+import { useTranslations } from 'next-intl';
 
 export default function Reply({ reply }) {
-    const { t } = useTranslation();
+    const t = useTranslations('comments');
     const [liked, setLiked] = useState(false);
     const [likes, setLikes] = useState(reply.likes || 0);
 

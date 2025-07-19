@@ -1,8 +1,8 @@
 "use client";
 
 import { motion } from 'framer-motion';
-import Link from 'next/link';
-import { useTranslation } from 'react-i18next';
+import { Link } from '@/navigation';
+import { useTranslations } from 'next-intl';
 import { 
     Users, Calendar, MessageCircle, Vote,
     Home, ChevronLeft, ChevronRight, MessageSquare 
@@ -13,7 +13,7 @@ import { STATIC_FILES_URL } from '@/lib/constants';
 import Image from 'next/image';
 
 export default function SyndicateSidebar({ isCollapsed, onToggle, syndicateData }) {
-    const { t } = useTranslation();
+    const t = useTranslations('syndicate_space');
     const pathname = usePathname();
     const params = useParams();
     const { syndicatId } = params;

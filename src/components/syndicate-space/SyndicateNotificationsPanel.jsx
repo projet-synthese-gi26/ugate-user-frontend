@@ -3,7 +3,7 @@
 
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Bell, Calendar, CheckCircle, AlertCircle } from 'lucide-react';
-import { useTranslation } from 'react-i18next';
+import { useTranslations } from 'next-intl';
 import NotificationCard from './NotificationCard'; // <-- Importation du composant isolé
 
 /**
@@ -12,7 +12,7 @@ import NotificationCard from './NotificationCard'; // <-- Importation du composa
  * @param {function} onClose - Fonction pour fermer le panneau.
  */
 export default function SyndicateNotificationsPanel({ isOpen, onClose }) {
-    const { t } = useTranslation();
+    const t = useTranslations('notifications');
 
     const notifications = [
         { icon: Calendar, title: 'Nouvelle réunion', message: 'Réunion mensuelle prévue pour demain à 10h', time: 'Il y a 5 minutes', type: 'info' },

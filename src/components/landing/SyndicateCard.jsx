@@ -1,50 +1,50 @@
+'use client';
 
-"use client";
-
-import Image from "next/image";
-import Link from "next/link";
-import { motion } from "framer-motion";
-import { Users, ChevronRight } from "lucide-react";
-
-const t = (key) => key.replace(/_/g, ' ');
+import Image from 'next/image';
+import { Link } from '@/navigation';
+import { Users, ChevronRight } from 'lucide-react';
 
 export function SyndicateCard({ syndicat }) {
+    const formatMembers = (count) => {
+        if (count >= 1000000) {
+            return `${(count / 1000000).toFixed(1)}M`;
+        } else if (count >= 1000) {
+            return `${(count / 1000).toFixed(0)}k`;
+        }
+        return count.toString();
+    };
+
     return (
-        <motion.div
-            className="bg-white rounded-2xl shadow-xl overflow-hidden hover:shadow-2xl transition-all duration-300 border border-blue-100"
-            whileHover={{ y: -8, scale: 1.02 }}
-        >
-            <div className="relative w-full h-48 overflow-hidden">
+        <div className="bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:scale-105">
+            <div className="relative h-48 overflow-hidden">
                 <Image
                     src={syndicat.image}
                     alt={syndicat.name}
                     fill
-                    style={{ objectFit: 'cover' }}
-                    className="transition-transform duration-300 hover:scale-110"
+                    className="object-cover transition-transform duration-300 hover:scale-110"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-blue-900/20 to-transparent"></div>
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+                <div className="absolute bottom-4 left-4 right-4">
+                    <div className="flex items-center text-white text-sm">
+                        <Users className="w-4 h-4 mr-2" />
+                        <span className="font-semibold">{formatMembers(syndicat.members)} membres</span>
+                    </div>
+                </div>
             </div>
+            
             <div className="p-6">
-                <h3 className="text-xl font-bold text-blue-900 mb-4 h-14 leading-tight">
+                <h3 className="text-xl font-bold text-slate-900 mb-4 line-clamp-2">
                     {syndicat.name}
                 </h3>
-                <div className="flex items-center text-blue-700 mb-6">
-                    <div className="bg-blue-100 rounded-full p-2 mr-3">
-                        <Users className="h-5 w-5 text-blue-600" />
-                    </div>
-                    <span className="font-semibold">{syndicat.members.toLocaleString()} membres</span>
-                </div>
-                <Link href={`/syndicat/${syndicat.id}`} passHref>
-                    <motion.button
-                        className="w-full bg-gradient-to-r from-blue-600 to-blue-800 text-white py-3 rounded-xl flex items-center justify-center transition-all duration-300 hover:from-blue-700 hover:to-blue-900 shadow-lg hover:shadow-xl font-semibold"
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
-                    >
-                        {t("en_savoir_plus")}
-                        <ChevronRight className="ml-2 h-5 w-5" />
-                    </motion.button>
+                
+                <Link
+                    href={`/syndicats/${syndicat.id}`}
+                    className="inline-flex items-center text-blue-600 hover:text-blue-700 font-semibold transition-colors duration-200 group"
+                >
+                    En savoir plus
+                    <ChevronRight className="w-4 h-4 ml-1 transition-transform duration-200 group-hover:translate-x-1" />
                 </Link>
             </div>
-        </motion.div>
+        </div>
     );
 }

@@ -6,7 +6,7 @@ import { formatDistanceToNow, format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { Clock, Heart, MessageCircle, Share2, MapPin, User } from 'lucide-react';
 import { useState } from 'react';
-import { useTranslation } from 'react-i18next';
+import { useTranslations } from 'next-intl';
 import FeedItemHeader from './FeedItemHeader';
 import { SyndicatDefaultAvatar } from '../shared/SyndicatDefaultAvatar';
 import { STATIC_FILES_URL } from '@/lib/constants';
@@ -19,7 +19,7 @@ const ActionButton = ({ icon: Icon, text, onClick, active, activeColor = 'text-r
 );
 
 export default function FeedCard({ item }) {
-    const { t } = useTranslation();
+    const t = useTranslations('dashboard');
     const [liked, setLiked] = useState(false);
 
     const dateToUse = item.createdAt || item.startDate;

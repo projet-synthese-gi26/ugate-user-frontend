@@ -8,7 +8,7 @@ import { useTranslation } from "react-i18next";
 import { Calendar, MapPin, Clock, User, Users, Heart, Share2 } from 'lucide-react';
 
 export default function EventCard({ event, onShowParticipants, onUpdateEvent }) {
-    const { t } = useTranslation();
+    const t = useTranslations('common');
     const [isExpanded, setIsExpanded] = useState(false);
     const [isParticipating, setIsParticipating] = useState(false);
     const [isLiked, setIsLiked] = useState(false);

@@ -2,7 +2,7 @@
 'use client';
 
 import Image from 'next/image';
-import Link from 'next/link';
+import { Link } from '@/navigation';
 import { Users, ChevronRight, ChevronLeft } from 'lucide-react';
 import { ClientMotionWrapper } from '@/components/shared/ClientMotionWrapper';
 import { SyndicateCard } from './SyndicateCard'; // On importe la carte client

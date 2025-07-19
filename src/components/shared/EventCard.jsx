@@ -19,7 +19,7 @@ const InfoPill = ({ icon: Icon, text, colorClass = 'blue' }) => (
 export default function EventCard({ event, onUpdateEvent, onShowParticipants }) {
     const [isExpanded, setIsExpanded] = useState(false);
     const [isParticipating, setIsParticipating] = useState(false);
-    const { t } = useTranslation();
+    const t = useTranslations('common');
 
     // S'assurer que event.startDate et event.endDate sont des objets Date valides
     const startDate = event.startDate ? new Date(event.startDate) : new Date();

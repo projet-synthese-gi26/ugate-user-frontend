@@ -7,7 +7,7 @@ import { useTranslation } from "react-i18next";
 import { Heart, MessageCircle, Clock, Share2 } from "lucide-react";
 
 export default function PublicationCard({ publication }) {
-    const { t } = useTranslation();
+    const t = useTranslations('common');
 
     return (
         <motion.div

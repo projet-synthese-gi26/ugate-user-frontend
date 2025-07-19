@@ -3,7 +3,7 @@
 import { motion } from "framer-motion";
 import { Bell, Building, ChevronLeft, ChevronRight, Search } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import Link from 'next/link';
+import { Link } from '@/navigation';
 import ThemeSwitcher from '../layout/ThemeSwitcher';
 import LanguageSwitcher from '../layout/LanguageSwitcher';
 import { SyndicatDefaultAvatar } from '@/components/shared/SyndicatDefaultAvatar.jsx';
@@ -12,7 +12,7 @@ import { STATIC_FILES_URL } from '@/lib/constants';
 
 export default function AppHeader({ isSidebarOpen, onSidebarToggle, onNotificationToggle }) {
     const { user, isLoading } = useUser();
-    const { t } = useTranslation();
+    const t = useTranslations('dashboard');
 
     const profileImageSrc = !isLoading && user?.profilePictureUrl
         ? `${STATIC_FILES_URL}${user.profilePictureUrl}`

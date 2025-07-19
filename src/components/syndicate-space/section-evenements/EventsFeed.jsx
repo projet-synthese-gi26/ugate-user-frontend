@@ -11,7 +11,7 @@ import ParticipantsModal from './ParticipantsModal';
 import CreateEventModal from './CreateEventModal';
 
 export default function EventsFeed({ initialEvents }) {
-    const { t } = useTranslation();
+    const t = useTranslations('common');
     const [events, setEvents] = useState(initialEvents);
     const [selectedEventForParticipants, setSelectedEventForParticipants] = useState(null);
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);

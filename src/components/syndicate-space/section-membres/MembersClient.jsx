@@ -2,7 +2,7 @@
 
 import { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useTranslation } from 'react-i18next';
+import { useTranslations } from 'next-intl';
 import Swal from 'sweetalert2';
 import { toast } from 'react-hot-toast';
 import { Users, UserPlus, Search, Filter, Check, X, AlertTriangle, UserX, Shield, UserCheck } from 'lucide-react';
@@ -14,7 +14,7 @@ import { SyndicatDefaultAvatar } from '@/components/shared/SyndicatDefaultAvatar
 import Image from 'next/image';
 
 export default function MembersClient({ initialMembers, initialRequests, branches, stats, syndicatId }) {
-    const { t } = useTranslation();
+    const t = useTranslations('members_page');
     const [activeTab, setActiveTab] = useState('members');
     const [searchTerm, setSearchTerm] = useState('');
     const [members, setMembers] = useState(initialMembers);

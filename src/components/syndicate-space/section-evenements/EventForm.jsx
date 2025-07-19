@@ -2,12 +2,12 @@
 "use client";
 
 import { useForm } from 'react-hook-form';
-import { useTranslation } from 'react-i18next';
+import { useTranslations } from 'next-intl';
 import { Calendar, Clock, MapPin, Type, FileText, Image as ImageIcon, Send } from 'lucide-react';
 import { FileUploader } from '@/components/forms/adhesion/file-uploader';
 
 export default function EventForm({ onSubmit, initialData = {}, isLoading }) {
-    const { t } = useTranslation();
+    const t = useTranslations('event_form');
     const { register, handleSubmit, formState: { errors } } = useForm({
         defaultValues: {
             title: initialData.title || '',

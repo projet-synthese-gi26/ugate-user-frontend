@@ -2,12 +2,12 @@
 import LoginAside from "@/components/auth/LoginAside";
 import RegisterForm from "@/components/auth/RegisterForm";
 import SocialLogins from "@/components/auth/SocialLogins";
-import initTranslations from "@/app/i18n";
-import Link from 'next/link';
+import {getTranslations} from 'next-intl/server';
+import { Link } from '@/navigation';
 
 export default async function RegisterPage({ params }) {
     const { locale } = await params;
-    const { t } = await initTranslations(locale, ['translation']);
+    const t = await getTranslations();
 
     const animatedTexts = [
         t("register_page.tagline_1"),

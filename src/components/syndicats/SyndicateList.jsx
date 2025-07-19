@@ -13,7 +13,7 @@ const containerVariants = {
 };
 
 export default function SyndicateList({ initialSyndicates = [] }) {
-    const { t } = useTranslation();
+    const t = useTranslations('syndicats_page');
     const [searchTerm, setSearchTerm] = useState("");
     const [isModalOpen, setIsModalOpen] = useState(false);
 

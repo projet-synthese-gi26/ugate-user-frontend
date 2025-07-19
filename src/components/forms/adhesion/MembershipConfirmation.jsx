@@ -7,7 +7,7 @@ import { CheckCircle, Copy, Download } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
 export const Confirmation = ({ membershipId, antenne, onComplete }) => {
-    const { t } = useTranslation();
+    const t = useTranslations('confirmation');
     const [copied, setCopied] = useState(false);
 
     const copyToClipboard = () => {

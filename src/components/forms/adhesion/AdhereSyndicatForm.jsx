@@ -12,7 +12,7 @@ import { Confirmation } from "./MembershipConfirmation.jsx";
 import { antennesData } from "@/lib/fakeData/antenne.js";
 
 export const AdhereSyndicatForm = ({ syndicat, onComplete }) => {
-    const { t } = useTranslation();
+    const t = useTranslations('adhesion_form');
     const [currentStep, setCurrentStep] = useState(1);
     const [selectedAntenne, setSelectedAntenne] = useState(null);
     const [selectedUserType, setSelectedUserType] = useState(null);

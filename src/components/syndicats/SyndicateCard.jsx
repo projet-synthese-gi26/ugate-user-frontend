@@ -15,7 +15,7 @@ const itemVariants = {
 
 export default function SyndicateCard({ syndicat }) {
     const router = useRouter();
-    const { t } = useTranslation();
+    const t = useTranslations('syndicats_page');
 
     const handleAccessSpace = (syndicatId) => {
         router.push(`/syndicat-space/${syndicatId}`);

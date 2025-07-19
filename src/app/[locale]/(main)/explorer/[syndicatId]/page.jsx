@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation';
-import Link from 'next/link';
+import { Link } from '@/navigation';
 import { ChevronLeft } from 'lucide-react';
-import initTranslations from '@/app/i18n'; // L'import correct pour la traduction côté serveur
+import {getTranslations} from 'next-intl/server'; // L'import correct pour la traduction côté serveur
 import { getSyndicateDetailsAPI } from '@/lib/api/syndicates'; // L'appel API réel
 import SyndicateProfileClient from '@/components/syndicate-profile/SyndicateProfileClient';
 
@@ -34,7 +34,7 @@ export async function generateMetadata({ params }) {
 
 export default async function SyndicateProfilePage({ params }) {
     const { syndicatId, locale } = params;
-    const { t } = await initTranslations(locale, ['translation']);
+    const t = await getTranslations();
 
     const syndicateData = await getSyndicateDetails(syndicatId);
 

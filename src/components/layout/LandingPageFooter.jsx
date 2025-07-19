@@ -2,9 +2,9 @@
 "use client";
 
 import { motion } from 'framer-motion';
-import { useTranslation } from 'react-i18next';
+import { useTranslations } from 'next-intl';
 import { Building } from 'lucide-react';
-import Link from 'next/link';
+import { Link } from '@/navigation';
 
 const sectionVariants = {
     hidden: { opacity: 0, y: 30 },
@@ -12,7 +12,7 @@ const sectionVariants = {
 };
 
 export default function LandingPageFooter() {
-    const { t } = useTranslation();
+    const t = useTranslations('footer');
 
     return (
         <motion.footer

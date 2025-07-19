@@ -1,5 +1,5 @@
 // src/app/(main)/parametres/page.jsx
-import initTranslations from "@/app/i18n";
+import {getTranslations} from 'next-intl/server';
 import UserProfileForm from "@/components/settings/UserProfileForm";
 import { getFirstNameToken, getLastNameToken, getEmailToken, getProfilFromToken } from "@/lib/auth/accountService"; // On supposera que ce service est côté serveur
 
@@ -20,7 +20,7 @@ async function getAuthenticatedUserData() {
 
 export default async function SettingsPage({ params }) {
     const { locale } = await params;
-    const { t } = await initTranslations(locale, ['translation']);
+    const t = await getTranslations();
     const userData = await getAuthenticatedUserData();
 
     return (

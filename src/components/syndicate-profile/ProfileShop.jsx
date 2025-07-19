@@ -4,7 +4,7 @@
 import { motion } from 'framer-motion';
 import Image from 'next/image';
 import { ShoppingCart } from 'lucide-react';
-import { useTranslation } from 'react-i18next';
+import { useTranslations } from 'next-intl';
 import { toast } from 'react-hot-toast'; // Pour une notification à l'utilisateur
 
 /**
@@ -12,7 +12,7 @@ import { toast } from 'react-hot-toast'; // Pour une notification à l'utilisate
  * @param {Array} [products=[]] - Le tableau des objets produits.
  */
 export default function ProfileShop({ products = [] }) {
-    const { t } = useTranslation();
+    const t = useTranslations('profile_page');
 
     const handleOrderClick = (productName) => {
         // Logique de commande future (ex: ajouter au panier, ouvrir une modale de paiement)

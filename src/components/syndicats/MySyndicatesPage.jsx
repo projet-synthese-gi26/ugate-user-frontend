@@ -9,7 +9,7 @@ import SyndicateList from "./SyndicateList";
 import CreateSyndicateModal from "./CreateSyndicateModal";
 
 export default function MySyndicatesPage({ initialSyndicates }) {
-    const { t } = useTranslation();
+    const t = useTranslations('syndicats_page');
     const [searchTerm, setSearchTerm] = useState("");
     const [syndicats, setSyndicats] = useState(initialSyndicates);
     const [isModalOpen, setIsModalOpen] = useState(false);

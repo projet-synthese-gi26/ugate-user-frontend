@@ -5,10 +5,10 @@ import { useForm, Controller } from 'react-hook-form';
 import { motion } from "framer-motion";
 import { FileText, Camera, CreditCard, Send, ArrowRight, User, Phone, Mail, Home, Briefcase, MessageSquare } from "lucide-react";
 import { FileUploader } from "./file-uploader.jsx";
-import { useTranslation } from 'react-i18next';
+import { useTranslations } from 'next-intl';
 
 export const IndividualForm = ({ onSubmit, formData, setFormData }) => {
-    const { t } = useTranslation();
+    const t = useTranslations('adhesion_form');
     const { register, handleSubmit, control, formState: { errors } } = useForm({
         // Pré-remplit le formulaire avec les données existantes s'il y en a
         defaultValues: formData

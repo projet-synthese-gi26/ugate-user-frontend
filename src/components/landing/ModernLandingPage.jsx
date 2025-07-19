@@ -2,7 +2,7 @@
 
 import { motion } from "framer-motion";
 import { ChevronRight, Shield, Users, Building, MessageSquare, Calendar, BarChart3, Heart, Share2, Clock, MapPin, MessageCircle } from "lucide-react";
-import Link from "next/link";
+import { Link } from "@/navigation";
 import Image from "next/image";
 
 // Hero Section Component

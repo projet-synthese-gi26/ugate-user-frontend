@@ -2,10 +2,10 @@
 
 import { motion } from 'framer-motion';
 import { Users, Clock, Briefcase } from 'lucide-react';
-import { useTranslation } from 'react-i18next';
+import { useTranslations } from 'next-intl';
 
 export default function ProfileKeyInfoCard({ syndicate, variants }) {
-    const { t } = useTranslation();
+    const t = useTranslations('profile_page');
 
     const getYearFromDate = (isoDate) => isoDate ? new Date(isoDate).getFullYear() : "N/A";
 

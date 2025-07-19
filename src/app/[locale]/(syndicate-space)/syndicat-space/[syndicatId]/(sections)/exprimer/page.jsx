@@ -1,4 +1,4 @@
-import initTranslations from "@/app/i18n"; // CORRECTION : On importe le bon helper
+import {getTranslations} from 'next-intl/server'; // CORRECTION : On importe le bon helper
 import PublicationsFeed from "@/components/syndicate-space/section-exprimer/PublicationsFeed";
 import { getPostsAPI } from "@/lib/api/posts";
 
@@ -15,7 +15,7 @@ async function getPublications(syndicatId) {
 export default async function ExprimerPage({ params }) {
     const { locale, syndicatId } = params;
     // CORRECTION : On utilise `initTranslations`
-    const { t } = await initTranslations(locale, ['translation']);
+    const t = await getTranslations();
     const initialPosts = await getPublications(syndicatId);
 
     return (

@@ -8,7 +8,7 @@ import { useUser } from "@/context/UserContext"; // Importe notre hook
 
 export default function WelcomeSection() { // Plus besoin de props
     const { user, isLoading } = useUser(); // Récupère les données depuis le contexte
-    const { t } = useTranslation();
+    const t = useTranslations('dashboard');
     const [isModalOpen, setIsModalOpen] = useState(false);
 
     // Construit le nom complet. Gère le cas où `user` n'est pas encore chargé.

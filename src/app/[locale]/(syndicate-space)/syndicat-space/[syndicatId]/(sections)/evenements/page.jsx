@@ -1,5 +1,5 @@
 // src/app/(main)/syndicat-space/[syndicatId]/(sections)/evenements/page.jsx
-import initTranslations from "@/app/i18n";
+import {getTranslations} from 'next-intl/server';
 import { fakeEvents } from "@/lib/fakeData/syndicateDetailsFake"; 
 import EventsFeed from "@/components/syndicate-space/section-evenements/EventsFeed";
 
@@ -16,7 +16,7 @@ async function getEvents(syndicatId) {
 
 export default async function EventsPage({ params }) {
     const { locale, syndicatId } = params;
-    const { t } = await initTranslations(locale, ['translation']);
+    const t = await getTranslations();
     const initialEvents = await getEvents(syndicatId);
 
     return (

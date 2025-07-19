@@ -4,7 +4,7 @@
 import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { useGoogleLogin } from '@react-oauth/google';
-import { useTranslation } from 'react-i18next';
+import { useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
 import { loginWithGoogle, loginWithApple } from '@/lib/api/auth';
@@ -23,7 +23,7 @@ const SocialButton = ({ children, ...props }) => (
 
 
 export default function SocialLogins() {
-    const { t } = useTranslation();
+    const t = useTranslations('login_page');
     const router = useRouter();
     const [isAppleSDKLoaded, setIsAppleSDKLoaded] = useState(false);
 

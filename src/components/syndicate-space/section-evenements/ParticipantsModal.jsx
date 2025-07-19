@@ -6,7 +6,7 @@ import { useTranslation } from "react-i18next";
 import { X, Users } from 'lucide-react';
 
 export default function ParticipantsModal({ event, onClose }) {
-    const { t } = useTranslation();
+    const t = useTranslations('events_page');
 
     return (
         <AnimatePresence>

@@ -3,7 +3,7 @@
 
 import { motion } from "framer-motion";
 import { LogOut } from "lucide-react";
-import Link from 'next/link';
+import { Link } from '@/navigation';
 import { useRouter, usePathname } from 'next/navigation';
 import { navItems } from "./navItems.js";
 import { useTranslation } from "react-i18next";
@@ -11,7 +11,7 @@ import { useTranslation } from "react-i18next";
 export default function AppSidebar({ isOpen }) {
     const router = useRouter();
     const pathname = usePathname(); // Hook pour obtenir la route actuelle
-    const { t } = useTranslation();
+    const t = useTranslations('dashboard');
 
     const handleLogout = () => {
         // Idéalement, appeler une fonction API de déconnexion ici

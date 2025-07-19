@@ -12,7 +12,7 @@ import { likePostAPI, addCommentAPI } from "@/lib/api/posts";
 import { STATIC_FILES_URL } from '@/lib/constants';
 
 export default function Post({ post, onUpdatePost, syndicatId }) {
-    const { t } = useTranslation();
+    const t = useTranslations('express_page');
     const [liked, setLiked] = useState(false); // A améliorer avec l'état réel de l'utilisateur
     const [bookmarked, setBookmarked] = useState(false);
     const [isCommentModalOpen, setIsCommentModalOpen] = useState(false);

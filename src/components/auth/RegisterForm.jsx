@@ -5,12 +5,12 @@ import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { motion } from 'framer-motion';
 import { User, Mail, Lock, Calendar, AlertCircle } from 'lucide-react';
-import { useTranslation } from 'react-i18next';
+import { useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
 import Swal from 'sweetalert2';
 import { registerWithEmail } from '@/lib/api/auth';
 import PasswordStrengthIndicator from './PasswordStrength';
-import Link from 'next/link'; // Ajouté pour le lien "Déjà enregistré ?"
+import { Link } from '@/navigation'; // Ajouté pour le lien "Déjà enregistré ?"
 
 // Composant Alert pour les messages d'erreur de validation
 const Alert = ({ children }) => (
@@ -58,7 +58,7 @@ export default function RegisterForm() {
     });
     const [isLoading, setIsLoading] = useState(false);
     const router = useRouter();
-    const { t } = useTranslation();
+    const t = useTranslations('register_page');
     const password = watch('password', ''); // Surveille le champ password pour l'indicateur de force
 
     // Valide la complexité du mot de passe

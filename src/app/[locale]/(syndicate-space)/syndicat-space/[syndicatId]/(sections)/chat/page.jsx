@@ -1,5 +1,5 @@
 // src/app/(syndicate-space)/syndicat-space/[syndicatId]/(sections)/chat/page.jsx
-import initTranslations from "@/app/i18n";
+import {getTranslations} from 'next-intl/server';
 import ChatClient from "@/components/syndicate-space/section-chat/ChatClient";
 import { fakeChats, fakeMessages, fakeSyndicateMembers } from '@/lib/fakeData/syndicateDetailsFake';
 
@@ -15,7 +15,7 @@ async function getChatData(syndicatId) {
 
 export default async function ChatPage({ params }) {
     const { locale, syndicatId } = params;
-    const { t } = await initTranslations(locale, ['translation']);
+    const t = await getTranslations();
     const chatData = await getChatData(syndicatId);
 
     return (
