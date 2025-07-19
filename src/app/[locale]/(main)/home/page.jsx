@@ -1,4 +1,4 @@
-import {useTranslations} from 'next-intl';
+import {getTranslations} from 'next-intl/server';
 import {Link} from '@/i18n/navigation';
 import Feed from "@/components/dashboard/Feed"; // On réutilise le Feed existant
 import WelcomeSection from "@/components/dashboard/WelcomeSection";
@@ -15,7 +15,7 @@ async function getDashboardData() {
 export default async function HomePage({ params }) {
     const { locale } = await params;
     const { feed } = await getDashboardData();
-    const t = useTranslations();
+    const t = await getTranslations();
 
     return (
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
