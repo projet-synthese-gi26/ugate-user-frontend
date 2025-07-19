@@ -1,0 +1,24 @@
+{
+  "gérerSyndicats": "Manage your unions, simply.",
+  "syndicmanager_description": "The centralized platform for efficient and transparent management of your union activities.",
+  "commencer_maintenant": "Get started now",
+  "gestionSyndicale": "Union management image",
+  "seConnecter": "Log in",
+  "sinscrire": "Sign up",
+  "pourquoi_choisir_syndicmanager": "Why choose SyndicManager?",
+  "gestion_efficace": "Efficient Management",
+  "description_gestion_efficace": "Centralize information, track memberships, and automate administrative tasks.",
+  "collaboration_simplifiee": "Simplified Collaboration",
+  "description_collaboration_simplifiee": "Facilitate communication and document sharing between members and offices.",
+  "transparence_accrue": "Increased Transparency",
+  "description_transparence_accrue": "Provide full visibility into the finances, decisions, and activities of the union.",
+
+   "heroComponent": {
+    "title_part1": "Revolutionize",
+    "title_highlighted": "union management",
+    "subtitle": "A modern platform to optimize the communication, transparency, and efficiency of your union organization.",
+    "cta_main": "Get started now",
+    "cta_secondary": "Explore unions",
+    "image_alt": "Modern union management"
+  }
+}

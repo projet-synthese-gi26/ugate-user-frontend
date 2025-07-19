@@ -1,14 +1,13 @@
-// src/components/landing/HeroSection.jsx
 "use client";
 
 import { motion } from "framer-motion";
 import { ChevronRight } from "lucide-react";
-import Link from "next/link";
+import { Link } from "@/navigation";
 import Image from "next/image";
-import { useTranslation } from "react-i18next";
+import { useTranslations } from "next-intl";
 
 export default function HeroSection() {
-    const { t } = useTranslation();
+    const t = useTranslations("heroComponent");
 
     return (
         <section className="relative bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-900 text-white py-24 lg:py-32">
@@ -21,14 +20,13 @@ export default function HeroSection() {
                             transition={{ duration: 0.6 }}
                         >
                             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 leading-tight">
-                                Révolutionnez la{' '}
+                                {t('title_part1')}{' '}
                                 <span className="bg-gradient-to-r from-blue-400 to-indigo-400 bg-clip-text text-transparent">
-                                    gestion syndicale
+                                    {t('title_highlighted')}
                                 </span>
                             </h1>
                             <p className="text-xl md:text-2xl mb-8 text-slate-300 leading-relaxed max-w-2xl">
-                                Plateforme moderne pour optimiser la communication, la transparence et l'efficacité 
-                                de votre organisation syndicale.
+                                {t('subtitle')}
                             </p>
                             <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
                                 <Link href="/register">
@@ -37,7 +35,7 @@ export default function HeroSection() {
                                         whileHover={{ scale: 1.02 }}
                                         whileTap={{ scale: 0.98 }}
                                     >
-                                        {t("commencer_maintenant")}
+                                        {t('cta_main')}
                                         <ChevronRight className="ml-2 h-5 w-5" />
                                     </motion.button>
                                 </Link>
@@ -47,7 +45,7 @@ export default function HeroSection() {
                                         whileHover={{ scale: 1.02 }}
                                         whileTap={{ scale: 0.98 }}
                                     >
-                                        Explorer les syndicats
+                                        {t('cta_secondary')}
                                     </motion.button>
                                 </Link>
                             </div>
@@ -61,7 +59,7 @@ export default function HeroSection() {
                         >
                             <Image
                                 src="https://images.unsplash.com/photo-1560472354-b33ff0c44a43?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80"
-                                alt="Gestion syndicale moderne"
+                                alt={t('image_alt')}
                                 width={1350}
                                 height={900}
                                 className="rounded-xl shadow-2xl"
