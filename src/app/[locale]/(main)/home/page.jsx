@@ -12,7 +12,8 @@ async function getDashboardData() {
     };
 }
 
-export default async function HomePage({ params: { locale } }) {
+export default async function HomePage({ params }) {
+    const { locale } = await params;
     const { feed } = await getDashboardData();
     const t = useTranslations();
 

@@ -3,7 +3,8 @@ import ActivityFeed from '@/components/landing/ActivityFeed';
 import PopularSyndicates from '@/components/landing/PopularSyndicates';
 import {useTranslations} from 'next-intl';
 
-export default async function LandingPage({ params: { locale } }) {
+export default async function LandingPage({ params }) {
+    const { locale } = await params;
     const t = useTranslations();
     
     return (

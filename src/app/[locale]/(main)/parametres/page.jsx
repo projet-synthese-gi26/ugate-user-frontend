@@ -18,7 +18,8 @@ async function getAuthenticatedUserData() {
     };
 }
 
-export default async function SettingsPage({ params: { locale } }) {
+export default async function SettingsPage({ params }) {
+    const { locale } = await params;
     const { t } = await initTranslations(locale, ['translation']);
     const userData = await getAuthenticatedUserData();
 

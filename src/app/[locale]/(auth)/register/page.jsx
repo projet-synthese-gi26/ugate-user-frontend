@@ -5,7 +5,8 @@ import SocialLogins from "@/components/auth/SocialLogins";
 import initTranslations from "@/app/i18n";
 import Link from 'next/link';
 
-export default async function RegisterPage({ params: { locale } }) {
+export default async function RegisterPage({ params }) {
+    const { locale } = await params;
     const { t } = await initTranslations(locale, ['translation']);
 
     const animatedTexts = [
