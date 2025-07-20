@@ -2,7 +2,7 @@
 
 ## Informations générales
 
-- **Date de génération**: 19/07/2025 19:56:40
+- **Date de génération**: 20/07/2025 01:48:19
 
 ## Structure du projet
 
@@ -184,6 +184,7 @@
     ⚛️ navigation.jsx
     ⚛️ request.jsx
     ⚛️ routing.jsx
+  📜 i18n.js
   📁 lib/
     📁 api/
       📜 auth.js
@@ -289,7 +290,7 @@
 
 ```json
 import createNextIntlPlugin from 'next-intl/plugin';
-import i18nConfig from './src/i18n.mjs';
+import i18nConfig from './src/i18n.js';
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {

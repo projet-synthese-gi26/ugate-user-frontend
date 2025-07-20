@@ -1,5 +1,5 @@
 import createNextIntlPlugin from 'next-intl/plugin';
-import i18nConfig from './src/i18n.mjs';
+import i18nConfig from './src/i18n.js';
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
