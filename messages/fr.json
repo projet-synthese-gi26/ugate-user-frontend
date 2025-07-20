@@ -105,7 +105,19 @@
     "dear_user": "cher utilisateur",
     "portal_description": "Voici votre portail central pour toutes vos activités syndicales.",
     "launch_syndicate": "Lancer mon syndicat",
-    "news_and_events": "Actualités & Événements"
+    "news_and_events": "Actualités & Événements",
+      "sidebar": {
+        "home": "Accueil",
+        "my_syndicats": "Mes Syndicats",
+        "explorer": "Explorer",
+        "settings": "Paramètres",
+        "news": "Actualité",
+        "manage_organizations": "Gérer vos organisations",
+        "discover_syndicats": "Découvrir de nouveaux syndicats",
+        "account_settings": "Configuration du compte"
+      }
+
+
   },
   "landing_page": {
     "gérerSyndicats": "Gérez vos syndicats avec puissance et simplicité.",
@@ -295,7 +307,8 @@
     "participants": "participant(s)",
     "participating": "Je participe",
     "participate_button": "Participer",
-    "participants_title": "Participants"
+    "participants_title": "Participants",
+    "see_and_join": "Voir et rejoindre"
   },
   "event_form": {
     "modal_title": "Créer un nouvel événement",
@@ -324,7 +337,14 @@
     "cta_main": "Commencer maintenant",
     "cta_secondary": "Explorer les syndicats",
     "image_alt": "Gestion syndicale moderne"
-  }
+  },
+  "feed": {
+    "empty_feed": "Le fil d'actualité est vide pour le moment.",
+    "come_back_later": "Revenez plus tard pour voir les dernières publications et événements."
+  },
+
+
+
 
 
 }

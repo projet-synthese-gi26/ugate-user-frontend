@@ -1,6 +1,4 @@
-// src/components/dashboard/AppSidebar.jsx
 "use client";
-
 import { motion } from "framer-motion";
 import { LogOut } from "lucide-react";
 import { Link } from '@/navigation';
@@ -10,16 +8,13 @@ import { useTranslations } from "next-intl";
 
 export default function AppSidebar({ isOpen }) {
     const router = useRouter();
-    const pathname = usePathname(); // Hook pour obtenir la route actuelle
-    const t = useTranslations('dashboard');
+    const pathname = usePathname();
+    const t = useTranslations('dashboard.sidebar');
 
     const handleLogout = () => {
-        // Idéalement, appeler une fonction API de déconnexion ici
-        // logout();
         router.push('/login');
     };
 
-    // La route active est déterminée par rapport au chemin actuel
     const isActive = (route) => pathname.startsWith(route);
 
     return (
@@ -39,13 +34,13 @@ export default function AppSidebar({ isOpen }) {
                                     ? `bg-gradient-to-r ${item.gradient} text-white shadow-lg`
                                     : "bg-white text-gray-600 hover:bg-gray-50"
                             } ${isOpen ? "flex items-center" : "flex justify-center"}`}
-                            title={isOpen ? '' : item.label} // Tooltip quand la sidebar est fermée
+                            title={isOpen ? '' : t(item.label)}
                         >
                             <item.icon className={`h-6 w-6 flex-shrink-0 ${isOpen ? "mr-3" : ""}`} />
                             {isOpen && (
                                 <div className="text-left overflow-hidden w-full">
-                                    <p className="font-semibold truncate">{item.label}</p>
-                                    <p className={`text-xs truncate ${isActive(item.route) ? "text-white/80" : "text-gray-500"}`}>{item.description}</p>
+                                    <p className="font-semibold truncate">{t(item.label)}</p>
+                                    <p className={`text-xs truncate ${isActive(item.route) ? "text-white/80" : "text-gray-500"}`}>{t(item.description)}</p>
                                 </div>
                             )}
                         </motion.div>
@@ -58,10 +53,10 @@ export default function AppSidebar({ isOpen }) {
                     whileHover={{ scale: isOpen ? 1.02 : 1.1 }}
                     whileTap={{ scale: 0.98 }}
                     className="w-full p-3 bg-gradient-to-r from-red-500 to-pink-600 text-white rounded-xl shadow-lg flex items-center justify-center"
-                    title={isOpen ? '' : "Déconnexion"}
+                    title={isOpen ? '' : t("logout")}
                 >
                     <LogOut className="h-6 w-6" />
-                    {isOpen && <span className="font-medium ml-2">Déconnexion</span>}
+                    {isOpen && <span className="font-medium ml-2">{t("logout")}</span>}
                 </motion.button>
             </div>
         </motion.nav>
