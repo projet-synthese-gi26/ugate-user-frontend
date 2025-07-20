@@ -4,9 +4,8 @@ import { useForm } from 'react-hook-form';
 import { motion } from 'framer-motion';
 import { Mail, Lock, AlertCircle } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import { useRouter } from 'next/navigation';
 import Swal from 'sweetalert2';
-import { Link } from '@/navigation';
+import { Link, useRouter } from '@/navigation';
 import { loginWithEmail } from '@/lib/api/auth';
 
 // Composant Input réutilisable avec icône

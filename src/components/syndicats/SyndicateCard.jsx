@@ -2,7 +2,7 @@
 
 import { motion } from "framer-motion";
 import Image from "next/image";
-import { useRouter } from 'next/navigation';
+import { useRouter } from '@/navigation';
 import { ArrowRightCircle, Users, BarChart2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { STATIC_FILES_URL } from "@/lib/constants";
@@ -57,7 +57,7 @@ export default function SyndicateCard({ syndicat }) {
                         whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.98 }}
                         onClick={() => handleAccessSpace(syndicat.id)}
                     >
-                        <span>{t("syndicats_page.access_space")}</span>
+                        <span>{t("access_space")}</span>
                         <ArrowRightCircle className="h-5 w-5 ml-2 transition-transform duration-300 group-hover:translate-x-1" />
                     </motion.button>
                 </div>

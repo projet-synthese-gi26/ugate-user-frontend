@@ -6,11 +6,10 @@ import { useForm } from 'react-hook-form';
 import { motion } from 'framer-motion';
 import { User, Mail, Lock, Calendar, AlertCircle } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import { useRouter } from 'next/navigation';
 import Swal from 'sweetalert2';
 import { registerWithEmail } from '@/lib/api/auth';
 import PasswordStrengthIndicator from './PasswordStrength';
-import { Link } from '@/navigation'; // Ajouté pour le lien "Déjà enregistré ?"
+import { Link, useRouter } from '@/navigation'; // Ajouté pour le lien "Déjà enregistré ?"
 
 // Composant Alert pour les messages d'erreur de validation
 const Alert = ({ children }) => (

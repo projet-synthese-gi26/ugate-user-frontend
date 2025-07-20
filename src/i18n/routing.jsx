@@ -1,12 +1,16 @@
 import {defineRouting} from 'next-intl/routing';
+import { locales, defaultLocale, localePrefix, pathnames } from '../../i18nConfig.js';
  
 export const routing = defineRouting({
   // A list of all locales that are supported
-  locales: ['en', 'fr', 'de'],
+  locales,
  
   // Used when no locale matches
-  defaultLocale: 'fr',
+  defaultLocale,
   
-  // AJOUT IMPORTANT : Force l'affichage de la locale dans l'URL
-  localePrefix: 'always' // ou 'as-needed'
+  // Prefix strategy
+  localePrefix,
+  
+  // Pathname translations
+  pathnames
 });

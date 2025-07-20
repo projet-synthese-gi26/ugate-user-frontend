@@ -21,20 +21,21 @@
     "cancel": "Annuler",
     "submit": "Soumettre",
     "like": "J'aime",
-    "likes__one": "{{count}} j'aime",
-    "likes_other": "{{count}} j'aimes",
+    "likes__one": "{count} j'aime",
+    "likes_other": "{count} j'aimes",
     "comment": "Commentaire",
-    "comments_one": "{{count}} commentaire",
-    "comments_other": "{{count}} commentaires",
+    "comments_one": "{count} commentaire",
+    "comments_other": "{count} commentaires",
     "share": "Partager",
     "report": "Signaler",
     "unknown_date": "Date inconnue",
-    "participants": "Participants"
+    "participants": "Participants",
+    "see_and_join": "Voir et rejoindre"
   },
   "errors": {
     "required_field": "Ce champ est obligatoire.",
     "invalid_email": "Le format de l'email est invalide.",
-    "min_length": "Ce champ doit contenir au moins {{count}} caractères.",
+    "min_length": "Ce champ doit contenir au moins {count} caractères.",
     "field_cant_be_empty": "Le champ ne peut pas être vide."
   },
   "login_page": {
@@ -94,14 +95,14 @@
     "register_button": "S'inscrire",
     "register_button_loading": "Inscription...",
     "success_title": "Inscription réussie !",
-    "success_text": "Bienvenue, {{name}} ! Vous pouvez maintenant vous connecter.",
+    "success_text": "Bienvenue, {name} ! Vous pouvez maintenant vous connecter.",
     "error_title": "Erreur d'inscription",
     "generic_error": "Une erreur est survenue. Veuillez vérifier vos informations.",
     "validation_error": "Les données fournies sont invalides.",
     "email_already_used": "Cet e-mail est déjà utilisé."
   },
   "dashboard": {
-    "welcome": "Bienvenue, {{name}} !",
+    "welcome": "Bienvenue, {name} !",
     "dear_user": "cher utilisateur",
     "portal_description": "Voici votre portail central pour toutes vos activités syndicales.",
     "launch_syndicate": "Lancer mon syndicat",
@@ -114,7 +115,8 @@
       "news": "Actualité",
       "manage_organizations": "Gérer vos organisations",
       "discover_syndicats": "Découvrir de nouveaux syndicats",
-      "account_settings": "Configuration du compte"
+      "account_settings": "Configuration du compte",
+      "logout": "Se déconnecter"
     },
     "nav_items": {
       "dashboard": {
@@ -180,13 +182,13 @@
   },
   "notifications": {
     "title": "Notifications",
-    "subtitle": "Vous avez {{count}} notifications non lues.",
+    "subtitle": "Vous avez {count} notifications non lues.",
     "see_all": "Voir toutes les notifications"
   },
   "explorer_page": {
     "title": "Explorez les Syndicats",
     "description": "Découvrez et rejoignez des communautés qui partagent vos intérêts et vos objectifs professionnels.",
-    "count": "{{count}} syndicats attendent de vous connecter.",
+    "count": "{count} syndicats attendent de vous connecter.",
     "search_placeholder": "Rechercher un syndicat par nom, secteur...",
     "load_more_button": "Charger plus",
     "end_of_list_toast": "Vous avez atteint la fin de la liste !",
@@ -218,7 +220,7 @@
     "team_title": "L'équipe dirigeante"
   },
   "adhesion_modal": {
-    "title": "Adhérer à {{syndicatName}}",
+    "title": "Adhérer à {syndicatName}",
     "subtitle": "Suivez les étapes pour finaliser votre demande d'adhésion."
   },
   "adhesion_wizard": {
@@ -226,7 +228,7 @@
     "step2_name": "Type d'adhésion",
     "step3_name": "Vos informations",
     "step4_name": "Confirmation",
-    "step_of": "Étape {{current}} sur {{total}}",
+    "step_of": "Étape {current} sur {total}",
     "previous": "Précédent",
     "next": "Suivant"
   },
@@ -256,7 +258,7 @@
   },
   "confirmation": {
     "title": "Demande envoyée !",
-    "subtitle": "Votre demande d'adhésion pour l'antenne {{antenneName}} a bien été reçue.",
+    "subtitle": "Votre demande d'adhésion pour l'antenne {antenneName} a bien été reçue.",
     "ref_number": "Votre numéro de référence",
     "next_steps_title": "Prochaines étapes",
     "step_1": "Votre demande sera examinée par les responsables de l'antenne.",
@@ -308,7 +310,7 @@
   "express_page": {
     "title": "Exprimez-vous",
     "subtitle": "Partagez vos idées, publiez des actualités et interagissez avec les autres membres du syndicat.",
-    "post_placeholder": "Quoi de neuf, {{name}} ?",
+    "post_placeholder": "Quoi de neuf, {name} ?",
     "new_post_modal_title": "Créer une publication",
     "publish_button": "Publier",
     "cancel_button": "Annuler",

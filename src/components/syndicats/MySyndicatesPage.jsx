@@ -27,7 +27,7 @@ export default function MySyndicatesPage({ initialSyndicates }) {
                 <div className="relative group">
                     <input
                         type="text"
-                        placeholder={t("syndicats.search_placeholder")}
+                        placeholder={t("search_placeholder")}
                         className="w-full pl-16 pr-6 py-4 rounded-2xl border-2 border-gray-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all text-lg"
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
@@ -44,11 +44,11 @@ export default function MySyndicatesPage({ initialSyndicates }) {
                 <div className="text-center py-20">
                     <div className="max-w-md mx-auto">
                         <AlertCircle className="h-12 w-12 text-blue-600 mx-auto mb-4" />
-                        <h3 className="text-2xl font-semibold text-gray-900 mb-2">{t("syndicats.empty_title")}</h3>
-                        <p className="text-gray-600 mb-6">{t("syndicats.empty_description")}</p>
+                        <h3 className="text-2xl font-semibold text-gray-900 mb-2">{t("empty_list_title")}</h3>
+                        <p className="text-gray-600 mb-6">{t("empty_list_desc")}</p>
                         <button onClick={() => setIsModalOpen(true)} className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center mx-auto">
                             <PlusCircle className="h-5 w-5 mr-2" />
-                            {t("syndicats.create_button")}
+                            {t("create_button")}
                         </button>
                     </div>
                 </div>

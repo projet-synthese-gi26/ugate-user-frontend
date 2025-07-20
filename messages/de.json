@@ -20,20 +20,21 @@
     "cancel": "Abbrechen",
     "submit": "Absenden",
     "like": "Gefällt mir",
-    "likes__one": "{{count}} Gefällt mir",
-    "likes_other": "{{count}} Gefällt mir",
+    "likes__one": "{count} Gefällt mir",
+    "likes_other": "{count} Gefällt mir",
     "comment": "Kommentar",
-    "comments_one": "{{count}} Kommentar",
-    "comments_other": "{{count}} Kommentare",
+    "comments_one": "{count} Kommentar",
+    "comments_other": "{count} Kommentare",
     "share": "Teilen",
     "report": "Melden",
     "unknown_date": "Unbekanntes Datum",
-    "participants": "Teilnehmer"
+    "participants": "Teilnehmer",
+    "see_and_join": "Sehen und beitreten"
   },
   "errors": {
     "required_field": "Dieses Feld ist erforderlich.",
     "invalid_email": "Ungültiges E-Mail-Format.",
-    "min_length": "Dieses Feld muss mindestens {{count}} Zeichen enthalten.",
+    "min_length": "Dieses Feld muss mindestens {count} Zeichen enthalten.",
     "field_cant_be_empty": "Feld kann nicht leer sein."
   },
   "login_page": {
@@ -93,14 +94,14 @@
     "register_button": "Registrieren",
     "register_button_loading": "Registrierung...",
     "success_title": "Registrierung erfolgreich!",
-    "success_text": "Willkommen, {{name}}! Sie können sich jetzt anmelden.",
+    "success_text": "Willkommen, {name}! Sie können sich jetzt anmelden.",
     "error_title": "Registrierungsfehler",
     "generic_error": "Ein Fehler ist aufgetreten. Bitte überprüfen Sie Ihre Angaben.",
     "validation_error": "Die bereitgestellten Daten sind ungültig.",
     "email_already_used": "Diese E-Mail wird bereits verwendet."
   },
   "dashboard": {
-    "welcome": "Willkommen, {{name}}!",
+    "welcome": "Willkommen, {name}!",
     "dear_user": "lieber Benutzer",
     "portal_description": "Hier ist Ihr zentrales Portal für alle Ihre Gewerkschaftsaktivitäten.",
     "launch_syndicate": "Meine Gewerkschaft starten",
@@ -149,13 +150,13 @@
   },
   "notifications": {
     "title": "Benachrichtigungen",
-    "subtitle": "Sie haben {{count}} ungelesene Benachrichtigungen.",
+    "subtitle": "Sie haben {count} ungelesene Benachrichtigungen.",
     "see_all": "Alle Benachrichtigungen anzeigen"
   },
   "explorer_page": {
     "title": "Gewerkschaften erkunden",
     "description": "Entdecken und treten Sie Gemeinschaften bei, die Ihre Interessen und beruflichen Ziele teilen.",
-    "count": "{{count}} Gewerkschaften warten darauf, sich mit Ihnen zu verbinden.",
+    "count": "{count} Gewerkschaften warten darauf, sich mit Ihnen zu verbinden.",
     "search_placeholder": "Nach einer Gewerkschaft nach Name, Sektor suchen...",
     "load_more_button": "Mehr laden",
     "end_of_list_toast": "Sie haben das Ende der Liste erreicht!",
@@ -183,7 +184,7 @@
     "team_title": "Das Führungsteam"
   },
   "adhesion_modal": {
-    "title": "{{syndicatName}} beitreten",
+    "title": "{syndicatName} beitreten",
     "subtitle": "Folgen Sie den Schritten, um Ihren Mitgliedschaftsantrag abzuschließen."
   },
   "adhesion_wizard": {
@@ -191,7 +192,7 @@
     "step2_name": "Mitgliedschaftstyp",
     "step3_name": "Ihre Informationen",
     "step4_name": "Bestätigung",
-    "step_of": "Schritt {{current}} von {{total}}",
+    "step_of": "Schritt {current} von {total}",
     "previous": "Zurück",
     "next": "Weiter"
   },
@@ -221,7 +222,7 @@
   },
   "confirmation": {
     "title": "Antrag gesendet!",
-    "subtitle": "Ihr Mitgliedschaftsantrag für die Zweigstelle {{antenneName}} wurde erhalten.",
+    "subtitle": "Ihr Mitgliedschaftsantrag für die Zweigstelle {antenneName} wurde erhalten.",
     "ref_number": "Ihre Referenznummer",
     "next_steps_title": "Nächste Schritte",
     "step_1": "Ihr Antrag wird von den Zweigstellenmanagern geprüft.",
@@ -273,7 +274,7 @@
   "express_page": {
     "title": "Drücken Sie sich aus",
     "subtitle": "Teilen Sie Ihre Ideen, veröffentlichen Sie Nachrichten und interagieren Sie mit anderen Gewerkschaftsmitgliedern.",
-    "post_placeholder": "Was gibt's Neues, {{name}}?",
+    "post_placeholder": "Was gibt's Neues, {name}?",
     "new_post_modal_title": "Einen Beitrag erstellen",
     "publish_button": "Veröffentlichen",
     "cancel_button": "Abbrechen",

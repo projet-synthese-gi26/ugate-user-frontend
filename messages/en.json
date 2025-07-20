@@ -20,20 +20,21 @@
     "cancel": "Cancel",
     "submit": "Submit",
     "like": "Like",
-    "likes__one": "{{count}} like",
-    "likes_other": "{{count}} likes",
+    "likes__one": "{count} like",
+    "likes_other": "{count} likes",
     "comment": "Comment",
-    "comments_one": "{{count}} comment",
-    "comments_other": "{{count}} comments",
+    "comments_one": "{count} comment",
+    "comments_other": "{count} comments",
     "share": "Share",
     "report": "Report",
     "unknown_date": "Unknown date",
-    "participants": "Participants"
+    "participants": "Participants",
+    "see_and_join": "See and join"
   },
   "errors": {
     "required_field": "This field is required.",
     "invalid_email": "Invalid email format.",
-    "min_length": "This field must contain at least {{count}} characters.",
+    "min_length": "This field must contain at least {count} characters.",
     "field_cant_be_empty": "Field cannot be empty."
   },
   "login_page": {
@@ -93,18 +94,47 @@
     "register_button": "Sign up",
     "register_button_loading": "Signing up...",
     "success_title": "Registration successful!",
-    "success_text": "Welcome, {{name}}! You can now sign in.",
+    "success_text": "Welcome, {name}! You can now sign in.",
     "error_title": "Registration error",
     "generic_error": "An error occurred. Please check your information.",
     "validation_error": "The provided data is invalid.",
     "email_already_used": "This email is already in use."
   },
   "dashboard": {
-    "welcome": "Welcome, {{name}}!",
+    "welcome": "Welcome, {name}!",
     "dear_user": "dear user",
     "portal_description": "Here is your central portal for all your union activities.",
     "launch_syndicate": "Launch my union",
-    "news_and_events": "News & Events"
+    "news_and_events": "News & Events",
+    "sidebar": {
+      "home": "Home",
+      "my_syndicats": "My Unions",
+      "explorer": "Explore",
+      "settings": "Settings",
+      "news": "News",
+      "manage_organizations": "Manage your organizations",
+      "discover_syndicats": "Discover new unions",
+      "account_settings": "Account settings",
+      "logout": "Log out"
+    },
+    "nav_items": {
+      "dashboard": {
+        "label": "Home",
+        "description": "News"
+      },
+      "syndicats": {
+        "label": "My Unions",
+        "description": "Manage your organizations"
+      },
+      "explorer": {
+        "label": "Explore",
+        "description": "Discover new unions"
+      },
+      "parametres": {
+        "label": "Settings",
+        "description": "Account settings"
+      }
+    }
   },
   "landing_page": {
     "gérerSyndicats": "Manage your unions with power and simplicity.",
@@ -149,13 +179,13 @@
   },
   "notifications": {
     "title": "Notifications",
-    "subtitle": "You have {{count}} unread notifications.",
+    "subtitle": "You have {count} unread notifications.",
     "see_all": "See all notifications"
   },
   "explorer_page": {
     "title": "Explore Unions",
     "description": "Discover and join communities that share your interests and professional goals.",
-    "count": "{{count}} unions are waiting to connect with you.",
+    "count": "{count} unions are waiting to connect with you.",
     "search_placeholder": "Search for a union by name, sector...",
     "load_more_button": "Load more",
     "end_of_list_toast": "You have reached the end of the list!",
@@ -183,7 +213,7 @@
     "team_title": "The leadership team"
   },
   "adhesion_modal": {
-    "title": "Join {{syndicatName}}",
+    "title": "Join {syndicatName}",
     "subtitle": "Follow the steps to finalize your membership application."
   },
   "adhesion_wizard": {
@@ -191,7 +221,7 @@
     "step2_name": "Membership type",
     "step3_name": "Your information",
     "step4_name": "Confirmation",
-    "step_of": "Step {{current}} of {{total}}",
+    "step_of": "Step {current} of {total}",
     "previous": "Previous",
     "next": "Next"
   },
@@ -221,7 +251,7 @@
   },
   "confirmation": {
     "title": "Application sent!",
-    "subtitle": "Your membership application for the {{antenneName}} branch has been received.",
+    "subtitle": "Your membership application for the {antenneName} branch has been received.",
     "ref_number": "Your reference number",
     "next_steps_title": "Next steps",
     "step_1": "Your application will be reviewed by the branch managers.",
@@ -273,7 +303,7 @@
   "express_page": {
     "title": "Express yourself",
     "subtitle": "Share your ideas, post news and interact with other union members.",
-    "post_placeholder": "What's new, {{name}}?",
+    "post_placeholder": "What's new, {name}?",
     "new_post_modal_title": "Create a post",
     "publish_button": "Publish",
     "cancel_button": "Cancel",

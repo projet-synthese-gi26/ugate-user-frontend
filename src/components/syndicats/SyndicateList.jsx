@@ -36,7 +36,7 @@ export default function SyndicateList({ initialSyndicates = [] }) {
                 <div className="relative group">
                     <input
                         type="text"
-                        placeholder={t("syndicats_page.search_placeholder")}
+                        placeholder={t("search_placeholder")}
                         className="w-full pl-14 pr-6 py-4 rounded-2xl border-2 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-100 dark:focus:ring-blue-900/50 transition-all text-lg"
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
@@ -67,10 +67,10 @@ export default function SyndicateList({ initialSyndicates = [] }) {
                         <div className="max-w-md mx-auto">
                             <AlertCircle className="h-12 w-12 text-blue-500 dark:text-blue-400 mx-auto mb-4" />
                             <h3 className="text-2xl font-semibold text-gray-900 dark:text-white mb-2">
-                                {searchTerm ? t("syndicats_page.empty_search_title") : t("syndicats_page.empty_list_title")}
+                                {searchTerm ? t("empty_search_title") : t("empty_list_title")}
                             </h3>
                             <p className="text-gray-600 dark:text-gray-400 mb-6">
-                                {searchTerm ? t("syndicats_page.empty_search_desc") : t("syndicats_page.empty_list_desc")}
+                                {searchTerm ? t("empty_search_desc") : t("empty_list_desc")}
                             </p>
                             <motion.button
                                 onClick={() => setIsModalOpen(true)}
@@ -78,7 +78,7 @@ export default function SyndicateList({ initialSyndicates = [] }) {
                                 whileHover={{ scale: 1.05 }}
                             >
                                 <PlusCircle className="h-5 w-5 mr-2" />
-                                {t("syndicats_page.create_button")}
+                                {t("create_button")}
                             </motion.button>
                         </div>
                     </motion.div>

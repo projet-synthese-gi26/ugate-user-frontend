@@ -2,7 +2,7 @@ import { Compass, Home, Settings, Users } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 export const getNavItems = () => {
-    const t = useTranslations('nav_items');
+    const t = useTranslations('dashboard.nav_items');
 
     return [
         {

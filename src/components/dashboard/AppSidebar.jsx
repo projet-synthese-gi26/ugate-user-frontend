@@ -1,10 +1,9 @@
 "use client";
 import { motion } from "framer-motion";
 import { LogOut } from "lucide-react";
-import { Link } from '@/navigation';
-import { useRouter, usePathname } from 'next/navigation';
+import { Link, useRouter, usePathname } from '@/navigation';
 import { useTranslations } from "next-intl";
-import { getNavItems } from "./navItems.js";
+import { getNavItems } from "./navItems.jsx";
 
 export default function AppSidebar({ isOpen }) {
     const router = useRouter();

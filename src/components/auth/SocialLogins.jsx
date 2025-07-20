@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { useGoogleLogin } from '@react-oauth/google';
 import { useTranslations } from 'next-intl';
-import { useRouter } from 'next/navigation';
+import { useRouter } from '@/navigation';
 import toast from 'react-hot-toast';
 import { loginWithGoogle, loginWithApple } from '@/lib/api/auth';
 
@@ -35,7 +35,7 @@ export default function SocialLogins() {
                 await loginWithGoogle(codeResponse.code);
                 toast.dismiss();
                 toast.success(t('success_title'));
-                router.push('/dashboard');
+                router.push('/home');
             } catch (error) {
                 toast.dismiss();
                 toast.error(error.response?.data?.message || t('generic_error'));
