@@ -2,8 +2,7 @@
 "use client";
 
 import { useState } from 'react';
-import { Link } from '@/navigation';
-import { usePathname } from 'next/navigation';
+import { Link, usePathname } from '@/navigation';
 import { useTranslations } from 'next-intl';
 import { motion } from 'framer-motion';
 import { Building, LogIn, UserPlus, Home, Globe } from 'lucide-react';

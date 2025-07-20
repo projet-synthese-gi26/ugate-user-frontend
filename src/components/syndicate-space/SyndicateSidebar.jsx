@@ -1,14 +1,14 @@
 "use client";
 
 import { motion } from 'framer-motion';
-import { Link } from '@/navigation';
+import { Link, usePathname } from '@/navigation';
 import { useTranslations } from 'next-intl';
 import { 
     Users, Calendar, MessageCircle, Vote,
     Home, ChevronLeft, ChevronRight, MessageSquare 
 } from 'lucide-react';
 import { SyndicatDefaultAvatar } from '@/components/shared/SyndicatDefaultAvatar.jsx';
-import { usePathname, useParams } from 'next/navigation';
+import { useParams } from 'next/navigation';
 import { STATIC_FILES_URL } from '@/lib/constants';
 import Image from 'next/image';
 
