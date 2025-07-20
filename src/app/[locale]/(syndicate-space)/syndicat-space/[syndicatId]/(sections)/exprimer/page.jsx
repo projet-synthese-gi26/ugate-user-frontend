@@ -13,7 +13,7 @@ async function getPublications(syndicatId) {
 }
 
 export default async function ExprimerPage({ params }) {
-    const { locale, syndicatId } = params;
+    const { locale, syndicatId } = await params;
     // CORRECTION : On utilise `initTranslations`
     const t = await getTranslations();
     const initialPosts = await getPublications(syndicatId);

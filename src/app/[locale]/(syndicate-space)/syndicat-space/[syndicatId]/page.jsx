@@ -6,8 +6,8 @@ import { redirect } from 'next/navigation';
  * Son seul rôle est de rediriger l'utilisateur vers la première section par défaut,
  * par exemple, la page "membres".
  */
-export default function SyndicateRootPage({ params }) {
-    const { syndicatId } = params;
+export default async function SyndicateRootPage({ params }) {
+    const { syndicatId } = await params;
 
     // Redirige de /syndicat-space/1 vers /syndicat-space/1/membres
     redirect(`/syndicat-space/${syndicatId}/membres`);

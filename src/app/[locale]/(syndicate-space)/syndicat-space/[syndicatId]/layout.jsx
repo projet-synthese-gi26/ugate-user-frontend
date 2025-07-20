@@ -18,7 +18,7 @@ async function getSyndicateData(syndicateId) {
 }
 
 export default async function SyndicateSpaceLayout({ children, params }) {
-    const { syndicatId } = params;
+    const { syndicatId } = await params;
     const syndicateData = await getSyndicateData(syndicatId);
 
     if (!syndicateData) {

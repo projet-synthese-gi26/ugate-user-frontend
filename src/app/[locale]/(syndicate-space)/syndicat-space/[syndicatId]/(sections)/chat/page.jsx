@@ -14,7 +14,7 @@ async function getChatData(syndicatId) {
 }
 
 export default async function ChatPage({ params }) {
-    const { locale, syndicatId } = params;
+    const { locale, syndicatId } = await params;
     const t = await getTranslations();
     const chatData = await getChatData(syndicatId);
 

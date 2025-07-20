@@ -22,7 +22,8 @@ async function getSyndicateDetails(id) {
 
 // Génération des métadonnées dynamiques pour le SEO
 export async function generateMetadata({ params }) {
-    const syndicate = await getSyndicateDetails(params.syndicatId);
+    const { syndicatId } = await params;
+    const syndicate = await getSyndicateDetails(syndicatId);
     if (!syndicate) {
         return { title: 'Syndicat non trouvé' };
     }
@@ -33,7 +34,7 @@ export async function generateMetadata({ params }) {
 }
 
 export default async function SyndicateProfilePage({ params }) {
-    const { syndicatId, locale } = params;
+    const { syndicatId, locale } = await params;
     const t = await getTranslations();
 
     const syndicateData = await getSyndicateDetails(syndicatId);

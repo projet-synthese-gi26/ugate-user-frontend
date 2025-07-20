@@ -15,7 +15,7 @@ async function getEvents(syndicatId) {
 }
 
 export default async function EventsPage({ params }) {
-    const { locale, syndicatId } = params;
+    const { locale, syndicatId } = await params;
     const t = await getTranslations();
     const initialEvents = await getEvents(syndicatId);
 

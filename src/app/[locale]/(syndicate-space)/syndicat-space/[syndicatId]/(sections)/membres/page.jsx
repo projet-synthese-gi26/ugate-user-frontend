@@ -38,7 +38,7 @@ async function getMembersData(syndicateId) {
 }
 
 export default async function MembersPage({ params }) {
-    const { locale, syndicatId } = params;
+    const { locale, syndicatId } = await params;
     // CORRECTION : On utilise `initTranslations` au lieu de `getTranslations`
     const t = await getTranslations();
     const data = await getMembersData(syndicatId);
