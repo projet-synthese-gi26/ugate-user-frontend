@@ -17,82 +17,28 @@ export const defaultLocale = 'fr';
 // Cela redirige automatiquement /login vers /fr/login par défaut.
 export const localePrefix = 'always';
 
-// 4. Définissez les traductions pour vos chemins de route (pathnames).
-// Cela permet d'avoir des URLs comme /connexion en français et /login en anglais.
+// 4. Définissez les chemins de route (pathnames).
+// Nous gardons les mêmes routes pour toutes les langues - seul le préfixe de langue change.
 export const pathnames = {
     // Le chemin racine
     '/': '/',
 
-    // Routes du groupe (auth)
-    '/login': {
-        fr: '/connexion',
-        en: '/login',
-        de: '/anmeldung',
-    },
-    '/register': {
-        fr: '/inscription',
-        en: '/register',
-        de: '/registrieren',
-    },
+    // Routes du groupe (auth) - gardons les mêmes noms
+    '/login': '/login',
+    '/register': '/register',
 
-    // Routes du groupe (main)
-    '/home': {
-        fr: '/accueil',
-        en: '/home',
-        de: '/startseite',
-    },
-    '/explorer': {
-        fr: '/explorer',
-        en: '/explore',
-        de: '/entdecken',
-    },
-    // Pour les routes dynamiques, on ne traduit que la base.
-    // Next-intl ajoutera automatiquement le segment [syndicatId].
-    '/explorer/[syndicatId]': {
-        fr: '/explorer/[syndicatId]',
-        en: '/explore/[syndicatId]',
-        de: '/entdecken/[syndicatId]',
-    },
-    '/parametres': {
-        fr: '/parametres',
-        en: '/settings',
-        de: '/einstellungen',
-    },
-    '/syndicats': {
-        fr: '/syndicats',
-        en: '/my-unions',
-        de: '/meine-gewerkschaften',
-    },
+    // Routes du groupe (main) - gardons les mêmes noms
+    '/home': '/home',
+    '/explorer': '/explorer',
+    '/explorer/[syndicatId]': '/explorer/[syndicatId]',
+    '/parametres': '/parametres',
+    '/syndicats': '/syndicats',
 
-    // Routes du groupe (syndicate-space)
-    '/syndicat-space/[syndicatId]': {
-        fr: '/syndicat-space/[syndicatId]',
-        en: '/union-space/[syndicatId]',
-        de: '/gewerkschaftsbereich/[syndicatId]',
-    },
-    '/syndicat-space/[syndicatId]/membres': {
-        fr: '/syndicat-space/[syndicatId]/membres',
-        en: '/union-space/[syndicatId]/members',
-        de: '/gewerkschaftsbereich/[syndicatId]/mitglieder',
-    },
-    '/syndicat-space/[syndicatId]/evenements': {
-        fr: '/syndicat-space/[syndicatId]/evenements',
-        en: '/union-space/[syndicatId]/events',
-        de: '/gewerkschaftsbereich/[syndicatId]/veranstaltungen',
-    },
-    '/syndicat-space/[syndicatId]/exprimer': {
-        fr: '/syndicat-space/[syndicatId]/exprimer',
-        en: '/union-space/[syndicatId]/express',
-        de: '/gewerkschaftsbereich/[syndicatId]/meinung',
-    },
-    '/syndicat-space/[syndicatId]/chat': {
-        fr: '/syndicat-space/[syndicatId]/chat',
-        en: '/union-space/[syndicatId]/chat',
-        de: '/gewerkschaftsbereich/[syndicatId]/chat',
-    },
-    '/syndicat-space/[syndicatId]/votes': {
-        fr: '/syndicat-space/[syndicatId]/votes',
-        en: '/union-space/[syndicatId]/votes',
-        de: '/gewerkschaftsbereich/[syndicatId]/abstimmungen',
-    },
+    // Routes du groupe (syndicate-space) - gardons les mêmes noms
+    '/syndicat-space/[syndicatId]': '/syndicat-space/[syndicatId]',
+    '/syndicat-space/[syndicatId]/membres': '/syndicat-space/[syndicatId]/membres',
+    '/syndicat-space/[syndicatId]/evenements': '/syndicat-space/[syndicatId]/evenements',
+    '/syndicat-space/[syndicatId]/exprimer': '/syndicat-space/[syndicatId]/exprimer',
+    '/syndicat-space/[syndicatId]/chat': '/syndicat-space/[syndicatId]/chat',
+    '/syndicat-space/[syndicatId]/votes': '/syndicat-space/[syndicatId]/votes',
 };
