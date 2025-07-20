@@ -3,13 +3,14 @@ import { motion } from "framer-motion";
 import { LogOut } from "lucide-react";
 import { Link } from '@/navigation';
 import { useRouter, usePathname } from 'next/navigation';
-import { navItems } from "./navItems.js";
 import { useTranslations } from "next-intl";
+import { getNavItems } from "./navItems.js";
 
 export default function AppSidebar({ isOpen }) {
     const router = useRouter();
     const pathname = usePathname();
     const t = useTranslations('dashboard.sidebar');
+    const navItems = getNavItems();
 
     const handleLogout = () => {
         router.push('/login');
@@ -34,13 +35,13 @@ export default function AppSidebar({ isOpen }) {
                                     ? `bg-gradient-to-r ${item.gradient} text-white shadow-lg`
                                     : "bg-white text-gray-600 hover:bg-gray-50"
                             } ${isOpen ? "flex items-center" : "flex justify-center"}`}
-                            title={isOpen ? '' : t(item.label)}
+                            title={isOpen ? '' : item.label}
                         >
                             <item.icon className={`h-6 w-6 flex-shrink-0 ${isOpen ? "mr-3" : ""}`} />
                             {isOpen && (
                                 <div className="text-left overflow-hidden w-full">
-                                    <p className="font-semibold truncate">{t(item.label)}</p>
-                                    <p className={`text-xs truncate ${isActive(item.route) ? "text-white/80" : "text-gray-500"}`}>{t(item.description)}</p>
+                                    <p className="font-semibold truncate">{item.label}</p>
+                                    <p className={`text-xs truncate ${isActive(item.route) ? "text-white/80" : "text-gray-500"}`}>{item.description}</p>
                                 </div>
                             )}
                         </motion.div>

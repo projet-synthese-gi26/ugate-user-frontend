@@ -1,12 +1,14 @@
 "use client";
-
 import { motion } from "framer-motion";
 import Image from 'next/image';
 import { ChevronRight, UserPlus, Users, Star, ShieldCheck } from "lucide-react";
 import { SyndicatDefaultAvatar } from "../shared/SyndicatDefaultAvatar";
 import { STATIC_FILES_URL } from '@/lib/constants';
+import { useTranslations } from "next-intl";
 
 export default function ExploreCard({ syndicat, itemVariants, onDetails, onAdhere }) {
+    const t = useTranslations('explore_page');
+
     const formatMemberCount = (count) => {
         if (!count) return '0';
         if (count >= 1000) return `${(count / 1000).toFixed(1)}k`;
@@ -15,12 +17,10 @@ export default function ExploreCard({ syndicat, itemVariants, onDetails, onAdher
 
     const logoUrl = syndicat.logoUrl ? `${STATIC_FILES_URL}${syndicat.logoUrl}` : null;
     const bannerUrl = syndicat.bannerUrl ? `${STATIC_FILES_URL}${syndicat.bannerUrl}` : "/placeholder-cover.jpg";
+    const rating = syndicat.rating || '4.5';
+    const certified = syndicat.certified || false;
+    const specialties = syndicat.specialties || ['Tech', 'Formation', 'Innovation'];
 
-    // Données factices pour les champs non gérés par le backend
-    const rating = syndicat.rating || '4.5'; // fallback
-    const certified = syndicat.certified || false; // fallback
-    const specialties = syndicat.specialties || ['Tech', 'Formation', 'Innovation']; // fallback
-    
     return (
         <motion.div
             className="group bg-white dark:bg-gray-800/50 rounded-2xl shadow-lg hover:shadow-xl dark:shadow-black/20 transition-all duration-300 border border-gray-100 dark:border-gray-700 overflow-hidden flex flex-col"
@@ -35,15 +35,21 @@ export default function ExploreCard({ syndicat, itemVariants, onDetails, onAdher
                         {logoUrl ? <Image src={logoUrl} alt={`${syndicat.name} logo`} width={80} height={80} className="rounded-full object-cover w-full h-full" /> : <SyndicatDefaultAvatar name={syndicat.name} size={72} />}
                     </div>
                 </div>
-                {certified && <div className="absolute top-3 right-3 bg-green-500 text-white p-2 rounded-full shadow-lg" title="Syndicat Certifié"><ShieldCheck className="w-4 h-4" /></div>}
+                {certified && <div className="absolute top-3 right-3 bg-green-500 text-white p-2 rounded-full shadow-lg" title={t('certified')}><ShieldCheck className="w-4 h-4" /></div>}
             </div>
             <div className="p-6 pt-10 flex flex-col flex-grow">
                 <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-3 leading-snug line-clamp-2 h-14">
                     {syndicat.name}
                 </h2>
                 <div className="flex items-center justify-between text-gray-600 dark:text-gray-400 text-sm mb-4">
-                    <div className="flex items-center" title="Nombre de membres"><Users className="h-4 w-4 mr-2 text-blue-500 flex-shrink-0"/><span className="font-medium">{formatMemberCount(syndicat.memberCount)} membres</span></div>
-                    <div className="flex items-center" title="Note moyenne"><Star className="h-4 w-4 mr-1 text-yellow-400 fill-current"/><span className="font-medium">{rating}</span></div>
+                    <div className="flex items-center" title={t('members')}>
+                        <Users className="h-4 w-4 mr-2 text-blue-500 flex-shrink-0"/>
+                        <span className="font-medium">{formatMemberCount(syndicat.memberCount)} {t('members')}</span>
+                    </div>
+                    <div className="flex items-center" title="Note moyenne">
+                        <Star className="h-4 w-4 mr-1 text-yellow-400 fill-current"/>
+                        <span className="font-medium">{rating}</span>
+                    </div>
                 </div>
                 <div className="flex flex-wrap gap-1 mb-4">
                     {specialties.slice(0, 3).map((specialty, index) => (
@@ -51,13 +57,23 @@ export default function ExploreCard({ syndicat, itemVariants, onDetails, onAdher
                     ))}
                 </div>
                 <div className="mt-auto pt-4 flex gap-3">
-                    <motion.button className="flex-1 bg-white dark:bg-gray-700 text-blue-600 dark:text-blue-300 py-2.5 rounded-lg border-2 border-blue-100 dark:border-blue-800 hover:border-blue-200 dark:hover:border-blue-600 hover:bg-blue-50 dark:hover:bg-gray-600 transition-all duration-300 flex items-center justify-center font-semibold" whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.98 }} onClick={() => onDetails(syndicat)}>
-                        <span>Détails</span>
+                    <motion.button
+                        className="flex-1 bg-white dark:bg-gray-700 text-blue-600 dark:text-blue-300 py-2.5 rounded-lg border-2 border-blue-100 dark:border-blue-800 hover:border-blue-200 dark:hover:border-blue-600 hover:bg-blue-50 dark:hover:bg-gray-600 transition-all duration-300 flex items-center justify-center font-semibold"
+                        whileHover={{ scale: 1.03 }}
+                        whileTap={{ scale: 0.98 }}
+                        onClick={() => onDetails(syndicat)}
+                    >
+                        <span>{t('details')}</span>
                         <ChevronRight className="ml-1 h-4 w-4"/>
                     </motion.button>
-                    <motion.button className="flex-1 bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-2.5 rounded-lg hover:shadow-lg transition-all duration-300 flex items-center justify-center font-semibold" whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.98 }} onClick={() => onAdhere(syndicat)}>
+                    <motion.button
+                        className="flex-1 bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-2.5 rounded-lg hover:shadow-lg transition-all duration-300 flex items-center justify-center font-semibold"
+                        whileHover={{ scale: 1.03 }}
+                        whileTap={{ scale: 0.98 }}
+                        onClick={() => onAdhere(syndicat)}
+                    >
                         <UserPlus className="mr-2 h-4 w-4"/>
-                        <span>Adhérer</span>
+                        <span>{t('join')}</span>
                     </motion.button>
                 </div>
             </div>

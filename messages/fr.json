@@ -106,16 +106,34 @@
     "portal_description": "Voici votre portail central pour toutes vos activités syndicales.",
     "launch_syndicate": "Lancer mon syndicat",
     "news_and_events": "Actualités & Événements",
-      "sidebar": {
-        "home": "Accueil",
-        "my_syndicats": "Mes Syndicats",
-        "explorer": "Explorer",
-        "settings": "Paramètres",
-        "news": "Actualité",
-        "manage_organizations": "Gérer vos organisations",
-        "discover_syndicats": "Découvrir de nouveaux syndicats",
-        "account_settings": "Configuration du compte"
+    "sidebar": {
+      "home": "Accueil",
+      "my_syndicats": "Mes Syndicats",
+      "explorer": "Explorer",
+      "settings": "Paramètres",
+      "news": "Actualité",
+      "manage_organizations": "Gérer vos organisations",
+      "discover_syndicats": "Découvrir de nouveaux syndicats",
+      "account_settings": "Configuration du compte"
+    },
+    "nav_items": {
+      "dashboard": {
+        "label": "Accueil",
+        "description": "Actualité"
+      },
+      "syndicats": {
+        "label": "Mes Syndicats",
+        "description": "Gérer vos organisations"
+      },
+      "explorer": {
+        "label": "Explorer",
+        "description": "Découvrir de nouveaux syndicats"
+      },
+      "parametres": {
+        "label": "Paramètres",
+        "description": "Configuration du compte"
       }
+    }
 
 
   },
@@ -175,7 +193,11 @@
     "load_more_error_toast": "Une erreur est survenue lors du chargement.",
     "end_of_list_message": "Vous avez atteint la fin de la liste.",
     "no_results_title": "Aucun syndicat trouvé",
-    "no_results_description": "Essayez d'ajuster vos filtres ou votre recherche."
+    "no_results_description": "Essayez d'ajuster vos filtres ou votre recherche.",
+    "details": "Détails",
+    "join": "Adhérer",
+    "members": "membres",
+    "certified": "Syndicat Certifié"
   },
   "profile_page": {
     "back_to_explorer": "Retour à l'exploration",

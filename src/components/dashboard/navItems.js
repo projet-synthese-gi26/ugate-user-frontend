@@ -1,9 +1,41 @@
-
 import { Compass, Home, Settings, Users } from "lucide-react";
+import { useTranslations } from "next-intl";
 
-export const navItems = [
-    { id: "dashboard", icon: Home, label: "Accueil", gradient: "from-blue-500 to-indigo-600", description: "Actualité", route: "/home" },
-    { id: "syndicats", icon: Users, label: "Mes Syndicats", gradient: "from-green-500 to-teal-600", description: "Gérer vos organisations", route: "/syndicats" },
-    { id: "explorer", icon: Compass, label: "Explorer", gradient: "from-purple-500 to-pink-600", description: "Découvrir de nouveaux syndicats", route: "/explorer" },
-    { id: "parametres", icon: Settings, label: "Paramètres", gradient: "from-gray-500 to-slate-600", description: "Configuration du compte", route: "/parametres" },
-];
+export const getNavItems = () => {
+    const t = useTranslations('nav_items');
+
+    return [
+        {
+            id: "dashboard",
+            icon: Home,
+            label: t('dashboard.label'),
+            gradient: "from-blue-500 to-indigo-600",
+            description: t('dashboard.description'),
+            route: "/home"
+        },
+        {
+            id: "syndicats",
+            icon: Users,
+            label: t('syndicats.label'),
+            gradient: "from-green-500 to-teal-600",
+            description: t('syndicats.description'),
+            route: "/syndicats"
+        },
+        {
+            id: "explorer",
+            icon: Compass,
+            label: t('explorer.label'),
+            gradient: "from-purple-500 to-pink-600",
+            description: t('explorer.description'),
+            route: "/explorer"
+        },
+        {
+            id: "parametres",
+            icon: Settings,
+            label: t('parametres.label'),
+            gradient: "from-gray-500 to-slate-600",
+            description: t('parametres.description'),
+            route: "/parametres"
+        }
+    ];
+};
