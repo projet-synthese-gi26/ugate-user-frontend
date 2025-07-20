@@ -165,6 +165,12 @@
     "no_results_title": "Keine Gewerkschaft gefunden",
     "no_results_description": "Versuchen Sie, Ihre Filter oder Suche anzupassen."
   },
+  "explore_page": {
+    "details": "Details",
+    "join": "Beitreten",
+    "members": "Mitglieder",
+    "certified": "Zertifizierte Gewerkschaft"
+  },
   "profile_page": {
     "back_to_explorer": "Zurück zur Erkundung",
     "join_button": "Beitreten",
@@ -324,5 +330,9 @@
     "cta_main": "Jetzt loslegen",
     "cta_secondary": "Gewerkschaften erkunden",
     "image_alt": "Moderne Gewerkschaftsverwaltung"
+  },
+  "feed": {
+    "empty_feed": "Der Newsfeed ist im Moment leer.",
+    "come_back_later": "Kommen Sie später zurück, um die neuesten Beiträge und Veranstaltungen zu sehen."
   }
 }
