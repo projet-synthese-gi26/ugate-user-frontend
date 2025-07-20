@@ -3,7 +3,7 @@
 
 import Image from "next/image";
 import { motion } from "framer-motion";
-import { useTranslation } from "react-i18next";
+import { useTranslations } from "next-intl";
 import { Heart, MessageCircle, Clock, Share2 } from "lucide-react";
 
 export default function PublicationCard({ publication }) {

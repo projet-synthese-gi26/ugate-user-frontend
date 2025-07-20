@@ -3,7 +3,7 @@
 import { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Image as ImageIcon, Send, X, Camera } from 'lucide-react';
-import { useTranslation } from "react-i18next";
+import { useTranslations } from "next-intl";
 import Image from 'next/image';
 
 export default function NewPostModal({ isOpen, onClose, onNewPost }) {

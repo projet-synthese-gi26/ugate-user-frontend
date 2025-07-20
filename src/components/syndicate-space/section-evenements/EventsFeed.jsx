@@ -4,7 +4,7 @@
 import { useState } from 'react';
 import { AnimatePresence } from 'framer-motion';
 import { toast } from 'react-hot-toast';
-import { useTranslation } from "react-i18next";
+import { useTranslations } from "next-intl";
 import { Plus } from 'lucide-react';
 import EventCard from './EventCard';
 import ParticipantsModal from './ParticipantsModal';

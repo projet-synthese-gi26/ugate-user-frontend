@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import Image from 'next/image';
 import { Bookmark, Clock, Flag, Heart, MessageCircle } from "lucide-react";
-import { useTranslation } from "react-i18next";
+import { useTranslations } from "next-intl";
 import CommentModal from "./CommentModal";
 import timeAgo from "@/lib/utils/timeAgo"; // On supposera un utilitaire pour le temps
 

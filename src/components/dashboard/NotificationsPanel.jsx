@@ -3,7 +3,7 @@
 
 import { AnimatePresence, motion } from "framer-motion";
 import { X } from "lucide-react";
-import { useTranslation } from'react-i18next';
+import { useTranslations } from "next-intl";
 import { Link } from '@/navigation';
 
 

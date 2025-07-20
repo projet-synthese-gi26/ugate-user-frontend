@@ -1,7 +1,7 @@
 // tailwind.config.js
 
 /** @type {import('tailwindcss').Config} */
-module.exports = {
+const config = {
     // Active le mode sombre basé sur une classe
     darkMode: 'class',
 
@@ -15,4 +15,6 @@ module.exports = {
         extend: {},
     },
     plugins: [],
-}
+};
+
+export default config;

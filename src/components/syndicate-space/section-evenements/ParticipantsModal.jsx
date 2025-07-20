@@ -2,7 +2,7 @@
 "use client";
 
 import { motion, AnimatePresence } from 'framer-motion';
-import { useTranslation } from "react-i18next";
+import { useTranslations } from "next-intl";
 import { X, Users } from 'lucide-react';
 
 export default function ParticipantsModal({ event, onClose }) {

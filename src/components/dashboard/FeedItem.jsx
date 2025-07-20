@@ -8,7 +8,7 @@ import {
     Heart, Share2, MessageCircle, Clock, User, Bookmark, Send, X,
     Calendar, MapPin, Users
 } from "lucide-react";
-import { useTranslation } from "react-i18next";
+import { useTranslations } from "next-intl";
 import { Link } from '@/navigation';
 
 // Fonction utilitaire pour formater la date

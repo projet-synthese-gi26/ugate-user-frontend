@@ -4,7 +4,7 @@
 import { useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { CheckCircle, ChevronLeft, ChevronRight } from "lucide-react";
-import { useTranslation } from "react-i18next";
+import { useTranslations } from "next-intl";
 import { AntenneSelection } from "./AntenneSelection.jsx";
 import { UserTypeSelection } from "./UserTypeSelection.jsx";
 import { IndividualForm } from "./IndividualMembershipForm.jsx";

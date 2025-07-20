@@ -1,6 +1,4 @@
-// src/components/auth/LoginForm.jsx
 "use client";
-
 import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { motion } from 'framer-motion';
@@ -9,7 +7,7 @@ import { useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
 import Swal from 'sweetalert2';
 import { Link } from '@/navigation';
-import { loginWithEmail } from '@/lib/api/auth'; // Importe la fonction API de login
+import { loginWithEmail } from '@/lib/api/auth';
 
 // Composant Input réutilisable avec icône
 const Input = React.forwardRef(({ icon: Icon, error, ...props }, ref) => (
@@ -34,6 +32,7 @@ const Input = React.forwardRef(({ icon: Icon, error, ...props }, ref) => (
         )}
     </div>
 ));
+
 Input.displayName = 'Input';
 
 // Composant Button avec animations Framer Motion
@@ -59,38 +58,34 @@ export default function LoginForm() {
         setIsLoading(true);
         try {
             await loginWithEmail(data.email, data.password);
-
             await Swal.fire({
                 icon: 'success',
-                title: t("login_page.success_title"),
-                text: t("login_page.success_text"),
+                title: t("success_title"),
+                text: t("success_text"),
                 timer: 1500,
                 showConfirmButton: false,
             });
             router.push('/home'); // Redirige vers la page d'accueil de l'utilisateur connecté
-
         } catch (error) {
             console.error("Erreur de connexion:", error);
-            let errorMessage = t('login_page.generic_error');
-
+            let errorMessage = t('generic_error');
             if (error.response) {
                 // Erreurs HTTP spécifiques de l'API (401 BadCredentialsException, 403 DisabledException)
                 if (error.response.status === 401) {
-                    errorMessage = t('login_page.invalid_credentials');
+                    errorMessage = t('invalid_credentials');
                 } else if (error.response.status === 403) {
-                    errorMessage = t('login_page.account_disabled');
+                    errorMessage = t('account_disabled');
                 } else if (error.response.data && error.response.data.message) {
                     // Si le backend renvoie un DTO d'erreur avec un message spécifique
                     errorMessage = error.response.data.message;
                 }
             } else if (error.message === "Token expiré" || error.message === "Token invalide") {
                 // Erreur de token détectée côté client par l'intercepteur de requête
-                errorMessage = t('login_page.token_invalid_expired');
+                errorMessage = t('token_invalid_expired');
             }
-
             Swal.fire({
                 icon: 'error',
-                title: t('login_page.error_title'),
+                title: t('error_title'),
                 text: errorMessage,
             });
         } finally {
@@ -104,30 +99,28 @@ export default function LoginForm() {
                 <Input
                     icon={Mail}
                     type="email"
-                    placeholder={t('login_page.email_placeholder')}
+                    placeholder={t('email_placeholder')}
                     error={errors.email}
                     {...register("email", {
-                        required: t('login_page.email_required'),
+                        required: t('email_required'),
                         pattern: {
                             value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-                            message: t('login_page.email_invalid'),
+                            message: t('email_invalid'),
                         }
                     })}
                 />
             </div>
-
             <div>
                 <Input
                     icon={Lock}
                     type="password"
-                    placeholder={t('login_page.password_placeholder')}
+                    placeholder={t('password_placeholder')}
                     error={errors.password}
                     {...register("password", {
-                        required: t('login_page.password_required'),
+                        required: t('password_required'),
                     })}
                 />
             </div>
-
             <div className="flex items-center justify-between mb-4">
                 {/* Checkbox "Se souvenir de moi" (logique non implémentée côté client/server pour le moment) */}
                 <div className="flex items-center">
@@ -138,20 +131,19 @@ export default function LoginForm() {
                         {...register("remember")}
                     />
                     <label htmlFor="remember" className="ml-2 block text-sm text-gray-900">
-                        {t("login_page.remember_me")}
+                        {t("remember_me")}
                     </label>
                 </div>
                 {/* Lien "Mot de passe oublié ?" */}
                 <div className="text-sm">
                     <Link href="/forgot-password" className="font-medium text-blue-600 hover:underline">
-                        {t("login_page.forgot_password")} ?
+                        {t("forgot_password")} ?
                     </Link>
                 </div>
             </div>
-
             {/* Bouton de soumission */}
             <Button type="submit" disabled={isLoading}>
-                {isLoading ? t('login_page.login_button_loading') : t("login_page.login_button")}
+                {isLoading ? t('login_button_loading') : t("login_button")}
             </Button>
         </form>
     );

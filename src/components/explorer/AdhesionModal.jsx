@@ -3,7 +3,7 @@
 
 import { motion, AnimatePresence } from "framer-motion";
 import { X } from "lucide-react";
-import { useTranslation } from "react-i18next";
+import { useTranslations } from "next-intl";
 import { AdhereSyndicatForm } from "../forms/adhesion/AdhereSyndicatForm"; // Assurez-vous que le chemin est correct
 
 /**

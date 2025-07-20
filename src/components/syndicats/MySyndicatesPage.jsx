@@ -4,7 +4,7 @@
 import { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Search, Filter, AlertCircle, PlusCircle } from "lucide-react";
-import { useTranslation } from "react-i18next";
+import { useTranslations } from "next-intl";
 import SyndicateList from "./SyndicateList";
 import CreateSyndicateModal from "./CreateSyndicateModal";
 

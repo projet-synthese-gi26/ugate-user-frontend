@@ -19,7 +19,7 @@ const ActionButton = ({ icon: Icon, text, onClick, active, activeColor = 'text-r
 );
 
 export default function FeedCard({ item }) {
-    const t = useTranslations('dashboard');
+    const t = useTranslations('');
     const [liked, setLiked] = useState(false);
 
     const dateToUse = item.createdAt || item.startDate;

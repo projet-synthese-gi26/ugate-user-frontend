@@ -6,7 +6,7 @@ import { LogOut } from "lucide-react";
 import { Link } from '@/navigation';
 import { useRouter, usePathname } from 'next/navigation';
 import { navItems } from "./navItems.js";
-import { useTranslation } from "react-i18next";
+import { useTranslations } from "next-intl";
 
 export default function AppSidebar({ isOpen }) {
     const router = useRouter();

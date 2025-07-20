@@ -5,7 +5,7 @@ import { useState, useCallback, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Filter, Building } from "lucide-react";
 import { useRouter } from 'next/navigation'; // Utiliser useRouter de next/navigation
-import { useTranslation } from "react-i18next";
+import { useTranslations } from "next-intl";
 
 const allSyndicats = [
     { id: 1, name: "Syndicat National de l'Éducation", members: 250000, category: "Éducation" },

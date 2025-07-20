@@ -2,7 +2,7 @@
 
 import { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { useTranslation } from "react-i18next";
+import { useTranslations } from "next-intl";
 import { Search, AlertCircle, PlusCircle } from "lucide-react";
 import SyndicateCard from "./SyndicateCard";
 import CreateSyndicateModal from "./CreateSyndicateModal";

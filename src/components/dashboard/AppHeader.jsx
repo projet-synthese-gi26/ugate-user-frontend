@@ -1,8 +1,7 @@
 "use client";
-
 import { motion } from "framer-motion";
 import { Bell, Building, ChevronLeft, ChevronRight, Search } from "lucide-react";
-import { useTranslation } from "react-i18next";
+import { useTranslations } from "next-intl";
 import { Link } from '@/navigation';
 import ThemeSwitcher from '../layout/ThemeSwitcher';
 import LanguageSwitcher from '../layout/LanguageSwitcher';
@@ -12,12 +11,12 @@ import { STATIC_FILES_URL } from '@/lib/constants';
 
 export default function AppHeader({ isSidebarOpen, onSidebarToggle, onNotificationToggle }) {
     const { user, isLoading } = useUser();
-    const t = useTranslations('dashboard');
+    const t = useTranslations('header');
 
     const profileImageSrc = !isLoading && user?.profilePictureUrl
         ? `${STATIC_FILES_URL}${user.profilePictureUrl}`
         : null;
-        
+
     const displayUserName = isLoading ? "..." : user?.firstName || "Invité";
 
     return (

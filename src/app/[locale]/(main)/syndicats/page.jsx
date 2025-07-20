@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useTranslation } from "react-i18next";
+import { useTranslations } from "next-intl";
 import { toast } from 'react-hot-toast';
 import { Loader2 } from 'lucide-react';
 import MySyndicatesHeader from "@/components/syndicats/SyndicateHeader";

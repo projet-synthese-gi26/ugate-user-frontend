@@ -4,7 +4,7 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import Image from 'next/image';
-import { useTranslation } from "react-i18next";
+import { useTranslations } from "next-intl";
 import { Calendar, MapPin, Clock, User, Users, Heart, Share2 } from 'lucide-react';
 
 export default function EventCard({ event, onShowParticipants, onUpdateEvent }) {

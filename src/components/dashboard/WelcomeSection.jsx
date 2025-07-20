@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Zap } from "lucide-react";
-import { useTranslation } from "react-i18next";
+import { useTranslations } from "next-intl";
 import CreateSyndicateModal from "@/components/syndicats/CreateSyndicateModal";
 import { useUser } from "@/context/UserContext"; // Importe notre hook
 

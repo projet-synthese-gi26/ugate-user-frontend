@@ -2,14 +2,13 @@
 
 ## Informations générales
 
-- **Date de génération**: 20/07/2025 01:48:19
+- **Date de génération**: 20/07/2025 11:35:16
 
 ## Structure du projet
 
 ```
 📁 .idea/
   📁 inspectionProfiles/
-📜 generate.js
 📜 i18nConfig.js
 📋 jsconfig.json
 📁 messages/
@@ -120,6 +119,7 @@
       ⚛️ ThemeProvider.jsx
       ⚛️ ThemeSwitcher.jsx
     ⚛️ Providers.jsx
+    ⚛️ SearchSystem.jsx
     📁 settings/
       ⚛️ DynamicFieldArray.jsx
       ⚛️ FormSection.jsx
@@ -189,9 +189,12 @@
     📁 api/
       📜 auth.js
       📜 event.js
+      📜 helpers.js
+      📜 index.js
       📜 instance.js
       📜 membership.js
       📜 posts.js
+      📜 search.js
       📜 syndicate.js
       📜 syndicates.js
       📜 user.js
@@ -218,6 +221,7 @@
 ### Dependencies
 - @react-oauth/google: ^0.12.2
 - axios: ^1.10.0
+- continue: ^0.1.0
 - date-fns: ^4.1.0
 - framer-motion: ^12.23.0
 - js-cookie: ^3.0.5
@@ -250,6 +254,7 @@
   "name": "u-gate2",
   "version": "0.1.0",
   "private": true,
+  "type": "module",
   "scripts": {
     "dev": "next dev --turbopack",
     "build": "next build",
@@ -259,6 +264,7 @@
   "dependencies": {
     "@react-oauth/google": "^0.12.2",
     "axios": "^1.10.0",
+    "continue": "^0.1.0",
     "date-fns": "^4.1.0",
     "framer-motion": "^12.23.0",
     "js-cookie": "^3.0.5",
@@ -505,7 +511,7 @@ export default async function RegisterPage({ params }) {
 "use client";
 
 import { useState, useEffect } from "react";
-import { useTranslation } from "react-i18next";
+import { useTranslations } from "next-intl";
 import { motion } from "framer-motion";
 import { Loader2 } from "lucide-react";
 import { toast } from "react-hot-toast";
@@ -854,7 +860,7 @@ export default async function SettingsPage({ params }) {
 "use client";
 
 import { useState, useEffect } from "react";
-import { useTranslation } from "react-i18next";
+import { useTranslations } from "next-intl";
 import { toast } from 'react-hot-toast';
 import { Loader2 } from 'lucide-react';
 import MySyndicatesHeader from "@/components/syndicats/SyndicateHeader";
@@ -940,17 +946,17 @@ import {getTranslations} from 'next-intl/server';
 
 export default async function LandingPage({ params }) {
     const { locale } = await params;
-    const t = await getTranslations('heroComponent');
-    
+    const t = await getTranslations();
+
     const heroData = {
-        title_part1: t('title_part1'),
-        title_highlighted: t('title_highlighted'),
-        subtitle: t('subtitle'),
-        cta_main: t('cta_main'),
-        cta_secondary: t('cta_secondary'),
-        image_alt: t('image_alt')
+        title_part1: t('heroComponent.title_part1'),
+        title_highlighted: t('heroComponent.title_highlighted'),
+        subtitle: t('heroComponent.subtitle'),
+        cta_main: t('heroComponent.cta_main'),
+        cta_secondary: t('heroComponent.cta_secondary'),
+        image_alt: t('heroComponent.image_alt')
     };
-    
+
     return (
         <div className="scroll-smooth">
             <HeroSection heroData={heroData} />
@@ -1351,8 +1357,19 @@ export const loginWithApple = async (authCode) => {
 ```typescript
 import axios from './instance';
 
-export const getEventsAPI = async (syndicateId) => {
-    const response = await axios.get(`/syndicates/${syndicateId}/events`);
+/**
+ * Récupère les événements d'un syndicat avec pagination
+ * @param {string} syndicateId - ID du syndicat
+ * @param {number} page - Numéro de page (0-based)
+ * @param {number} size - Taille de la page
+ * @param {string} sortBy - Champ de tri
+ * @param {string} sortDirection - Direction du tri (ASC/DESC)
+ * @returns {Promise<Object>} Résultats paginés avec événements
+ */
+export const getEventsAPI = async (syndicateId, page = 0, size = 20, sortBy = 'startDate', sortDirection = 'ASC') => {
+    const response = await axios.get(`/syndicates/${syndicateId}/events`, {
+        params: { page, size, sortBy, sortDirection }
+    });
     return response.data;
 };
 
@@ -1362,6 +1379,317 @@ export const createEventAPI = async (syndicateId, formData) => {
     });
     return response.data;
 };
+```
+
+### `/api/src\lib\api\helpers`
+
+- **Fichier**: `src\lib\api\helpers.js`
+- **Fonctions/Méthodes exportées**: handleAPIError, safeAPICall, createPaginationParams, processPaginatedResponse, validateData, apiCache, cachedAPICall, debounce, retryAPICall
+
+```typescript
+/**
+ * Utilitaires pour les appels API et la gestion des erreurs
+ */
+
+/**
+ * Gère les erreurs d'API de manière standardisée
+ * @param {Error} error - Erreur capturée
+ * @param {string} context - Contexte de l'erreur pour le debug
+ * @returns {Object} Objet d'erreur formaté
+ */
+export const handleAPIError = (error, context = 'API Call') => {
+    console.error(`[${context}] Error:`, error);
+    
+    if (error.response) {
+        // Erreur avec réponse du serveur
+        const { status, data } = error.response;
+        
+        switch (status) {
+            case 400:
+                return {
+                    type: 'VALIDATION_ERROR',
+                    message: data.message || 'Données invalides',
+                    details: data.errors || null
+                };
+            case 401:
+                return {
+                    type: 'UNAUTHORIZED',
+                    message: 'Session expirée. Veuillez vous reconnecter.',
+                    shouldRedirect: true
+                };
+            case 403:
+                return {
+                    type: 'FORBIDDEN',
+                    message: 'Vous n\'avez pas les permissions nécessaires'
+                };
+            case 404:
+                return {
+                    type: 'NOT_FOUND',
+                    message: 'Ressource non trouvée'
+                };
+            case 429:
+                return {
+                    type: 'RATE_LIMITED',
+                    message: 'Trop de requêtes. Veuillez patienter.'
+                };
+            case 500:
+                return {
+                    type: 'SERVER_ERROR',
+                    message: 'Erreur serveur. Veuillez réessayer.'
+                };
+            default:
+                return {
+                    type: 'UNKNOWN_ERROR',
+                    message: data.message || 'Une erreur inattendue s\'est produite'
+                };
+        }
+    } else if (error.request) {
+        // Erreur réseau
+        return {
+            type: 'NETWORK_ERROR',
+            message: 'Problème de connexion. Vérifiez votre connexion internet.'
+        };
+    } else {
+        // Erreur dans la configuration de la requête
+        return {
+            type: 'REQUEST_ERROR',
+            message: 'Erreur dans la requête'
+        };
+    }
+};
+
+/**
+ * Wrapper pour les appels API avec gestion d'erreur standardisée
+ * @param {Function} apiCall - Fonction d'appel API
+ * @param {string} context - Contexte pour le debug
+ * @returns {Promise} Résultat de l'API ou erreur formatée
+ */
+export const safeAPICall = async (apiCall, context) => {
+    try {
+        return await apiCall();
+    } catch (error) {
+        throw handleAPIError(error, context);
+    }
+};
+
+/**
+ * Crée des paramètres de pagination standardisés
+ * @param {number} page - Numéro de page (0-based)
+ * @param {number} size - Taille de la page
+ * @param {string} sortBy - Champ de tri
+ * @param {string} sortDirection - Direction du tri
+ * @returns {Object} Paramètres de pagination
+ */
+export const createPaginationParams = (page = 0, size = 20, sortBy = 'createdAt', sortDirection = 'DESC') => {
+    return {
+        page: Math.max(0, page),
+        size: Math.min(Math.max(1, size), 100), // Limiter entre 1 et 100
+        sortBy,
+        sortDirection: ['ASC', 'DESC'].includes(sortDirection) ? sortDirection : 'DESC'
+    };
+};
+
+/**
+ * Traite les résultats paginés pour assurer la cohérence
+ * @param {Object} response - Réponse de l'API
+ * @returns {Object} Résultats paginés formatés
+ */
+export const processPaginatedResponse = (response) => {
+    return {
+        content: response.content || [],
+        page: response.page || 0,
+        size: response.size || 20,
+        totalElements: response.totalElements || 0,
+        totalPages: response.totalPages || Math.ceil((response.totalElements || 0) / (response.size || 20)),
+        hasNext: response.hasNext || false,
+        hasPrevious: response.hasPrevious || false,
+        isFirst: response.isFirst !== undefined ? response.isFirst : response.page === 0,
+        isLast: response.isLast !== undefined ? response.isLast : !response.hasNext
+    };
+};
+
+/**
+ * Valide les données avant envoi à l'API
+ * @param {Object} data - Données à valider
+ * @param {Object} schema - Schema de validation
+ * @returns {Object} Résultat de validation
+ */
+export const validateData = (data, schema) => {
+    const errors = {};
+    
+    for (const [field, rules] of Object.entries(schema)) {
+        const value = data[field];
+        
+        if (rules.required && (!value || (typeof value === 'string' && !value.trim()))) {
+            errors[field] = `${field} est requis`;
+            continue;
+        }
+        
+        if (value && rules.minLength && value.length < rules.minLength) {
+            errors[field] = `${field} doit contenir au moins ${rules.minLength} caractères`;
+        }
+        
+        if (value && rules.maxLength && value.length > rules.maxLength) {
+            errors[field] = `${field} ne peut pas dépasser ${rules.maxLength} caractères`;
+        }
+        
+        if (value && rules.pattern && !rules.pattern.test(value)) {
+            errors[field] = rules.message || `${field} n'est pas valide`;
+        }
+        
+        if (value && rules.type === 'email' && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
+            errors[field] = `${field} doit être un email valide`;
+        }
+    }
+    
+    return {
+        isValid: Object.keys(errors).length === 0,
+        errors
+    };
+};
+
+/**
+ * Cache simple pour les appels API
+ */
+class APICache {
+    constructor(ttl = 5 * 60 * 1000) { // 5 minutes par défaut
+        this.cache = new Map();
+        this.ttl = ttl;
+    }
+    
+    get(key) {
+        const item = this.cache.get(key);
+        if (!item) return null;
+        
+        if (Date.now() > item.expiry) {
+            this.cache.delete(key);
+            return null;
+        }
+        
+        return item.data;
+    }
+    
+    set(key, data) {
+        this.cache.set(key, {
+            data,
+            expiry: Date.now() + this.ttl
+        });
+    }
+    
+    clear() {
+        this.cache.clear();
+    }
+    
+    delete(key) {
+        this.cache.delete(key);
+    }
+}
+
+export const apiCache = new APICache();
+
+/**
+ * Wrapper pour les appels API avec cache
+ * @param {string} key - Clé de cache
+ * @param {Function} apiCall - Fonction d'appel API
+ * @param {number} ttl - Durée de vie du cache en ms
+ * @returns {Promise} Résultat de l'API (depuis le cache ou frais)
+ */
+export const cachedAPICall = async (key, apiCall, ttl) => {
+    const cached = apiCache.get(key);
+    if (cached) {
+        return cached;
+    }
+    
+    const result = await apiCall();
+    apiCache.set(key, result);
+    return result;
+};
+
+/**
+ * Debounce pour les appels API de recherche
+ * @param {Function} func - Fonction à debouncer
+ * @param {number} delay - Délai en ms
+ * @returns {Function} Fonction debouncée
+ */
+export const debounce = (func, delay) => {
+    let timeoutId;
+    return (...args) => {
+        clearTimeout(timeoutId);
+        timeoutId = setTimeout(() => func.apply(null, args), delay);
+    };
+};
+
+/**
+ * Retry automatique pour les appels API qui échouent
+ * @param {Function} apiCall - Fonction d'appel API
+ * @param {number} maxRetries - Nombre maximum de tentatives
+ * @param {number} delay - Délai entre les tentatives en ms
+ * @returns {Promise} Résultat de l'API ou erreur finale
+ */
+export const retryAPICall = async (apiCall, maxRetries = 3, delay = 1000) => {
+    let lastError;
+    
+    for (let i = 0; i <= maxRetries; i++) {
+        try {
+            return await apiCall();
+        } catch (error) {
+            lastError = error;
+            
+            // Ne pas réessayer pour certains types d'erreurs
+            if (error.response && [400, 401, 403, 404].includes(error.response.status)) {
+                break;
+            }
+            
+            if (i < maxRetries) {
+                await new Promise(resolve => setTimeout(resolve, delay * Math.pow(2, i))); // Backoff exponentiel
+            }
+        }
+    }
+    
+    throw lastError;
+};
+```
+
+### `/api/src\lib\api\index`
+
+- **Fichier**: `src\lib\api\index.js`
+- **Fonctions/Méthodes exportées**: (fonctions exportées)
+
+```typescript
+/**
+ * Index centralisé pour tous les appels API
+ * Facilite l'importation et la maintenance des endpoints
+ */
+
+// Authentification
+export * from './auth';
+
+// Syndicats
+export * from './syndicate';
+
+// Publications
+export * from './posts';
+
+// Événements
+export * from './event';
+
+// Membres
+export * from './member';
+
+// Utilisateur
+export * from './user';
+
+// Votes
+export * from './vote';
+
+// Recherche
+export * from './search';
+
+// Utilitaires
+export * from './helpers';
+
+// Instance Axios
+export { default as apiClient } from './instance';
 ```
 
 ### `/api/src\lib\api\instance`
@@ -1443,13 +1771,24 @@ export const getBranchMembersAPI = async (branchId) => {
 ### `/api/src\lib\api\posts`
 
 - **Fichier**: `src\lib\api\posts.js`
-- **Fonctions/Méthodes exportées**: getPostsAPI, createPostAPI, likePostAPI, addCommentAPI, likeCommentAPI
+- **Fonctions/Méthodes exportées**: getPostsAPI, createPostAPI, likePostAPI, addCommentAPI, getCommentsAPI, likeCommentAPI
 
 ```typescript
 import axios from './instance';
 
-export const getPostsAPI = async (syndicateId) => {
-    const response = await axios.get(`/syndicates/${syndicateId}/posts`);
+/**
+ * Récupère les publications d'un syndicat avec pagination
+ * @param {string} syndicateId - ID du syndicat
+ * @param {number} page - Numéro de page (0-based)
+ * @param {number} size - Taille de la page
+ * @param {string} sortBy - Champ de tri
+ * @param {string} sortDirection - Direction du tri (ASC/DESC)
+ * @returns {Promise<Object>} Résultats paginés avec publications
+ */
+export const getPostsAPI = async (syndicateId, page = 0, size = 20, sortBy = 'createdAt', sortDirection = 'DESC') => {
+    const response = await axios.get(`/syndicates/${syndicateId}/posts`, {
+        params: { page, size, sortBy, sortDirection }
+    });
     return response.data;
 };
 
@@ -1471,8 +1810,248 @@ export const addCommentAPI = async (syndicateId, postId, content) => {
     return response.data;
 };
 
+/**
+ * Récupère les commentaires d'une publication avec pagination
+ * @param {string} syndicateId - ID du syndicat
+ * @param {string} postId - ID de la publication
+ * @param {number} page - Numéro de page (0-based)
+ * @param {number} size - Taille de la page
+ * @returns {Promise<Array>} Liste des commentaires
+ */
+export const getCommentsAPI = async (syndicateId, postId, page = 0, size = 20) => {
+    const response = await axios.get(`/syndicates/${syndicateId}/posts/${postId}/comments`, {
+        params: { page, size }
+    });
+    return response.data;
+};
+
 export const likeCommentAPI = async (syndicateId, postId, commentId, liked) => {
     await axios.post(`/syndicates/${syndicateId}/posts/${postId}/comments/${commentId}/like?liked=${liked}`);
+};
+```
+
+### `/api/src\lib\api\search`
+
+- **Fichier**: `src\lib\api\search.js`
+- **Fonctions/Méthodes exportées**: searchSyndicatesAPI, searchPostsInSyndicateAPI, searchEventsInSyndicateAPI, searchAllPostsAPI, searchAllEventsAPI, buildSearchParams, universalSearchAPI
+
+```typescript
+import axios from './instance';
+
+/**
+ * Recherche de syndicats avec filtres avancés
+ * @param {string} query - Terme de recherche
+ * @param {string} category - Catégorie de syndicate
+ * @param {string} location - Localisation
+ * @param {number} page - Numéro de page (0-based)
+ * @param {number} size - Taille de la page
+ * @param {string} sortBy - Champ de tri
+ * @param {string} sortDirection - Direction du tri (ASC/DESC)
+ * @returns {Promise<Object>} Résultats de recherche paginés
+ */
+export const searchSyndicatesAPI = async (query, category, location, page = 0, size = 12, sortBy = 'createdAt', sortDirection = 'DESC') => {
+    const response = await axios.get('/search/syndicates', {
+        params: { 
+            query: query || '', 
+            category: category || '', 
+            location: location || '', 
+            page, 
+            size, 
+            sortBy, 
+            sortDirection 
+        }
+    });
+    return response.data;
+};
+
+/**
+ * Recherche de publications dans un syndicat spécifique
+ * @param {string} syndicateId - ID du syndicat
+ * @param {string} query - Terme de recherche
+ * @param {number} page - Numéro de page (0-based)
+ * @param {number} size - Taille de la page
+ * @param {string} sortBy - Champ de tri
+ * @param {string} sortDirection - Direction du tri (ASC/DESC)
+ * @returns {Promise<Object>} Résultats de recherche paginés
+ */
+export const searchPostsInSyndicateAPI = async (syndicateId, query, page = 0, size = 20, sortBy = 'createdAt', sortDirection = 'DESC') => {
+    const response = await axios.get(`/search/syndicates/${syndicateId}/posts`, {
+        params: { 
+            query: query || '', 
+            page, 
+            size, 
+            sortBy, 
+            sortDirection 
+        }
+    });
+    return response.data;
+};
+
+/**
+ * Recherche d'événements dans un syndicat spécifique
+ * @param {string} syndicateId - ID du syndicat
+ * @param {string} query - Terme de recherche
+ * @param {string} location - Localisation
+ * @param {number} page - Numéro de page (0-based)
+ * @param {number} size - Taille de la page
+ * @param {string} sortBy - Champ de tri
+ * @param {string} sortDirection - Direction du tri (ASC/DESC)
+ * @returns {Promise<Object>} Résultats de recherche paginés
+ */
+export const searchEventsInSyndicateAPI = async (syndicateId, query, location, page = 0, size = 20, sortBy = 'startDate', sortDirection = 'ASC') => {
+    const response = await axios.get(`/search/syndicates/${syndicateId}/events`, {
+        params: { 
+            query: query || '', 
+            location: location || '', 
+            page, 
+            size, 
+            sortBy, 
+            sortDirection 
+        }
+    });
+    return response.data;
+};
+
+/**
+ * Recherche globale de publications dans tous les syndicats accessibles
+ * @param {string} query - Terme de recherche
+ * @param {number} page - Numéro de page (0-based)
+ * @param {number} size - Taille de la page
+ * @param {string} sortBy - Champ de tri
+ * @param {string} sortDirection - Direction du tri (ASC/DESC)
+ * @returns {Promise<Object>} Résultats de recherche paginés
+ */
+export const searchAllPostsAPI = async (query, page = 0, size = 20, sortBy = 'createdAt', sortDirection = 'DESC') => {
+    const response = await axios.get('/search/posts', {
+        params: { 
+            query: query || '', 
+            page, 
+            size, 
+            sortBy, 
+            sortDirection 
+        }
+    });
+    return response.data;
+};
+
+/**
+ * Recherche globale d'événements dans tous les syndicats accessibles
+ * @param {string} query - Terme de recherche
+ * @param {string} location - Localisation
+ * @param {number} page - Numéro de page (0-based)
+ * @param {number} size - Taille de la page
+ * @param {string} sortBy - Champ de tri
+ * @param {string} sortDirection - Direction du tri (ASC/DESC)
+ * @returns {Promise<Object>} Résultats de recherche paginés
+ */
+export const searchAllEventsAPI = async (query, location, page = 0, size = 20, sortBy = 'startDate', sortDirection = 'ASC') => {
+    const response = await axios.get('/search/events', {
+        params: { 
+            query: query || '', 
+            location: location || '', 
+            page, 
+            size, 
+            sortBy, 
+            sortDirection 
+        }
+    });
+    return response.data;
+};
+
+/**
+ * Utilitaire pour construire des paramètres de recherche avancée
+ * @param {Object} filters - Filtres de recherche
+ * @returns {Object} Paramètres formatés pour l'API
+ */
+export const buildSearchParams = (filters) => {
+    const params = {};
+    
+    if (filters.query && filters.query.trim()) {
+        params.query = filters.query.trim();
+    }
+    
+    if (filters.category && filters.category !== 'Tous') {
+        params.category = filters.category;
+    }
+    
+    if (filters.location && filters.location.trim()) {
+        params.location = filters.location.trim();
+    }
+    
+    if (filters.dateRange) {
+        if (filters.dateRange.start) {
+            params.startDate = filters.dateRange.start;
+        }
+        if (filters.dateRange.end) {
+            params.endDate = filters.dateRange.end;
+        }
+    }
+    
+    // Pagination
+    params.page = filters.page || 0;
+    params.size = filters.size || 20;
+    params.sortBy = filters.sortBy || 'createdAt';
+    params.sortDirection = filters.sortDirection || 'DESC';
+    
+    return params;
+};
+
+/**
+ * Recherche universelle qui combine tous les types de contenu
+ * @param {string} query - Terme de recherche
+ * @param {Object} options - Options de recherche
+ * @returns {Promise<Object>} Résultats agrégés
+ */
+export const universalSearchAPI = async (query, options = {}) => {
+    const {
+        includeSyndicates = true,
+        includePosts = true,
+        includeEvents = true,
+        page = 0,
+        size = 10
+    } = options;
+    
+    const promises = [];
+    
+    if (includeSyndicates) {
+        promises.push(
+            searchSyndicatesAPI(query, '', '', page, size)
+                .then(data => ({ type: 'syndicates', ...data }))
+                .catch(() => ({ type: 'syndicates', content: [], totalElements: 0 }))
+        );
+    }
+    
+    if (includePosts) {
+        promises.push(
+            searchAllPostsAPI(query, page, size)
+                .then(data => ({ type: 'posts', ...data }))
+                .catch(() => ({ type: 'posts', content: [], totalElements: 0 }))
+        );
+    }
+    
+    if (includeEvents) {
+        promises.push(
+            searchAllEventsAPI(query, '', page, size)
+                .then(data => ({ type: 'events', ...data }))
+                .catch(() => ({ type: 'events', content: [], totalElements: 0 }))
+        );
+    }
+    
+    const results = await Promise.all(promises);
+    
+    return {
+        query,
+        results: results.reduce((acc, result) => {
+            acc[result.type] = {
+                content: result.content || [],
+                totalElements: result.totalElements || 0,
+                page: result.page || 0,
+                size: result.size || size
+            };
+            return acc;
+        }, {}),
+        totalResults: results.reduce((sum, result) => sum + (result.totalElements || 0), 0)
+    };
 };
 ```
 
@@ -2243,13 +2822,13 @@ export default function SocialLogins() {
 
 - **Fichier**: `src\components\dashboard\AppHeader.jsx`
 - **Props**: `isSidebarOpen, onSidebarToggle, onNotificationToggle`
-- **Hooks**: useTranslation, useUser, useTranslations
+- **Hooks**: useTranslations, useUser
 ```jsx
 "use client";
 
 import { motion } from "framer-motion";
 import { Bell, Building, ChevronLeft, ChevronRight, Search } from "lucide-react";
-import { useTranslation } from "react-i18next";
+import { useTranslations } from "next-intl";
 import { Link } from '@/navigation';
 import ThemeSwitcher from '../layout/ThemeSwitcher';
 import LanguageSwitcher from '../layout/LanguageSwitcher';
@@ -2311,7 +2890,7 @@ export default function AppHeader({ isSidebarOpen, onSidebarToggle, onNotificati
 
 - **Fichier**: `src\components\dashboard\AppSidebar.jsx`
 - **Props**: `isOpen`
-- **Hooks**: useRouter, usePathname, useTranslation, useTranslations
+- **Hooks**: useRouter, usePathname, useTranslations
 ```jsx
 // src/components/dashboard/AppSidebar.jsx
 "use client";
@@ -2321,7 +2900,7 @@ import { LogOut } from "lucide-react";
 import { Link } from '@/navigation';
 import { useRouter, usePathname } from 'next/navigation';
 import { navItems } from "./navItems.js";
-import { useTranslation } from "react-i18next";
+import { useTranslations } from "next-intl";
 
 export default function AppSidebar({ isOpen }) {
     const router = useRouter();
@@ -2526,7 +3105,7 @@ export default function FeedCard({ item }) {
 
 - **Fichier**: `src\components\dashboard\FeedItem.jsx`
 - **Props**: `date`
-- **Hooks**: useState, useTranslation, useTranslations
+- **Hooks**: useState, useTranslations
 ```jsx
 // src/components/dashboard/FeedItem.jsx
 "use client";
@@ -2538,7 +3117,7 @@ import {
     Heart, Share2, MessageCircle, Clock, User, Bookmark, Send, X,
     Calendar, MapPin, Users
 } from "lucide-react";
-import { useTranslation } from "react-i18next";
+import { useTranslations } from "next-intl";
 import { Link } from '@/navigation';
 
 // Fonction utilitaire pour formater la date
@@ -2780,14 +3359,14 @@ export const navItems = [
 
 - **Fichier**: `src\components\dashboard\NotificationsPanel.jsx`
 - **Props**: `title, description, time, icon: Icon, gradient`
-- **Hooks**: useTranslation, useTranslations
+- **Hooks**: useTranslations
 ```jsx
 
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
 import { X } from "lucide-react";
-import { useTranslation } from'react-i18next';
+import { useTranslations } from "next-intl";
 import { Link } from '@/navigation';
 
 
@@ -2877,13 +3456,13 @@ export default function NotificationsPanel({ isOpen, onClose }) {
 
 - **Fichier**: `src\components\dashboard\WelcomeSection.jsx`
 - **Props**: `N/A`
-- **Hooks**: useState, useTranslation, useUser, useTranslations
+- **Hooks**: useState, useTranslations, useUser
 ```jsx
 "use client";
 
 import { useState } from "react";
 import { Zap } from "lucide-react";
-import { useTranslation } from "react-i18next";
+import { useTranslations } from "next-intl";
 import CreateSyndicateModal from "@/components/syndicats/CreateSyndicateModal";
 import { useUser } from "@/context/UserContext"; // Importe notre hook
 
@@ -2929,14 +3508,14 @@ export default function WelcomeSection() { // Plus besoin de props
 
 - **Fichier**: `src\components\explorer\AdhesionModal.jsx`
 - **Props**: `isOpen, onClose, syndicat`
-- **Hooks**: useTranslation, useTranslations
+- **Hooks**: useTranslations
 ```jsx
 // src/components/explorer/AdhesionModal.jsx
 "use client";
 
 import { motion, AnimatePresence } from "framer-motion";
 import { X } from "lucide-react";
-import { useTranslation } from "react-i18next";
+import { useTranslations } from "next-intl";
 import { AdhereSyndicatForm } from "../forms/adhesion/AdhereSyndicatForm"; // Assurez-vous que le chemin est correct
 
 /**
@@ -3131,13 +3710,13 @@ export default function ExploreHeader({ syndicatesCount, t }) {
 
 - **Fichier**: `src\components\explorer\ExplorerClient.jsx`
 - **Props**: `initialSyndicates, initialHasNextPage`
-- **Hooks**: useState, useMemo, useTranslation, useRouter, useTranslations
+- **Hooks**: useState, useMemo, useTranslations, useRouter
 ```jsx
 "use client";
 
 import { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { useTranslation } from "react-i18next";
+import { useTranslations } from "next-intl";
 import { useRouter } from 'next/navigation';
 import { toast } from 'react-hot-toast';
 import { Search, Filter, AlertCircle, RefreshCw, Loader2 } from "lucide-react";
@@ -3250,7 +3829,7 @@ export default function ExplorerClient({ initialSyndicates, initialHasNextPage }
 
 - **Fichier**: `src\components\forms\adhesion\AdhereSyndicatForm.jsx`
 - **Props**: `syndicat, onComplete`
-- **Hooks**: useState, useTranslation, useTranslations
+- **Hooks**: useState, useTranslations
 ```jsx
 // src/components/forms/adhesion/AdhereSyndicatForm.jsx
 "use client";
@@ -3258,7 +3837,7 @@ export default function ExplorerClient({ initialSyndicates, initialHasNextPage }
 import { useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { CheckCircle, ChevronLeft, ChevronRight } from "lucide-react";
-import { useTranslation } from "react-i18next";
+import { useTranslations } from "next-intl";
 import { AntenneSelection } from "./AntenneSelection.jsx";
 import { UserTypeSelection } from "./UserTypeSelection.jsx";
 import { IndividualForm } from "./IndividualMembershipForm.jsx";
@@ -3590,7 +4169,7 @@ export const IndividualForm = ({ onSubmit, formData, setFormData }) => {
 
 - **Fichier**: `src\components\forms\adhesion\MembershipConfirmation.jsx`
 - **Props**: `membershipId, antenne, onComplete`
-- **Hooks**: useState, useTranslation, useTranslations
+- **Hooks**: useState, useTranslations
 ```jsx
 // src/components/forms/adhesion/MembershipConfirmation.jsx
 "use client";
@@ -3598,7 +4177,7 @@ export const IndividualForm = ({ onSubmit, formData, setFormData }) => {
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { CheckCircle, Copy, Download } from "lucide-react";
-import { useTranslation } from "react-i18next";
+import { useTranslations } from "next-intl";
 
 export const Confirmation = ({ membershipId, antenne, onComplete }) => {
     const t = useTranslations('confirmation');
@@ -5796,6 +6375,361 @@ export function Providers({ children }) {
 }
 ```
 
+### SearchSystem
+
+- **Fichier**: `src\components\SearchSystem.jsx`
+- **Props**: `N/A`
+- **Hooks**: useState, useCallback, useEffect
+```jsx
+import React, { useState, useCallback, useEffect } from 'react';
+import { Search, Filter, X, ChevronDown, Loader2 } from 'lucide-react';
+import { 
+    searchSyndicatesAPI, 
+    searchAllPostsAPI, 
+    searchAllEventsAPI,
+    universalSearchAPI,
+    debounce
+} from '../lib/api/search';
+
+const SearchSystem = () => {
+    const [query, setQuery] = useState('');
+    const [searchType, setSearchType] = useState('all'); // all, syndicates, posts, events
+    const [results, setResults] = useState(null);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState(null);
+    const [showFilters, setShowFilters] = useState(false);
+    const [filters, setFilters] = useState({
+        category: '',
+        location: '',
+        page: 0,
+        size: 20,
+        sortBy: 'createdAt',
+        sortDirection: 'DESC'
+    });
+
+    // Debounced search function
+    const debouncedSearch = useCallback(
+        debounce(async (searchQuery, searchFilters) => {
+            if (!searchQuery.trim()) {
+                setResults(null);
+                return;
+            }
+
+            setLoading(true);
+            setError(null);
+
+            try {
+                let data;
+                
+                switch (searchType) {
+                    case 'syndicates':
+                        data = await searchSyndicatesAPI(
+                            searchQuery,
+                            searchFilters.category,
+                            searchFilters.location,
+                            searchFilters.page,
+                            searchFilters.size,
+                            searchFilters.sortBy,
+                            searchFilters.sortDirection
+                        );
+                        break;
+                    case 'posts':
+                        data = await searchAllPostsAPI(
+                            searchQuery,
+                            searchFilters.page,
+                            searchFilters.size,
+                            searchFilters.sortBy,
+                            searchFilters.sortDirection
+                        );
+                        break;
+                    case 'events':
+                        data = await searchAllEventsAPI(
+                            searchQuery,
+                            searchFilters.location,
+                            searchFilters.page,
+                            searchFilters.size,
+                            'startDate',
+                            'ASC'
+                        );
+                        break;
+                    default:
+                        data = await universalSearchAPI(searchQuery, {
+                            page: searchFilters.page,
+                            size: searchFilters.size
+                        });
+                }
+                
+                setResults(data);
+            } catch (err) {
+                setError(err.message || 'Erreur lors de la recherche');
+                console.error('Search error:', err);
+            } finally {
+                setLoading(false);
+            }
+        }, 500),
+        [searchType]
+    );
+
+    // Effect to trigger search when query or filters change
+    useEffect(() => {
+        debouncedSearch(query, filters);
+    }, [query, filters, debouncedSearch]);
+
+    const handleFilterChange = (key, value) => {
+        setFilters(prev => ({
+            ...prev,
+            [key]: value,
+            page: 0 // Reset page when filters change
+        }));
+    };
+
+    const clearFilters = () => {
+        setFilters({
+            category: '',
+            location: '',
+            page: 0,
+            size: 20,
+            sortBy: 'createdAt',
+            sortDirection: 'DESC'
+        });
+    };
+
+    const renderResults = () => {
+        if (!results) return null;
+
+        if (searchType === 'all') {
+            return (
+                <div className="space-y-6">
+                    {Object.entries(results.results).map(([type, data]) => (
+                        <div key={type} className="bg-white rounded-lg shadow p-4">
+                            <h3 className="text-lg font-semibold mb-3 capitalize">
+                                {type} ({data.totalElements} résultats)
+                            </h3>
+                            <div className="space-y-2">
+                                {data.content.slice(0, 3).map((item, index) => (
+                                    <div key={index} className="p-3 border rounded hover:bg-gray-50">
+                                        <h4 className="font-medium">
+                                            {item.name || item.title || item.content?.substring(0, 100)}
+                                        </h4>
+                                        {item.description && (
+                                            <p className="text-sm text-gray-600 mt-1">
+                                                {item.description.substring(0, 150)}...
+                                            </p>
+                                        )}
+                                    </div>
+                                ))}
+                                {data.totalElements > 3 && (
+                                    <p className="text-sm text-blue-600 cursor-pointer hover:underline">
+                                        Voir tous les {data.totalElements} résultats
+                                    </p>
+                                )}
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            );
+        }
+
+        return (
+            <div className="bg-white rounded-lg shadow">
+                <div className="p-4 border-b">
+                    <h3 className="text-lg font-semibold">
+                        {results.totalElements || results.content?.length || 0} résultats trouvés
+                    </h3>
+                </div>
+                <div className="divide-y">
+                    {(results.content || []).map((item, index) => (
+                        <div key={index} className="p-4 hover:bg-gray-50">
+                            <h4 className="font-medium text-blue-600">
+                                {item.name || item.title || 'Sans titre'}
+                            </h4>
+                            {item.description && (
+                                <p className="text-gray-600 mt-1">
+                                    {item.description.substring(0, 200)}
+                                    {item.description.length > 200 && '...'}
+                                </p>
+                            )}
+                            {item.content && (
+                                <p className="text-gray-600 mt-1">
+                                    {item.content.substring(0, 200)}
+                                    {item.content.length > 200 && '...'}
+                                </p>
+                            )}
+                            <div className="flex gap-4 mt-2 text-sm text-gray-500">
+                                {item.location && <span>📍 {item.location}</span>}
+                                {item.category && <span>🏷️ {item.category}</span>}
+                                {item.authorName && <span>👤 {item.authorName}</span>}
+                                {item.startDate && <span>📅 {new Date(item.startDate).toLocaleDateString()}</span>}
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            </div>
+        );
+    };
+
+    return (
+        <div className="max-w-4xl mx-auto p-6">
+            <div className="mb-6">
+                <h1 className="text-2xl font-bold text-gray-900 mb-4">
+                    Système de Recherche UGate
+                </h1>
+                
+                {/* Search Bar */}
+                <div className="relative">
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
+                    <input
+                        type="text"
+                        placeholder="Rechercher des syndicats, publications, événements..."
+                        value={query}
+                        onChange={(e) => setQuery(e.target.value)}
+                        className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    />
+                    {loading && (
+                        <Loader2 className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5 animate-spin" />
+                    )}
+                </div>
+
+                {/* Search Type Tabs */}
+                <div className="flex gap-2 mt-4">
+                    {[
+                        { key: 'all', label: 'Tout' },
+                        { key: 'syndicates', label: 'Syndicats' },
+                        { key: 'posts', label: 'Publications' },
+                        { key: 'events', label: 'Événements' }
+                    ].map(({ key, label }) => (
+                        <button
+                            key={key}
+                            onClick={() => setSearchType(key)}
+                            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                                searchType === key
+                                    ? 'bg-blue-500 text-white'
+                                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                            }`}
+                        >
+                            {label}
+                        </button>
+                    ))}
+                </div>
+
+                {/* Filters Toggle */}
+                <button
+                    onClick={() => setShowFilters(!showFilters)}
+                    className="flex items-center gap-2 mt-4 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50"
+                >
+                    <Filter className="h-4 w-4" />
+                    Filtres
+                    <ChevronDown className={`h-4 w-4 transition-transform ${showFilters ? 'rotate-180' : ''}`} />
+                </button>
+
+                {/* Filters Panel */}
+                {showFilters && (
+                    <div className="mt-4 p-4 bg-gray-50 rounded-lg">
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            {(searchType === 'syndicates' || searchType === 'all') && (
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                                        Catégorie
+                                    </label>
+                                    <select
+                                        value={filters.category}
+                                        onChange={(e) => handleFilterChange('category', e.target.value)}
+                                        className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
+                                    >
+                                        <option value="">Toutes les catégories</option>
+                                        <option value="Résidentiel">Résidentiel</option>
+                                        <option value="Commercial">Commercial</option>
+                                        <option value="Mixte">Mixte</option>
+                                    </select>
+                                </div>
+                            )}
+                            
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    Localisation
+                                </label>
+                                <input
+                                    type="text"
+                                    placeholder="Ville, quartier..."
+                                    value={filters.location}
+                                    onChange={(e) => handleFilterChange('location', e.target.value)}
+                                    className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
+                                />
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    Trier par
+                                </label>
+                                <select
+                                    value={`${filters.sortBy}-${filters.sortDirection}`}
+                                    onChange={(e) => {
+                                        const [sortBy, sortDirection] = e.target.value.split('-');
+                                        handleFilterChange('sortBy', sortBy);
+                                        handleFilterChange('sortDirection', sortDirection);
+                                    }}
+                                    className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
+                                >
+                                    <option value="createdAt-DESC">Plus récent</option>
+                                    <option value="createdAt-ASC">Plus ancien</option>
+                                    <option value="name-ASC">Nom A-Z</option>
+                                    <option value="name-DESC">Nom Z-A</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div className="mt-4 flex justify-end">
+                            <button
+                                onClick={clearFilters}
+                                className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50"
+                            >
+                                <X className="h-4 w-4" />
+                                Effacer les filtres
+                            </button>
+                        </div>
+                    </div>
+                )}
+            </div>
+
+            {/* Error Message */}
+            {error && (
+                <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
+                    <p className="text-red-800">{error}</p>
+                </div>
+            )}
+
+            {/* Results */}
+            {renderResults()}
+
+            {/* No Results */}
+            {!loading && query && results && !results.content?.length && searchType !== 'all' && (
+                <div className="text-center py-12">
+                    <Search className="mx-auto h-12 w-12 text-gray-400 mb-4" />
+                    <h3 className="text-lg font-medium text-gray-900 mb-2">Aucun résultat trouvé</h3>
+                    <p className="text-gray-600">
+                        Essayez d'ajuster vos critères de recherche ou explorez d'autres catégories.
+                    </p>
+                </div>
+            )}
+
+            {/* Development Info */}
+            <div className="mt-8 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                <h4 className="font-medium text-blue-900 mb-2">Informations de développement</h4>
+                <div className="text-sm text-blue-800 space-y-1">
+                    <p>• Toutes les API de recherche sont maintenant implémentées</p>
+                    <p>• Pagination automatique avec {filters.size} résultats par page</p>
+                    <p>• Cache automatique avec TTL de 5 minutes</p>
+                    <p>• Debounce de 500ms pour optimiser les performances</p>
+                    <p>• Gestion d'erreur robuste avec retry automatique</p>
+                </div>
+            </div>
+        </div>
+    );
+};
+
+export default SearchSystem;
+```
+
 ### DynamicFieldArray
 
 - **Fichier**: `src\components\settings\DynamicFieldArray.jsx`
@@ -6125,7 +7059,7 @@ export function ClientMotionWrapper({ children, delay = 0, className = "" }) {
 
 - **Fichier**: `src\components\shared\EventCard.jsx`
 - **Props**: `icon: Icon, text, colorClass = 'blue'`
-- **Hooks**: useState, useTranslation, useTranslations
+- **Hooks**: useState, useTranslations
 ```jsx
 // src/components/shared/EventCard.jsx
 "use client";
@@ -6133,7 +7067,7 @@ export function ClientMotionWrapper({ children, delay = 0, className = "" }) {
 import { useState } from "react";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
-import { useTranslation } from "react-i18next";
+import { useTranslations } from "next-intl";
 import { Calendar, MapPin, Clock, Users, User, CheckCircle } from "lucide-react";
 import { SyndicatDefaultAvatar } from '@/components/shared/SyndicatDefaultAvatar.jsx';
 
@@ -6382,14 +7316,14 @@ export default function NavigationLoader() {
 
 - **Fichier**: `src\components\shared\PublicationCard.jsx`
 - **Props**: `publication`
-- **Hooks**: useTranslation, useTranslations
+- **Hooks**: useTranslations
 ```jsx
 
 "use client";
 
 import Image from "next/image";
 import { motion } from "framer-motion";
-import { useTranslation } from "react-i18next";
+import { useTranslations } from "next-intl";
 import { Heart, MessageCircle, Clock, Share2 } from "lucide-react";
 
 export default function PublicationCard({ publication }) {
@@ -6493,7 +7427,7 @@ export default function PublicationsList({ limit = 3, publications = publication
 
 - **Fichier**: `src\components\shared\SearchModal.jsx`
 - **Props**: `isOpen, onClose`
-- **Hooks**: useState, useCallback, useEffect, useRouter, useTranslation, useNavigate, useTranslations
+- **Hooks**: useState, useCallback, useEffect, useRouter, useTranslations, useNavigate
 ```jsx
 
 "use client";
@@ -6502,7 +7436,7 @@ import { useState, useCallback, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Filter, Building } from "lucide-react";
 import { useRouter } from 'next/navigation'; // Utiliser useRouter de next/navigation
-import { useTranslation } from "react-i18next";
+import { useTranslations } from "next-intl";
 
 const allSyndicats = [
     { id: 1, name: "Syndicat National de l'Éducation", members: 250000, category: "Éducation" },
@@ -7647,7 +8581,7 @@ export default function CreateEventModal({ isOpen, onClose, onCreateEvent }) {
 
 - **Fichier**: `src\components\syndicate-space\section-evenements\EventCard.jsx`
 - **Props**: `event, onShowParticipants, onUpdateEvent`
-- **Hooks**: useState, useTranslation, useTranslations
+- **Hooks**: useState, useTranslations
 ```jsx
 // src/components/syndicate-space/section-evenements/EventCard.jsx
 "use client";
@@ -7655,7 +8589,7 @@ export default function CreateEventModal({ isOpen, onClose, onCreateEvent }) {
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import Image from 'next/image';
-import { useTranslation } from "react-i18next";
+import { useTranslations } from "next-intl";
 import { Calendar, MapPin, Clock, User, Users, Heart, Share2 } from 'lucide-react';
 
 export default function EventCard({ event, onShowParticipants, onUpdateEvent }) {
@@ -7798,7 +8732,7 @@ export default function EventForm({ onSubmit, initialData = {}, isLoading }) {
 
 - **Fichier**: `src\components\syndicate-space\section-evenements\EventsFeed.jsx`
 - **Props**: `initialEvents`
-- **Hooks**: useState, useTranslation, useTranslations
+- **Hooks**: useState, useTranslations
 ```jsx
 // src/components/syndicate-space/section-evenements/EventsFeed.jsx
 "use client";
@@ -7806,7 +8740,7 @@ export default function EventForm({ onSubmit, initialData = {}, isLoading }) {
 import { useState } from 'react';
 import { AnimatePresence } from 'framer-motion';
 import { toast } from 'react-hot-toast';
-import { useTranslation } from "react-i18next";
+import { useTranslations } from "next-intl";
 import { Plus } from 'lucide-react';
 import EventCard from './EventCard';
 import ParticipantsModal from './ParticipantsModal';
@@ -7880,13 +8814,13 @@ export default function EventsFeed({ initialEvents }) {
 
 - **Fichier**: `src\components\syndicate-space\section-evenements\ParticipantsModal.jsx`
 - **Props**: `event, onClose`
-- **Hooks**: useTranslation, useTranslations
+- **Hooks**: useTranslations
 ```jsx
 // src/components/syndicate-space/section-evenements/ParticipantsModal.jsx
 "use client";
 
 import { motion, AnimatePresence } from 'framer-motion';
-import { useTranslation } from "react-i18next";
+import { useTranslations } from "next-intl";
 import { X, Users } from 'lucide-react';
 
 export default function ParticipantsModal({ event, onClose }) {
@@ -8245,14 +9179,14 @@ export default function Reply({ reply }) {
 
 - **Fichier**: `src\components\syndicate-space\section-exprimer\NewPostModal.jsx`
 - **Props**: `isOpen, onClose, onNewPost`
-- **Hooks**: useState, useRef, useTranslation, useTranslations
+- **Hooks**: useState, useRef, useTranslations
 ```jsx
 "use client";
 
 import { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Image as ImageIcon, Send, X, Camera } from 'lucide-react';
-import { useTranslation } from "react-i18next";
+import { useTranslations } from "next-intl";
 import Image from 'next/image';
 
 export default function NewPostModal({ isOpen, onClose, onNewPost }) {
@@ -8310,7 +9244,7 @@ export default function NewPostModal({ isOpen, onClose, onNewPost }) {
 
 - **Fichier**: `src\components\syndicate-space\section-exprimer\Post.jsx`
 - **Props**: `post, onUpdatePost`
-- **Hooks**: useEffect, useState, useTranslation, useTranslations
+- **Hooks**: useEffect, useState, useTranslations
 ```jsx
 // src/components/syndicate-space/section-exprimer/Post.jsx
 "use client";
@@ -8319,7 +9253,7 @@ import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import Image from 'next/image';
 import { Bookmark, Clock, Flag, Heart, MessageCircle } from "lucide-react";
-import { useTranslation } from "react-i18next";
+import { useTranslations } from "next-intl";
 import CommentModal from "./CommentModal";
 import timeAgo from "@/lib/utils/timeAgo"; // On supposera un utilitaire pour le temps
 
@@ -8433,7 +9367,7 @@ export default function Post({ post, onUpdatePost }) {
 
 - **Fichier**: `src\components\syndicate-space\section-exprimer\PublicationsFeed.jsx`
 - **Props**: `post, onUpdatePost, syndicatId`
-- **Hooks**: useEffect, useState, useTranslation, useTranslations
+- **Hooks**: useEffect, useState, useTranslations
 ```jsx
 "use client";
 
@@ -8441,7 +9375,7 @@ import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import Image from 'next/image';
 import { Bookmark, Clock, Flag, Heart, MessageCircle } from "lucide-react";
-import { useTranslation } from "react-i18next";
+import { useTranslations } from "next-intl";
 import { toast } from 'react-hot-toast';
 import CommentModal from "./CommentModal";
 import timeAgo from "@/lib/utils/timeAgo";
@@ -8978,7 +9912,7 @@ export default function SyndicateSidebar({ isCollapsed, onToggle, syndicateData 
 
 - **Fichier**: `src\components\syndicats\CreateSyndicateModal.jsx`
 - **Props**: `isOpen, onClose`
-- **Hooks**: useTranslation, useTranslations
+- **Hooks**: useTranslations
 ```jsx
 
 "use client";
@@ -8986,7 +9920,7 @@ export default function SyndicateSidebar({ isCollapsed, onToggle, syndicateData 
 import { motion, AnimatePresence } from "framer-motion";
 import { X } from "lucide-react";
 import { CreateSyndicateWizard } from '../forms/create-syndicate/CreateSyndicateWizard';
-import { useTranslation } from "react-i18next";
+import { useTranslations } from "next-intl";
 
 export default function CreateSyndicateModal({ isOpen, onClose }) {
     const t = useTranslations('syndicats_page');
@@ -9029,7 +9963,7 @@ export default function CreateSyndicateModal({ isOpen, onClose }) {
 
 - **Fichier**: `src\components\syndicats\MySyndicatesPage.jsx`
 - **Props**: `initialSyndicates`
-- **Hooks**: useState, useMemo, useTranslation, useTranslations
+- **Hooks**: useState, useMemo, useTranslations
 ```jsx
 
 "use client";
@@ -9037,7 +9971,7 @@ export default function CreateSyndicateModal({ isOpen, onClose }) {
 import { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Search, Filter, AlertCircle, PlusCircle } from "lucide-react";
-import { useTranslation } from "react-i18next";
+import { useTranslations } from "next-intl";
 import SyndicateList from "./SyndicateList";
 import CreateSyndicateModal from "./CreateSyndicateModal";
 
@@ -9098,7 +10032,7 @@ export default function MySyndicatesPage({ initialSyndicates }) {
 
 - **Fichier**: `src\components\syndicats\SyndicateCard.jsx`
 - **Props**: `syndicat`
-- **Hooks**: useRouter, useTranslation, useTranslations
+- **Hooks**: useRouter, useTranslations
 ```jsx
 "use client";
 
@@ -9106,7 +10040,7 @@ import { motion } from "framer-motion";
 import Image from "next/image";
 import { useRouter } from 'next/navigation';
 import { ArrowRightCircle, Users, BarChart2 } from "lucide-react";
-import { useTranslation } from "react-i18next";
+import { useTranslations } from "next-intl";
 import { STATIC_FILES_URL } from "@/lib/constants";
 import { SyndicatDefaultAvatar } from "../shared/SyndicatDefaultAvatar";
 
@@ -9207,13 +10141,13 @@ export default function SyndicateHeader() {
 
 - **Fichier**: `src\components\syndicats\SyndicateList.jsx`
 - **Props**: `initialSyndicates = []`
-- **Hooks**: useState, useMemo, useTranslation, useTranslations
+- **Hooks**: useState, useMemo, useTranslations
 ```jsx
 "use client";
 
 import { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { useTranslation } from "react-i18next";
+import { useTranslations } from "next-intl";
 import { Search, AlertCircle, PlusCircle } from "lucide-react";
 import SyndicateCard from "./SyndicateCard";
 import CreateSyndicateModal from "./CreateSyndicateModal";

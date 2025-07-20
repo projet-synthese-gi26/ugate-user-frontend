@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import Image from "next/image";
 import { useRouter } from 'next/navigation';
 import { ArrowRightCircle, Users, BarChart2 } from "lucide-react";
-import { useTranslation } from "react-i18next";
+import { useTranslations } from "next-intl";
 import { STATIC_FILES_URL } from "@/lib/constants";
 import { SyndicatDefaultAvatar } from "../shared/SyndicatDefaultAvatar";
 

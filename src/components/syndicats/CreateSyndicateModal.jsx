@@ -4,7 +4,7 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { X } from "lucide-react";
 import { CreateSyndicateWizard } from '../forms/create-syndicate/CreateSyndicateWizard';
-import { useTranslation } from "react-i18next";
+import { useTranslations } from "next-intl";
 
 export default function CreateSyndicateModal({ isOpen, onClose }) {
     const t = useTranslations('syndicats_page');
