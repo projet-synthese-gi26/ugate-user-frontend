@@ -1,5 +1,5 @@
 import {getTranslations} from 'next-intl/server';
-import {Link} from '@/i18n/navigation';
+import {Link} from '@/navigation';
 import Feed from "@/components/dashboard/Feed"; // On réutilise le Feed existant
 import WelcomeSection from "@/components/dashboard/WelcomeSection";
 import { homeFeedFakeData } from "@/lib/fakeData/homeFeedFake";

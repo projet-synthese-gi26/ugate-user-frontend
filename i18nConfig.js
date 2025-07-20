@@ -13,9 +13,9 @@ export const locales = ['fr', 'en', 'de'];
 export const defaultLocale = 'fr';
 
 // 3. Définissez la stratégie pour le préfixe de locale dans l'URL.
-// 'as-needed' est le meilleur choix : n'ajoute pas de préfixe pour la locale par défaut (ex: /connexion).
-// 'always' ajouterait toujours un préfixe (ex: /fr/connexion).
-export const localePrefix = 'as-needed';
+// 'always' force toujours un préfixe (ex: /fr/connexion, /en/login).
+// Cela redirige automatiquement /login vers /fr/login par défaut.
+export const localePrefix = 'always';
 
 // 4. Définissez les traductions pour vos chemins de route (pathnames).
 // Cela permet d'avoir des URLs comme /connexion en français et /login en anglais.

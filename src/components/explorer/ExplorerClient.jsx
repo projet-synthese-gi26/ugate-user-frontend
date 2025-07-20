@@ -3,7 +3,7 @@
 import { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useTranslations } from "next-intl";
-import { useRouter } from 'next/navigation';
+import { useRouter } from '@/navigation';
 import { toast } from 'react-hot-toast';
 import { Search, Filter, AlertCircle, RefreshCw, Loader2 } from "lucide-react";
 import ExploreCard from "./ExploreCard";

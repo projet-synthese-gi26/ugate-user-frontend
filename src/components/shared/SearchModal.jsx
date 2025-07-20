@@ -4,7 +4,7 @@
 import { useState, useCallback, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Filter, Building } from "lucide-react";
-import { useRouter } from 'next/navigation'; // Utiliser useRouter de next/navigation
+import { useRouter } from '@/navigation';
 import { useTranslations } from "next-intl";
 
 const allSyndicats = [
