@@ -9,7 +9,7 @@ import SyndicateList from "@/components/syndicats/SyndicateList";
 import { getMySyndicatesAPI } from "@/lib/api/syndicates";
 
 export default function MySyndicatesPage() {
-    const { t } = useTranslation();
+    const t = useTranslations();
     const [syndicates, setSyndicates] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
 

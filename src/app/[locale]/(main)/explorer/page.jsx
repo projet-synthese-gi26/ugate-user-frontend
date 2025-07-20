@@ -11,7 +11,7 @@ import ExplorerClient from "@/components/explorer/ExplorerClient";
 import ExploreHeader from "@/components/explorer/ExploreHeader";
 
 export default function ExplorerPage() {
-    const { t } = useTranslation();
+    const t = useTranslations();
 
     const [syndicates, setSyndicates] = useState([]);
     const [page, setPage] = useState(0);
