@@ -1,54 +1,69 @@
-# === Étape 1: Installation des dépendances ===
-# On utilise une image node complète pour éviter les problèmes de compilation de certaines dépendances
-FROM node:18-alpine AS deps
+# Dockerfile multi-stage pour Next.js
+# Utilise Node.js 18 Alpine pour une image légère et sécurisée
+FROM node:18-alpine AS base
+
+# Installer les dépendances système nécessaires
+RUN apk add --no-cache libc6-compat
 WORKDIR /app
 
-# Copier package.json et package-lock.json
-COPY package*.json ./
+# Étape 1: Installation des dépendances
+FROM base AS deps
+# Copier les fichiers de définition des dépendances
+COPY package.json yarn.lock* package-lock.json* pnpm-lock.yaml* ./
+RUN \
+  if [ -f yarn.lock ]; then yarn --frozen-lockfile; \
+  elif [ -f package-lock.json ]; then npm ci; \
+  elif [ -f pnpm-lock.yaml ]; then yarn global add pnpm && pnpm i --frozen-lockfile; \
+  else echo "Lockfile not found." && exit 1; \
+  fi
 
-# Installer TOUTES les dépendances (y compris devDependencies pour le build)
-# On utilise npm ci pour une installation rapide et reproductible
-RUN npm ci
-
-# === Étape 2: Build de l'application ===
-# On utilise une nouvelle étape pour le build, en copiant les dépendances de l'étape précédente
-FROM node:18-alpine AS builder
+# Étape 2: Build de l'application
+FROM base AS builder
 WORKDIR /app
-
-# Copier les dépendances installées depuis l'étape 'deps'
 COPY --from=deps /app/node_modules ./node_modules
-# Copier le reste du code de l'application
 COPY . .
 
-# Lancer le build de Next.js.
-# Tailwind, PostCSS etc. sont maintenant disponibles
-RUN npm run build
+# Variables d'environnement pour le build
+ENV NEXT_TELEMETRY_DISABLED 1
 
+# Build de l'application
+RUN \
+  if [ -f yarn.lock ]; then yarn build; \
+  elif [ -f package-lock.json ]; then npm run build; \
+  elif [ -f pnpm-lock.yaml ]; then yarn global add pnpm && pnpm build; \
+  else echo "Lockfile not found." && exit 1; \
+  fi
 
-# === Étape 3: Étape de production finale ===
-# On repart d'une image alpine fraîche pour une taille minimale
-FROM node:18-alpine AS runner
+# Étape 3: Image de production
+FROM base AS runner
 WORKDIR /app
+
+ENV NODE_ENV production
+ENV NEXT_TELEMETRY_DISABLED 1
 
 # Créer un utilisateur non-root pour la sécurité
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
 
-# Copier les fichiers nécessaires depuis l'étape 'builder'
-# On copie uniquement ce qui est nécessaire pour l'exécution, pas le code source
+# Copier les fichiers publics
 COPY --from=builder /app/public ./public
-# La configuration `standalone` de Next.js est géniale pour Docker.
-# Elle copie le dossier .next/standalone qui contient le serveur et les dépendances nécessaires.
+
+# Définir les permissions correctes avant de copier
+RUN mkdir .next
+RUN chown nextjs:nodejs .next
+
+# Copier les fichiers de build avec les bonnes permissions
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 
-# Passer à l'utilisateur non-root
+# Basculer vers l'utilisateur non-root
 USER nextjs
 
+# Exposer le port
 EXPOSE 3000
 
-# Définir la variable d'environnement pour le port
 ENV PORT 3000
+ENV HOSTNAME "0.0.0.0"
 
-# La commande pour démarrer le serveur Next.js en mode standalone
+# Commande de démarrage optimisée
 CMD ["node", "server.js"]
