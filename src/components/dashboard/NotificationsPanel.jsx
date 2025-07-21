@@ -31,10 +31,63 @@ function NotificationItem({ title, description, time, icon: Icon, gradient }) {
 }
 
 
-import { notificationsData } from '@/lib/fakeData';
+import { getNotificationsAPI, markNotificationAsReadAPI, markAllNotificationsAsReadAPI } from '@/lib/api/notifications';
+import { useState, useEffect } from 'react';
 
 export default function NotificationsPanel({ isOpen, onClose }) {
     const t = useTranslations('dashboard');
+    const [notifications, setNotifications] = useState([]);
+    const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState(null);
+
+    // Charger les notifications quand le panel s'ouvre
+    useEffect(() => {
+        if (isOpen) {
+            loadNotifications();
+        }
+    }, [isOpen]);
+
+    const loadNotifications = async () => {
+        setIsLoading(true);
+        setError(null);
+        
+        try {
+            const notificationsData = await getNotificationsAPI(0, 20, false);
+            setNotifications(notificationsData.content || []);
+        } catch (error) {
+            console.error('Erreur lors du chargement des notifications:', error);
+            setError('Impossible de charger les notifications');
+            setNotifications([]);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    const handleMarkAsRead = async (notificationId) => {
+        try {
+            await markNotificationAsReadAPI(notificationId);
+            setNotifications(prev => 
+                prev.map(notif => 
+                    notif.id === notificationId 
+                        ? { ...notif, isRead: true }
+                        : notif
+                )
+            );
+        } catch (error) {
+            console.error('Erreur lors du marquage comme lu:', error);
+        }
+    };
+
+    const handleMarkAllAsRead = async () => {
+        try {
+            await markAllNotificationsAsReadAPI();
+            setNotifications(prev => 
+                prev.map(notif => ({ ...notif, isRead: true }))
+            );
+        } catch (error) {
+            console.error('Erreur lors du marquage global:', error);
+        }
+    };
 
     return (
         <AnimatePresence>
@@ -65,13 +118,64 @@ export default function NotificationsPanel({ isOpen, onClose }) {
                                     <X size={20} />
                                 </button>
                             </div>
-                            <p className="text-sm text-gray-500">{t("notifications.subtitle", { count: notificationsData.length })}</p>
+                            <p className="text-sm text-gray-500">
+                                {t("notifications.subtitle", { count: notifications.length })}
+                            </p>
+                            {notifications.filter(n => !n.isRead).length > 0 && (
+                                <button
+                                    onClick={handleMarkAllAsRead}
+                                    className="text-sm text-blue-600 hover:text-blue-700 font-medium"
+                                >
+                                    Tout marquer comme lu
+                                </button>
+                            )}
                         </div>
 
                         <div className="flex-grow overflow-y-auto p-4 space-y-3">
-                            {notificationsData.map((notification) => (
-                                <NotificationItem key={notification.id} {...notification} />
-                            ))}
+                            {isLoading ? (
+                                <div className="text-center py-8">
+                                    <div className="animate-spin w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full mx-auto mb-4"></div>
+                                    <p className="text-gray-500">Chargement...</p>
+                                </div>
+                            ) : error ? (
+                                <div className="text-center py-8 text-red-500">
+                                    <p>{error}</p>
+                                    <button
+                                        onClick={loadNotifications}
+                                        className="mt-2 text-blue-600 hover:text-blue-700 font-medium"
+                                    >
+                                        Réessayer
+                                    </button>
+                                </div>
+                            ) : notifications.length === 0 ? (
+                                <div className="text-center py-8 text-gray-500">
+                                    <p>Aucune notification</p>
+                                </div>
+                            ) : (
+                                notifications.map((notification) => (
+                                    <div
+                                        key={notification.id}
+                                        onClick={() => !notification.isRead && handleMarkAsRead(notification.id)}
+                                        className={`cursor-pointer ${notification.isRead ? 'opacity-60' : ''}`}
+                                    >
+                                        <NotificationItem 
+                                            title={notification.title}
+                                            description={notification.message}
+                                            time={new Date(notification.createdAt).toLocaleString('fr-FR', {
+                                                day: '2-digit',
+                                                month: '2-digit',
+                                                hour: '2-digit',
+                                                minute: '2-digit'
+                                            })}
+                                            icon={notification.type === 'POST_LIKE' ? () => '👍' : 
+                                                  notification.type === 'COMMENT' ? () => '💬' : 
+                                                  notification.type === 'EVENT_REMINDER' ? () => '📅' : 
+                                                  () => '🔔'}
+                                            gradient="from-blue-500 to-indigo-600"
+                                        />
+                                    </div>
+                                ))
+                            )}
                         </div>
 
                         <div className="p-4 border-t bg-white">

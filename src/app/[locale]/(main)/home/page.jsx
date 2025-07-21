@@ -2,14 +2,31 @@ import {getTranslations} from 'next-intl/server';
 import {Link} from '@/navigation';
 import Feed from "@/components/dashboard/Feed"; // On réutilise le Feed existant
 import WelcomeSection from "@/components/dashboard/WelcomeSection";
-import { homeFeedFakeData } from "@/lib/fakeData/homeFeedFake";
-
+import { getGlobalFeedAPI } from "@/lib/api/feed";
+import { getAuthenticatedUserData } from "@/lib/api/user";
 
 async function getDashboardData() {
-    await new Promise(resolve => setTimeout(resolve, 300));
-    return {
-        feed: homeFeedFakeData
-    };
+    try {
+        // Vérifier si l'utilisateur est connecté
+        const user = await getAuthenticatedUserData().catch(() => null);
+        
+        // Si connecté, récupérer le feed personnalisé, sinon le feed global
+        const feedData = await getGlobalFeedAPI(0, 10);
+        
+        return {
+            feed: feedData.content || [],
+            totalPages: feedData.totalPages || 0,
+            totalElements: feedData.totalElements || 0
+        };
+    } catch (error) {
+        console.error('Erreur lors de la récupération du feed:', error);
+        // Fallback vers un feed vide en cas d'erreur
+        return {
+            feed: [],
+            totalPages: 0,
+            totalElements: 0
+        };
+    }
 }
 
 export default async function HomePage({ params }) {
