@@ -258,7 +258,7 @@ function ActivityCard({ activity, index }) {
                     </div>
                     <div className="flex items-center space-x-4">
                         <span>{activity.comments} {t('comments')}</span>
-                        <span>{activity.shares} {t('shares')}
+                        <span>{activity.shares} {t('shares')}</span>
                     </div>
                 </div>
             </div>
@@ -423,3 +423,6 @@ export default function ModernLandingPage() {
         </div>
     );
 }
+
+// Export des composants individuels pour réutilisation
+export { HeroSection, FeaturesSection, ActivityFeed, StatsSection };
