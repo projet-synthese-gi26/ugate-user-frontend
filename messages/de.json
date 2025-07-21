@@ -77,6 +77,11 @@
     "login_here": "Hier anmelden",
     "last_name_placeholder": "Nachname",
     "first_name_placeholder": "Vorname",
+    "email_placeholder": "E-Mail-Adresse",
+    "email_required": "E-Mail-Adresse ist erforderlich.",
+    "email_invalid": "Ungültiges E-Mail-Format.",
+    "password_placeholder": "Passwort",
+    "password_required": "Passwort ist erforderlich.",
     "dob_placeholder": "Geburtsdatum",
     "password_confirm_placeholder": "Passwort bestätigen",
     "last_name_required": "Nachname ist erforderlich.",
@@ -105,7 +110,36 @@
     "dear_user": "lieber Benutzer",
     "portal_description": "Hier ist Ihr zentrales Portal für alle Ihre Gewerkschaftsaktivitäten.",
     "launch_syndicate": "Meine Gewerkschaft starten",
-    "news_and_events": "Nachrichten & Veranstaltungen"
+    "news_and_events": "Nachrichten & Veranstaltungen",
+    "sidebar": {
+      "home": "Startseite",
+      "my_syndicats": "Meine Gewerkschaften",
+      "explorer": "Erkunden",
+      "settings": "Einstellungen",
+      "news": "Nachrichten",
+      "manage_organizations": "Ihre Organisationen verwalten",
+      "discover_syndicats": "Neue Gewerkschaften entdecken",
+      "account_settings": "Kontoeinstellungen",
+      "logout": "Abmelden"
+    },
+    "nav_items": {
+      "dashboard": {
+        "label": "Startseite",
+        "description": "Nachrichten"
+      },
+      "syndicats": {
+        "label": "Meine Gewerkschaften",
+        "description": "Ihre Organisationen verwalten"
+      },
+      "explorer": {
+        "label": "Erkunden",
+        "description": "Neue Gewerkschaften entdecken"
+      },
+      "parametres": {
+        "label": "Einstellungen",
+        "description": "Kontoeinstellungen"
+      }
+    }
   },
   "landing_page": {
     "gérerSyndicats": "Verwalten Sie Ihre Gewerkschaften mit Kraft und Einfachheit.",
@@ -132,7 +166,40 @@
     "rechercher_syndicat": "Nach einer Gewerkschaft suchen...",
     "rechercher": "Suchen",
     "resultats_recherche": "Suchergebnisse",
-    "aucun_resultat_trouve": "Keine Ergebnisse gefunden für"
+    "aucun_resultat_trouve": "Keine Ergebnisse gefunden für",
+    "features_section_title": "Eine umfassende Plattform für Ihre Gewerkschaft",
+    "features_section_subtitle": "Entdecken Sie die Funktionen, die die Art und Weise, wie Sie Ihre Gewerkschaftsorganisation verwalten, transformieren werden",
+    "feature_security_title": "Sicherheit & Compliance",
+    "feature_security_desc": "Sichere Plattform mit Datenverschlüsselung und Einhaltung von Vorschriften.",
+    "feature_members_title": "Mitgliederverwaltung",
+    "feature_members_desc": "Vollständige Tools zur Verwaltung von Mitgliedschaften, Beiträgen und Mitgliederprofilen.",
+    "feature_governance_title": "Transparente Governance",
+    "feature_governance_desc": "Elektronisches Wahlsystem und Dashboards für moderne Governance.",
+    "feature_communication_title": "Integrierte Kommunikation",
+    "feature_communication_desc": "Sofortnachrichten, Foren und Benachrichtigungen für reibungslose Kommunikation.",
+    "feature_events_title": "Veranstaltungen & Versammlungen",
+    "feature_events_desc": "Vereinfachte Veranstaltungsorganisation mit Anmeldeverwaltung und Erinnerungen.",
+    "feature_analytics_title": "Analysen & Berichte",
+    "feature_analytics_desc": "Analytische Dashboards zur präzisen Verwaltung Ihrer Organisation.",
+    "activity_feed_title": "Gewerkschafts-Newsfeed",
+    "activity_feed_subtitle": "Bleiben Sie über die neuesten Nachrichten, Veranstaltungen und Erfolge der Gewerkschaftsgemeinschaft informiert",
+    "event_label": "Veranstaltung",
+    "participants": "Teilnehmer",
+    "comments": "Kommentare",
+    "shares": "Shares",
+    "like_button": "Gefällt mir",
+    "comment_button": "Kommentieren",
+    "share_button": "Teilen",
+    "participate_button": "Teilnehmen",
+    "view_more_news": "Weitere Nachrichten anzeigen",
+    "stats_section_title": "Eine vertrauensvolle Plattform",
+    "stats_section_subtitle": "Schließen Sie sich Tausenden von Organisationen an, die uns vertrauen",
+    "stats_syndicates": "Partner-Gewerkschaften",
+    "stats_members": "Aktive Mitglieder",
+    "stats_satisfaction": "Kundenzufriedenheit",
+    "stats_events": "Organisierte Veranstaltungen",
+    "popular_syndicates_subtitle": "Entdecken Sie die aktivsten Gewerkschaften und treten Sie dynamischen Gemeinschaften bei",
+    "stay_connected_message": "Bleiben Sie in Verbindung und verpassen Sie nie wichtige Nachrichten"
   },
   "footer": {
     "all_rights_reserved": "Alle Rechte vorbehalten.",
@@ -261,6 +328,9 @@
     "success_toast": "Profil erfolgreich aktualisiert!"
   },
   "syndicate_space": {
+    "member_space": "Mitgliederbereich",
+    "expand": "Erweitern",
+    "collapse": "Reduzieren",
     "sidebar": {
       "home": "Dashboard",
       "members": "Mitglieder",
@@ -301,7 +371,8 @@
     "participants": "Teilnehmer",
     "participating": "Ich nehme teil",
     "participate_button": "Teilnehmen",
-    "participants_title": "Teilnehmer"
+    "participants_title": "Teilnehmer",
+    "see_and_join": "Anzeigen und beitreten"
   },
   "event_form": {
     "modal_title": "Neue Veranstaltung erstellen",

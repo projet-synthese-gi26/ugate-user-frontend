@@ -34,11 +34,7 @@ export const pathnames = {
     '/parametres': '/parametres',
     '/syndicats': '/syndicats',
 
-    // Routes du groupe (syndicate-space) - gardons les mêmes noms
+    // Routes du groupe (syndicate-space) - utilisons des patterns plus flexibles
     '/syndicat-space/[syndicatId]': '/syndicat-space/[syndicatId]',
-    '/syndicat-space/[syndicatId]/membres': '/syndicat-space/[syndicatId]/membres',
-    '/syndicat-space/[syndicatId]/evenements': '/syndicat-space/[syndicatId]/evenements',
-    '/syndicat-space/[syndicatId]/exprimer': '/syndicat-space/[syndicatId]/exprimer',
-    '/syndicat-space/[syndicatId]/chat': '/syndicat-space/[syndicatId]/chat',
-    '/syndicat-space/[syndicatId]/votes': '/syndicat-space/[syndicatId]/votes',
+    '/syndicat-space/[syndicatId]/[section]': '/syndicat-space/[syndicatId]/[section]',
 };

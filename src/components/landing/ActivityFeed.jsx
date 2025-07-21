@@ -225,7 +225,7 @@ function ActivityCard({ activity, index }) {
                     </div>
                     {isEvent && (
                         <button className="bg-gradient-to-r from-indigo-500 to-purple-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:from-indigo-600 hover:to-purple-700 transition-all duration-300">
-                            Participer
+                            {t('participate_button')}
                         </button>
                     )}
                 </div>

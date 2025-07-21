@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from 'framer-motion';
-import { Link, usePathname } from '@/navigation';
+import { Link, usePathname, useRouter } from '@/navigation';
 import { useTranslations } from 'next-intl';
 import { 
     Users, Calendar, MessageCircle, Vote,
@@ -15,8 +15,14 @@ import Image from 'next/image';
 export default function SyndicateSidebar({ isCollapsed, onToggle, syndicateData }) {
     const t = useTranslations('syndicate_space');
     const pathname = usePathname();
+    const router = useRouter();
     const params = useParams();
     const { syndicatId } = params;
+
+    const handleNavigation = (route) => {
+        const path = `/syndicat-space/${syndicatId}${route ? `/${route}` : ''}`;
+        router.push(path);
+    };
 
     if (!syndicateData) {
         return (
@@ -39,7 +45,7 @@ export default function SyndicateSidebar({ isCollapsed, onToggle, syndicateData 
     const imageUrl = syndicateData.bannerUrl ? `${STATIC_FILES_URL}${syndicateData.bannerUrl}` : null;
 
     const navItems = [
-        { id: 'accueil', icon: Home, label: t('sidebar.home'), route: '' },
+        { id: 'accueil', icon: Home, label: t('sidebar.home'), route: null },
         { id: 'membres', icon: Users, label: t('sidebar.members'), route: 'membres' },
         { id: 'evenements', icon: Calendar, label: t('sidebar.events'), route: 'evenements' },
         { id: 'exprimer', icon: MessageCircle, label: t('sidebar.express'), route: 'exprimer' },
@@ -74,14 +80,15 @@ export default function SyndicateSidebar({ isCollapsed, onToggle, syndicateData 
             <div className="flex-grow overflow-y-auto p-4 space-y-2">
                 {navItems.map((item) => {
                     const fullPath = buildLink(item.route);
-                    const isActive = pathname === fullPath || (item.route !== '' && pathname.startsWith(fullPath));
+                    const isActive = pathname === fullPath || (item.route && pathname.startsWith(fullPath));
                     
                     return (
-                        <Link href={fullPath} key={item.id} passHref>
-                            <motion.div
-                                className={`relative group flex items-center w-full px-4 py-3 rounded-xl cursor-pointer transition-colors duration-200 ${
-                                    isCollapsed ? 'justify-center' : ''
-                                } ${
+                        <motion.div
+                            key={item.id}
+                            onClick={() => handleNavigation(item.route)}
+                            className={`relative group flex items-center w-full px-4 py-3 rounded-xl cursor-pointer transition-colors duration-200 ${
+                                isCollapsed ? 'justify-center' : ''
+                            } ${
                                     isActive 
                                         ? 'text-blue-600 dark:text-blue-300' 
                                         : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-white'
@@ -92,14 +99,13 @@ export default function SyndicateSidebar({ isCollapsed, onToggle, syndicateData 
                                     <motion.div layoutId="active-sidebar-indicator" className="absolute inset-0 bg-blue-50 dark:bg-blue-900/50 rounded-xl" transition={{ type: 'spring', stiffness: 300, damping: 25 }} />
                                 )}
                                 
-                                <div className="relative z-10 flex items-center">
-                                    <item.icon className="h-5 w-5 flex-shrink-0" />
-                                    {!isCollapsed && (
-                                        <span className="font-semibold truncate ml-3">{item.label}</span>
-                                    )}
-                                </div>
-                            </motion.div>
-                        </Link>
+                            <div className="relative z-10 flex items-center">
+                                <item.icon className="h-5 w-5 flex-shrink-0" />
+                                {!isCollapsed && (
+                                    <span className="font-semibold truncate ml-3">{item.label}</span>
+                                )}
+                            </div>
+                        </motion.div>
                     );
                 })}
             </div>

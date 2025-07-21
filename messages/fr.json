@@ -200,7 +200,9 @@
     "rechercher_syndicat": "Rechercher un syndicat...",
     "rechercher": "Rechercher",
     "resultats_recherche": "Résultats de la recherche",
-    "aucun_resultat_trouve": "Aucun résultat trouvé pour"
+    "aucun_resultat_trouve": "Aucun résultat trouvé pour",
+    "popular_syndicates_subtitle": "Découvrez les syndicats les plus actifs et rejoignez des communautés dynamiques",
+    "stay_connected_message": "Restez connecté et ne manquez jamais une actualité importante"
   },
   "footer": {
     "all_rights_reserved": "Tous droits réservés.",
