@@ -7,6 +7,7 @@ import { Users, ChevronRight, ChevronLeft } from 'lucide-react';
 import { ClientMotionWrapper } from '@/components/shared/ClientMotionWrapper';
 import { SyndicateCard } from './SyndicateCard'; // On importe la carte client
 import { useState, useEffect, useRef } from 'react';
+import { useTranslations } from 'next-intl';
 
 const popularSyndicats = [
     { id: 1, name: "Syndicat National de l'Éducation", members: 250000, image: "https://images.unsplash.com/photo-1497633762265-9d179a990aa6?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80" },
@@ -21,9 +22,8 @@ const popularSyndicats = [
     { id: 10, name: "Alliance des Commerçants", members: 90000, image: "https://images.unsplash.com/photo-1556740749-887f6717d7e4?w=1350&q=80" },
 ];
 
-const t = (key) => key.replace(/_/g, ' ');
-
 export default function PopularSyndicates() {
+    const t = useTranslations('landing_page');
     const scrollContainerRef = useRef(null);
     const [canScrollLeft, setCanScrollLeft] = useState(false);
     const [canScrollRight, setCanScrollRight] = useState(true);
@@ -88,11 +88,10 @@ export default function PopularSyndicates() {
             <div className="container mx-auto px-4">
                 <div className="text-center mb-12">
                     <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
-                        Les syndicats les plus actifs
+                        {t('syndicats_populaires')}
                     </h2>
                     <p className="text-xl text-blue-100 max-w-3xl mx-auto">
-                        Rejoignez des milliers de membres dans les organisations syndicales 
-                        les plus dynamiques et influentes
+                        {t('popular_syndicates_subtitle')}
                     </p>
                 </div>
                 

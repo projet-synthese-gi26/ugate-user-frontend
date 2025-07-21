@@ -3,6 +3,7 @@
 import { motion } from 'framer-motion';
 import { Clock, Heart, MessageCircle, Share2, Users, Calendar, MapPin } from 'lucide-react';
 import Image from 'next/image';
+import { useTranslations } from 'next-intl';
 
 const activities = [
     {
@@ -120,6 +121,7 @@ const activities = [
 ];
 
 function ActivityCard({ activity, index }) {
+    const t = useTranslations('landing_page');
     const isEvent = activity.type === 'event';
     
     return (
@@ -163,7 +165,7 @@ function ActivityCard({ activity, index }) {
                     </div>
                     {isEvent && (
                         <div className="bg-gradient-to-r from-indigo-100 to-purple-100 text-indigo-700 px-3 py-1 rounded-full text-sm font-medium">
-                            Événement
+                            {t('event_label')}
                         </div>
                     )}
                 </div>
@@ -184,7 +186,7 @@ function ActivityCard({ activity, index }) {
                             </div>
                             <div className="flex items-center">
                                 <Users className="h-4 w-4 mr-1" />
-                                {activity.event.participants} participants
+                                {activity.event.participants} {t('participants')}
                             </div>
                         </div>
                     </div>
@@ -233,16 +235,17 @@ function ActivityCard({ activity, index }) {
 }
 
 export default function ActivityFeed() {
+    const t = useTranslations('landing_page');
+    
     return (
         <section className="py-20 bg-white">
             <div className="container mx-auto px-4">
                 <div className="text-center mb-16">
                     <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-4">
-                        Au cœur de l'actualité syndicale
+                        {t('activity_feed_title')}
                     </h2>
                     <p className="text-xl text-slate-600 max-w-3xl mx-auto">
-                        Découvrez les initiatives, événements et succès qui façonnent 
-                        l'avenir du mouvement syndical
+                        {t('activity_feed_subtitle')}
                     </p>
                 </div>
 
@@ -255,7 +258,7 @@ export default function ActivityFeed() {
                 <div className="text-center mt-16">
                     <button className="group relative bg-blue-800 text-white px-14 py-4 rounded-2xl font-bold text-lg hover:bg-blue-900 hover:shadow-lg transition-all duration-300 shadow-md transform hover:scale-105">
                         <span className="flex items-center space-x-3">
-                            <span>Découvrir plus d'actualités</span>
+                            <span>{t('view_more_news')}</span>
                             <svg className="w-6 h-6 transition-transform duration-300 group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
                             </svg>
@@ -263,7 +266,7 @@ export default function ActivityFeed() {
                         <div className="absolute inset-0 bg-blue-700 rounded-2xl opacity-0 group-hover:opacity-30 transition-opacity duration-300"></div>
                     </button>
                     <p className="text-slate-600 mt-4 text-sm">
-                        Restez connecté avec la communauté syndicale
+                        {t('stay_connected_message')}
                     </p>
                 </div>
             </div>
