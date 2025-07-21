@@ -3,12 +3,12 @@ import {Link} from '@/navigation';
 import Feed from "@/components/dashboard/Feed"; // On réutilise le Feed existant
 import WelcomeSection from "@/components/dashboard/WelcomeSection";
 import { getGlobalFeedAPI } from "@/lib/api/feed";
-import { getAuthenticatedUserData } from "@/lib/api/user";
+import { getAuthenticatedUserProfile } from "@/lib/api/user";
 
 async function getDashboardData() {
     try {
         // Vérifier si l'utilisateur est connecté
-        const user = await getAuthenticatedUserData().catch(() => null);
+        const user = await getAuthenticatedUserProfile().catch(() => null);
         
         // Si connecté, récupérer le feed personnalisé, sinon le feed global
         const feedData = await getGlobalFeedAPI(0, 10);
