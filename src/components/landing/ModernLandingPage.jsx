@@ -4,9 +4,11 @@ import { motion } from "framer-motion";
 import { ChevronRight, Shield, Users, Building, MessageSquare, Calendar, BarChart3, Heart, Share2, Clock, MapPin, MessageCircle } from "lucide-react";
 import { Link } from "@/navigation";
 import Image from "next/image";
+import { useTranslations } from 'next-intl';
 
 // Hero Section Component
 export function HeroSection() {
+    const t = useTranslations('heroComponent');
     return (
         <section className="relative bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-900 text-white py-24 lg:py-32">
             <div className="container mx-auto px-4">
@@ -18,14 +20,13 @@ export function HeroSection() {
                             transition={{ duration: 0.6 }}
                         >
                             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 leading-tight">
-                                Révolutionnez la{' '}
+                                {t('title_part1')}{' '}
                                 <span className="bg-gradient-to-r from-blue-400 to-indigo-400 bg-clip-text text-transparent">
-                                    gestion syndicale
+                                    {t('title_highlighted')}
                                 </span>
                             </h1>
                             <p className="text-xl md:text-2xl mb-8 text-slate-300 leading-relaxed max-w-2xl">
-                                Plateforme moderne pour optimiser la communication, la transparence et l'efficacité 
-                                de votre organisation syndicale.
+                                {t('subtitle')}
                             </p>
                             <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
                                 <Link href="/register">
@@ -34,7 +35,7 @@ export function HeroSection() {
                                         whileHover={{ scale: 1.02 }}
                                         whileTap={{ scale: 0.98 }}
                                     >
-                                        Commencer maintenant
+                                        {t('cta_main')}
                                         <ChevronRight className="ml-2 h-5 w-5" />
                                     </motion.button>
                                 </Link>
@@ -44,7 +45,7 @@ export function HeroSection() {
                                         whileHover={{ scale: 1.02 }}
                                         whileTap={{ scale: 0.98 }}
                                     >
-                                        Explorer les syndicats
+                                        {t('cta_secondary')}
                                     </motion.button>
                                 </Link>
                             </div>
@@ -58,7 +59,7 @@ export function HeroSection() {
                         >
                             <Image
                                 src="https://images.unsplash.com/photo-1560472354-b33ff0c44a43?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80"
-                                alt="Gestion syndicale moderne"
+                                alt={t('image_alt')}
                                 width={1350}
                                 height={900}
                                 className="rounded-xl shadow-2xl"
@@ -74,36 +75,37 @@ export function HeroSection() {
 
 // Features Section Component
 export function FeaturesSection() {
+    const t = useTranslations('landing_page');
     const features = [
         {
             icon: Shield,
-            title: "Sécurité & Conformité",
-            description: "Plateforme sécurisée avec chiffrement des données et respect des réglementations."
+            title: t('feature_security_title'),
+            description: t('feature_security_desc')
         },
         {
             icon: Users,
-            title: "Gestion des Membres",
-            description: "Outils complets pour gérer les adhésions, cotisations et profils des membres."
+            title: t('feature_members_title'),
+            description: t('feature_members_desc')
         },
         {
             icon: Building,
-            title: "Gouvernance Transparente",
-            description: "Système de votes électroniques et tableaux de bord pour une gouvernance moderne."
+            title: t('feature_governance_title'),
+            description: t('feature_governance_desc')
         },
         {
             icon: MessageSquare,
-            title: "Communication Intégrée",
-            description: "Messagerie instantanée, forums et notifications pour une communication fluide."
+            title: t('feature_communication_title'),
+            description: t('feature_communication_desc')
         },
         {
             icon: Calendar,
-            title: "Événements & Assemblées",
-            description: "Organisation simplifiée d'événements avec gestion des inscriptions et rappels."
+            title: t('feature_events_title'),
+            description: t('feature_events_desc')
         },
         {
             icon: BarChart3,
-            title: "Analyses & Reporting",
-            description: "Tableaux de bord analytiques pour piloter votre organisation avec précision."
+            title: t('feature_analytics_title'),
+            description: t('feature_analytics_desc')
         }
     ];
 
@@ -115,11 +117,10 @@ export function FeaturesSection() {
             <div className="container mx-auto px-4">
                 <div className="text-center mb-16">
                     <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-4">
-                        Une plateforme complète pour votre syndicat
+                        {t('features_section_title')}
                     </h2>
                     <p className="text-xl text-slate-600 max-w-3xl mx-auto">
-                        Découvrez les fonctionnalités qui transformeront la façon dont vous gérez 
-                        votre organisation syndicale
+                        {t('features_section_subtitle')}
                     </p>
                 </div>
                 
@@ -192,7 +193,7 @@ function ActivityCard({ activity, index }) {
                                 {isEvent && (
                                     <>
                                         <span>•</span>
-                                        <span className="text-blue-600 font-medium">Événement</span>
+                                        <span className="text-blue-600 font-medium">{t('event_label')}</span>
                                     </>
                                 )}
                             </div>
@@ -223,7 +224,7 @@ function ActivityCard({ activity, index }) {
                             </div>
                             <div className="flex items-center">
                                 <Users className="h-3 w-3 mr-1" />
-                                {activity.event.participants} participants
+                                {activity.event.participants} {t('participants')}
                             </div>
                         </div>
                     </div>
@@ -256,8 +257,8 @@ function ActivityCard({ activity, index }) {
                         </div>
                     </div>
                     <div className="flex items-center space-x-4">
-                        <span>{activity.comments} commentaires</span>
-                        <span>{activity.shares} partages</span>
+                        <span>{activity.comments} {t('comments')}</span>
+                        <span>{activity.shares} {t('shares')}
                     </div>
                 </div>
             </div>
@@ -268,19 +269,19 @@ function ActivityCard({ activity, index }) {
                     <div className="flex items-center w-full">
                         <button className="flex items-center justify-center space-x-2 text-slate-600 hover:text-blue-600 px-3 py-2 rounded-md hover:bg-slate-50 transition-colors flex-1">
                             <Heart className="h-4 w-4" />
-                            <span className="text-sm font-medium">J'aime</span>
+                            <span className="text-sm font-medium">{t('like_button')}</span>
                         </button>
                         <button className="flex items-center justify-center space-x-2 text-slate-600 hover:text-blue-600 px-3 py-2 rounded-md hover:bg-slate-50 transition-colors flex-1">
                             <MessageCircle className="h-4 w-4" />
-                            <span className="text-sm font-medium">Commenter</span>
+                            <span className="text-sm font-medium">{t('comment_button')}</span>
                         </button>
                         <button className="flex items-center justify-center space-x-2 text-slate-600 hover:text-blue-600 px-3 py-2 rounded-md hover:bg-slate-50 transition-colors flex-1">
                             <Share2 className="h-4 w-4" />
-                            <span className="text-sm font-medium">Partager</span>
+                            <span className="text-sm font-medium">{t('share_button')}</span>
                         </button>
                         {isEvent && (
                             <button className="bg-gradient-to-r from-indigo-500 to-purple-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:from-indigo-600 hover:to-purple-700 transition-all duration-300 ml-2">
-                                Participer
+                                {t('participate_button')}
                             </button>
                         )}
                     </div>
@@ -291,6 +292,7 @@ function ActivityCard({ activity, index }) {
 }
 
 export function ActivityFeed() {
+    const t = useTranslations('landing_page');
     const activities = [
         {
             id: 1,
@@ -345,11 +347,10 @@ export function ActivityFeed() {
             <div className="container mx-auto px-4">
                 <div className="text-center mb-16">
                     <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-4">
-                        Fil d'actualité des syndicats
+                        {t('activity_feed_title')}
                     </h2>
                     <p className="text-xl text-slate-600 max-w-3xl mx-auto">
-                        Restez informé des dernières actualités, événements et réalisations 
-                        de la communauté syndicale
+                        {t('activity_feed_subtitle')}
                     </p>
                 </div>
 
@@ -361,7 +362,7 @@ export function ActivityFeed() {
 
                 <div className="text-center mt-12">
                     <button className="bg-gradient-to-r from-slate-900 to-slate-800 text-white px-8 py-3 rounded-lg font-semibold hover:from-slate-800 hover:to-slate-700 transition-all duration-300 shadow-lg hover:shadow-xl">
-                        Voir plus d'actualités
+                        {t('view_more_news')}
                     </button>
                 </div>
             </div>
@@ -371,11 +372,12 @@ export function ActivityFeed() {
 
 // Stats Section Component
 export function StatsSection() {
+    const t = useTranslations('landing_page');
     const stats = [
-        { label: "Syndicats partenaires", value: "1,500+" },
-        { label: "Membres actifs", value: "50,000+" },
-        { label: "Satisfaction client", value: "98%" },
-        { label: "Événements organisés", value: "3,200+" }
+        { label: t('stats_syndicates'), value: "1,500+" },
+        { label: t('stats_members'), value: "50,000+" },
+        { label: t('stats_satisfaction'), value: "98%" },
+        { label: t('stats_events'), value: "3,200+" }
     ];
 
     return (
@@ -383,10 +385,10 @@ export function StatsSection() {
             <div className="container mx-auto px-4 relative z-10">
                 <div className="text-center mb-16">
                     <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
-                        Une plateforme de confiance
+                        {t('stats_section_title')}
                     </h2>
                     <p className="text-xl text-blue-100 max-w-2xl mx-auto">
-                        Rejoignez des milliers d'organisations qui nous font confiance
+                        {t('stats_section_subtitle')}
                     </p>
                 </div>
                 

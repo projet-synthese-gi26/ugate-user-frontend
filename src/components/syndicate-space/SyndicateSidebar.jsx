@@ -39,12 +39,12 @@ export default function SyndicateSidebar({ isCollapsed, onToggle, syndicateData 
     const imageUrl = syndicateData.bannerUrl ? `${STATIC_FILES_URL}${syndicateData.bannerUrl}` : null;
 
     const navItems = [
-        { id: 'accueil', icon: Home, label: t('syndicate_space.sidebar.home'), route: '' },
-        { id: 'membres', icon: Users, label: t('syndicate_space.sidebar.members'), route: 'membres' },
-        { id: 'evenements', icon: Calendar, label: t('syndicate_space.sidebar.events'), route: 'evenements' },
-        { id: 'exprimer', icon: MessageCircle, label: t('syndicate_space.sidebar.express'), route: 'exprimer' },
-        { id: 'chat', icon: MessageSquare, label: t('syndicate_space.sidebar.chat'), route: 'chat' },
-        { id: 'votes', icon: Vote, label: t('syndicate_space.sidebar.votes'), route: 'votes' },
+        { id: 'accueil', icon: Home, label: t('sidebar.home'), route: '' },
+        { id: 'membres', icon: Users, label: t('sidebar.members'), route: 'membres' },
+        { id: 'evenements', icon: Calendar, label: t('sidebar.events'), route: 'evenements' },
+        { id: 'exprimer', icon: MessageCircle, label: t('sidebar.express'), route: 'exprimer' },
+        { id: 'chat', icon: MessageSquare, label: t('sidebar.chat'), route: 'chat' },
+        { id: 'votes', icon: Vote, label: t('sidebar.votes'), route: 'votes' },
     ];
 
     const buildLink = (route) => `/syndicat-space/${syndicatId}${route ? `/${route}` : ''}`;
@@ -63,10 +63,10 @@ export default function SyndicateSidebar({ isCollapsed, onToggle, syndicateData 
                         ) : (
                             <SyndicatDefaultAvatar name={syndicateData.name} size={40} />
                         )}
-                        <span className="font-bold text-lg text-gray-800 dark:text-white truncate">Espace Membre</span>
+                        <span className="font-bold text-lg text-gray-800 dark:text-white truncate">{t('member_space')}</span>
                     </div>
                 )}
-                <motion.button onClick={onToggle} className="p-2 text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg" aria-label={isCollapsed ? "Déplier" : "Replier"}>
+                <motion.button onClick={onToggle} className="p-2 text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg" aria-label={isCollapsed ? t('expand') : t('collapse')}>
                     {isCollapsed ? <ChevronRight size={20} /> : <ChevronLeft size={20} />}
                 </motion.button>
             </div>
