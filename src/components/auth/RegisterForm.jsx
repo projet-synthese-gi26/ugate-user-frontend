@@ -63,10 +63,10 @@ export default function RegisterForm() {
     // Valide la complexité du mot de passe
     const validatePassword = (value) => {
         const passwordErrors = [];
-        if (value.length < 8) passwordErrors.push(t('register_page.password_strength_8_chars'));
-        if (!/[A-Z]/.test(value)) passwordErrors.push(t('register_page.password_strength_uppercase'));
-        if (!/[0-9]/.test(value)) passwordErrors.push(t('register_page.password_strength_number'));
-        if (!/[^A-Za-z0-9]/.test(value)) passwordErrors.push(t('register_page.password_strength_special'));
+        if (value.length < 8) passwordErrors.push(t('password_strength_8_chars'));
+        if (!/[A-Z]/.test(value)) passwordErrors.push(t('password_strength_uppercase'));
+        if (!/[0-9]/.test(value)) passwordErrors.push(t('password_strength_number'));
+        if (!/[^A-Za-z0-9]/.test(value)) passwordErrors.push(t('password_strength_special'));
 
         return passwordErrors.length === 0 || passwordErrors.join(', ');
     };
@@ -81,27 +81,27 @@ export default function RegisterForm() {
 
             await Swal.fire({
                 icon: 'success',
-                title: t('register_page.success_title'),
-                text: t('register_page.success_text', { name: `${data.firstName} ${data.lastName}` }),
+                title: t('success_title'),
+                text: t('success_text', { name: `${data.firstName} ${data.lastName}` }),
             });
             router.push('/login');
 
         } catch (error) {
             console.error("Erreur d'inscription:", error);
-            let errorMessage = t('register_page.generic_error');
+            let errorMessage = t('generic_error');
 
             if (error.response) {
                 // Si le backend renvoie un message d'erreur spécifique (ex: email déjà utilisé)
                 if (error.response.data && error.response.data.message) {
                     errorMessage = error.response.data.message;
                 } else if (error.response.status === 400) {
-                    errorMessage = t('register_page.validation_error');
+                    errorMessage = t('validation_error');
                 }
             }
             
             Swal.fire({
                 icon: 'error',
-                title: t('register_page.error_title'),
+                title: t('error_title'),
                 text: errorMessage,
             });
         } finally {
@@ -115,21 +115,21 @@ export default function RegisterForm() {
                 <Input
                     icon={User}
                     type="text"
-                    placeholder={t("register_page.last_name_placeholder")}
+                    placeholder={t("last_name_placeholder")}
                     error={errors.lastName}
                     {...register("lastName", {
-                        required: t("register_page.last_name_required"),
-                        minLength: { value: 2, message: t("register_page.last_name_min_length") }
+                        required: t("last_name_required"),
+                        minLength: { value: 2, message: t("last_name_min_length") }
                     })}
                 />
                 <Input
                     icon={User}
                     type="text"
-                    placeholder={t("register_page.first_name_placeholder")}
+                    placeholder={t("first_name_placeholder")}
                     error={errors.firstName}
                     {...register("firstName", {
-                        required: t("register_page.first_name_required"),
-                        minLength: { value: 2, message: t("register_page.first_name_min_length") }
+                        required: t("first_name_required"),
+                        minLength: { value: 2, message: t("first_name_min_length") }
                     })}
                 />
             </div>
@@ -137,13 +137,13 @@ export default function RegisterForm() {
             <Input
                 icon={Mail}
                 type="email"
-                placeholder={t("login_page.email_placeholder")}
+                placeholder={t("email_placeholder")}
                 error={errors.email}
                 {...register("email", {
-                    required: t("login_page.email_required"),
+                    required: t("email_required"),
                     pattern: {
                         value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-                        message: t("login_page.email_invalid"),
+                        message: t("email_invalid"),
                     }
                 })}
             />
@@ -151,13 +151,13 @@ export default function RegisterForm() {
             <Input
                 icon={Calendar}
                 type="date"
-                placeholder={t("register_page.dob_placeholder")}
+                placeholder={t("dob_placeholder")}
                 error={errors.dateOfBirth}
                 {...register("dateOfBirth", {
-                    required: t("register_page.dob_required"),
+                    required: t("dob_required"),
                     validate: value => {
                         const age = new Date().getFullYear() - new Date(value).getFullYear();
-                        return age >= 18 || t("register_page.dob_age_validation");
+                        return age >= 18 || t("dob_age_validation");
                     }
                 })}
             />
@@ -166,10 +166,10 @@ export default function RegisterForm() {
                 <Input
                     icon={Lock}
                     type="password"
-                    placeholder={t("login_page.password_placeholder")}
+                    placeholder={t("password_placeholder")}
                     error={errors.password}
                     {...register("password", {
-                        required: t("login_page.password_required"),
+                        required: t("password_required"),
                         validate: validatePassword
                     })}
                 />
@@ -179,25 +179,25 @@ export default function RegisterForm() {
             <Input
                 icon={Lock}
                 type="password"
-                placeholder={t("register_page.password_confirm_placeholder")}
+                placeholder={t("password_confirm_placeholder")}
                 error={errors.passwordConfirm}
                 {...register("passwordConfirm", {
-                    required: t("register_page.password_confirm_required"),
-                    validate: value => value === password || t("register_page.password_mismatch")
+                    required: t("password_confirm_required"),
+                    validate: value => value === password || t("password_mismatch")
                 })}
             />
 
             <div className="pt-4">
                 <Button type="submit" disabled={isLoading}>
-                    {isLoading ? t('register_page.register_button_loading') : t('register_page.register_button')}
+                    {isLoading ? t('register_button_loading') : t('register_button')}
                 </Button>
             </div>
 
             <div className="mt-8 text-center">
                 <p className="text-gray-600">
-                    {t("register_page.already_registered")}{' '}
+                    {t("already_registered")}{' '}
                     <Link href="/login" className="text-blue-500 hover:underline">
-                        {t("register_page.login_here")}
+                        {t("login_here")}
                     </Link>
                 </p>
             </div>
