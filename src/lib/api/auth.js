@@ -18,12 +18,27 @@ export const registerWithEmail = async (userData) => {
     return response.data;
 };
 
+// Fonction utilitaire pour obtenir la langue courante
+const getCurrentLocale = () => {
+    if (typeof window === 'undefined') return 'fr'; // défaut côté serveur
+    
+    const path = window.location.pathname;
+    const locale = path.split('/')[1];
+    
+    // Vérifier si c'est une langue supportée
+    if (['fr', 'en', 'de'].includes(locale)) {
+        return locale;
+    }
+    return 'fr'; // défaut
+};
+
 export const logout = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('email');
-    // Optionnel : rediriger l'utilisateur
+    // Rediriger l'utilisateur en préservant la langue
     if (typeof window !== 'undefined') {
-        window.location.href = '/login';
+        const locale = getCurrentLocale();
+        window.location.href = `/${locale}/login`;
     }
 };
 
