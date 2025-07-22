@@ -67,37 +67,35 @@ export default function SyndicateSpaceClientLayout({ children, syndicateData: in
             />
 
             <div className="flex-1 flex flex-col overflow-hidden">
-                <div className="flex-1 overflow-y-auto relative">
-                    <div 
-                        className="absolute inset-0 overflow-y-auto"
-                        onScroll={(e) => {
-                            const scrollTop = e.target.scrollTop;
-                            const shouldCollapse = scrollTop > 100;
-                            if (shouldCollapse !== isHeaderCollapsed) {
-                                setIsHeaderCollapsed(shouldCollapse);
-                            }
-                        }}
-                    >
-                        <SyndicateHeader 
-                            syndicateData={initialSyndicateData}
-                            onSidebarToggle={handleToggleSidebar}
-                            onNotificationToggle={handleToggleNotifications}
-                            isCollapsed={isHeaderCollapsed}
-                        />
-                        <main className="bg-gray-50 dark:bg-neutral-800/50 transition-colors duration-300">
-                            <div className="p-4 sm:p-6 lg:p-8">
-                                <AnimatePresence mode="wait">
-                                    {isPageLoading ? (
-                                        <FullPageLoader text="Chargement de la section..." />
-                                    ) : (
-                                        <div className="animate-fade-in max-w-7xl mx-auto">
-                                            {children}
-                                        </div>
-                                    )}
-                                </AnimatePresence>
-                            </div>
-                        </main>
-                    </div>
+                <div 
+                    className="flex-1 overflow-y-auto"
+                    onScroll={(e) => {
+                        const scrollTop = e.target.scrollTop;
+                        const shouldCollapse = scrollTop > 100;
+                        if (shouldCollapse !== isHeaderCollapsed) {
+                            setIsHeaderCollapsed(shouldCollapse);
+                        }
+                    }}
+                >
+                    <SyndicateHeader 
+                        syndicateData={initialSyndicateData}
+                        onSidebarToggle={handleToggleSidebar}
+                        onNotificationToggle={handleToggleNotifications}
+                        isCollapsed={isHeaderCollapsed}
+                    />
+                    <main className="bg-gray-50 dark:bg-neutral-800/50 transition-colors duration-300">
+                        <div className="p-4 sm:p-6 lg:p-8">
+                            <AnimatePresence mode="wait">
+                                {isPageLoading ? (
+                                    <FullPageLoader text="Chargement de la section..." />
+                                ) : (
+                                    <div className="animate-fade-in max-w-7xl mx-auto">
+                                        {children}
+                                    </div>
+                                )}
+                            </AnimatePresence>
+                        </div>
+                    </main>
                 </div>
                 <SyndicateNotificationsPanel 
                     isOpen={isNotificationOpen} 

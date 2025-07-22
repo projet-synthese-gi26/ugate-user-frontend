@@ -16,22 +16,23 @@ export default function SyndicateHeader({ syndicateData, onSidebarToggle, onNoti
         <>
             {/* Header principal avec animation */}
             <motion.div 
-                className="bg-white shadow-lg"
-                initial={false}
-                animate={{
-                    height: isCollapsed ? '60px' : 'auto'
+                className="bg-white shadow-lg overflow-hidden"
+                style={{
+                    position: 'sticky',
+                    top: 0,
+                    zIndex: 50
                 }}
-                transition={{ duration: 0.3, ease: 'easeInOut' }}
             >
-                {/* Bannière Header - Se cache quand rétracted */}
-                <AnimatePresence>
-                    {!isCollapsed && (
-                        <motion.div 
-                            className="relative h-48 bg-gradient-to-r from-blue-600 to-blue-700 overflow-hidden"
-                            initial={{ height: 192, opacity: 1 }}
-                            exit={{ height: 0, opacity: 0 }}
-                            transition={{ duration: 0.3, ease: 'easeInOut' }}
-                        >
+                {/* Bannière Header - Se transforme au lieu de changer de hauteur */}
+                <motion.div 
+                    className="relative bg-gradient-to-r from-blue-600 to-blue-700 overflow-hidden"
+                    initial={false}
+                    animate={{
+                        height: isCollapsed ? 0 : 192,
+                        opacity: isCollapsed ? 0 : 1
+                    }}
+                    transition={{ duration: 0.3, ease: 'easeInOut' }}
+                >
                             {bannerUrl && (
                                 <Image 
                                     src={bannerUrl} 
@@ -99,17 +100,15 @@ export default function SyndicateHeader({ syndicateData, onSidebarToggle, onNoti
                                     </div>
                                 </motion.div>
                             </div>
-                        </motion.div>
-                    )}
-                </AnimatePresence>
+                </motion.div>
                 
                 {/* Barre de navigation compacte - Toujours visible */}
                 <motion.div 
                     className="bg-white border-b border-gray-200 px-6 flex items-center justify-between"
                     animate={{
-                        height: isCollapsed ? '60px' : '48px',
-                        paddingTop: isCollapsed ? '12px' : '0px',
-                        paddingBottom: isCollapsed ? '12px' : '0px'
+                        height: isCollapsed ? 60 : 48,
+                        paddingTop: isCollapsed ? 12 : 0,
+                        paddingBottom: isCollapsed ? 12 : 0
                     }}
                     transition={{ duration: 0.3 }}
                 >
