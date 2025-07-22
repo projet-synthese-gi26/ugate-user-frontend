@@ -72,34 +72,20 @@ export default function SyndicateSidebar({ isCollapsed, onToggle, syndicateData 
         <motion.nav
             animate={{ width: isCollapsed ? 80 : 280 }}
             transition={{ duration: 0.3, ease: 'easeInOut' }}
-            className="hidden lg:flex bg-white dark:bg-neutral-900 flex-col z-10 border-r border-neutral-200 dark:border-neutral-700 shadow-soft transition-colors duration-300"
+            className="hidden lg:flex bg-white dark:bg-neutral-900 flex-col z-10 border-r border-blue-100 dark:border-neutral-700 shadow-lg transition-colors duration-300"
         >
-            <div className={`p-4 flex items-center gap-4 border-b border-neutral-200 dark:border-neutral-700 transition-all duration-300 ${isCollapsed ? 'justify-center' : 'justify-between'}`}>
+            <div className={`p-4 flex items-center gap-4 border-b border-blue-100 bg-white transition-all duration-300 ${isCollapsed ? 'justify-center' : 'justify-between'}`}>
                 {!isCollapsed && (
                     <div className="flex items-center gap-3 overflow-hidden">
-                        <div className="flex-shrink-0">
-                            {imageUrl ? (
-                                 <Image 
-                                    src={imageUrl} 
-                                    alt={`${syndicateData.name} logo`} 
-                                    width={40} 
-                                    height={40} 
-                                    className="w-10 h-10 rounded-xl object-cover shadow-soft" 
-                                />
-                            ) : (
-                                <SyndicatDefaultAvatar 
-                                    name={syndicateData.name} 
-                                    size={40} 
-                                    className="rounded-xl shadow-soft"
-                                />
-                            )}
+                        <div className="w-10 h-10 bg-blue-700 rounded-xl flex items-center justify-center shadow-soft">
+                            <Users className="w-5 h-5 text-white" />
                         </div>
                         <div className="min-w-0">
-                            <span className="font-bold text-base text-neutral-800 dark:text-white truncate block">
+                            <span className="font-bold text-base text-blue-900 truncate block">
                                 {t('member_space')}
                             </span>
-                            <span className="text-xs text-neutral-500 dark:text-neutral-400 truncate block">
-                                {syndicateData.name}
+                            <span className="text-xs text-blue-600 truncate block">
+                                Navigation
                             </span>
                         </div>
                     </div>
@@ -126,8 +112,8 @@ export default function SyndicateSidebar({ isCollapsed, onToggle, syndicateData 
                                 isCollapsed ? 'justify-center' : ''
                             } ${
                                     isActive 
-                                        ? 'text-primary-700 dark:text-primary-300 bg-primary-50 dark:bg-primary-900/20' 
-                                        : 'text-neutral-600 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-800 hover:text-neutral-900 dark:hover:text-white'
+                                        ? 'text-blue-700 dark:text-blue-300 bg-blue-50 dark:bg-blue-900/20' 
+                                        : 'text-neutral-600 dark:text-neutral-400 hover:bg-blue-50 dark:hover:bg-neutral-800 hover:text-blue-800 dark:hover:text-white'
                                 } ${
                                     isNavigating && activeRoute === item.route ? 'opacity-75' : ''
                                 }`}
@@ -136,16 +122,16 @@ export default function SyndicateSidebar({ isCollapsed, onToggle, syndicateData 
                                 {isActive && (
                                     <motion.div 
                                         layoutId="active-sidebar-indicator" 
-                                        className="absolute inset-0 bg-primary-50 dark:bg-primary-900/20 rounded-xl border border-primary-200 dark:border-primary-800" 
+                                        className="absolute inset-0 bg-blue-50 dark:bg-blue-900/20 rounded-xl border border-blue-200 dark:border-blue-800" 
                                         transition={{ type: 'spring', stiffness: 300, damping: 25 }} 
                                     />
                                 )}
                                 
                             <div className="relative z-10 flex items-center">
                                 {isNavigating && activeRoute === item.route ? (
-                                    <Loader2 className="h-5 w-5 flex-shrink-0 animate-spin text-primary-600 dark:text-primary-400" />
+                                    <Loader2 className="h-5 w-5 flex-shrink-0 animate-spin text-blue-600 dark:text-blue-400" />
                                 ) : (
-                                    <item.icon className={`h-5 w-5 flex-shrink-0 ${isActive ? 'text-primary-600 dark:text-primary-400' : ''}`} />
+                                    <item.icon className={`h-5 w-5 flex-shrink-0 ${isActive ? 'text-blue-600 dark:text-blue-400' : ''}`} />
                                 )}
                                 {!isCollapsed && (
                                     <span className="font-medium truncate ml-3">{item.label}</span>

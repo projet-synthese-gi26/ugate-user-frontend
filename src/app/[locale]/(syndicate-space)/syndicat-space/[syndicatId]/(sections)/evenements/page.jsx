@@ -31,12 +31,14 @@ export default async function EventsPage({ params }) {
     const initialEvents = await getEvents(syndicatId);
 
     return (
-        <div className="max-w-4xl mx-auto py-8">
-            <div className="text-center mb-12">
-                <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-700 to-blue-800 bg-clip-text text-transparent">
-                    {t('events_page.title')}
-                </h1>
-                <p className="mt-2 text-gray-600 dark:text-gray-400">{t('events_page.subtitle')}</p>
+        <div className="space-y-8">
+            <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-8 mb-8">
+                <div className="text-center">
+                    <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-700 to-blue-800 bg-clip-text text-transparent mb-4">
+                        {t('events_page.title')}
+                    </h1>
+                    <p className="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">{t('events_page.subtitle')}</p>
+                </div>
             </div>
             
             <EventsFeed initialEvents={initialEvents} syndicatId={syndicatId} />
