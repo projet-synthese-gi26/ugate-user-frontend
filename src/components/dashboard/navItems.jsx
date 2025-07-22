@@ -9,7 +9,7 @@ export const getNavItems = () => {
             id: "dashboard",
             icon: Home,
             label: t('dashboard.label'),
-            gradient: "from-blue-500 to-indigo-600",
+            gradient: "from-blue-900 to-blue-950",
             description: t('dashboard.description'),
             route: "/home"
         },
