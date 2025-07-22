@@ -58,10 +58,12 @@ export default function MembersClient({ initialMembers = [], initialRequests = [
     const MembersList = ({ data }) => {
         if (!data || data.length === 0) {
             return (
-                <div className="bg-white dark:bg-gray-800/50 rounded-2xl shadow-lg p-12 text-center border border-gray-200 dark:border-gray-700">
-                    <Users className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">Aucun membre trouvé</h3>
-                    <p className="text-gray-500 dark:text-gray-400">
+                <div className="bg-white dark:bg-neutral-800 rounded-2xl shadow-soft p-12 text-center border border-neutral-200 dark:border-neutral-700">
+                    <div className="w-16 h-16 mx-auto mb-4 bg-neutral-100 dark:bg-neutral-700 rounded-2xl flex items-center justify-center">
+                        <Users className="w-8 h-8 text-neutral-500 dark:text-neutral-400" />
+                    </div>
+                    <h3 className="text-lg font-semibold text-neutral-800 dark:text-white mb-2">Aucun membre trouvé</h3>
+                    <p className="text-neutral-500 dark:text-neutral-400">
                         {searchTerm ? "Aucun membre ne correspond à votre recherche." : "Ce syndicat n'a pas encore de membres actifs."}
                     </p>
                 </div>
@@ -69,28 +71,28 @@ export default function MembersClient({ initialMembers = [], initialRequests = [
         }
 
         return (
-            <div className="bg-white dark:bg-gray-800/50 rounded-2xl shadow-lg overflow-hidden border border-gray-200 dark:border-gray-700">
+            <div className="bg-white dark:bg-neutral-800 rounded-2xl shadow-soft overflow-hidden border border-neutral-200 dark:border-neutral-700">
                 <div className="overflow-x-auto">
-                    <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-                        <thead className="bg-gray-50 dark:bg-gray-900/50">
+                    <table className="min-w-full divide-y divide-neutral-200 dark:divide-neutral-700">
+                        <thead className="bg-neutral-50 dark:bg-neutral-900/50">
                             <tr>
-                                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">Membre</th>
-                                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">Rôle</th>
-                                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">Statut</th>
-                                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">Actions</th>
+                                <th className="px-6 py-4 text-left text-xs font-semibold text-neutral-500 dark:text-neutral-400 uppercase tracking-wider">Membre</th>
+                                <th className="px-6 py-4 text-left text-xs font-semibold text-neutral-500 dark:text-neutral-400 uppercase tracking-wider">Rôle</th>
+                                <th className="px-6 py-4 text-left text-xs font-semibold text-neutral-500 dark:text-neutral-400 uppercase tracking-wider">Statut</th>
+                                <th className="px-6 py-4 text-left text-xs font-semibold text-neutral-500 dark:text-neutral-400 uppercase tracking-wider">Actions</th>
                             </tr>
                         </thead>
-                        <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
+                        <tbody className="divide-y divide-neutral-200 dark:divide-neutral-700">
                             <AnimatePresence>
                                 {data.map(member => (
-                                    <motion.tr key={member.userId} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                                    <motion.tr key={member.userId} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="hover:bg-neutral-50 dark:hover:bg-neutral-700/50 transition-colors duration-200">
                                         <td className="px-6 py-4 whitespace-nowrap"><div className="flex items-center">
-                                            {member.userAvatarUrl ? <Image src={`${STATIC_FILES_URL}${member.userAvatarUrl}`} alt={member.userName} width={44} height={44} className="w-11 h-11 rounded-full object-cover"/> : <SyndicatDefaultAvatar name={member.userName} size={44}/>}
-                                            <div className="ml-4"><div className="text-sm font-medium text-gray-900 dark:text-white">{member.userName}</div></div>
+                                            {member.userAvatarUrl ? <Image src={`${STATIC_FILES_URL}${member.userAvatarUrl}`} alt={member.userName} width={44} height={44} className="w-11 h-11 rounded-xl object-cover shadow-soft"/> : <SyndicatDefaultAvatar name={member.userName} size={44} className="rounded-xl"/>}
+                                            <div className="ml-4"><div className="text-sm font-medium text-neutral-800 dark:text-white">{member.userName}</div></div>
                                         </div></td>
-                                        <td className="px-6 py-4"><span className={`px-3 py-1 text-xs font-medium rounded-full ${member.role === 'ROLE_PRESIDENT' ? 'bg-indigo-100 text-indigo-800' : 'bg-gray-100 text-gray-800'}`}>{member.role.replace('ROLE_', '')}</span></td>
-                                        <td className="px-6 py-4"><span className={`px-3 py-1 inline-flex text-xs font-semibold rounded-full ${member.status === 'ACTIVE' ? 'bg-green-100 dark:bg-green-900/50 text-green-800 dark:text-green-300' : 'bg-yellow-100 text-yellow-800'}`}>{member.status}</span></td>
-                                        <td className="px-6 py-4"><button className="p-2 text-red-500 hover:bg-red-100 rounded-full transition-colors"><UserX size={16}/></button></td>
+                                        <td className="px-6 py-4"><span className={`px-3 py-1 text-xs font-medium rounded-full ${member.role === 'ROLE_PRESIDENT' ? 'bg-primary-100 text-primary-800 dark:bg-primary-900/20 dark:text-primary-300' : 'bg-neutral-100 text-neutral-700 dark:bg-neutral-700 dark:text-neutral-300'}`}>{member.role.replace('ROLE_', '')}</span></td>
+                                        <td className="px-6 py-4"><span className={`px-3 py-1 inline-flex text-xs font-semibold rounded-full ${member.status === 'ACTIVE' ? 'bg-emerald-100 dark:bg-emerald-900/20 text-emerald-800 dark:text-emerald-300' : 'bg-amber-100 dark:bg-amber-900/20 text-amber-700 dark:text-amber-300'}`}>{member.status}</span></td>
+                                        <td className="px-6 py-4"><button className="p-2 text-neutral-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-xl transition-all duration-200"><UserX size={16}/></button></td>
                                     </motion.tr>
                                 ))}
                             </AnimatePresence>

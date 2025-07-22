@@ -59,25 +59,48 @@ export default function SyndicateSidebar({ isCollapsed, onToggle, syndicateData 
         <motion.nav
             animate={{ width: isCollapsed ? 80 : 280 }}
             transition={{ duration: 0.3, ease: 'easeInOut' }}
-            className="hidden lg:flex bg-white/80 dark:bg-gray-800/50 backdrop-blur-sm flex-col z-10 border-r border-gray-200/80 dark:border-white/10"
+            className="hidden lg:flex bg-white dark:bg-neutral-900 flex-col z-10 border-r border-neutral-200 dark:border-neutral-700 shadow-soft transition-colors duration-300"
         >
-            <div className={`p-4 flex items-center gap-4 border-b border-gray-200/80 dark:border-white/10 transition-all duration-300 ${isCollapsed ? 'justify-center' : 'justify-between'}`}>
+            <div className={`p-4 flex items-center gap-4 border-b border-neutral-200 dark:border-neutral-700 transition-all duration-300 ${isCollapsed ? 'justify-center' : 'justify-between'}`}>
                 {!isCollapsed && (
-                    <div className="flex items-center gap-2 overflow-hidden">
-                        {imageUrl ? (
-                             <Image src={imageUrl} alt={`${syndicateData.name} logo`} width={40} height={40} className="w-10 h-10 rounded-full object-cover" />
-                        ) : (
-                            <SyndicatDefaultAvatar name={syndicateData.name} size={40} />
-                        )}
-                        <span className="font-bold text-lg text-gray-800 dark:text-white truncate">{t('member_space')}</span>
+                    <div className="flex items-center gap-3 overflow-hidden">
+                        <div className="flex-shrink-0">
+                            {imageUrl ? (
+                                 <Image 
+                                    src={imageUrl} 
+                                    alt={`${syndicateData.name} logo`} 
+                                    width={40} 
+                                    height={40} 
+                                    className="w-10 h-10 rounded-xl object-cover shadow-soft" 
+                                />
+                            ) : (
+                                <SyndicatDefaultAvatar 
+                                    name={syndicateData.name} 
+                                    size={40} 
+                                    className="rounded-xl shadow-soft"
+                                />
+                            )}
+                        </div>
+                        <div className="min-w-0">
+                            <span className="font-bold text-base text-neutral-800 dark:text-white truncate block">
+                                {t('member_space')}
+                            </span>
+                            <span className="text-xs text-neutral-500 dark:text-neutral-400 truncate block">
+                                {syndicateData.name}
+                            </span>
+                        </div>
                     </div>
                 )}
-                <motion.button onClick={onToggle} className="p-2 text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg" aria-label={isCollapsed ? t('expand') : t('collapse')}>
-                    {isCollapsed ? <ChevronRight size={20} /> : <ChevronLeft size={20} />}
+                <motion.button 
+                    onClick={onToggle} 
+                    className="p-2 text-neutral-500 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-800 rounded-xl transition-all duration-200" 
+                    aria-label={isCollapsed ? t('expand') : t('collapse')}
+                >
+                    {isCollapsed ? <ChevronRight size={18} /> : <ChevronLeft size={18} />}
                 </motion.button>
             </div>
 
-            <div className="flex-grow overflow-y-auto p-4 space-y-2">
+            <div className="flex-grow overflow-y-auto p-4 space-y-1">
                 {navItems.map((item) => {
                     const fullPath = buildLink(item.route);
                     const isActive = pathname === fullPath || (item.route && pathname.startsWith(fullPath));
@@ -86,23 +109,27 @@ export default function SyndicateSidebar({ isCollapsed, onToggle, syndicateData 
                         <motion.div
                             key={item.id}
                             onClick={() => handleNavigation(item.route)}
-                            className={`relative group flex items-center w-full px-4 py-3 rounded-xl cursor-pointer transition-colors duration-200 ${
+                            className={`relative group flex items-center w-full px-3 py-2.5 rounded-xl cursor-pointer transition-all duration-200 ${
                                 isCollapsed ? 'justify-center' : ''
                             } ${
                                     isActive 
-                                        ? 'text-blue-600 dark:text-blue-300' 
-                                        : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-white'
+                                        ? 'text-primary-700 dark:text-primary-300 bg-primary-50 dark:bg-primary-900/20' 
+                                        : 'text-neutral-600 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-800 hover:text-neutral-900 dark:hover:text-white'
                                 }`}
                                 title={isCollapsed ? item.label : ''}
                             >
                                 {isActive && (
-                                    <motion.div layoutId="active-sidebar-indicator" className="absolute inset-0 bg-blue-50 dark:bg-blue-900/50 rounded-xl" transition={{ type: 'spring', stiffness: 300, damping: 25 }} />
+                                    <motion.div 
+                                        layoutId="active-sidebar-indicator" 
+                                        className="absolute inset-0 bg-primary-50 dark:bg-primary-900/20 rounded-xl border border-primary-200 dark:border-primary-800" 
+                                        transition={{ type: 'spring', stiffness: 300, damping: 25 }} 
+                                    />
                                 )}
                                 
                             <div className="relative z-10 flex items-center">
-                                <item.icon className="h-5 w-5 flex-shrink-0" />
+                                <item.icon className={`h-5 w-5 flex-shrink-0 ${isActive ? 'text-primary-600 dark:text-primary-400' : ''}`} />
                                 {!isCollapsed && (
-                                    <span className="font-semibold truncate ml-3">{item.label}</span>
+                                    <span className="font-medium truncate ml-3">{item.label}</span>
                                 )}
                             </div>
                         </motion.div>

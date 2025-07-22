@@ -36,11 +36,7 @@ export default function SyndicateSpaceClientLayout({ children, syndicateData: in
     }
 
     return (
-        <div className="flex h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50 dark:from-gray-900 dark:via-gray-900/95 dark:to-black">
-            {/* 
-                CORRECTION : La prop pour SyndicateSidebar est `isCollapsed`.
-                Sa valeur doit être l'inverse de `isSidebarOpen`.
-            */}
+        <div className="flex h-screen bg-white dark:bg-neutral-900 transition-colors duration-300">
             <SyndicateSidebar 
                 isCollapsed={!isSidebarOpen} 
                 onToggle={handleToggleSidebar} 
@@ -53,8 +49,10 @@ export default function SyndicateSpaceClientLayout({ children, syndicateData: in
                     onSidebarToggle={handleToggleSidebar}
                     onNotificationToggle={handleToggleNotifications}
                 />
-                <main className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8">
-                    {children}
+                <main className="flex-1 overflow-y-auto bg-neutral-50 dark:bg-neutral-800/50 p-4 sm:p-6 lg:p-8 transition-colors duration-300">
+                    <div className="animate-fade-in">
+                        {children}
+                    </div>
                 </main>
                 <SyndicateNotificationsPanel 
                     isOpen={isNotificationOpen} 
