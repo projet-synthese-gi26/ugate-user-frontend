@@ -58,20 +58,20 @@ export default function SyndicateSpaceClientLayout({ children, syndicateData: in
     }
 
     return (
-        <div className="flex h-screen bg-gray-50 dark:bg-neutral-900 transition-colors duration-300">
+        <div className="flex min-h-screen bg-gray-50 dark:bg-neutral-900 transition-colors duration-300">
             <SyndicateSidebar 
                 isCollapsed={!isSidebarOpen} 
                 onToggle={handleToggleSidebar} 
                 syndicateData={initialSyndicateData}
             />
 
-            <div className="flex-1 flex flex-col overflow-hidden">
+            <div className="flex-1 flex flex-col">
                 <SyndicateHeader 
                     syndicateData={initialSyndicateData}
                     onSidebarToggle={handleToggleSidebar}
                     onNotificationToggle={handleToggleNotifications}
                 />
-                <main className="flex-1 overflow-y-auto bg-gray-50 dark:bg-neutral-800/50 transition-colors duration-300">
+                <main className="flex-1 bg-gray-50 dark:bg-neutral-800/50 transition-colors duration-300">
                     <div className="p-4 sm:p-6 lg:p-8">
                         <AnimatePresence mode="wait">
                             {isPageLoading ? (
