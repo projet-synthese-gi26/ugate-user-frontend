@@ -101,8 +101,6 @@ export default function SyndicateSpaceClientLayout({ children, syndicateData: in
                         });
                     }}
                 >
-                >
-                >
                     <SyndicateHeader 
                         syndicateData={initialSyndicateData}
                         onSidebarToggle={handleToggleSidebar}
