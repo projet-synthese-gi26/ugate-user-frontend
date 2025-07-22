@@ -10,7 +10,7 @@ import { useTranslations } from 'next-intl';
 export function HeroSection() {
     const t = useTranslations('heroComponent');
     return (
-        <section className="relative bg-gradient-to-br from-slate-900 via-blue-900 to-blue-950 text-white py-24 lg:py-32">
+        <section className="relative bg-gradient-to-br from-slate-900 via-blue-800 to-blue-900 text-white py-24 lg:py-32">
             <div className="container mx-auto px-4">
                 <div className="max-w-7xl mx-auto flex flex-col lg:flex-row items-center gap-12">
                     <div className="flex-1 text-center lg:text-left">
@@ -21,7 +21,7 @@ export function HeroSection() {
                         >
                             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 leading-tight">
                                 {t('title_part1')}{' '}
-                                <span className="bg-gradient-to-r from-blue-600 to-blue-800 bg-clip-text text-transparent">
+                                <span className="bg-gradient-to-r from-blue-500 to-blue-700 bg-clip-text text-transparent">
                                     {t('title_highlighted')}
                                 </span>
                             </h1>
@@ -31,7 +31,7 @@ export function HeroSection() {
                             <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
                                 <Link href="/register">
                                     <motion.button
-                                        className="bg-gradient-to-r from-blue-900 to-blue-950 text-white px-8 py-4 rounded-lg font-semibold flex items-center justify-center hover:from-blue-800 hover:to-blue-900 transition-all duration-300 shadow-lg hover:shadow-xl"
+                                        className="bg-gradient-to-r from-blue-700 to-blue-800 text-white px-8 py-4 rounded-lg font-semibold flex items-center justify-center hover:from-blue-600 hover:to-blue-700 transition-all duration-300 shadow-lg hover:shadow-xl"
                                         whileHover={{ scale: 1.02 }}
                                         whileTap={{ scale: 0.98 }}
                                     >
@@ -132,9 +132,9 @@ export function FeaturesSection() {
                             whileInView={{ opacity: 1, y: 0 }}
                             viewport={{ once: true }}
                             transition={{ duration: 0.5, delay: index * 0.1 }}
-                            className="bg-slate-50 rounded-2xl p-8 hover:shadow-lg transition-all duration-300 border border-slate-200 hover:border-blue-900"
+                            className="bg-slate-50 rounded-2xl p-8 hover:shadow-lg transition-all duration-300 border border-slate-200 hover:border-blue-700"
                         >
-                            <div className="bg-gradient-to-r from-blue-900 to-blue-950 rounded-xl p-3 w-14 h-14 flex items-center justify-center mb-6">
+                            <div className="bg-gradient-to-r from-blue-700 to-blue-800 rounded-xl p-3 w-14 h-14 flex items-center justify-center mb-6">
                                 <feature.icon className="h-7 w-7 text-white" />
                             </div>
                             <h3 className="text-xl font-semibold text-slate-900 mb-3">
@@ -184,7 +184,7 @@ function ActivityCard({ activity, index }) {
                             <div className="flex items-center space-x-2 text-slate-500 text-xs">
                                 <span>{activity.syndicate.name}</span>
                                 {activity.syndicate.verified && (
-                                    <div className="w-3 h-3 bg-blue-900 rounded-full flex items-center justify-center">
+                                    <div className="w-3 h-3 bg-blue-700 rounded-full flex items-center justify-center">
                                         <div className="w-1.5 h-1.5 bg-white rounded-full"></div>
                                     </div>
                                 )}
@@ -193,7 +193,7 @@ function ActivityCard({ activity, index }) {
                                 {isEvent && (
                                     <>
                                         <span>•</span>
-                                        <span className="text-blue-900 font-medium">{t('event_label')}</span>
+                                        <span className="text-blue-700 font-medium">{t('event_label')}</span>
                                     </>
                                 )}
                             </div>
@@ -250,7 +250,7 @@ function ActivityCard({ activity, index }) {
                 <div className="flex items-center justify-between text-slate-500 text-xs">
                     <div className="flex items-center space-x-1">
                         <div className="flex items-center">
-                            <div className="w-4 h-4 bg-blue-900 rounded-full flex items-center justify-center mr-1">
+                            <div className="w-4 h-4 bg-blue-700 rounded-full flex items-center justify-center mr-1">
                                 <Heart className="w-2 h-2 text-white fill-current" />
                             </div>
                             <span>{activity.likes}</span>
@@ -267,20 +267,20 @@ function ActivityCard({ activity, index }) {
             <div className="px-4 py-2 border-t border-slate-100">
                 <div className="flex items-center justify-between">
                     <div className="flex items-center w-full">
-                        <button className="flex items-center justify-center space-x-2 text-slate-600 hover:text-blue-900 px-3 py-2 rounded-md hover:bg-slate-50 transition-colors flex-1">
+                        <button className="flex items-center justify-center space-x-2 text-slate-600 hover:text-blue-700 px-3 py-2 rounded-md hover:bg-slate-50 transition-colors flex-1">
                             <Heart className="h-4 w-4" />
                             <span className="text-sm font-medium">{t('like_button')}</span>
                         </button>
-                        <button className="flex items-center justify-center space-x-2 text-slate-600 hover:text-blue-900 px-3 py-2 rounded-md hover:bg-slate-50 transition-colors flex-1">
+                        <button className="flex items-center justify-center space-x-2 text-slate-600 hover:text-blue-700 px-3 py-2 rounded-md hover:bg-slate-50 transition-colors flex-1">
                             <MessageCircle className="h-4 w-4" />
                             <span className="text-sm font-medium">{t('comment_button')}</span>
                         </button>
-                        <button className="flex items-center justify-center space-x-2 text-slate-600 hover:text-blue-900 px-3 py-2 rounded-md hover:bg-slate-50 transition-colors flex-1">
+                        <button className="flex items-center justify-center space-x-2 text-slate-600 hover:text-blue-700 px-3 py-2 rounded-md hover:bg-slate-50 transition-colors flex-1">
                             <Share2 className="h-4 w-4" />
                             <span className="text-sm font-medium">{t('share_button')}</span>
                         </button>
                         {isEvent && (
-                            <button className="bg-gradient-to-r from-blue-900 to-blue-950 text-white px-4 py-2 rounded-lg text-sm font-medium hover:from-blue-800 hover:to-blue-900 transition-all duration-300 ml-2">
+                            <button className="bg-gradient-to-r from-blue-700 to-blue-800 text-white px-4 py-2 rounded-lg text-sm font-medium hover:from-blue-600 hover:to-blue-700 transition-all duration-300 ml-2">
                                 {t('participate_button')}
                             </button>
                         )}
@@ -381,7 +381,7 @@ export function StatsSection() {
     ];
 
     return (
-        <section className="py-20 bg-gradient-to-r from-blue-900 via-blue-950 to-blue-900 relative overflow-hidden">
+        <section className="py-20 bg-gradient-to-r from-blue-700 via-blue-800 to-blue-700 relative overflow-hidden">
             <div className="container mx-auto px-4 relative z-10">
                 <div className="text-center mb-16">
                     <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">

@@ -33,7 +33,7 @@ export default async function EventsPage({ params }) {
     return (
         <div className="max-w-4xl mx-auto py-8">
             <div className="text-center mb-12">
-                <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-900 to-blue-950 bg-clip-text text-transparent">
+                <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-700 to-blue-800 bg-clip-text text-transparent">
                     {t('events_page.title')}
                 </h1>
                 <p className="mt-2 text-gray-600 dark:text-gray-400">{t('events_page.subtitle')}</p>

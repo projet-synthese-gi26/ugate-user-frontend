@@ -22,7 +22,7 @@ export default function LandingPageHeader() {
     return (
         <header className="bg-white shadow-md py-3 sticky top-0 z-50">
             <div className="container mx-auto px-4 flex justify-between items-center">
-                <Link href="/" className="flex items-center space-x-2 text-blue-900">
+                <Link href="/" className="flex items-center space-x-2 text-blue-700">
                     <UGateIcon className="h-8 w-8" showText={true} />
                 </Link>
                 <div className="flex space-x-4 items-center">
@@ -43,12 +43,12 @@ export default function LandingPageHeader() {
                         )}
                     </div>
                     <Link href="/login" passHref>
-                        <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="bg-blue-50 text-blue-900 px-4 py-2 rounded-full border border-blue-900 flex items-center hover:bg-blue-100 transition duration-300">
+                        <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="bg-blue-50 text-blue-700 px-4 py-2 rounded-full border border-blue-700 flex items-center hover:bg-blue-100 transition duration-300">
                             <LogIn className="mr-2 h-4 w-4" /> {t("seConnecter")}
                         </motion.button>
                     </Link>
                     <Link href="/register" passHref>
-                        <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="bg-blue-900 text-white px-4 py-2 rounded-full flex items-center hover:bg-blue-950 transition duration-300">
+                        <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="bg-blue-700 text-white px-4 py-2 rounded-full flex items-center hover:bg-blue-800 transition duration-300">
                             <UserPlus className="mr-2 h-4 w-4" /> {t("sinscrire")}
                         </motion.button>
                     </Link>

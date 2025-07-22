@@ -46,14 +46,14 @@ export default function SyndicateCard({ syndicat }) {
                 </h2>
                 <div className="flex items-center justify-between text-gray-600 dark:text-gray-400 my-4">
                     <div className="flex items-center space-x-2">
-                        <Users className="h-5 w-5 text-blue-900" />
+                        <Users className="h-5 w-5 text-blue-700" />
                         <span className="text-sm font-medium">{(syndicat.memberCount || 0).toLocaleString()} membres</span>
                     </div>
                     <BarChart2 className="h-5 w-5 text-gray-400 dark:text-gray-500" title="Tendance stable" />
                 </div>
                 <div className="mt-auto pt-4 border-t border-gray-100 dark:border-gray-700">
                     <motion.button
-                        className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-3 rounded-xl hover:shadow-lg transition-all flex items-center justify-center font-semibold group-hover:from-blue-700 group-hover:to-indigo-700"
+                        className="w-full bg-gradient-to-r from-blue-700 to-blue-800 text-white py-3 rounded-xl hover:shadow-lg transition-all flex items-center justify-center font-semibold group-hover:from-blue-600 group-hover:to-blue-700"
                         whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.98 }}
                         onClick={() => handleAccessSpace(syndicat.id)}
                     >
