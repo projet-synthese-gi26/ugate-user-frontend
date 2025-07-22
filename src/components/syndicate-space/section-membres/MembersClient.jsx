@@ -1,27 +1,34 @@
 "use client";
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslations } from 'next-intl';
 import Swal from 'sweetalert2';
 import { toast } from 'react-hot-toast';
-import { Users, UserPlus, Search, Filter, Check, X, AlertTriangle, UserX, Shield, UserCheck } from 'lucide-react';
+import { Users, UserPlus, Search, Filter, Check, X, AlertTriangle, UserX, Shield, UserCheck, RefreshCw } from 'lucide-react';
 import StatCard from './StatCard';
 import TabButton from './TabButton';
-import { respondToAdhesionAPI } from '@/lib/api/membership';
+import { respondToAdhesionAPI, getBranchMembersAPI, getAdhesionRequestsAPI } from '@/lib/api/membership';
 import { STATIC_FILES_URL } from '@/lib/constants';
 import { SyndicatDefaultAvatar } from '@/components/shared/SyndicatDefaultAvatar';
 import { MemberRowSkeleton, CardSkeleton } from '../SyndicateSpaceLoader';
+import { useErrorHandler, useApiWithRetry } from '@/hooks/useErrorHandler';
+import { ErrorState, EmptyState, InlineError } from '../ErrorStates';
+import ErrorBoundary from '../ErrorBoundary';
 import Image from 'next/image';
 
-export default function MembersClient({ initialMembers = [], initialRequests = [], branches = [], stats = {}, syndicatId }) {
+function MembersClientInner({ initialMembers = [], initialRequests = [], branches = [], stats = {}, syndicatId }) {
     const t = useTranslations('members_page');
+    const { handleError, clearError, hasError, getError } = useErrorHandler();
+    const { executeWithRetry, loading: apiLoading } = useApiWithRetry();
+    
     const [activeTab, setActiveTab] = useState('members');
     const [searchTerm, setSearchTerm] = useState('');
     const [members, setMembers] = useState(initialMembers || []);
     const [requests, setRequests] = useState(initialRequests || []);
     const [isLoadingMembers, setIsLoadingMembers] = useState(false);
     const [isLoadingRequests, setIsLoadingRequests] = useState(false);
+    const [lastRefresh, setLastRefresh] = useState(Date.now());
     
     const filteredMembers = useMemo(() => 
         (members || []).filter(member => 
@@ -33,43 +40,112 @@ export default function MembersClient({ initialMembers = [], initialRequests = [
             req?.userName?.toLowerCase().includes(searchTerm.toLowerCase())
         ), [requests, searchTerm]);
 
+    // Fonction pour recharger les données
+    const refreshData = async (force = false) => {
+        if (!branches || branches.length === 0) return;
+        
+        const mainBranchId = branches[0].id;
+        
+        try {
+            await executeWithRetry(async () => {
+                const [membersData, requestsData] = await Promise.all([
+                    getBranchMembersAPI(mainBranchId),
+                    getAdhesionRequestsAPI(syndicatId, mainBranchId)
+                ]);
+                
+                setMembers(membersData || []);
+                setRequests(requestsData || []);
+                setLastRefresh(Date.now());
+                
+                clearError('members');
+                clearError('requests');
+            }, 'refresh-data', {
+                maxRetries: 2,
+                onSuccess: () => {
+                    if (force) {
+                        toast.success("Données mises à jour !");
+                    }
+                }
+            });
+        } catch (error) {
+            // L'erreur est déjà gérée par executeWithRetry
+        }
+    };
+
+    // Charger les données au montage si pas de données initiales
+    useEffect(() => {
+        if ((!initialMembers || initialMembers.length === 0) && 
+            (!initialRequests || initialRequests.length === 0) &&
+            branches && branches.length > 0) {
+            refreshData(false);
+        }
+    }, [branches]);
+
     const handleResponse = async (userId, branchId, isApproved) => {
         const action = isApproved ? "d'approuver" : "de rejeter";
         const result = await Swal.fire({
             title: `Êtes-vous sûr de vouloir ${action} cette demande ?`,
             icon: 'warning',
             showCancelButton: true,
-            confirmButtonColor: '#3085d6',
-            cancelButtonColor: '#d33',
+            confirmButtonColor: '#1e40af',
+            cancelButtonColor: '#6b7280',
             confirmButtonText: 'Oui, continuer !',
             cancelButtonText: 'Annuler'
         });
 
         if (result.isConfirmed) {
-            const toastId = toast.loading("Traitement en cours...");
             try {
-                await respondToAdhesionAPI(syndicatId, branchId, userId, isApproved);
-                setRequests(prev => prev.filter(req => req.userId !== userId));
-                toast.success("La demande a été traitée.", { id: toastId });
-                // Idéalement, on rechargerait la liste des membres pour voir le nouveau membre
+                await executeWithRetry(async () => {
+                    await respondToAdhesionAPI(syndicatId, branchId, userId, isApproved);
+                }, `respond-adhesion-${userId}`, {
+                    maxRetries: 2,
+                    onSuccess: () => {
+                        setRequests(prev => prev.filter(req => req.userId !== userId));
+                        toast.success(`Demande ${isApproved ? 'approuvée' : 'rejetée'} avec succès !`);
+                        // Recharger les membres pour voir le nouveau membre si approuvé
+                        if (isApproved) {
+                            setTimeout(() => refreshData(false), 1000);
+                        }
+                    }
+                });
             } catch (error) {
-                toast.error("Une erreur est survenue.", { id: toastId });
+                // L'erreur est déjà gérée par executeWithRetry
             }
         }
     };
     
     const MembersList = ({ data }) => {
+        // Gestion des erreurs
+        if (hasError('members')) {
+            return (
+                <ErrorState 
+                    error={getError('members')}
+                    onRetry={() => refreshData(true)}
+                    onDismiss={() => clearError('members')}
+                />
+            );
+        }
+
+        // État vide amélioré
         if (!data || data.length === 0) {
             return (
-                <div className="bg-white dark:bg-neutral-800 rounded-2xl shadow-soft p-12 text-center border border-neutral-200 dark:border-neutral-700">
-                    <div className="w-16 h-16 mx-auto mb-4 bg-neutral-100 dark:bg-neutral-700 rounded-2xl flex items-center justify-center">
-                        <Users className="w-8 h-8 text-neutral-500 dark:text-neutral-400" />
-                    </div>
-                    <h3 className="text-lg font-semibold text-neutral-800 dark:text-white mb-2">Aucun membre trouvé</h3>
-                    <p className="text-neutral-500 dark:text-neutral-400">
-                        {searchTerm ? "Aucun membre ne correspond à votre recherche." : "Ce syndicat n'a pas encore de membres actifs."}
-                    </p>
-                </div>
+                <EmptyState
+                    icon={Users}
+                    title="Aucun membre trouvé"
+                    description={searchTerm ? "Aucun membre ne correspond à votre recherche." : "Ce syndicat n'a pas encore de membres actifs."}
+                    action={!searchTerm && (
+                        <motion.button
+                            whileHover={{ scale: 1.02 }}
+                            whileTap={{ scale: 0.98 }}
+                            onClick={() => refreshData(true)}
+                            className="px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-xl font-medium transition-all duration-200 flex items-center gap-2"
+                        >
+                            <RefreshCw className="w-4 h-4" />
+                            Actualiser
+                        </motion.button>
+                    )}
+                    className="bg-white dark:bg-neutral-800 rounded-2xl shadow-soft border border-neutral-200 dark:border-neutral-700"
+                />
             );
         }
 
@@ -114,15 +190,37 @@ export default function MembersClient({ initialMembers = [], initialRequests = [
     };
 
     const MembershipRequestsList = ({ data }) => {
+        // Gestion des erreurs
+        if (hasError('requests')) {
+            return (
+                <ErrorState 
+                    error={getError('requests')}
+                    onRetry={() => refreshData(true)}
+                    onDismiss={() => clearError('requests')}
+                />
+            );
+        }
+
+        // État vide amélioré
         if (!data || data.length === 0) {
             return (
-                <div className="bg-white dark:bg-gray-800/50 rounded-2xl shadow-lg p-12 text-center border border-gray-200 dark:border-gray-700">
-                    <UserPlus className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">Aucune demande d'adhésion</h3>
-                    <p className="text-gray-500 dark:text-gray-400">
-                        {searchTerm ? "Aucune demande ne correspond à votre recherche." : "Il n'y a pas de demandes d'adhésion en attente."}
-                    </p>
-                </div>
+                <EmptyState
+                    icon={UserPlus}
+                    title="Aucune demande d'adhésion"
+                    description={searchTerm ? "Aucune demande ne correspond à votre recherche." : "Il n'y a pas de demandes d'adhésion en attente."}
+                    action={!searchTerm && (
+                        <motion.button
+                            whileHover={{ scale: 1.02 }}
+                            whileTap={{ scale: 0.98 }}
+                            onClick={() => refreshData(true)}
+                            className="px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-xl font-medium transition-all duration-200 flex items-center gap-2"
+                        >
+                            <RefreshCw className="w-4 h-4" />
+                            Actualiser
+                        </motion.button>
+                    )}
+                    className="bg-white dark:bg-neutral-800 rounded-2xl shadow-soft border border-neutral-200 dark:border-neutral-700"
+                />
             );
         }
 
@@ -163,27 +261,126 @@ export default function MembersClient({ initialMembers = [], initialRequests = [
 
     return (
         <div className="space-y-8">
+            {/* Header avec bouton de refresh */}
             <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }}>
-                <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent mb-2">{t('members_page.title')}</h1>
-                <p className="text-gray-600 dark:text-gray-400 text-lg">{t('members_page.subtitle')}</p>
+                <div className="flex items-start justify-between mb-4">
+                    <div>
+                        <h1 className="text-3xl font-bold text-neutral-800 dark:text-white mb-2">
+                            {t('members_page.title')}
+                        </h1>
+                        <p className="text-neutral-600 dark:text-neutral-400">
+                            {t('members_page.subtitle')}
+                        </p>
+                    </div>
+                    
+                    <motion.button
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                        onClick={() => refreshData(true)}
+                        disabled={apiLoading}
+                        className="px-4 py-2 bg-white dark:bg-neutral-800 hover:bg-neutral-50 dark:hover:bg-neutral-700 border border-neutral-200 dark:border-neutral-700 text-neutral-700 dark:text-neutral-300 rounded-xl font-medium transition-all duration-200 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed shadow-soft"
+                    >
+                        <RefreshCw className={`w-4 h-4 ${apiLoading ? 'animate-spin' : ''}`} />
+                        Actualiser
+                    </motion.button>
+                </div>
             </motion.div>
 
+            {/* Affichage des erreurs globales */}
+            <AnimatePresence>
+                {hasError('refresh-data') && (
+                    <InlineError 
+                        error={getError('refresh-data')}
+                        className="mb-6"
+                    />
+                )}
+            </AnimatePresence>
+
+            {/* Stats cards */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                <StatCard icon={Users} value={(stats?.total || 0).toLocaleString()} label="Membres au total" color="border-blue-500"/>
-                <StatCard icon={UserCheck} value={(stats?.active || 0).toLocaleString()} label="Membres actifs" color="border-green-500"/>
-                <StatCard icon={UserPlus} value={(stats?.pending || 0).toLocaleString()} label="Demandes en attente" color="border-yellow-500"/>
+                <StatCard 
+                    icon={Users} 
+                    value={(stats?.total || members.length + requests.length).toLocaleString()} 
+                    label="Membres au total" 
+                    color="border-primary-200"
+                />
+                <StatCard 
+                    icon={UserCheck} 
+                    value={(stats?.active || members.length).toLocaleString()} 
+                    label="Membres actifs" 
+                    color="border-emerald-200"
+                />
+                <StatCard 
+                    icon={UserPlus} 
+                    value={(stats?.pending || requests.length).toLocaleString()} 
+                    label="Demandes en attente" 
+                    color="border-amber-200"
+                />
             </div>
 
-            <div>
-                <div className="flex items-center justify-between mb-6 flex-wrap gap-4">
-                    <div className="flex space-x-2 border border-gray-200 dark:border-gray-700 rounded-xl p-1 bg-gray-50 dark:bg-gray-800">
-                        <TabButton active={activeTab === 'members'} icon={Users} label={t('members_page.tab_members')} onClick={() => setActiveTab('members')}/>
-                        <TabButton active={activeTab === 'requests'} icon={UserPlus} label={`${t('members_page.tab_requests')} (${requests?.length || 0})`} onClick={() => setActiveTab('requests')}/>
+            {/* Navigation et contenu */}
+            <div className="bg-white dark:bg-neutral-800 rounded-2xl shadow-soft border border-neutral-200 dark:border-neutral-700 overflow-hidden">
+                {/* Header avec tabs et recherche */}
+                <div className="p-6 border-b border-neutral-200 dark:border-neutral-700">
+                    <div className="flex items-center justify-between flex-wrap gap-4">
+                        <div className="flex space-x-1 bg-neutral-100 dark:bg-neutral-700 rounded-xl p-1">
+                            <TabButton 
+                                active={activeTab === 'members'} 
+                                icon={Users} 
+                                label={`${t('members_page.tab_members')} (${filteredMembers.length})`}
+                                onClick={() => setActiveTab('members')}
+                            />
+                            <TabButton 
+                                active={activeTab === 'requests'} 
+                                icon={UserPlus} 
+                                label={`${t('members_page.tab_requests')} (${filteredRequests.length})`}
+                                onClick={() => setActiveTab('requests')}
+                            />
+                        </div>
+                        
+                        <div className="relative flex-1 max-w-xs">
+                            <input 
+                                type="text" 
+                                placeholder={t("members_page.search_placeholder")} 
+                                className="w-full pl-10 pr-4 py-2.5 bg-white dark:bg-neutral-700 rounded-xl border border-neutral-200 dark:border-neutral-600 focus:border-primary-500 dark:focus:border-primary-400 focus:ring-2 focus:ring-primary-500/20 transition-all duration-200 text-sm" 
+                                value={searchTerm} 
+                                onChange={(e) => setSearchTerm(e.target.value)} 
+                            />
+                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400 w-4 h-4" />
+                        </div>
                     </div>
-                    <div className="relative flex-1 min-w-[250px]"><input type="text" placeholder={t("members_page.search_placeholder")} className="w-full pl-12 pr-4 py-3 bg-white dark:bg-gray-800 rounded-xl border-2 border-gray-200 dark:border-gray-700" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} /><Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" /></div>
                 </div>
-                <AnimatePresence mode="wait"><motion.div key={activeTab} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }}>{activeTab === 'members' ? <MembersList data={filteredMembers} /> : <MembershipRequestsList data={filteredRequests} />}</motion.div></AnimatePresence>
+
+                {/* Contenu */}
+                <div className="p-6">
+                    <AnimatePresence mode="wait">
+                        <motion.div 
+                            key={activeTab} 
+                            initial={{ opacity: 0, y: 20 }} 
+                            animate={{ opacity: 1, y: 0 }} 
+                            exit={{ opacity: 0, y: -20 }}
+                            transition={{ duration: 0.2 }}
+                        >
+                            {activeTab === 'members' ? 
+                                <MembersList data={filteredMembers} /> : 
+                                <MembershipRequestsList data={filteredRequests} />
+                            }
+                        </motion.div>
+                    </AnimatePresence>
+                </div>
             </div>
         </div>
+    );
+}
+
+// Wrapper avec ErrorBoundary
+export default function MembersClient(props) {
+    return (
+        <ErrorBoundary
+            title="Erreur dans la section Membres"
+            subtitle="Une erreur s'est produite lors du chargement de la gestion des membres."
+        >
+            <MembersClientInner {...props} />
+        </ErrorBoundary>
     );
 }

@@ -1,23 +1,66 @@
 // src/components/syndicate-space/section-evenements/EventsFeed.jsx
 "use client";
 
-import { useState } from 'react';
-import { AnimatePresence } from 'framer-motion';
+import { useState, useEffect, useMemo } from 'react';
+import { AnimatePresence, motion } from 'framer-motion';
 import { toast } from 'react-hot-toast';
 import { useTranslations } from "next-intl";
-import { Plus } from 'lucide-react';
+import { Plus, RefreshCw, Calendar, Search } from 'lucide-react';
 import EventCard from './EventCard';
 import ParticipantsModal from './ParticipantsModal';
 import CreateEventModal from './CreateEventModal';
-import { SectionLoader, CardSkeleton } from '../SyndicateSpaceLoader';
+import { CardSkeleton } from '../SyndicateSpaceLoader';
+import { useErrorHandler, useApiWithRetry } from '@/hooks/useErrorHandler';
+import { ErrorState, EmptyState, InlineError } from '../ErrorStates';
+import ErrorBoundary from '../ErrorBoundary';
+import { getEventsAPI } from '@/lib/api/event';
 
-export default function EventsFeed({ initialEvents }) {
+function EventsFeedInner({ initialEvents = [], syndicatId }) {
     const t = useTranslations('common');
-    const [events, setEvents] = useState(initialEvents);
+    const { handleError, clearError, hasError, getError } = useErrorHandler();
+    const { executeWithRetry, loading: apiLoading } = useApiWithRetry();
+    
+    const [events, setEvents] = useState(initialEvents || []);
     const [selectedEventForParticipants, setSelectedEventForParticipants] = useState(null);
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
     const [isLoadingEvents, setIsLoadingEvents] = useState(false);
     const [isCreatingEvent, setIsCreatingEvent] = useState(false);
+    const [searchTerm, setSearchTerm] = useState('');
+    const [lastRefresh, setLastRefresh] = useState(Date.now());
+    
+    const filteredEvents = useMemo(() => 
+        (events || []).filter(event => 
+            event?.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            event?.description?.toLowerCase().includes(searchTerm.toLowerCase())
+        ), [events, searchTerm]);
+
+    // Fonction pour recharger les événements
+    const refreshEvents = async (force = false) => {
+        try {
+            await executeWithRetry(async () => {
+                const eventsData = await getEventsAPI(syndicatId);
+                setEvents(eventsData || []);
+                setLastRefresh(Date.now());
+                clearError('events');
+            }, 'refresh-events', {
+                maxRetries: 2,
+                onSuccess: () => {
+                    if (force) {
+                        toast.success("Événements mis à jour !");
+                    }
+                }
+            });
+        } catch (error) {
+            // L'erreur est déjà gérée par executeWithRetry
+        }
+    };
+
+    // Charger les événements au montage si pas de données initiales
+    useEffect(() => {
+        if ((!initialEvents || initialEvents.length === 0) && syndicatId) {
+            refreshEvents(false);
+        }
+    }, [syndicatId]);
 
     const handleUpdateEvent = (updatedEvent) => {
         setEvents(events.map(e => e.id === updatedEvent.id ? updatedEvent : e));
@@ -27,61 +70,176 @@ export default function EventsFeed({ initialEvents }) {
         setIsCreatingEvent(true);
         
         try {
-            // Simuler un délai d'API
-            await new Promise(resolve => setTimeout(resolve, 1000));
-            
-            const newEvent = {
-                id: Date.now(),
-                ...newEventData,
-                author: { name: "Vous", profileImage: "https://i.pravatar.cc/150?img=1" },
-                isUpcoming: new Date(newEventData.startDate) > new Date(),
-                participants: [{ name: "Vous" }],
-                images: newEventData.image ? [newEventData.image] : [],
-            };
-            
-            setEvents([newEvent, ...events]);
-            setIsCreateModalOpen(false);
-            toast.success(t('event_form.success_toast'));
+            await executeWithRetry(async () => {
+                // Simuler un délai d'API - remplacer par l'API réelle
+                await new Promise(resolve => setTimeout(resolve, 1000));
+                
+                const newEvent = {
+                    id: Date.now(),
+                    ...newEventData,
+                    author: { name: "Vous", profileImage: "https://i.pravatar.cc/150?img=1" },
+                    isUpcoming: new Date(newEventData.startDate) > new Date(),
+                    participants: [{ name: "Vous" }],
+                    images: newEventData.image ? [newEventData.image] : [],
+                };
+                
+                setEvents([newEvent, ...events]);
+                setIsCreateModalOpen(false);
+                clearError('create-event');
+            }, 'create-event', {
+                maxRetries: 2,
+                onSuccess: () => {
+                    toast.success(t('event_form.success_toast'));
+                }
+            });
         } catch (error) {
-            toast.error("Erreur lors de la création de l'événement");
+            // L'erreur est déjà gérée par executeWithRetry
         } finally {
             setIsCreatingEvent(false);
         }
     };
 
-    return (
-        <div>
-            {/* === LE BOUTON EST MAINTENANT ICI === */}
-            <div className="mb-8 flex justify-end">
-                <button 
-                    onClick={() => setIsCreateModalOpen(true)} 
-                    className="px-6 py-3 bg-blue-600 text-white font-semibold rounded-xl shadow-lg hover:bg-blue-700 flex items-center gap-2 transition-transform transform hover:scale-105"
-                >
-                    <Plus size={20} />
-                    {t('events_page.create_button')}
-                </button>
-            </div>
-            {/* === FIN DU BOUTON === */}
+    const EventsList = ({ data }) => {
+        // Gestion des erreurs
+        if (hasError('events')) {
+            return (
+                <ErrorState 
+                    error={getError('events')}
+                    onRetry={() => refreshEvents(true)}
+                    onDismiss={() => clearError('events')}
+                />
+            );
+        }
 
-            {isLoadingEvents ? (
-                <div className="space-y-6">
-                    {Array.from({ length: 3 }).map((_, index) => (
+        // État vide amélioré
+        if (!data || data.length === 0) {
+            return (
+                <EmptyState
+                    icon={Calendar}
+                    title={searchTerm ? "Aucun événement trouvé" : "Aucun événement"}
+                    description={searchTerm ? "Aucun événement ne correspond à votre recherche." : "Aucun événement n'a été créé pour le moment."}
+                    action={!searchTerm && (
+                        <div className="flex gap-3">
+                            <motion.button
+                                whileHover={{ scale: 1.02 }}
+                                whileTap={{ scale: 0.98 }}
+                                onClick={() => setIsCreateModalOpen(true)}
+                                className="px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-xl font-medium transition-all duration-200 flex items-center gap-2"
+                            >
+                                <Plus className="w-4 h-4" />
+                                Créer un événement
+                            </motion.button>
+                            <motion.button
+                                whileHover={{ scale: 1.02 }}
+                                whileTap={{ scale: 0.98 }}
+                                onClick={() => refreshEvents(true)}
+                                className="px-4 py-2 bg-white dark:bg-neutral-800 hover:bg-neutral-50 dark:hover:bg-neutral-700 border border-neutral-200 dark:border-neutral-700 text-neutral-700 dark:text-neutral-300 rounded-xl font-medium transition-all duration-200 flex items-center gap-2"
+                            >
+                                <RefreshCw className="w-4 h-4" />
+                                Actualiser
+                            </motion.button>
+                        </div>
+                    )}
+                    className="bg-white dark:bg-neutral-800 rounded-2xl shadow-soft border border-neutral-200 dark:border-neutral-700 p-12"
+                />
+            );
+        }
+
+        return (
+            <div className="space-y-6">
+                {isLoadingEvents ? (
+                    Array.from({ length: 3 }).map((_, index) => (
                         <CardSkeleton key={`event-skeleton-${index}`} />
-                    ))}
-                </div>
-            ) : (
-                <AnimatePresence>
-                    {events.map((event) => (
-                        <EventCard 
-                            key={event.id} 
-                            event={event} 
-                            onShowParticipants={setSelectedEventForParticipants}
-                            onUpdateEvent={handleUpdateEvent}
-                        />
-                    ))}
-                </AnimatePresence>
-            )}
+                    ))
+                ) : (
+                    <AnimatePresence>
+                        {data.map((event) => (
+                            <EventCard 
+                                key={event.id} 
+                                event={event} 
+                                onShowParticipants={setSelectedEventForParticipants}
+                                onUpdateEvent={handleUpdateEvent}
+                            />
+                        ))}
+                    </AnimatePresence>
+                )}
+            </div>
+        );
+    };
 
+    return (
+        <div className="space-y-8">
+            {/* Header avec actions */}
+            <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }}>
+                <div className="flex items-start justify-between mb-6">
+                    <div>
+                        <h1 className="text-3xl font-bold text-neutral-800 dark:text-white mb-2">
+                            Événements
+                        </h1>
+                        <p className="text-neutral-600 dark:text-neutral-400">
+                            Gérez et participez aux événements du syndicat
+                        </p>
+                    </div>
+                    
+                    <div className="flex gap-3">
+                        <motion.button
+                            whileHover={{ scale: 1.02 }}
+                            whileTap={{ scale: 0.98 }}
+                            onClick={() => refreshEvents(true)}
+                            disabled={apiLoading}
+                            className="px-4 py-2 bg-white dark:bg-neutral-800 hover:bg-neutral-50 dark:hover:bg-neutral-700 border border-neutral-200 dark:border-neutral-700 text-neutral-700 dark:text-neutral-300 rounded-xl font-medium transition-all duration-200 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed shadow-soft"
+                        >
+                            <RefreshCw className={`w-4 h-4 ${apiLoading ? 'animate-spin' : ''}`} />
+                            Actualiser
+                        </motion.button>
+                        
+                        <motion.button 
+                            whileHover={{ scale: 1.02 }}
+                            whileTap={{ scale: 0.98 }}
+                            onClick={() => setIsCreateModalOpen(true)} 
+                            className="px-6 py-2 bg-primary-600 text-white font-medium rounded-xl shadow-soft hover:bg-primary-700 flex items-center gap-2 transition-all duration-200"
+                        >
+                            <Plus className="w-4 h-4" />
+                            {t('events_page.create_button')}
+                        </motion.button>
+                    </div>
+                </div>
+            </motion.div>
+
+            {/* Affichage des erreurs globales */}
+            <AnimatePresence>
+                {hasError('refresh-events') && (
+                    <InlineError 
+                        error={getError('refresh-events')}
+                        className="mb-6"
+                    />
+                )}
+                {hasError('create-event') && (
+                    <InlineError 
+                        error={getError('create-event')}
+                        className="mb-6"
+                    />
+                )}
+            </AnimatePresence>
+
+            {/* Barre de recherche */}
+            <div className="bg-white dark:bg-neutral-800 rounded-2xl shadow-soft border border-neutral-200 dark:border-neutral-700 p-6">
+                <div className="relative max-w-md">
+                    <input 
+                        type="text" 
+                        placeholder="Rechercher des événements..." 
+                        className="w-full pl-10 pr-4 py-2.5 bg-white dark:bg-neutral-700 rounded-xl border border-neutral-200 dark:border-neutral-600 focus:border-primary-500 dark:focus:border-primary-400 focus:ring-2 focus:ring-primary-500/20 transition-all duration-200 text-sm" 
+                        value={searchTerm} 
+                        onChange={(e) => setSearchTerm(e.target.value)} 
+                    />
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400 w-4 h-4" />
+                </div>
+            </div>
+
+            {/* Liste des événements */}
+            <EventsList data={filteredEvents} />
+
+            {/* Modals */}
             <ParticipantsModal 
                 event={selectedEventForParticipants} 
                 onClose={() => setSelectedEventForParticipants(null)} 
@@ -94,5 +252,17 @@ export default function EventsFeed({ initialEvents }) {
                 isLoading={isCreatingEvent}
             />
         </div>
+    );
+}
+
+// Wrapper avec ErrorBoundary
+export default function EventsFeed(props) {
+    return (
+        <ErrorBoundary
+            title="Erreur dans la section Événements"
+            subtitle="Une erreur s'est produite lors du chargement des événements."
+        >
+            <EventsFeedInner {...props} />
+        </ErrorBoundary>
     );
 }

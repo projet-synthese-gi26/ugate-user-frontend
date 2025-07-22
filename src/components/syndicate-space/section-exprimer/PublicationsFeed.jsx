@@ -1,85 +1,249 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { motion } from "framer-motion";
-import Image from 'next/image';
-import { Bookmark, Clock, Flag, Heart, MessageCircle } from "lucide-react";
-import { useTranslations } from "next-intl";
+import { useState, useEffect, useMemo } from 'react';
+import { AnimatePresence, motion } from 'framer-motion';
 import { toast } from 'react-hot-toast';
-import CommentModal from "./CommentModal";
-import timeAgo from "@/lib/utils/timeAgo";
-import { likePostAPI, addCommentAPI } from "@/lib/api/posts";
-import { STATIC_FILES_URL } from '@/lib/constants';
+import { useTranslations } from "next-intl";
+import { Plus, RefreshCw, MessageSquare, Search } from 'lucide-react';
+import Post from './Post';
+import NewPostModal from './NewPostModal';
+import { CardSkeleton } from '../SyndicateSpaceLoader';
+import { useErrorHandler, useApiWithRetry } from '@/hooks/useErrorHandler';
+import { ErrorState, EmptyState, InlineError } from '../ErrorStates';
+import ErrorBoundary from '../ErrorBoundary';
+import { getPostsAPI, createPostAPI } from '@/lib/api/posts';
 
-export default function Post({ post, onUpdatePost, syndicatId }) {
+function PublicationsFeedInner({ initialPosts = [], syndicatId }) {
     const t = useTranslations('express_page');
-    const [liked, setLiked] = useState(false); // A améliorer avec l'état réel de l'utilisateur
-    const [bookmarked, setBookmarked] = useState(false);
-    const [isCommentModalOpen, setIsCommentModalOpen] = useState(false);
-    const [displayTimestamp, setDisplayTimestamp] = useState(() => timeAgo(post.createdAt));
-
-    useEffect(() => {
-        const interval = setInterval(() => setDisplayTimestamp(timeAgo(post.createdAt)), 60000);
-        return () => clearInterval(interval);
-    }, [post.createdAt]);
-
-    const handleLike = async () => {
-        const newLikedState = !liked;
-        setLiked(newLikedState);
-        onUpdatePost({ ...post, likes: post.likes + (newLikedState ? 1 : -1) });
-        try {
-            await likePostAPI(syndicatId, post.postId, newLikedState);
-        } catch (error) {
-            toast.error("L'action a échoué.");
-            setLiked(!newLikedState);
-            onUpdatePost({ ...post, likes: post.likes });
-        }
-    };
-
-    const handleAddComment = async (commentData) => {
-        try {
-            await addCommentAPI(syndicatId, post.postId, commentData.content);
-            // Idéalement, l'API devrait renvoyer le nouveau post mis à jour.
-            // Pour l'instant, on met à jour l'UI de manière optimiste.
-            onUpdatePost({ ...post, comments: [...post.comments, commentData] });
-            toast.success("Commentaire ajouté !");
-        } catch (error) {
-            toast.error("Impossible d'ajouter le commentaire.");
-        }
-    };
+    const { handleError, clearError, hasError, getError } = useErrorHandler();
+    const { executeWithRetry, loading: apiLoading } = useApiWithRetry();
     
-    const imageUrl = post.imageUrl ? `${STATIC_FILES_URL}${post.imageUrl}` : null;
-    const authorAvatarUrl = post.authorAvatarUrl ? `${STATIC_FILES_URL}${post.authorAvatarUrl}` : "https://i.pravatar.cc/150";
+    const [posts, setPosts] = useState(initialPosts || []);
+    const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+    const [isLoadingPosts, setIsLoadingPosts] = useState(false);
+    const [isCreatingPost, setIsCreatingPost] = useState(false);
+    const [searchTerm, setSearchTerm] = useState('');
+    const [lastRefresh, setLastRefresh] = useState(Date.now());
+    
+    const filteredPosts = useMemo(() => 
+        (posts || []).filter(post => 
+            post?.content?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            post?.authorName?.toLowerCase().includes(searchTerm.toLowerCase())
+        ), [posts, searchTerm]);
+
+    // Fonction pour recharger les posts
+    const refreshPosts = async (force = false) => {
+        try {
+            await executeWithRetry(async () => {
+                const postsData = await getPostsAPI(syndicatId);
+                setPosts(postsData || []);
+                setLastRefresh(Date.now());
+                clearError('posts');
+            }, 'refresh-posts', {
+                maxRetries: 2,
+                onSuccess: () => {
+                    if (force) {
+                        toast.success("Publications mises à jour !");
+                    }
+                }
+            });
+        } catch (error) {
+            // L'erreur est déjà gérée par executeWithRetry
+        }
+    };
+
+    // Charger les posts au montage si pas de données initiales
+    useEffect(() => {
+        if ((!initialPosts || initialPosts.length === 0) && syndicatId) {
+            refreshPosts(false);
+        }
+    }, [syndicatId]);
+
+    const handleUpdatePost = (updatedPost) => {
+        setPosts(posts.map(p => p.postId === updatedPost.postId ? updatedPost : p));
+    };
+
+    const handleCreatePost = async (newPostData) => {
+        setIsCreatingPost(true);
+        
+        try {
+            await executeWithRetry(async () => {
+                const newPost = await createPostAPI(syndicatId, newPostData);
+                setPosts([newPost, ...posts]);
+                setIsCreateModalOpen(false);
+                clearError('create-post');
+            }, 'create-post', {
+                maxRetries: 2,
+                onSuccess: () => {
+                    toast.success("Publication créée avec succès !");
+                }
+            });
+        } catch (error) {
+            // L'erreur est déjà gérée par executeWithRetry
+        } finally {
+            setIsCreatingPost(false);
+        }
+    };
+
+    const PostsList = ({ data }) => {
+        // Gestion des erreurs
+        if (hasError('posts')) {
+            return (
+                <ErrorState 
+                    error={getError('posts')}
+                    onRetry={() => refreshPosts(true)}
+                    onDismiss={() => clearError('posts')}
+                />
+            );
+        }
+
+        // État vide amélioré
+        if (!data || data.length === 0) {
+            return (
+                <EmptyState
+                    icon={MessageSquare}
+                    title={searchTerm ? "Aucune publication trouvée" : "Aucune publication"}
+                    description={searchTerm ? "Aucune publication ne correspond à votre recherche." : "Aucune publication n'a été créée pour le moment."}
+                    action={!searchTerm && (
+                        <div className="flex gap-3">
+                            <motion.button
+                                whileHover={{ scale: 1.02 }}
+                                whileTap={{ scale: 0.98 }}
+                                onClick={() => setIsCreateModalOpen(true)}
+                                className="px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-xl font-medium transition-all duration-200 flex items-center gap-2"
+                            >
+                                <Plus className="w-4 h-4" />
+                                Créer une publication
+                            </motion.button>
+                            <motion.button
+                                whileHover={{ scale: 1.02 }}
+                                whileTap={{ scale: 0.98 }}
+                                onClick={() => refreshPosts(true)}
+                                className="px-4 py-2 bg-white dark:bg-neutral-800 hover:bg-neutral-50 dark:hover:bg-neutral-700 border border-neutral-200 dark:border-neutral-700 text-neutral-700 dark:text-neutral-300 rounded-xl font-medium transition-all duration-200 flex items-center gap-2"
+                            >
+                                <RefreshCw className="w-4 h-4" />
+                                Actualiser
+                            </motion.button>
+                        </div>
+                    )}
+                    className="bg-white dark:bg-neutral-800 rounded-2xl shadow-soft border border-neutral-200 dark:border-neutral-700 p-12"
+                />
+            );
+        }
+
+        return (
+            <div className="space-y-6">
+                {isLoadingPosts ? (
+                    Array.from({ length: 3 }).map((_, index) => (
+                        <CardSkeleton key={`post-skeleton-${index}`} />
+                    ))
+                ) : (
+                    <AnimatePresence>
+                        {data.map((post) => (
+                            <Post 
+                                key={post.postId} 
+                                post={post} 
+                                onUpdatePost={handleUpdatePost}
+                                syndicatId={syndicatId}
+                            />
+                        ))}
+                    </AnimatePresence>
+                )}
+            </div>
+        );
+    };
 
     return (
-        <>
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="bg-white dark:bg-gray-800/50 rounded-2xl shadow-xl overflow-hidden mb-8 hover:shadow-2xl dark:shadow-black/20">
-                <div className="p-6">
-                    <div className="flex items-center mb-6">
-                        <Image src={authorAvatarUrl} alt={post.authorName} width={48} height={48} className="w-12 h-12 rounded-full object-cover ring-4 ring-blue-100 dark:ring-blue-900/50" />
-                        <div className="ml-4 flex-grow">
-                            <h3 className="font-bold text-lg text-gray-800 dark:text-gray-100">{post.authorName}</h3>
-                            <div className="flex items-center text-sm text-gray-500 dark:text-gray-400">
-                                <Clock className="w-4 h-4 mr-1.5 text-blue-500" />
-                                <span>{displayTimestamp}</span>
-                            </div>
-                        </div>
-                        <motion.button onClick={() => setBookmarked(!bookmarked)} className={`p-2 rounded-full transition-colors ${bookmarked ? 'text-blue-500 bg-blue-100 dark:bg-blue-900' : 'text-gray-400 hover:bg-blue-50'}`}><Bookmark fill={bookmarked ? "currentColor" : "none"} /></motion.button>
+        <div className="space-y-8">
+            {/* Header avec actions */}
+            <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }}>
+                <div className="flex items-start justify-between mb-6">
+                    <div>
+                        <h1 className="text-3xl font-bold text-neutral-800 dark:text-white mb-2">
+                            Publications
+                        </h1>
+                        <p className="text-neutral-600 dark:text-neutral-400">
+                            Partagez vos idées et exprimez-vous dans la communauté
+                        </p>
                     </div>
-                    <p className="text-gray-700 dark:text-gray-300 leading-relaxed mb-6 whitespace-pre-wrap">{post.content}</p>
-                    {imageUrl && <div className="rounded-xl overflow-hidden mb-6 shadow-lg"><Image src={imageUrl} alt="Contenu" width={800} height={600} className="w-full h-auto object-cover" /></div>}
-                    <div className="flex items-center justify-between text-sm text-gray-500 dark:text-gray-400 mb-4">
-                        <span>{post.likes} {t('common.like', {count: post.likes})}</span>
-                        <span>{post.comments.length} {t('common.comment', {count: post.comments.length})}</span>
-                    </div>
-                    <div className="flex items-center justify-around border-t border-gray-100 dark:border-gray-700 pt-4">
-                        <button onClick={handleLike} className={`flex items-center px-4 py-2 rounded-xl w-full justify-center ${liked ? 'bg-blue-500 text-white' : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100'}`}><Heart className="w-5 h-5 mr-2" fill={liked ? "currentColor" : "none"} />{t('common.like')}</button>
-                        <button onClick={() => setIsCommentModalOpen(true)} className="flex items-center px-4 py-2 rounded-xl w-full justify-center text-gray-600 dark:text-gray-300 hover:bg-gray-100"><MessageCircle className="w-5 h-5 mr-2" />{t('common.comment')}</button>
-                        <button className="flex items-center px-4 py-2 rounded-xl w-full justify-center text-gray-600 dark:text-gray-300 hover:bg-gray-100"><Flag className="w-5 h-5 mr-2" />{t('common.report')}</button>
+                    
+                    <div className="flex gap-3">
+                        <motion.button
+                            whileHover={{ scale: 1.02 }}
+                            whileTap={{ scale: 0.98 }}
+                            onClick={() => refreshPosts(true)}
+                            disabled={apiLoading}
+                            className="px-4 py-2 bg-white dark:bg-neutral-800 hover:bg-neutral-50 dark:hover:bg-neutral-700 border border-neutral-200 dark:border-neutral-700 text-neutral-700 dark:text-neutral-300 rounded-xl font-medium transition-all duration-200 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed shadow-soft"
+                        >
+                            <RefreshCw className={`w-4 h-4 ${apiLoading ? 'animate-spin' : ''}`} />
+                            Actualiser
+                        </motion.button>
+                        
+                        <motion.button 
+                            whileHover={{ scale: 1.02 }}
+                            whileTap={{ scale: 0.98 }}
+                            onClick={() => setIsCreateModalOpen(true)} 
+                            className="px-6 py-2 bg-primary-600 text-white font-medium rounded-xl shadow-soft hover:bg-primary-700 flex items-center gap-2 transition-all duration-200"
+                        >
+                            <Plus className="w-4 h-4" />
+                            Nouvelle publication
+                        </motion.button>
                     </div>
                 </div>
             </motion.div>
-            <CommentModal post={post} isOpen={isCommentModalOpen} onClose={() => setIsCommentModalOpen(false)} onAddComment={handleAddComment} />
-        </>
+
+            {/* Affichage des erreurs globales */}
+            <AnimatePresence>
+                {hasError('refresh-posts') && (
+                    <InlineError 
+                        error={getError('refresh-posts')}
+                        className="mb-6"
+                    />
+                )}
+                {hasError('create-post') && (
+                    <InlineError 
+                        error={getError('create-post')}
+                        className="mb-6"
+                    />
+                )}
+            </AnimatePresence>
+
+            {/* Barre de recherche */}
+            <div className="bg-white dark:bg-neutral-800 rounded-2xl shadow-soft border border-neutral-200 dark:border-neutral-700 p-6">
+                <div className="relative max-w-md">
+                    <input 
+                        type="text" 
+                        placeholder="Rechercher des publications..." 
+                        className="w-full pl-10 pr-4 py-2.5 bg-white dark:bg-neutral-700 rounded-xl border border-neutral-200 dark:border-neutral-600 focus:border-primary-500 dark:focus:border-primary-400 focus:ring-2 focus:ring-primary-500/20 transition-all duration-200 text-sm" 
+                        value={searchTerm} 
+                        onChange={(e) => setSearchTerm(e.target.value)} 
+                    />
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400 w-4 h-4" />
+                </div>
+            </div>
+
+            {/* Liste des publications */}
+            <PostsList data={filteredPosts} />
+
+            {/* Modal de création */}
+            <NewPostModal 
+                isOpen={isCreateModalOpen}
+                onClose={() => setIsCreateModalOpen(false)}
+                onCreatePost={handleCreatePost}
+                isLoading={isCreatingPost}
+            />
+        </div>
+    );
+}
+
+// Wrapper avec ErrorBoundary
+export default function PublicationsFeed(props) {
+    return (
+        <ErrorBoundary
+            title="Erreur dans la section Publications"
+            subtitle="Une erreur s'est produite lors du chargement des publications."
+        >
+            <PublicationsFeedInner {...props} />
+        </ErrorBoundary>
     );
 }
