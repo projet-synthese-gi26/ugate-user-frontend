@@ -8,44 +8,9 @@ import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useState, useEffect } from 'react';
 
-export default function SyndicateHeader({ syndicateData, onSidebarToggle, onNotificationToggle }) {
+export default function SyndicateHeader({ syndicateData, onSidebarToggle, onNotificationToggle, isCollapsed = false }) {
     const t = useTranslations();
-    const [isHeaderCollapsed, setIsHeaderCollapsed] = useState(false);
-    const [lastScrollY, setLastScrollY] = useState(0);
-    
     const bannerUrl = syndicateData.bannerUrl ? `${STATIC_FILES_URL}${syndicateData.bannerUrl}` : null;
-
-    useEffect(() => {
-        const handleScroll = () => {
-            const currentScrollY = window.scrollY;
-            
-            // Se rétracte si on scrolle vers le bas et qu'on a scrollé au moins 100px
-            if (currentScrollY > lastScrollY && currentScrollY > 100) {
-                setIsHeaderCollapsed(true);
-            } 
-            // Se déplie si on scrolle vers le haut ou si on est en haut de page
-            else if (currentScrollY < lastScrollY || currentScrollY < 50) {
-                setIsHeaderCollapsed(false);
-            }
-            
-            setLastScrollY(currentScrollY);
-        };
-
-        // Ajouter l'écouteur avec throttling pour les performances
-        let ticking = false;
-        const scrollListener = () => {
-            if (!ticking) {
-                requestAnimationFrame(() => {
-                    handleScroll();
-                    ticking = false;
-                });
-                ticking = true;
-            }
-        };
-
-        window.addEventListener('scroll', scrollListener);
-        return () => window.removeEventListener('scroll', scrollListener);
-    }, [lastScrollY]);
 
     return (
         <>
@@ -54,13 +19,13 @@ export default function SyndicateHeader({ syndicateData, onSidebarToggle, onNoti
                 className="sticky top-0 z-50 bg-white shadow-lg"
                 initial={false}
                 animate={{
-                    height: isHeaderCollapsed ? '60px' : 'auto'
+                    height: isCollapsed ? '60px' : 'auto'
                 }}
                 transition={{ duration: 0.3, ease: 'easeInOut' }}
             >
                 {/* Bannière Header - Se cache quand rétracted */}
                 <AnimatePresence>
-                    {!isHeaderCollapsed && (
+                    {!isCollapsed && (
                         <motion.div 
                             className="relative h-48 bg-gradient-to-r from-blue-600 to-blue-700 overflow-hidden"
                             initial={{ height: 192, opacity: 1 }}
@@ -142,14 +107,14 @@ export default function SyndicateHeader({ syndicateData, onSidebarToggle, onNoti
                 <motion.div 
                     className="bg-white border-b border-gray-200 px-6 flex items-center justify-between"
                     animate={{
-                        height: isHeaderCollapsed ? '60px' : '48px',
-                        paddingTop: isHeaderCollapsed ? '12px' : '0px',
-                        paddingBottom: isHeaderCollapsed ? '12px' : '0px'
+                        height: isCollapsed ? '60px' : '48px',
+                        paddingTop: isCollapsed ? '12px' : '0px',
+                        paddingBottom: isCollapsed ? '12px' : '0px'
                     }}
                     transition={{ duration: 0.3 }}
                 >
                     <div className="flex items-center space-x-4">
-                        {isHeaderCollapsed && (
+                        {isCollapsed && (
                             <motion.button 
                                 onClick={onSidebarToggle} 
                                 className="text-blue-700 lg:hidden p-2 rounded-xl hover:bg-blue-50 transition-all duration-200"
@@ -166,7 +131,7 @@ export default function SyndicateHeader({ syndicateData, onSidebarToggle, onNoti
                             <span className="text-sm font-semibold text-blue-700">
                                 {t('syndicate_space.member_space')}
                             </span>
-                            {isHeaderCollapsed && (
+                            {isCollapsed && (
                                 <motion.span 
                                     className="text-sm text-gray-500 ml-2"
                                     initial={{ opacity: 0, x: -10 }}
@@ -179,7 +144,7 @@ export default function SyndicateHeader({ syndicateData, onSidebarToggle, onNoti
                         </div>
                     </div>
                     
-                    {isHeaderCollapsed && (
+                    {isCollapsed && (
                         <motion.div 
                             className="flex items-center space-x-2"
                             initial={{ opacity: 0, scale: 0.8 }}

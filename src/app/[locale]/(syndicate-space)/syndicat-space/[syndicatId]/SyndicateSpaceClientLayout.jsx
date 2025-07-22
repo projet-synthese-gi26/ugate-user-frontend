@@ -20,6 +20,7 @@ export default function SyndicateSpaceClientLayout({ children, syndicateData: in
     const [isMounted, setIsMounted] = useState(false);
     const [isPageLoading, setIsPageLoading] = useState(false);
     const [previousPath, setPreviousPath] = useState(null);
+    const [isHeaderCollapsed, setIsHeaderCollapsed] = useState(false);
 
     useEffect(() => {
         setIsMounted(true);
@@ -70,8 +71,18 @@ export default function SyndicateSpaceClientLayout({ children, syndicateData: in
                     syndicateData={initialSyndicateData}
                     onSidebarToggle={handleToggleSidebar}
                     onNotificationToggle={handleToggleNotifications}
+                    isCollapsed={isHeaderCollapsed}
                 />
-                <main className="flex-1 bg-gray-50 dark:bg-neutral-800/50 transition-colors duration-300">
+                <main 
+                    className="flex-1 bg-gray-50 dark:bg-neutral-800/50 transition-colors duration-300 overflow-y-auto"
+                    onScroll={(e) => {
+                        const scrollTop = e.target.scrollTop;
+                        const shouldCollapse = scrollTop > 100;
+                        if (shouldCollapse !== isHeaderCollapsed) {
+                            setIsHeaderCollapsed(shouldCollapse);
+                        }
+                    }}
+                >
                     <div className="p-4 sm:p-6 lg:p-8">
                         <AnimatePresence mode="wait">
                             {isPageLoading ? (
