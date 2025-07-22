@@ -1,11 +1,12 @@
 "use client";
 
+import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Link, usePathname, useRouter } from '@/navigation';
 import { useTranslations } from 'next-intl';
 import { 
     Users, Calendar, MessageCircle, Vote,
-    Home, ChevronLeft, ChevronRight, MessageSquare 
+    Home, ChevronLeft, ChevronRight, MessageSquare, Loader2 
 } from 'lucide-react';
 import { SyndicatDefaultAvatar } from '@/components/shared/SyndicatDefaultAvatar.jsx';
 import { useParams } from 'next/navigation';
@@ -19,9 +20,22 @@ export default function SyndicateSidebar({ isCollapsed, onToggle, syndicateData 
     const params = useParams();
     const { syndicatId } = params;
 
+    const [isNavigating, setIsNavigating] = useState(false);
+    const [activeRoute, setActiveRoute] = useState(null);
+
     const handleNavigation = (route) => {
         const path = `/syndicat-space/${syndicatId}${route ? `/${route}` : ''}`;
-        router.push(path);
+        
+        // Ne pas naviguer si on est déjà sur cette route
+        if (pathname === path) return;
+        
+        setIsNavigating(true);
+        setActiveRoute(route);
+        
+        // Simuler un délai minimum pour le loading
+        setTimeout(() => {
+            router.push(path);
+        }, 300);
     };
 
     if (!syndicateData) {
