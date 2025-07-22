@@ -15,12 +15,12 @@ const Input = React.forwardRef(({ icon: Icon, error, ...props }, ref) => (
             <input
                 {...props}
                 ref={ref}
-                className={`w-full px-4 py-3 text-gray-700 bg-white border rounded-lg focus:border-blue-400 focus:outline-none focus:ring focus:ring-blue-300 focus:ring-opacity-40 pl-12 transition-colors ${
+                className={`w-full px-4 py-3 text-gray-700 bg-white border rounded-lg focus:border-blue-800 focus:outline-none focus:ring focus:ring-blue-700 focus:ring-opacity-40 pl-12 transition-colors ${
                     error ? 'border-red-500' : 'border-gray-300'
                 }`}
             />
             <Icon className={`absolute left-3 top-1/2 transform -translate-y-1/2 ${
-                error ? 'text-red-500' : 'text-blue-400'
+                error ? 'text-red-500' : 'text-blue-800'
             }`} size={20} />
         </div>
         {error && (
@@ -39,7 +39,7 @@ const Button = ({ children, ...props }) => (
     <motion.button
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
-        className="w-full px-6 py-3 text-white bg-blue-500 rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 disabled:bg-blue-300 disabled:cursor-not-allowed transition-all duration-200"
+        className="w-full px-6 py-3 text-white bg-blue-900 rounded-lg hover:bg-blue-950 focus:outline-none focus:ring-2 focus:ring-blue-900 focus:ring-opacity-50 disabled:bg-blue-700 disabled:cursor-not-allowed transition-all duration-200"
         {...props}
     >
         {children}
@@ -51,6 +51,7 @@ export default function LoginForm() {
     const [isLoading, setIsLoading] = useState(false);
     const router = useRouter();
     const t = useTranslations('login_page');
+    const tErrors = useTranslations('errors');
 
     // Gestionnaire de soumission du formulaire
     const onSubmit = async (data) => {
@@ -78,7 +79,7 @@ export default function LoginForm() {
                     // Si le backend renvoie un DTO d'erreur avec un message spécifique
                     errorMessage = error.response.data.message;
                 }
-            } else if (error.message === "Token expiré" || error.message === "Token invalide") {
+            } else if (error.message === tErrors('token_expired') || error.message === tErrors('token_invalid')) {
                 // Erreur de token détectée côté client par l'intercepteur de requête
                 errorMessage = t('token_invalid_expired');
             }
@@ -126,7 +127,7 @@ export default function LoginForm() {
                     <input
                         type="checkbox"
                         id="remember"
-                        className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                        className="h-4 w-4 text-blue-900 focus:ring-blue-900 border-gray-300 rounded"
                         {...register("remember")}
                     />
                     <label htmlFor="remember" className="ml-2 block text-sm text-gray-900">
@@ -135,8 +136,8 @@ export default function LoginForm() {
                 </div>
                 {/* Lien "Mot de passe oublié ?" */}
                 <div className="text-sm">
-                    <Link href="/forgot-password" className="font-medium text-blue-600 hover:underline">
-                        {t("forgot_password")} ?
+                    <Link href="/forgot-password" className="font-medium text-blue-900 hover:underline">
+                        {t("forgot_password")}
                     </Link>
                 </div>
             </div>

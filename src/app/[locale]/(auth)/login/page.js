@@ -37,7 +37,7 @@ export default async function LoginPage({ params }) {
                     <div className="mt-8 text-center">
                         <p className="text-gray-600">
                             {t("login_page.no_account")}{' '}
-                            <Link href="/register" className="text-blue-500 hover:underline">
+                            <Link href="/register" className="text-blue-900 hover:underline">
                                 {t("login_page.register_here")}
                             </Link>
                         </p>

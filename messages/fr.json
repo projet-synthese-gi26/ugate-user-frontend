@@ -1,4 +1,5 @@
 {
+  "app_name": "SyndicManager",
   "gérerSyndicats": "Gérez vos syndicats, simplement.",
   "syndicmanager_description": "La plateforme centralisée pour une gestion efficace et transparente de vos activités syndicales.",
   "commencer_maintenant": "Commencer maintenant",
@@ -36,7 +37,9 @@
     "required_field": "Ce champ est obligatoire.",
     "invalid_email": "Le format de l'email est invalide.",
     "min_length": "Ce champ doit contenir au moins {count} caractères.",
-    "field_cant_be_empty": "Le champ ne peut pas être vide."
+    "field_cant_be_empty": "Le champ ne peut pas être vide.",
+    "token_expired": "Token expiré",
+    "token_invalid": "Token invalide"
   },
   "login_page": {
     "title": "Connexion à votre compte",
@@ -54,7 +57,7 @@
     "email_invalid": "Le format de l'e-mail est incorrect.",
     "password_required": "Le mot de passe est obligatoire.",
     "remember_me": "Se souvenir de moi",
-    "forgot_password": "Mot de passe oublié",
+    "forgot_password": "Mot de passe oublié ?",
     "login_button": "Se connecter",
     "login_button_loading": "Connexion...",
     "success_title": "Connexion réussie !",

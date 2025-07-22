@@ -1,4 +1,5 @@
 {
+  "app_name": "SyndicManager",
   "gérerSyndicats": "Verwalten Sie Ihre Gewerkschaften, einfach.",
   "syndicmanager_description": "Die zentrale Plattform für eine effiziente und transparente Verwaltung Ihrer Gewerkschaftsaktivitäten.",
   "commencer_maintenant": "Jetzt loslegen",
@@ -35,7 +36,9 @@
     "required_field": "Dieses Feld ist erforderlich.",
     "invalid_email": "Ungültiges E-Mail-Format.",
     "min_length": "Dieses Feld muss mindestens {count} Zeichen enthalten.",
-    "field_cant_be_empty": "Feld kann nicht leer sein."
+    "field_cant_be_empty": "Feld kann nicht leer sein.",
+    "token_expired": "Token abgelaufen",
+    "token_invalid": "Ungültiger Token"
   },
   "login_page": {
     "title": "Bei Ihrem Konto anmelden",
@@ -53,7 +56,7 @@
     "email_invalid": "Ungültiges E-Mail-Format.",
     "password_required": "Passwort ist erforderlich.",
     "remember_me": "Angemeldet bleiben",
-    "forgot_password": "Passwort vergessen",
+    "forgot_password": "Passwort vergessen?",
     "login_button": "Anmelden",
     "login_button_loading": "Anmelden...",
     "success_title": "Anmeldung erfolgreich!",

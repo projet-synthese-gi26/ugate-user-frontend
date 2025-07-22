@@ -1,4 +1,5 @@
 {
+  "app_name": "SyndicManager",
   "gérerSyndicats": "Manage your unions, simply.",
   "syndicmanager_description": "The centralized platform for efficient and transparent management of your union activities.",
   "commencer_maintenant": "Get started now",
@@ -35,7 +36,9 @@
     "required_field": "This field is required.",
     "invalid_email": "Invalid email format.",
     "min_length": "This field must contain at least {count} characters.",
-    "field_cant_be_empty": "Field cannot be empty."
+    "field_cant_be_empty": "Field cannot be empty.",
+    "token_expired": "Token expired",
+    "token_invalid": "Invalid token"
   },
   "login_page": {
     "title": "Sign in to your account",
@@ -53,7 +56,7 @@
     "email_invalid": "Invalid email format.",
     "password_required": "Password is required.",
     "remember_me": "Remember me",
-    "forgot_password": "Forgot password",
+    "forgot_password": "Forgot password?",
     "login_button": "Sign in",
     "login_button_loading": "Signing in...",
     "success_title": "Login successful!",

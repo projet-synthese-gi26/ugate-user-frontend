@@ -36,7 +36,7 @@ export default async function RegisterPage({ params }) {
                     <div className="mt-8 text-center">
                         <p className="text-gray-600">
                             {t("register_page.already_registered")}{' '}
-                            <Link href="/login" className="text-blue-500 hover:underline">
+                            <Link href="/login" className="text-blue-900 hover:underline">
                                 {t("register_page.login_here")}
                             </Link>
                         </p>

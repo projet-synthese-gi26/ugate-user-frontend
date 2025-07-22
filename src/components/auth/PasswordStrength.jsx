@@ -17,7 +17,7 @@ export default function PasswordStrengthIndicator({ password = '' }) {
     const getColor = () => {
         if (strength <= 1) return 'bg-red-500';
         if (strength === 2) return 'bg-yellow-500';
-        if (strength === 3) return 'bg-blue-500';
+        if (strength === 3) return 'bg-blue-900';
         return 'bg-green-500';
     };
 

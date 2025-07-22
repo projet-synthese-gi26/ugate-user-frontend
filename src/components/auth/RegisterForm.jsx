@@ -26,12 +26,12 @@ const Input = React.forwardRef(({ icon: Icon, error, ...props }, ref) => (
             <input
                 {...props}
                 ref={ref}
-                className={`w-full px-4 py-3 text-gray-700 bg-white border rounded-lg focus:border-blue-400 focus:outline-none focus:ring focus:ring-blue-300 focus:ring-opacity-40 pl-12 transition-colors ${
+                className={`w-full px-4 py-3 text-gray-700 bg-white border rounded-lg focus:border-blue-800 focus:outline-none focus:ring focus:ring-blue-700 focus:ring-opacity-40 pl-12 transition-colors ${
                     error ? 'border-red-500' : 'border-gray-300'
                 }`}
             />
             <Icon className={`absolute left-3 top-1/2 transform -translate-y-1/2 ${
-                error ? 'text-red-500' : 'text-blue-400'
+                error ? 'text-red-500' : 'text-blue-800'
             }`} size={20} />
         </div>
         {error && <Alert>{error.message}</Alert>}
@@ -44,7 +44,7 @@ const Button = ({ children, ...props }) => (
     <motion.button
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
-        className="w-full px-6 py-3 rounded-lg text-white bg-blue-500 hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 transition-all duration-200 disabled:bg-blue-300 disabled:cursor-not-allowed"
+        className="w-full px-6 py-3 rounded-lg text-white bg-blue-900 hover:bg-blue-950 focus:outline-none focus:ring-2 focus:ring-blue-900 focus:ring-opacity-50 transition-all duration-200 disabled:bg-blue-700 disabled:cursor-not-allowed"
         {...props}
     >
         {children}
@@ -196,7 +196,7 @@ export default function RegisterForm() {
             <div className="mt-8 text-center">
                 <p className="text-gray-600">
                     {t("already_registered")}{' '}
-                    <Link href="/login" className="text-blue-500 hover:underline">
+                    <Link href="/login" className="text-blue-900 hover:underline">
                         {t("login_here")}
                     </Link>
                 </p>
