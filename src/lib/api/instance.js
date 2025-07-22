@@ -17,7 +17,7 @@ const getCurrentLocale = () => {
 
 const axiosInstance = axios.create({
     baseURL: 'http://167.235.62.116:7014/api',
-    timeout: 10000,
+    timeout: 30000,
     headers: {
         'Content-Type': 'application/json',
     },

@@ -13,6 +13,11 @@ async function getSyndicateData(syndicateId) {
         if (error.response && error.response.status === 404) {
             notFound();
         }
+        // Pour les erreurs de timeout ou autres, on retourne null au lieu de crasher
+        if (error.code === 'ECONNABORTED' || error.message.includes('timeout')) {
+            console.warn(`Timeout loading syndicate ${syndicateId}, will show error page`);
+            return null;
+        }
         throw new Error("Impossible de charger les données du syndicat.");
     }
 }
