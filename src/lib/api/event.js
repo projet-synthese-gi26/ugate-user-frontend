@@ -32,9 +32,36 @@ export const getEventsAPI = async (syndicateId, page = 0, size = 20, sortBy = 's
     }
 };
 
-export const createEventAPI = async (syndicateId, formData) => {
-    const response = await axios.post(`/syndicates/${syndicateId}/events`, formData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-    });
-    return response.data;
+export const createEventAPI = async (syndicateId, eventData, imageFile = null) => {
+    try {
+        const formData = new FormData();
+        
+        // Préparer les données de l'événement
+        const requestData = {
+            title: eventData.title,
+            description: eventData.description,
+            location: eventData.location,
+            startDate: new Date(eventData.startDate).toISOString(),
+            endDate: new Date(eventData.endDate).toISOString()
+        };
+        
+        // Ajouter les données JSON
+        formData.append('eventData', new Blob([JSON.stringify(requestData)], {
+            type: 'application/json'
+        }));
+        
+        // Ajouter l'image si elle existe
+        if (imageFile) {
+            formData.append('imageFile', imageFile);
+        }
+        
+        const response = await axios.post(`/syndicates/${syndicateId}/events`, formData, {
+            headers: { 'Content-Type': 'multipart/form-data' },
+        });
+        
+        return response.data;
+    } catch (error) {
+        console.error('Erreur lors de la création de l\'événement:', error);
+        throw error;
+    }
 };

@@ -34,12 +34,21 @@ function EventsFeedInner({ initialEvents = [], syndicatId }) {
             event?.description?.toLowerCase().includes(searchTerm.toLowerCase())
         ), [events, searchTerm]);
 
-    // Fonction pour recharger les événements
-    const refreshEvents = async (force = false) => {
+    // Fonction pour recharger les événements avec pagination correcte
+    const refreshEvents = async (force = false, page = 0, size = 20) => {
         try {
             await executeWithRetry(async () => {
-                const eventsData = await getEventsAPI(syndicatId);
-                setEvents(eventsData || []);
+                const eventsData = await getEventsAPI(syndicatId, page, size, 'startDate', 'DESC');
+                
+                // Gérer la structure de réponse paginée
+                if (eventsData && eventsData.content) {
+                    setEvents(eventsData.content);
+                } else if (Array.isArray(eventsData)) {
+                    setEvents(eventsData);
+                } else {
+                    setEvents([]);
+                }
+                
                 setLastRefresh(Date.now());
                 clearError('events');
             }, 'refresh-events', {
@@ -71,25 +80,18 @@ function EventsFeedInner({ initialEvents = [], syndicatId }) {
         
         try {
             await executeWithRetry(async () => {
-                // Simuler un délai d'API - remplacer par l'API réelle
-                await new Promise(resolve => setTimeout(resolve, 1000));
+                // Appel de l'API réelle de création d'événement
+                const { createEventAPI } = await import('@/lib/api/event');
+                const createdEvent = await createEventAPI(syndicatId, newEventData, newEventData.imageFile);
                 
-                const newEvent = {
-                    id: Date.now(),
-                    ...newEventData,
-                    author: { name: "Vous", profileImage: "https://i.pravatar.cc/150?img=1" },
-                    isUpcoming: new Date(newEventData.startDate) > new Date(),
-                    participants: [{ name: "Vous" }],
-                    images: newEventData.image ? [newEventData.image] : [],
-                };
-                
-                setEvents([newEvent, ...events]);
+                // Ajouter l'événement créé à la liste
+                setEvents(prevEvents => [createdEvent, ...prevEvents]);
                 setIsCreateModalOpen(false);
                 clearError('create-event');
             }, 'create-event', {
                 maxRetries: 2,
                 onSuccess: () => {
-                    toast.success(t('event_form.success_toast'));
+                    toast.success(t('event_form.success_toast') || 'Événement créé avec succès !');
                 }
             });
         } catch (error) {
