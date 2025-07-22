@@ -43,28 +43,28 @@ export default function SyndicateProfileClient({ syndicate }) {
             <ProfileHeader syndicate={syndicate} variants={itemVariants} />
             <div className="relative grid grid-cols-1 lg:grid-cols-3 gap-8 pt-28">
                 <div className="lg:col-span-2 space-y-8">
-                    <ProfileSectionCard title={t('profile_page.mission_title')} icon={HeartHandshake} variants={itemVariants}>
+                    <ProfileSectionCard title={t('mission_title')} icon={HeartHandshake} variants={itemVariants}>
                         <p className="text-gray-600 dark:text-gray-400 leading-relaxed">
-                            {syndicate.description || t('profile_page.no_description')}
+                            {syndicate.description || t('no_description')}
                         </p>
                     </ProfileSectionCard>
-                    <ProfileSectionCard title={t('profile_page.activities_title')} icon={Calendar} variants={itemVariants}>
+                    <ProfileSectionCard title={t('activities_title')} icon={Calendar} variants={itemVariants}>
                         <ProfileActivities activities={fakeData.activities} />
                     </ProfileSectionCard>
-                    <ProfileSectionCard title={t('profile_page.shop_title')} icon={ShoppingBag} variants={itemVariants}>
+                    <ProfileSectionCard title={t('shop_title')} icon={ShoppingBag} variants={itemVariants}>
                         <ProfileShop products={fakeData.products} />
                     </ProfileSectionCard>
                 </div>
                 <div className="lg:col-span-1 space-y-8">
                     <ProfileKeyInfoCard syndicate={syndicate} variants={itemVariants} />
                     <ProfileContactCard syndicate={syndicate} variants={itemVariants} />
-                    <ProfileSectionCard title={t('profile_page.locations_title')} icon={MapPin} variants={itemVariants}>
+                    <ProfileSectionCard title={t('locations_title')} icon={MapPin} variants={itemVariants}>
                         <DynamicProfileMap antennes={syndicate.branches} />
                     </ProfileSectionCard>
-                    <ProfileSectionCard title={t('profile_page.services_title')} icon={Package} variants={itemVariants}>
+                    <ProfileSectionCard title={t('services_title')} icon={Package} variants={itemVariants}>
                         <ProfileServices services={fakeData.services} />
                     </ProfileSectionCard>
-                    <ProfileSectionCard title={t('profile_page.team_title')} icon={Users} variants={itemVariants}>
+                    <ProfileSectionCard title={t('team_title')} icon={Users} variants={itemVariants}>
                         <ProfileMembers members={syndicate.members} />
                     </ProfileSectionCard>
                 </div>

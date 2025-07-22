@@ -25,7 +25,7 @@ export default function ProfileContactCard({ syndicate, variants }) {
             variants={variants}
         >
             <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-4">
-                {t('profile_page.contact_title')}
+                {t('contact_title')}
             </h3>
             <div className="space-y-4">
                 {syndicate.email && (

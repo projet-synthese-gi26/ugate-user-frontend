@@ -23,7 +23,7 @@ export default function ProfileShop({ products = [] }) {
     if (!products || products.length === 0) {
         return (
             <p className="text-sm text-center text-gray-500 dark:text-gray-400 py-8">
-                {t('profile_page.no_products')}
+                {t('no_products')}
             </p>
         );
     }
@@ -78,7 +78,7 @@ export default function ProfileShop({ products = [] }) {
                                 onClick={() => handleOrderClick(product.name)}
                             >
                                 <ShoppingCart size={14} />
-                                <span>{t('profile_page.order_button')}</span>
+                                <span>{t('order_button')}</span>
                             </motion.button>
                         </div>
                     </div>

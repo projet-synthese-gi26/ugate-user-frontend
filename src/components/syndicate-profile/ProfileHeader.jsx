@@ -21,7 +21,7 @@ export default function ProfileHeader({ syndicate, variants }) {
                 </div>
                 <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.98 }} className="flex-shrink-0 px-4 py-2 sm:px-5 sm:py-2.5 bg-blue-600 text-white rounded-full shadow-lg flex items-center gap-2 font-semibold text-sm sm:text-base">
                     <LogIn size={18} />
-                    <span>{t('profile_page.join_button')}</span>
+                    <span>{t('join_button')}</span>
                 </motion.button>
             </div>
         </motion.div>

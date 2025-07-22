@@ -259,6 +259,24 @@
     "services_title": "Angebotene Dienstleistungen",
     "team_title": "Das Führungsteam"
   },
+  "profile_page": {
+    "back_to_explorer": "Zurück zur Erkundung",
+    "join_button": "Beitreten",
+    "key_info_title": "Wichtige Informationen",
+    "members": "Mitglieder",
+    "founded": "Gegründet in",
+    "type": "Typ",
+    "contact_title": "Kontakt",
+    "mission_title": "Unsere Mission",
+    "no_description": "Diese Gewerkschaft hat noch keine Beschreibung bereitgestellt.",
+    "activities_title": "Aktuelle Aktivitäten",
+    "shop_title": "Shop",
+    "no_products": "Derzeit sind keine Produkte verfügbar.",
+    "order_button": "Bestellen",
+    "locations_title": "Unsere Zweigstellen",
+    "services_title": "Angebotene Dienstleistungen",
+    "team_title": "Das Führungsteam"
+  },
   "adhesion_modal": {
     "title": "{syndicatName} beitreten",
     "subtitle": "Folgen Sie den Schritten, um Ihren Mitgliedschaftsantrag abzuschließen."
