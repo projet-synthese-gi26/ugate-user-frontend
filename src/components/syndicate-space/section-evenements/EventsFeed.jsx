@@ -124,7 +124,7 @@ function EventsFeedInner({ initialEvents = [], syndicatId }) {
                                 whileHover={{ scale: 1.02 }}
                                 whileTap={{ scale: 0.98 }}
                                 onClick={() => setIsCreateModalOpen(true)}
-                                className="px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-xl font-medium transition-all duration-200 flex items-center gap-2"
+                                className="px-4 py-2 bg-blue-700 hover:bg-blue-800 text-white rounded-xl font-medium transition-all duration-200 flex items-center gap-2"
                             >
                                 <Plus className="w-4 h-4" />
                                 Créer un événement
@@ -192,16 +192,6 @@ function EventsFeedInner({ initialEvents = [], syndicatId }) {
                             <RefreshCw className={`w-4 h-4 ${apiLoading ? 'animate-spin' : ''}`} />
                             Actualiser
                         </motion.button>
-                        
-                        <motion.button 
-                            whileHover={{ scale: 1.02 }}
-                            whileTap={{ scale: 0.98 }}
-                            onClick={() => setIsCreateModalOpen(true)} 
-                            className="px-6 py-2 bg-primary-600 text-white font-medium rounded-xl shadow-soft hover:bg-primary-700 flex items-center gap-2 transition-all duration-200"
-                        >
-                            <Plus className="w-4 h-4" />
-                            {t('events_page.create_button')}
-                        </motion.button>
                     </div>
                 </div>
             </motion.div>
@@ -238,6 +228,17 @@ function EventsFeedInner({ initialEvents = [], syndicatId }) {
 
             {/* Liste des événements */}
             <EventsList data={filteredEvents} />
+
+            {/* Bouton flottant pour créer un événement */}
+            <motion.button
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.9 }}
+                onClick={() => setIsCreateModalOpen(true)}
+                className="fixed bottom-6 right-6 w-14 h-14 bg-blue-700 hover:bg-blue-800 text-white rounded-full shadow-xl hover:shadow-2xl flex items-center justify-center z-50 transition-all duration-200"
+                title="Créer un événement"
+            >
+                <Plus className="w-6 h-6" />
+            </motion.button>
 
             {/* Modals */}
             <ParticipantsModal 

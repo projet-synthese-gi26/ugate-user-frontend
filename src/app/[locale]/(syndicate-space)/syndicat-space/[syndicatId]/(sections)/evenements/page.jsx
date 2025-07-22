@@ -9,6 +9,12 @@ async function getEvents(syndicatId) {
         
         const eventsData = await getEventsAPI(syndicatId, 0, 20);
         
+        // Vérifier si eventsData et eventsData.content existent
+        if (!eventsData || !eventsData.content) {
+            console.log('Aucun événement trouvé (réponse vide)');
+            return [];
+        }
+        
         // Convertir les dates string en objets Date si nécessaire
         const eventsWithDates = eventsData.content.map(event => ({
             ...event,
@@ -17,10 +23,23 @@ async function getEvents(syndicatId) {
             createdAt: new Date(event.createdAt)
         }));
         
+        console.log(`${eventsWithDates.length} événements récupérés`);
         return eventsWithDates;
     } catch (error) {
         console.error(`Erreur lors de la récupération des événements pour ${syndicatId}:`, error);
-        // Fallback vers un tableau vide
+        
+        // Si c'est une 404, c'est normal (pas d'événements)
+        if (error.response?.status === 404) {
+            console.log('Aucun événement trouvé (404)');
+            return [];
+        }
+        
+        // Si c'est une 401, c'est un problème d'auth - on la laisse remonter
+        if (error.response?.status === 401) {
+            throw error;
+        }
+        
+        // Pour les autres erreurs, fallback vers un tableau vide
         return [];
     }
 }
