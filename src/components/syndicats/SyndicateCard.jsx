@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import Image from "next/image";
 import { useRouter } from '@/navigation';
 import { ArrowRightCircle, Users, BarChart2 } from "lucide-react";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { STATIC_FILES_URL } from "@/lib/constants";
 import { SyndicatDefaultAvatar } from "../shared/SyndicatDefaultAvatar";
 
@@ -16,9 +16,10 @@ const itemVariants = {
 export default function SyndicateCard({ syndicat }) {
     const router = useRouter();
     const t = useTranslations('syndicats_page');
+    const locale = useLocale();
 
     const handleAccessSpace = (syndicatId) => {
-        router.push(`/syndicat-space/${syndicatId}`);
+        router.push(`/${locale}/syndicat-space/${syndicatId}/membres`);
     };
 
     const bannerUrl = syndicat.bannerUrl && syndicat.bannerUrl.startsWith('/') ? `${STATIC_FILES_URL}${syndicat.bannerUrl}` : "/placeholder-cover.jpg";

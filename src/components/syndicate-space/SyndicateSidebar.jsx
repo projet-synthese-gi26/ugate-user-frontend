@@ -59,7 +59,6 @@ export default function SyndicateSidebar({ isCollapsed, onToggle, syndicateData 
     const imageUrl = syndicateData.bannerUrl ? `${STATIC_FILES_URL}${syndicateData.bannerUrl}` : null;
 
     const navItems = [
-        { id: 'accueil', icon: Home, label: t('sidebar.home'), route: null },
         { id: 'membres', icon: Users, label: t('sidebar.members'), route: 'membres' },
         { id: 'evenements', icon: Calendar, label: t('sidebar.events'), route: 'evenements' },
         { id: 'exprimer', icon: MessageCircle, label: t('sidebar.express'), route: 'exprimer' },
