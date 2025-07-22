@@ -21,6 +21,7 @@ const SocialButton = ({ children, ...props }) => (
 
 export default function SocialLogins() {
     const t = useTranslations('login_page');
+    const tCommon = useTranslations('common');
     const router = useRouter();
     const [isAppleSDKLoaded, setIsAppleSDKLoaded] = useState(false);
 
@@ -29,7 +30,7 @@ export default function SocialLogins() {
         // La meilleure approche est "auth-code" pour la sécurité
         flow: 'auth-code',
         onSuccess: async (codeResponse) => {
-            toast.loading(t('common.loading'));
+            toast.loading(tCommon('loading'));
             try {
                 // On envoie le code au backend via notre fonction API
                 await loginWithGoogle(codeResponse.code);
@@ -67,12 +68,12 @@ export default function SocialLogins() {
 
     const handleAppleSignIn = async () => {
         if (!isAppleSDKLoaded) {
-            toast.error(t('common.loading'));
+            toast.error(tCommon('loading'));
             return;
         }
         try {
             const data = await window.AppleID.auth.signIn();
-            toast.loading(t('common.loading'));
+            toast.loading(tCommon('loading'));
             await loginWithApple(data.authorization.code);
             toast.dismiss();
             toast.success(t('success_title'));
@@ -94,7 +95,7 @@ export default function SocialLogins() {
             </SocialButton>
             <SocialButton onClick={handleAppleSignIn} disabled={!isAppleSDKLoaded}>
                 <img src="/apple-logo.svg" alt="Apple" className="w-5 h-5 mr-3" />
-                {isAppleSDKLoaded ? t('with_apple') : t('common.loading_dots')}
+                {isAppleSDKLoaded ? t('with_apple') : tCommon('loading_dots')}
             </SocialButton>
         </div>
     );
