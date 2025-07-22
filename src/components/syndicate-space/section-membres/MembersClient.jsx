@@ -26,6 +26,8 @@ function MembersClientInner({ initialMembers = [], initialRequests = [], branche
     const [searchTerm, setSearchTerm] = useState('');
     const [members, setMembers] = useState(initialMembers || []);
     const [requests, setRequests] = useState(initialRequests || []);
+    const [isLoadingMembers, setIsLoadingMembers] = useState(false);
+    const [isLoadingRequests, setIsLoadingRequests] = useState(false);
     const [lastRefresh, setLastRefresh] = useState(Date.now());
     
     const filteredMembers = useMemo(() => 
@@ -265,7 +267,7 @@ function MembersClientInner({ initialMembers = [], initialRequests = [], branche
                     <div className="flex items-center justify-between flex-wrap gap-4">
                         <div className="flex space-x-1 bg-neutral-100 dark:bg-neutral-900/50 rounded-xl p-1">
                             <TabButton active={activeTab === 'members'} icon={Users} label={`${t('tab_members')} (${filteredMembers.length})`} onClick={() => setActiveTab('members')} />
-                            <TabButton active={active_tab === 'requests'} icon={UserPlus} label={`${t('tab_requests')} (${filteredRequests.length})`} onClick={() => setActiveTab('requests')} />
+                            <TabButton active={activeTab === 'requests'} icon={UserPlus} label={`${t('tab_requests')} (${filteredRequests.length})`} onClick={() => setActiveTab('requests')} />
                         </div>
                         <div className="relative flex-1 min-w-[200px] max-w-xs">
                             <input type="text" placeholder={t("search_placeholder")} className="w-full pl-10 pr-4 py-2.5 bg-white dark:bg-neutral-700 rounded-xl border border-neutral-300 dark:border-neutral-600 focus:border-blue-500 dark:focus:border-blue-400 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200 text-sm" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />

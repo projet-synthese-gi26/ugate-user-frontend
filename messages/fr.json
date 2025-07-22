@@ -390,7 +390,11 @@
     "refresh": "Actualiser",
     "actions_unavailable": "Actions indisponibles",
     "motivation_title": "Motivation",
-    "request_date": "Demande le {date}"
+    "request_date": "Demande le {date}",
+    "refresh": "Actualiser",
+    "data_refreshed": "Données actualisées !",
+    "no_members_description_search": "Aucun membre ne correspond à votre recherche.",
+    "no_requests_description_search": "Aucune demande ne correspond à votre recherche."
   },
   "express_page": {
     "title": "Exprimez-vous",

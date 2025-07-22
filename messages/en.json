@@ -389,7 +389,15 @@
     "refresh": "Refresh",
     "actions_unavailable": "Actions unavailable",
     "motivation_title": "Motivation",
-    "request_date": "Request on {date}"
+    "request_date": "Request on {date}",
+    "refresh": "Refresh",
+    "data_refreshed": "Data refreshed!",
+    "no_members_description_search": "No members match your search.",
+    "no_requests_description_search": "No requests match your search."
+  },
+    "refresh": "Refresh"
+  },,
+    "data_refreshed": "Data refreshed!"
   },
   "express_page": {
     "title": "Express yourself",

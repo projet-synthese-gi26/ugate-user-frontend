@@ -389,7 +389,11 @@
     "refresh": "Aktualisieren",
     "actions_unavailable": "Aktionen nicht verfügbar",
     "motivation_title": "Motivation",
-    "request_date": "Antrag am {date}"
+    "request_date": "Antrag am {date}",
+    "refresh": "Aktualisieren",
+    "data_refreshed": "Daten aktualisiert!",
+    "no_members_description_search": "Keine Mitglieder entsprechen Ihrer Suche.",
+    "no_requests_description_search": "Keine Anträge entsprechen Ihrer Suche."
   },
   "express_page": {
     "title": "Drücken Sie sich aus",
