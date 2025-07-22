@@ -129,6 +129,8 @@ export default function SyndicateSidebar({ isCollapsed, onToggle, syndicateData 
                                     isActive 
                                         ? 'text-primary-700 dark:text-primary-300 bg-primary-50 dark:bg-primary-900/20' 
                                         : 'text-neutral-600 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-800 hover:text-neutral-900 dark:hover:text-white'
+                                } ${
+                                    isNavigating && activeRoute === item.route ? 'opacity-75' : ''
                                 }`}
                                 title={isCollapsed ? item.label : ''}
                             >
@@ -141,7 +143,11 @@ export default function SyndicateSidebar({ isCollapsed, onToggle, syndicateData 
                                 )}
                                 
                             <div className="relative z-10 flex items-center">
-                                <item.icon className={`h-5 w-5 flex-shrink-0 ${isActive ? 'text-primary-600 dark:text-primary-400' : ''}`} />
+                                {isNavigating && activeRoute === item.route ? (
+                                    <Loader2 className="h-5 w-5 flex-shrink-0 animate-spin text-primary-600 dark:text-primary-400" />
+                                ) : (
+                                    <item.icon className={`h-5 w-5 flex-shrink-0 ${isActive ? 'text-primary-600 dark:text-primary-400' : ''}`} />
+                                )}
                                 {!isCollapsed && (
                                     <span className="font-medium truncate ml-3">{item.label}</span>
                                 )}

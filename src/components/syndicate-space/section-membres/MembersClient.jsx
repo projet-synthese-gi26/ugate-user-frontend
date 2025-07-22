@@ -11,6 +11,7 @@ import TabButton from './TabButton';
 import { respondToAdhesionAPI } from '@/lib/api/membership';
 import { STATIC_FILES_URL } from '@/lib/constants';
 import { SyndicatDefaultAvatar } from '@/components/shared/SyndicatDefaultAvatar';
+import { MemberRowSkeleton, CardSkeleton } from '../SyndicateSpaceLoader';
 import Image from 'next/image';
 
 export default function MembersClient({ initialMembers = [], initialRequests = [], branches = [], stats = {}, syndicatId }) {
@@ -19,6 +20,8 @@ export default function MembersClient({ initialMembers = [], initialRequests = [
     const [searchTerm, setSearchTerm] = useState('');
     const [members, setMembers] = useState(initialMembers || []);
     const [requests, setRequests] = useState(initialRequests || []);
+    const [isLoadingMembers, setIsLoadingMembers] = useState(false);
+    const [isLoadingRequests, setIsLoadingRequests] = useState(false);
     
     const filteredMembers = useMemo(() => 
         (members || []).filter(member => 
@@ -83,8 +86,14 @@ export default function MembersClient({ initialMembers = [], initialRequests = [
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-neutral-200 dark:divide-neutral-700">
-                            <AnimatePresence>
-                                {data.map(member => (
+                            {isLoadingMembers ? (
+                                // Afficher des skeletons pendant le chargement
+                                Array.from({ length: 5 }).map((_, index) => (
+                                    <MemberRowSkeleton key={`skeleton-${index}`} />
+                                ))
+                            ) : (
+                                <AnimatePresence>
+                                    {data.map(member => (
                                     <motion.tr key={member.userId} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="hover:bg-neutral-50 dark:hover:bg-neutral-700/50 transition-colors duration-200">
                                         <td className="px-6 py-4 whitespace-nowrap"><div className="flex items-center">
                                             {member.userAvatarUrl ? <Image src={`${STATIC_FILES_URL}${member.userAvatarUrl}`} alt={member.userName} width={44} height={44} className="w-11 h-11 rounded-xl object-cover shadow-soft"/> : <SyndicatDefaultAvatar name={member.userName} size={44} className="rounded-xl"/>}
@@ -94,8 +103,9 @@ export default function MembersClient({ initialMembers = [], initialRequests = [
                                         <td className="px-6 py-4"><span className={`px-3 py-1 inline-flex text-xs font-semibold rounded-full ${member.status === 'ACTIVE' ? 'bg-emerald-100 dark:bg-emerald-900/20 text-emerald-800 dark:text-emerald-300' : 'bg-amber-100 dark:bg-amber-900/20 text-amber-700 dark:text-amber-300'}`}>{member.status}</span></td>
                                         <td className="px-6 py-4"><button className="p-2 text-neutral-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-xl transition-all duration-200"><UserX size={16}/></button></td>
                                     </motion.tr>
-                                ))}
-                            </AnimatePresence>
+                                    ))}
+                                </AnimatePresence>
+                            )}
                         </tbody>
                     </table>
                 </div>
@@ -118,8 +128,14 @@ export default function MembersClient({ initialMembers = [], initialRequests = [
 
         return (
             <div className="space-y-6">
-                <AnimatePresence>
-                    {data.map(req => (
+                {isLoadingRequests ? (
+                    // Afficher des skeletons pendant le chargement des demandes
+                    Array.from({ length: 3 }).map((_, index) => (
+                        <CardSkeleton key={`request-skeleton-${index}`} />
+                    ))
+                ) : (
+                    <AnimatePresence>
+                        {data.map(req => (
                     <motion.div key={req.userId} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, x: -30 }} className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6">
                         <div className="flex flex-col sm:flex-row items-start justify-between gap-4">
                             <div className="flex items-center"><div className="w-16 h-16 flex-shrink-0">{req.userAvatarUrl ? <Image src={`${STATIC_FILES_URL}${req.userAvatarUrl}`} alt={req.userName} width={64} height={64} className="rounded-xl object-cover"/> : <SyndicatDefaultAvatar name={req.userName} size={64} className="rounded-xl"/>}</div><div className="ml-4"><h3 className="text-xl font-semibold text-gray-800 dark:text-white">{req.userName}</h3><p className="text-sm text-gray-500 dark:text-gray-400">Demande le {new Date(req.requestTimestamp).toLocaleDateString('fr-FR')}</p></div></div>
@@ -138,8 +154,9 @@ export default function MembersClient({ initialMembers = [], initialRequests = [
                         </div>
                         <div className="mt-4 p-4 bg-gray-50 dark:bg-gray-700/50 rounded-xl border-l-4 border-blue-400"><p className="text-gray-600 dark:text-gray-300 italic">"{req.motivation}"</p></div>
                     </motion.div>
-                    ))}
-                </AnimatePresence>
+                        ))}
+                    </AnimatePresence>
+                )}
             </div>
         );
     };
