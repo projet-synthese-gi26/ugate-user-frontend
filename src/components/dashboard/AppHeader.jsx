@@ -28,7 +28,8 @@ export default function AppHeader({ isSidebarOpen, onSidebarToggle, onNotificati
                         {isSidebarOpen ? <ChevronLeft size={24} /> : <ChevronRight size={24} />}
                     </button>
                     <div className="hidden md:flex items-center">
-                        <UGateIcon className="h-8 w-8" />
+                        <UGateIcon className="h-8 w-8 text-blue-800" />
+                        <span className="text-2xl font-bold text-blue-800 ml-2">U-Gate</span>
                     </div>
                 </div>
                 <div className="flex items-center space-x-2 md:space-x-4">
