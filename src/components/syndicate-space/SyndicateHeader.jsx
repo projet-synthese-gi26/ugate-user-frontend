@@ -16,7 +16,7 @@ export default function SyndicateHeader({ syndicateData, onSidebarToggle, onNoti
         <>
             {/* Header principal avec animation */}
             <motion.div 
-                className="sticky top-0 z-50 bg-white shadow-lg"
+                className="bg-white shadow-lg"
                 initial={false}
                 animate={{
                     height: isCollapsed ? '60px' : 'auto'
