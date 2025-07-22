@@ -3,8 +3,8 @@
 
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Building } from 'lucide-react';
 import { useTranslations } from 'next-intl';
+import UGateIcon from '@/components/shared/UGateIcon';
 
 const AnimatedText = ({ texts }) => {
     const [index, setIndex] = useState(0);
@@ -49,7 +49,7 @@ export default function LoginAside({ animatedTexts }) {
                 className="text-white text-center relative z-10"
             >
                 <div className="flex justify-center mb-8">
-                    <Building size={80} className="text-white" />
+                    <UGateIcon className="h-20 w-20" />
                 </div>
                 <h1 className="text-5xl font-bold mb-8">{t('app_name')}</h1>
                 <AnimatedText texts={animatedTexts} />

@@ -17,8 +17,8 @@ async function getMessages(locale) {
 export async function generateMetadata({ params }) {
   const { locale } = await params; // Ajout d'await ici
   return {
-    title: 'UGate',
-    description: 'Votre application UGate',
+    title: 'U-Gate',
+    description: 'Votre application U-Gate',
   };
 }
 

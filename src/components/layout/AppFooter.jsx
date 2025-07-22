@@ -12,7 +12,7 @@ export default function AppFooter() {
         { icon: Facebook, href: '#', label: 'Facebook' },
         { icon: Twitter, href: '#', label: 'Twitter' },
         { icon: Linkedin, href: '#', label: 'LinkedIn' },
-        { icon: Mail, href: 'mailto:contact@syndicmanager.com', label: 'Email' },
+        { icon: Mail, href: 'mailto:contact@u-gate.com', label: 'Email' },
     ];
     
     return (
@@ -20,7 +20,7 @@ export default function AppFooter() {
             <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6">
                 <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
                     <p className="text-sm text-gray-600 dark:text-gray-400">
-                        © {new Date().getFullYear()} SyndicManager. {t('footer.all_rights_reserved')}
+                        © {new Date().getFullYear()} U-Gate. {t('footer.all_rights_reserved')}
                     </p>
                     <div className="flex space-x-4">
                         {socialLinks.map((link) => (

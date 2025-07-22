@@ -1,11 +1,12 @@
 "use client";
 import { motion } from "framer-motion";
-import { Bell, Building, ChevronLeft, ChevronRight, Search } from "lucide-react";
+import { Bell, ChevronLeft, ChevronRight, Search } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { Link } from '@/navigation';
 import ThemeSwitcher from '../layout/ThemeSwitcher';
 import LanguageSwitcher from '../layout/LanguageSwitcher';
 import { SyndicatDefaultAvatar } from '@/components/shared/SyndicatDefaultAvatar.jsx';
+import UGateIcon from '@/components/shared/UGateIcon';
 import { useUser } from "@/context/UserContext";
 import { STATIC_FILES_URL } from '@/lib/constants';
 
@@ -27,8 +28,7 @@ export default function AppHeader({ isSidebarOpen, onSidebarToggle, onNotificati
                         {isSidebarOpen ? <ChevronLeft size={24} /> : <ChevronRight size={24} />}
                     </button>
                     <div className="hidden md:flex items-center">
-                        <Building className="h-8 w-8 text-blue-600" />
-                        <h1 className="ml-2 text-xl font-bold text-gray-800 dark:text-gray-200">SyndicManager</h1>
+                        <UGateIcon className="h-8 w-8" />
                     </div>
                 </div>
                 <div className="flex items-center space-x-2 md:space-x-4">

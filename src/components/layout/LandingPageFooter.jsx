@@ -3,8 +3,8 @@
 
 import { motion } from 'framer-motion';
 import { useTranslations } from 'next-intl';
-import { Building } from 'lucide-react';
 import { Link } from '@/navigation';
+import UGateIcon from '@/components/shared/UGateIcon';
 
 const sectionVariants = {
     hidden: { opacity: 0, y: 30 },
@@ -27,8 +27,7 @@ export default function LandingPageFooter() {
                 <div className="grid gap-8 md:grid-cols-3">
                     <div>
                         <div className="flex items-center space-x-2 mb-4">
-                            <Building className="h-6 w-6" />
-                            <span className="text-xl font-semibold">SyndicManager</span>
+                            <UGateIcon className="h-6 w-6" showText={true} />
                         </div>
                         <p className="text-indigo-100">{t("description_plateforme")}</p>
                     </div>
