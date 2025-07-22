@@ -81,14 +81,14 @@ export default function SearchModal({ isOpen, onClose }) {
                                 <input
                                     type="text"
                                     placeholder={t("rechercher_syndicat")}
-                                    className="flex-grow text-lg focus:outline-none border-b-2 border-blue-500 pb-2"
+                                    className="flex-grow text-lg focus:outline-none border-b-2 border-blue-900 pb-2"
                                     value={searchTerm}
                                     onChange={(e) => setSearchTerm(e.target.value)}
                                     autoFocus
                                 />
                                 <button
                                     onClick={handleSearch}
-                                    className="ml-4 bg-blue-600 text-white px-6 py-2 rounded-full hover:bg-blue-700 transition duration-300"
+                                    className="ml-4 bg-blue-900 text-white px-6 py-2 rounded-full hover:bg-blue-950 transition duration-300"
                                 >
                                     {t("rechercher")}
                                 </button>
@@ -108,7 +108,7 @@ export default function SearchModal({ isOpen, onClose }) {
                                             onClick={() => setSelectedCategory(category)}
                                             className={`px-3 py-1 rounded-full text-sm ${
                                                 selectedCategory === category
-                                                    ? "bg-blue-600 text-white"
+                                                    ? "bg-blue-900 text-white"
                                                     : "bg-gray-200 text-gray-700 hover:bg-gray-300"
                                             } transition duration-300`}
                                         >
@@ -126,13 +126,13 @@ export default function SearchModal({ isOpen, onClose }) {
                                             {filteredSyndicats.map((syndicat) => (
                                                 <motion.li
                                                     key={syndicat.id}
-                                                    className="flex items-center p-4 bg-gray-50 hover:bg-blue-100 rounded-lg transition duration-300 ease-in-out cursor-pointer"
+                                                    className="flex items-center p-4 bg-gray-50 hover:bg-blue-50 rounded-lg transition duration-300 ease-in-out cursor-pointer"
                                                     initial={{ opacity: 0, y: 20 }}
                                                     animate={{ opacity: 1, y: 0 }}
                                                     transition={{ duration: 0.3 }}
                                                     onClick={() => handleSyndicatClick(syndicat)}
                                                 >
-                                                    <Building className="h-10 w-10 text-blue-600 mr-4" />
+                                                    <Building className="h-10 w-10 text-blue-900 mr-4" />
                                                     <div>
                                                         <h4 className="text-lg font-semibold text-gray-800">{syndicat.name}</h4>
                                                         <p className="text-sm text-gray-500">

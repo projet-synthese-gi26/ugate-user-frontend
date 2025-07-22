@@ -46,7 +46,7 @@ export default function SyndicateCard({ syndicat }) {
                 </h2>
                 <div className="flex items-center justify-between text-gray-600 dark:text-gray-400 my-4">
                     <div className="flex items-center space-x-2">
-                        <Users className="h-5 w-5 text-blue-500" />
+                        <Users className="h-5 w-5 text-blue-900" />
                         <span className="text-sm font-medium">{(syndicat.memberCount || 0).toLocaleString()} membres</span>
                     </div>
                     <BarChart2 className="h-5 w-5 text-gray-400 dark:text-gray-500" title="Tendance stable" />
