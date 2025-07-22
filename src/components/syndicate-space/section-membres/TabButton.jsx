@@ -6,12 +6,12 @@ export default function TabButton({ active, icon: Icon, label, onClick }) {
     return (
         <motion.button
             onClick={onClick}
-            className={`relative flex items-center px-4 sm:px-6 py-3 rounded-lg font-semibold transition-colors duration-200 text-sm ${
+            className={`relative flex items-center px-4 sm:px-5 py-2.5 rounded-lg font-semibold transition-colors duration-200 text-sm outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-neutral-800 ${
                 active 
                     ? 'text-white' 
-                    : 'text-gray-600 dark:text-gray-300 hover:bg-white/60 dark:hover:bg-gray-900/60'
+                    : 'text-neutral-600 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-700/50'
             }`}
-            whileHover={{ scale: 1.03 }}
+            whileHover={{ scale: active ? 1 : 1.03 }}
             whileTap={{ scale: 0.98 }}
         >
             {active && (
