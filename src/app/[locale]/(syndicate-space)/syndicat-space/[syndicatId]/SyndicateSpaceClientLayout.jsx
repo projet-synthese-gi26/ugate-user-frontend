@@ -22,8 +22,6 @@ export default function SyndicateSpaceClientLayout({ children, syndicateData: in
     const [previousPath, setPreviousPath] = useState(null);
     const [isHeaderCollapsed, setIsHeaderCollapsed] = useState(false);
     const [lastScrollY, setLastScrollY] = useState(0);
-    const [scrollDirection, setScrollDirection] = useState('up');
-    const [isScrolling, setIsScrolling] = useState(false);
 
     useEffect(() => {
         setIsMounted(true);
@@ -73,32 +71,16 @@ export default function SyndicateSpaceClientLayout({ children, syndicateData: in
                 <div 
                     className="flex-1 overflow-y-auto"
                     onScroll={(e) => {
-                        // Throttling pour éviter trop d'appels
-                        if (isScrolling) return;
+                        const currentScrollY = e.target.scrollTop;
                         
-                        setIsScrolling(true);
-                        requestAnimationFrame(() => {
-                            const currentScrollY = e.target.scrollTop;
-                            
-                            // Déterminer la direction du scroll avec une zone morte plus large
-                            if (Math.abs(currentScrollY - lastScrollY) > 20) {
-                                const direction = currentScrollY > lastScrollY ? 'down' : 'up';
-                                setScrollDirection(direction);
-                                
-                                // Se rétracte: scroll vers le bas ET au-delà de 200px ET pas déjà rétracté
-                                if (direction === 'down' && currentScrollY > 200 && !isHeaderCollapsed) {
-                                    setIsHeaderCollapsed(true);
-                                }
-                                // Se déplie: scroll vers le haut ET au-dessus de 100px ET déjà rétracté
-                                else if (direction === 'up' && currentScrollY < 100 && isHeaderCollapsed) {
-                                    setIsHeaderCollapsed(false);
-                                }
-                                
-                                setLastScrollY(currentScrollY);
-                            }
-                            
-                            setIsScrolling(false);
-                        });
+                        // Simple: juste basé sur la position de scroll
+                        if (currentScrollY > 150 && !isHeaderCollapsed) {
+                            setIsHeaderCollapsed(true);
+                            setLastScrollY(currentScrollY);
+                        } else if (currentScrollY <= 100 && isHeaderCollapsed) {
+                            setIsHeaderCollapsed(false);
+                            setLastScrollY(currentScrollY);
+                        }
                     }}
                 >
                     <SyndicateHeader 
