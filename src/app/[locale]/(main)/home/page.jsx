@@ -11,7 +11,8 @@ async function getDashboardData() {
         const user = await getAuthenticatedUserProfile().catch(() => null);
         
         // Si connecté, récupérer le feed personnalisé, sinon le feed global
-        const feedData = await getGlobalFeedAPI(0, 10);
+        // Dashboard n'a pas de limitation sur le nombre d'éléments
+        const feedData = await getGlobalFeedAPI(0, 50);
         
         return {
             feed: feedData.content || [],
@@ -42,7 +43,7 @@ export default async function HomePage({ params }) {
                 <h2 className="text-2xl font-bold mb-6 text-gray-800 dark:text-gray-200">
                     {t("dashboard.news_and_events")}
                 </h2>
-                {/* Le composant Feed existant fonctionnera parfaitement avec le FeedCard amélioré */}
+                {/* Le composant Feed utilise maintenant UnifiedPostCard pour la cohérence avec la landing page */}
                 <Feed initialFeed={feed} />
             </div>
         </div>

@@ -50,3 +50,31 @@ export const getCommentsAPI = async (syndicateId, postId, page = 0, size = 20) =
 export const likeCommentAPI = async (syndicateId, postId, commentId, liked) => {
     await axios.post(`/syndicates/${syndicateId}/posts/${postId}/comments/${commentId}/like?liked=${liked}`);
 };
+
+/**
+ * Récupère les publications publiques récentes de la plateforme (pour landing page)
+ * @param {number} size - Nombre de publications à récupérer
+ * @returns {Promise<Array>} Liste des publications récentes
+ */
+export const getRecentPublicPostsAPI = async (size = 5) => {
+    try {
+        // Utilise le feed global public qui ne nécessite pas d'authentification
+        const response = await axios.get('/feed/global', {
+            params: { 
+                page: 0, 
+                size: size, 
+                sortBy: 'createdAt', 
+                sortDirection: 'desc' 
+            }
+        });
+        
+        // Filtrer seulement les publications (pas les événements)
+        if (response.data && response.data.content) {
+            return response.data.content.filter(item => !item.eventId && item.postId);
+        }
+        return [];
+    } catch (error) {
+        console.error('Erreur lors de la récupération des publications publiques:', error);
+        return [];
+    }
+};

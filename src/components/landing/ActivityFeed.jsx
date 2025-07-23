@@ -3,8 +3,8 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useTranslations } from 'next-intl';
-import { getGlobalFeedAPI } from '@/lib/api/feed';
-import { getAllSyndicatesAPI } from '@/lib/api/syndicate';
+import { getRecentPublicPostsAPI } from '@/lib/api/posts';
+import { getRecentPublicEventsAPI } from '@/lib/api/event';
 import UnifiedPostCard from '@/components/shared/UnifiedPostCard';
 
 // Données de fallback (fake data)
@@ -135,22 +135,42 @@ export default function ActivityFeed() {
             setLoading(true);
             setError(null);
 
-            // Essayer de récupérer le feed global (publications + événements)
-            const globalFeed = await getGlobalFeedAPI(0, 5, 'createdAt', 'desc');
-            
-            if (globalFeed && globalFeed.content && globalFeed.content.length > 0) {
-                // Convertir les données du feed en format attendu
-                const convertedActivities = globalFeed.content.map((item) => ({
-                    ...item,
-                    type: item.eventId ? 'event' : 'publication', // Détecter si c'est un événement ou une publication
-                    id: item.postId || item.eventId || item.id
-                }));
-                
-                setActivities(convertedActivities);
-            } else {
-                // Si pas de données, utiliser les fake data
+            // Récupérer séparément les publications et événements (max 5 de chaque)
+            const [recentPosts, recentEvents] = await Promise.all([
+                getRecentPublicPostsAPI(5),
+                getRecentPublicEventsAPI(5)
+            ]);
+
+            // Convertir les données en format uniforme
+            const publications = recentPosts.map(post => ({
+                ...post,
+                type: 'publication',
+                id: post.postId || post.id
+            }));
+
+            const events = recentEvents.map(event => ({
+                ...event,
+                type: 'event',
+                id: event.eventId || event.id
+            }));
+
+            // Combiner publications et événements
+            const allActivities = [...publications, ...events];
+
+            // Si aucune publication ET aucun événement, utiliser fake data
+            if (allActivities.length === 0) {
                 console.log('Aucune donnée réelle trouvée, utilisation des données factices');
                 setActivities(fakeActivities);
+            } else {
+                // Trier par date de création (les plus récents en premier)
+                const sortedActivities = allActivities.sort((a, b) => {
+                    const dateA = new Date(a.createdAt || a.startDate);
+                    const dateB = new Date(b.createdAt || b.startDate);
+                    return dateB - dateA;
+                });
+
+                console.log(`Chargement de ${publications.length} publications et ${events.length} événements`);
+                setActivities(sortedActivities);
             }
         } catch (error) {
             console.error('Erreur lors du chargement du feed:', error);

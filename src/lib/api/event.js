@@ -65,3 +65,31 @@ export const createEventAPI = async (syndicateId, eventData, imageFile = null) =
         throw error;
     }
 };
+
+/**
+ * Récupère les événements publics récents de la plateforme (pour landing page)
+ * @param {number} size - Nombre d'événements à récupérer
+ * @returns {Promise<Array>} Liste des événements récents
+ */
+export const getRecentPublicEventsAPI = async (size = 5) => {
+    try {
+        // Utilise le feed global public qui ne nécessite pas d'authentification
+        const response = await axios.get('/feed/global', {
+            params: { 
+                page: 0, 
+                size: size, 
+                sortBy: 'createdAt', 
+                sortDirection: 'desc' 
+            }
+        });
+        
+        // Filtrer seulement les événements (pas les publications)
+        if (response.data && response.data.content) {
+            return response.data.content.filter(item => item.eventId && !item.postId);
+        }
+        return [];
+    } catch (error) {
+        console.error('Erreur lors de la récupération des événements publics:', error);
+        return [];
+    }
+};
