@@ -41,7 +41,7 @@ export default function EventCard({ event, onUpdateEvent, onShowParticipants }) 
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.5 }}
-            className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300 mb-6"
+            className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300 mb-6 max-w-xl mx-auto"
         >
             {/* Header avec auteur et badge événement */}
             <div className="p-6 border-b border-slate-100 dark:border-gray-700">
@@ -117,7 +117,7 @@ export default function EventCard({ event, onUpdateEvent, onShowParticipants }) 
                             alt={event.title}
                             width={800}
                             height={400}
-                            className="w-full h-64 object-cover hover:scale-105 transition-transform duration-300"
+                            className="w-full h-[32rem] object-cover hover:scale-105 transition-transform duration-300"
                         />
                     </div>
                 )}
