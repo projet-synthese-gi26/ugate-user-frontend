@@ -1,87 +1,151 @@
 // src/components/syndicate-space/section-evenements/EventCard.jsx
 "use client";
 
-import { useState } from 'react';
-import { motion } from 'framer-motion';
-import Image from 'next/image';
+import { useState } from "react";
+import Image from "next/image";
+import { motion, AnimatePresence } from "framer-motion";
 import { useTranslations } from "next-intl";
-import { Calendar, MapPin, Clock, User, Users, Heart, Share2 } from 'lucide-react';
+import { Calendar, MapPin, Clock, Users, User, CheckCircle } from "lucide-react";
+import { SyndicatDefaultAvatar } from '@/components/shared/SyndicatDefaultAvatar.jsx';
 import { STATIC_FILES_URL } from '@/lib/constants';
 
-export default function EventCard({ event, onShowParticipants, onUpdateEvent }) {
-    const t = useTranslations('common');
+// Composant InfoPill
+const InfoPill = ({ icon: Icon, text, colorClass = 'blue' }) => (
+    <div className={`flex items-center px-3 py-1.5 bg-${colorClass}-50 dark:bg-${colorClass}-900/50 rounded-full`}>
+        <Icon className={`w-4 h-4 mr-2 text-${colorClass}-500 dark:text-${colorClass}-400`} />
+        <span className={`text-xs font-semibold text-${colorClass}-800 dark:text-${colorClass}-200`}>{text}</span>
+    </div>
+);
+
+export default function EventCard({ event, onUpdateEvent, onShowParticipants }) {
     const [isExpanded, setIsExpanded] = useState(false);
     const [isParticipating, setIsParticipating] = useState(false);
-    const [isLiked, setIsLiked] = useState(false);
+    const t = useTranslations('common');
+
+    // S'assurer que event.startDate et event.endDate sont des objets Date valides
+    const startDate = event.startDate ? new Date(event.startDate) : new Date();
+    const endDate = event.endDate ? new Date(event.endDate) : new Date();
+
+    const formattedDate = startDate.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
+    const formattedTime = `${startDate.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })} - ${endDate.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}`;
 
     const handleParticipate = () => {
         const newParticipationState = !isParticipating;
         setIsParticipating(newParticipationState);
-        // On met à jour l'événement parent pour refléter le changement de participants
-        const updatedParticipants = newParticipationState
-            ? [...event.participants, { name: "Vous" }]
-            : event.participants.filter(p => p.name !== "Vous");
         
-        onUpdateEvent({ ...event, participants: updatedParticipants });
+        // S'assurer que event.participants est un tableau avant de le manipuler
+        const currentParticipants = Array.isArray(event.participants) ? [...event.participants] : [];
+        const updatedParticipants = newParticipationState
+            ? [...currentParticipants, { name: "Vous" }]
+            : currentParticipants.filter(p => p.name !== "Vous");
+        
+        if (onUpdateEvent) {
+            onUpdateEvent({ ...event, participants: updatedParticipants });
+        }
     };
 
-    const cardVariants = {
-        hidden: { opacity: 0, y: 20 },
-        visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: 'easeOut' } },
-    };
+    // Utilisation de Array.isArray pour la robustesse sur le nombre de participants
+    const participantsCount = Array.isArray(event.participants) ? event.participants.length : 0;
+    const participantsToDisplay = Array.isArray(event.participants) ? event.participants : [];
+
+    // Gestion de l'image avec STATIC_FILES_URL
+    const eventImageUrl = event.imageUrl && event.imageUrl.startsWith('/') 
+        ? `${STATIC_FILES_URL}${event.imageUrl}` 
+        : event.imageUrl || (event.imageUrls && event.imageUrls[0]) || "/placeholder-cover.jpg";
 
     return (
-        <motion.div layout variants={cardVariants} initial="hidden" animate="visible"
-            className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl overflow-hidden mb-8 w-full mx-auto transform transition-all duration-300 hover:shadow-2xl dark:shadow-black/20">
-            {event.isUpcoming && <div className="absolute top-4 right-4 z-10"><span className="bg-gradient-to-r from-red-500 to-pink-500 text-white px-3 py-1 rounded-full text-xs font-semibold shadow-lg">{t("events_page.upcoming")}</span></div>}
-            
-            <div className="p-6 sm:p-8">
-                {/* ... (Header avec auteur, titre, date) ... */}
-                 <div className="flex items-start mb-6">
-                    {event.author?.profileImage ? (
-                        <Image src={event.author.profileImage} alt={event.author.name} width={56} height={56} className="w-14 h-14 rounded-full object-cover ring-4 ring-blue-100 dark:ring-blue-900/50" />
-                    ) : (
-                        <div className="w-14 h-14 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold text-lg ring-4 ring-blue-100 dark:ring-blue-900/50">
-                            {event.author?.name?.charAt(0).toUpperCase() || 'U'}
-                        </div>
-                    )}
-                    <div className="ml-4 flex-grow"><h3 className="font-bold text-2xl text-gray-800 dark:text-white mb-1">{event.title}</h3>
-                        <div className="flex items-center text-sm text-gray-600 dark:text-gray-400"><User className="w-4 h-4 mr-1.5 text-blue-500"/><span className="font-medium">{event.author?.name || 'Utilisateur anonyme'}</span><span className="mx-2">•</span><Calendar className="w-4 h-4 mr-1.5 text-blue-500"/><span>{event.startDate.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long' })}</span></div>
-                    </div>
-                 </div>
-
-                {/* Description extensible */}
-                <p className="text-gray-700 dark:text-gray-300 leading-relaxed mb-6">{isExpanded ? event.description : `${event.description.slice(0, 150)}...`}
-                    <button onClick={() => setIsExpanded(!isExpanded)} className="ml-2 text-blue-500 hover:underline font-medium">{isExpanded ? t("events_page.see_less") : t("events_page.see_more")}</button>
-                </p>
-
-                {/* ... (Infos: Heure, Lieu) ... */}
-                
-                {/* Image de l'événement */}
-                {(event.imageUrl || (event.imageUrls && event.imageUrls[0])) && (
-                    <div className="relative rounded-xl overflow-hidden mb-6 h-64">
-                        <Image 
-                            src={
-                                event.imageUrl && event.imageUrl.startsWith('/') 
-                                    ? `${STATIC_FILES_URL}${event.imageUrl}` 
-                                    : event.imageUrl || (event.imageUrls && event.imageUrls[0])
-                            } 
-                            alt={event.title} 
-                            fill 
-                            style={{ objectFit: 'cover' }}
-                            className="hover:scale-105 transition-transform duration-300"
-                        />
+        <motion.div
+            layout
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, ease: "easeOut" }}
+            className="bg-white dark:bg-gray-800/50 rounded-2xl shadow-xl hover:shadow-2xl dark:shadow-black/20 overflow-hidden mb-8 w-full max-w-xl mx-auto border border-gray-200/80 dark:border-white/10"
+        >
+            <div className="relative h-56 group">
+                <Image
+                    src={eventImageUrl}
+                    alt={event.title}
+                    fill 
+                    style={{ objectFit: 'cover' }}
+                    className="transition-transform duration-500 group-hover:scale-105"
+                    sizes="(max-width: 640px) 100vw, 640px"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent"></div>
+                {event.isUpcoming && (
+                    <div className="absolute top-4 right-4 bg-red-500/90 text-white px-3 py-1 text-xs font-bold rounded-full shadow-lg backdrop-blur-sm">
+                        {t('events_page.upcoming')}
                     </div>
                 )}
+                <div className="absolute bottom-0 left-0 p-6 text-white">
+                    <h2 className="text-2xl font-bold drop-shadow-lg">{event.title}</h2>
+                    <div className="flex items-center text-sm opacity-90 mt-1">
+                        <Calendar className="w-4 h-4 mr-2" />
+                        <span>{formattedDate}</span>
+                    </div>
+                </div>
+            </div>
 
-                {/* Barre d'actions */}
-                <div className="flex items-center justify-between mb-6">
-                    <button onClick={() => onShowParticipants(event)} className="flex items-center text-gray-600 dark:text-gray-400 hover:text-blue-600"><Users className="w-5 h-5 mr-2"/> <span className="font-medium">{event.participants.length} {t("participants")}</span></button>
-                    <div className="flex items-center gap-2"><motion.button onClick={() => setIsLiked(!isLiked)} className={`p-2 rounded-full ${isLiked ? 'text-red-500 bg-red-100' : 'text-gray-400 hover:text-red-500 hover:bg-red-100'}`}><Heart fill={isLiked ? "currentColor" : "none"} /></motion.button><motion.button className="p-2 rounded-full text-gray-400 hover:text-blue-500 hover:bg-blue-100"><Share2 /></motion.button></div>
+            <div className="p-6">
+                <div className="flex items-center mb-5">
+                    {event.author && event.author.profileImage ? (
+                        <Image 
+                            src={event.author.profileImage || "/default-avatar.png"} 
+                            alt={event.author.name || "Auteur"} 
+                            width={40} height={40} 
+                            className="w-10 h-10 rounded-full object-cover" 
+                        />
+                    ) : (
+                        <SyndicatDefaultAvatar 
+                            name={event.author?.name || "User"}
+                            size={40} 
+                            className="w-10 h-10" 
+                        />
+                    )}
+                    <div className="ml-3">
+                        <p className="text-sm font-semibold text-gray-800 dark:text-gray-100">{event.author?.name || "Utilisateur inconnu"}</p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400">Organisateur</p>
+                    </div>
                 </div>
 
-                {/* Bouton Participer */}
-                <motion.button onClick={handleParticipate} className={`w-full py-3 rounded-xl font-semibold text-lg shadow-lg flex items-center justify-center gap-2 ${isParticipating ? 'bg-green-600' : 'bg-blue-600'}`} whileHover={{ scale: 1.02 }}><Calendar/>{isParticipating ? t("events_page.participating") : t("events_page.participate_button")}</motion.button>
+                <div className="flex flex-wrap items-center gap-3 mb-5">
+                    <InfoPill icon={Clock} text={formattedTime} colorClass="blue" />
+                    <InfoPill icon={MapPin} text={event.location} colorClass="purple" />
+                </div>
+
+                <motion.p layout className="text-gray-700 dark:text-gray-300 mb-5 leading-relaxed text-sm">
+                    {isExpanded ? event.description : `${(event.description || '').slice(0, 120)}...`}
+                    {(event.description || '').length > 120 && (
+                        <button onClick={() => setIsExpanded(!isExpanded)} className="ml-1 text-blue-500 hover:underline font-semibold text-sm">
+                            {isExpanded ? t("events_page.see_less") : t("events_page.see_more")}
+                        </button>
+                    )}
+                </motion.p>
+                
+                <button onClick={() => onShowParticipants && onShowParticipants(event)} className="flex items-center justify-between w-full text-sm text-gray-600 dark:text-gray-400 mb-6 p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700/50">
+                    <div className="flex items-center">
+                        <Users className="w-4 h-4 mr-2" />
+                        <span className="font-medium">{participantsCount} {t("participants", { count: participantsCount })}</span>
+                    </div>
+                    <div className="flex -space-x-3">
+                        {participantsToDisplay.slice(0, 4).map((p, i) => (
+                             <div key={i} className="w-7 h-7 bg-gray-300 rounded-full border-2 border-white dark:border-gray-800 flex items-center justify-center text-xs font-bold text-gray-600">
+                                {p.name?.charAt(0) || 'U'}
+                             </div>
+                        ))}
+                        {participantsCount > 4 && 
+                            <div className="w-7 h-7 bg-gray-200 text-gray-600 text-xs font-bold rounded-full border-2 border-white dark:border-gray-800 flex items-center justify-center">+{participantsCount - 4}</div>
+                        }
+                    </div>
+                </button>
+
+                <motion.button
+                    onClick={handleParticipate}
+                    className={`w-full py-3 rounded-xl font-semibold text-lg shadow-lg flex items-center justify-center gap-2 transition-all duration-300 ${isParticipating ? 'bg-gradient-to-r from-green-500 to-emerald-600 text-white' : 'bg-gradient-to-r from-blue-500 to-indigo-600 text-white hover:from-blue-600 hover:to-indigo-700'}`}
+                    whileHover={{ scale: 1.02 }}
+                >
+                    {isParticipating ? <CheckCircle /> : <Calendar />}
+                    {isParticipating ? t("events_page.participating") : t("events_page.participate_button")}
+                </motion.button>
             </div>
         </motion.div>
     );
