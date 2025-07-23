@@ -17,9 +17,7 @@ export const getPostsAPI = async (syndicateId, page = 0, size = 20, sortBy = 'cr
 };
 
 export const createPostAPI = async (syndicateId, formData) => {
-    const response = await axios.post(`/syndicates/${syndicateId}/posts`, formData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-    });
+    const response = await axios.post(`/syndicates/${syndicateId}/posts`, formData);
     return response.data;
 };
 

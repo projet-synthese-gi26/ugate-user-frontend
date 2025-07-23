@@ -24,9 +24,19 @@ export default function NewPostModal({ isOpen, onClose, onNewPost, isLoading = f
 
     const handlePublish = () => {
         if (content.trim() || imageFile) {
-            // Créer un FormData pour l'API
+            // Créer un FormData pour l'API selon le format attendu par le backend
             const formData = new FormData();
-            formData.append('content', content.trim());
+            
+            // Le backend attend un objet JSON dans la partie 'postData'
+            const postData = {
+                content: content.trim()
+            };
+            const postDataBlob = new Blob([JSON.stringify(postData)], {
+                type: 'application/json'
+            });
+            formData.append('postData', postDataBlob);
+            
+            // Ajouter le fichier image si présent
             if (imageFile) {
                 formData.append('imageFile', imageFile);
             }
