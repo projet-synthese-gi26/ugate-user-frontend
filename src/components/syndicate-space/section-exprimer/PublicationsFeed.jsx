@@ -233,7 +233,7 @@ function PublicationsFeedInner({ initialPosts = [], syndicatId }) {
             <NewPostModal 
                 isOpen={isCreateModalOpen}
                 onClose={() => setIsCreateModalOpen(false)}
-                onCreatePost={handleCreatePost}
+                onNewPost={handleCreatePost}
                 isLoading={isCreatingPost}
             />
         </div>

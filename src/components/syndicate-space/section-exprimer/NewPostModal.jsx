@@ -1,22 +1,38 @@
 "use client";
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Image as ImageIcon, Send, X, Camera } from 'lucide-react';
 import { useTranslations } from "next-intl";
 import Image from 'next/image';
 
-export default function NewPostModal({ isOpen, onClose, onNewPost }) {
+export default function NewPostModal({ isOpen, onClose, onNewPost, isLoading = false }) {
     const t = useTranslations('express_page');
     const [content, setContent] = useState('');
     const [imagePreview, setImagePreview] = useState(null);
     const [imageFile, setImageFile] = useState(null);
     const fileInputRef = useRef(null);
 
+    // Réinitialiser le formulaire quand le modal se ferme
+    useEffect(() => {
+        if (!isOpen) {
+            setContent('');
+            setImagePreview(null);
+            setImageFile(null);
+        }
+    }, [isOpen]);
+
     const handlePublish = () => {
         if (content.trim() || imageFile) {
-            onNewPost({ content, imageFile });
-            resetAndClose();
+            // Créer un FormData pour l'API
+            const formData = new FormData();
+            formData.append('content', content.trim());
+            if (imageFile) {
+                formData.append('imageFile', imageFile);
+            }
+            
+            onNewPost(formData);
+            // Ne pas fermer immédiatement - laissons PublicationsFeed gérer la fermeture
         }
     };
 
@@ -74,11 +90,15 @@ export default function NewPostModal({ isOpen, onClose, onNewPost }) {
                                 </button>
                                 <button 
                                     onClick={handlePublish} 
-                                    disabled={!content.trim() && !imageFile} 
+                                    disabled={(!content.trim() && !imageFile) || isLoading} 
                                     className="px-5 py-2 rounded-lg font-semibold text-white bg-blue-800 hover:bg-blue-900 disabled:bg-gray-400 flex items-center gap-2"
                                 >
-                                    <Send size={16} /> 
-                                    {t('publish_button')}
+                                    {isLoading ? (
+                                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                                    ) : (
+                                        <Send size={16} />
+                                    )}
+                                    {isLoading ? 'Publication...' : t('publish_button')}
                                 </button>
                             </div>
                         </div>
