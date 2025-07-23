@@ -2,8 +2,8 @@
 "use client";
 
 import { useState } from 'react';
-import { Link, usePathname } from '@/navigation';
-import { useTranslations } from 'next-intl';
+import { Link, usePathname, useRouter } from '@/navigation';
+import { useTranslations, useLocale } from 'next-intl';
 import { motion } from 'framer-motion';
 import { LogIn, UserPlus, Home, Globe } from 'lucide-react';
 import UGateIcon from '@/components/shared/UGateIcon';
@@ -12,10 +12,12 @@ import UGateIcon from '@/components/shared/UGateIcon';
 export default function LandingPageHeader() {
     const t = useTranslations('header');
     const pathname = usePathname();
+    const router = useRouter();
+    const locale = useLocale();
     const [openDropdown, setOpenDropdown] = useState(false);
 
-    const changeLanguage = (lng) => {
-        i18n.changeLanguage(lng);
+    const changeLanguage = (newLocale) => {
+        router.push(pathname, { locale: newLocale });
         setOpenDropdown(false);
     };
 
@@ -32,13 +34,28 @@ export default function LandingPageHeader() {
                             className="flex items-center space-x-1 px-3 py-2 rounded-full border text-gray-700 hover:bg-blue-50 transition duration-300"
                         >
                             <Globe className="h-5 w-5" />
-                            <span>Langue</span>
+                            <span>{locale.toUpperCase()}</span>
                         </button>
                         {openDropdown && (
                             <div className="absolute right-0 mt-2 bg-white shadow-lg rounded-lg py-2 w-40 z-50">
-                                <button onClick={() => changeLanguage('fr')} className="block px-4 py-2 text-gray-700 hover:bg-blue-50 w-full text-left">Français</button>
-                                <button onClick={() => changeLanguage('en')} className="block px-4 py-2 text-gray-700 hover:bg-blue-50 w-full text-left">English</button>
-                                <button onClick={() => changeLanguage('de')} className="block px-4 py-2 text-gray-700 hover:bg-blue-50 w-full text-left">Deutsch</button>
+                                <button 
+                                    onClick={() => changeLanguage('fr')} 
+                                    className={`block px-4 py-2 text-gray-700 hover:bg-blue-50 w-full text-left ${locale === 'fr' ? 'bg-blue-100 font-semibold' : ''}`}
+                                >
+                                    Français
+                                </button>
+                                <button 
+                                    onClick={() => changeLanguage('en')} 
+                                    className={`block px-4 py-2 text-gray-700 hover:bg-blue-50 w-full text-left ${locale === 'en' ? 'bg-blue-100 font-semibold' : ''}`}
+                                >
+                                    English
+                                </button>
+                                <button 
+                                    onClick={() => changeLanguage('de')} 
+                                    className={`block px-4 py-2 text-gray-700 hover:bg-blue-50 w-full text-left ${locale === 'de' ? 'bg-blue-100 font-semibold' : ''}`}
+                                >
+                                    Deutsch
+                                </button>
                             </div>
                         )}
                     </div>
