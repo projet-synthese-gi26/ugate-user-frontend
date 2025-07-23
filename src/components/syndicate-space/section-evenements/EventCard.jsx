@@ -3,11 +3,10 @@
 
 import { motion } from 'framer-motion';
 import Image from 'next/image';
-import { format } from 'date-fns';
-import { fr } from 'date-fns/locale';
-import { MapPin, User } from 'lucide-react';
+import { Clock, Calendar, MapPin, Users } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { STATIC_FILES_URL } from '@/lib/constants';
+import { SyndicatDefaultAvatar } from '@/components/shared/SyndicatDefaultAvatar';
 
 export default function EventCard({ event, onUpdateEvent, onShowParticipants }) {
     const t = useTranslations('common');
@@ -22,53 +21,121 @@ export default function EventCard({ event, onUpdateEvent, onShowParticipants }) 
     const startDate = dateToUse ? new Date(dateToUse) : new Date();
     
     const participantsCount = Array.isArray(event.participants) ? event.participants.length : 0;
+    
+    // Formatage de la date
+    const formattedDate = startDate.toLocaleDateString('fr-FR', { 
+        day: 'numeric', 
+        month: 'long', 
+        year: 'numeric' 
+    });
+    
+    // Formatage de l'heure
+    const formattedTime = startDate.toLocaleTimeString('fr-FR', { 
+        hour: '2-digit', 
+        minute: '2-digit' 
+    });
 
     return (
-        <div className="bg-white dark:bg-gray-800/60 rounded-2xl shadow-xl border border-gray-200/50 dark:border-white/10 overflow-hidden mb-6">
-            {imageUrl && (
-                <div className="relative h-52 group">
-                    <Image 
-                        src={imageUrl} 
-                        alt={event.title} 
-                        fill 
-                        style={{ objectFit: 'cover' }} 
-                        className="transition-transform duration-300 group-hover:scale-105" 
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent"></div>
-                    <div className="absolute bottom-4 left-5">
-                        <h3 className="text-2xl font-bold text-white drop-shadow-lg">{event.title}</h3>
-                        <p className="text-sm text-white/90 drop-shadow-md">{event.description}</p>
+        <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5 }}
+            className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300 mb-6"
+        >
+            {/* Header avec auteur et badge événement */}
+            <div className="p-6 border-b border-slate-100 dark:border-gray-700">
+                <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-3">
+                        <div className="relative">
+                            {event.author?.profileImage ? (
+                                <Image
+                                    src={event.author.profileImage}
+                                    alt={event.author.name}
+                                    width={48}
+                                    height={48}
+                                    className="rounded-full"
+                                />
+                            ) : (
+                                <SyndicatDefaultAvatar 
+                                    name={event.author?.name || "User"}
+                                    size={48}
+                                />
+                            )}
+                        </div>
+                        <div>
+                            <div className="flex items-center space-x-2">
+                                <h3 className="font-semibold text-slate-900 dark:text-white text-base">
+                                    {event.author?.name || 'Organisateur'}
+                                </h3>
+                                <span className="text-slate-500 dark:text-gray-400 text-sm">•</span>
+                                <span className="text-slate-600 dark:text-gray-400 text-sm">Organisateur</span>
+                            </div>
+                            <div className="flex items-center space-x-2 text-slate-500 dark:text-gray-400 text-sm">
+                                <Clock className="h-4 w-4" />
+                                <span>Événement créé</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div className="bg-gradient-to-r from-indigo-100 to-purple-100 dark:from-indigo-900/40 dark:to-purple-900/40 text-indigo-700 dark:text-indigo-300 px-3 py-1 rounded-full text-sm font-medium">
+                        Événement
                     </div>
                 </div>
-            )}
-            <div className="p-5 sm:p-6">
-                <div className="grid grid-cols-3 gap-4 text-center mb-5">
-                    <div className="p-3 bg-blue-50 dark:bg-blue-900/40 rounded-lg">
-                        <p className="text-xl font-bold text-blue-600 dark:text-blue-300">{format(startDate, 'dd')}</p>
-                        <p className="text-xs font-semibold text-blue-500 dark:text-blue-400 uppercase">{format(startDate, 'MMM', { locale: fr })}</p>
-                    </div>
-                    <div className="p-3 bg-green-50 dark:bg-green-900/40 rounded-lg col-span-2">
-                        <p className="font-semibold text-green-700 dark:text-green-300">{format(startDate, 'EEEE', { locale: fr })}</p>
-                        <p className="text-xs text-green-600 dark:text-green-400">{format(startDate, 'HH:mm')}</p>
-                    </div>
-                </div>
-                <div className="text-sm text-gray-600 dark:text-gray-400 space-y-2 mb-6">
-                    <p className="flex items-center gap-2">
-                        <MapPin size={16} className="text-purple-500" /> {event.location}
-                    </p>
-                    <p className="flex items-center gap-2">
-                        <User size={16} className="text-purple-500" /> Organisé par <strong>{event.author?.name || 'Organisateur'}</strong>
-                    </p>
-                </div>
-                <motion.button
-                    className="w-full py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all"
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                    onClick={() => onShowParticipants && onShowParticipants(event)}
-                >
-                    Voir et rejoindre ({participantsCount} participants)
-                </motion.button>
             </div>
-        </div>
+
+            {/* Contenu principal */}
+            <div className="p-6">
+                {/* Encadré spécial pour les infos événement */}
+                <div className="mb-4 bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-900/40 dark:to-purple-900/40 rounded-xl p-4 border border-indigo-100 dark:border-indigo-800">
+                    <h4 className="font-semibold text-indigo-900 dark:text-indigo-200 mb-2">{event.title}</h4>
+                    <div className="flex flex-wrap items-center text-indigo-700 dark:text-indigo-300 text-sm gap-4">
+                        <div className="flex items-center">
+                            <Calendar className="h-4 w-4 mr-1" />
+                            {formattedDate} à {formattedTime}
+                        </div>
+                        <div className="flex items-center">
+                            <MapPin className="h-4 w-4 mr-1" />
+                            {event.location || 'Lieu à définir'}
+                        </div>
+                        <div className="flex items-center">
+                            <Users className="h-4 w-4 mr-1" />
+                            {participantsCount} participants
+                        </div>
+                    </div>
+                </div>
+                
+                {/* Description */}
+                <p className="text-slate-700 dark:text-gray-300 mb-4 leading-relaxed text-base">
+                    {event.description}
+                </p>
+                
+                {/* Image de l'événement */}
+                {imageUrl && (
+                    <div className="-mx-6 mb-4">
+                        <Image
+                            src={imageUrl}
+                            alt={event.title}
+                            width={800}
+                            height={400}
+                            className="w-full h-64 object-cover hover:scale-105 transition-transform duration-300"
+                        />
+                    </div>
+                )}
+            </div>
+
+            {/* Footer avec bouton participer uniquement */}
+            <div className="px-6 py-4 bg-slate-50 dark:bg-gray-700/50 border-t border-slate-100 dark:border-gray-700">
+                <div className="flex items-center justify-end">
+                    <motion.button 
+                        className="bg-gradient-to-r from-indigo-500 to-purple-600 text-white px-6 py-2 rounded-lg text-sm font-medium hover:from-indigo-600 hover:to-purple-700 transition-all duration-300"
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                        onClick={() => onShowParticipants && onShowParticipants(event)}
+                    >
+                        Participer
+                    </motion.button>
+                </div>
+            </div>
+        </motion.div>
     );
 };
