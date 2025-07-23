@@ -1,11 +1,14 @@
 "use client";
 
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Clock, Heart, MessageCircle, Share2, Users, Calendar, MapPin } from 'lucide-react';
-import Image from 'next/image';
 import { useTranslations } from 'next-intl';
+import { getGlobalFeedAPI } from '@/lib/api/feed';
+import { getAllSyndicatesAPI } from '@/lib/api/syndicate';
+import UnifiedPostCard from '@/components/shared/UnifiedPostCard';
 
-const activities = [
+// Données de fallback (fake data)
+const fakeActivities = [
     {
         id: 1,
         type: 'publication',
@@ -120,123 +123,50 @@ const activities = [
     }
 ];
 
-function ActivityCard({ activity, index }) {
-    const t = useTranslations('landing_page');
-    const isEvent = activity.type === 'event';
-    
-    return (
-        <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5, delay: index * 0.1 }}
-            className="bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300"
-        >
-            <div className="p-6 border-b border-slate-100">
-                <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-3">
-                        <div className="relative">
-                            <Image
-                                src={activity.author.avatar}
-                                alt={activity.author.name}
-                                width={48}
-                                height={48}
-                                className="rounded-full"
-                            />
-                            {activity.syndicate.verified && (
-                                <div className="absolute -bottom-1 -right-1 bg-blue-500 rounded-full p-1">
-                                    <div className="w-2 h-2 bg-white rounded-full"></div>
-                                </div>
-                            )}
-                        </div>
-                        <div>
-                            <div className="flex items-center space-x-2">
-                                <h3 className="font-semibold text-slate-900 text-base">{activity.author.name}</h3>
-                                <span className="text-slate-500 text-sm">•</span>
-                                <span className="text-slate-600 text-sm">{activity.author.role}</span>
-                            </div>
-                            <div className="flex items-center space-x-2 text-slate-500 text-sm">
-                                <span>{activity.syndicate.name}</span>
-                                <span>•</span>
-                                <Clock className="h-4 w-4" />
-                                <span>{activity.timestamp}</span>
-                            </div>
-                        </div>
-                    </div>
-                    {isEvent && (
-                        <div className="bg-gradient-to-r from-indigo-100 to-purple-100 text-indigo-700 px-3 py-1 rounded-full text-sm font-medium">
-                            {t('event_label')}
-                        </div>
-                    )}
-                </div>
-            </div>
-
-            <div className="p-6">
-                {isEvent && activity.event && (
-                    <div className="mb-4 bg-gradient-to-r from-indigo-50 to-purple-50 rounded-xl p-4 border border-indigo-100">
-                        <h4 className="font-semibold text-indigo-900 mb-2">{activity.event.title}</h4>
-                        <div className="flex flex-wrap items-center text-indigo-700 text-sm gap-4">
-                            <div className="flex items-center">
-                                <Calendar className="h-4 w-4 mr-1" />
-                                {activity.event.date}
-                            </div>
-                            <div className="flex items-center">
-                                <MapPin className="h-4 w-4 mr-1" />
-                                {activity.event.location}
-                            </div>
-                            <div className="flex items-center">
-                                <Users className="h-4 w-4 mr-1" />
-                                {activity.event.participants} {t('participants')}
-                            </div>
-                        </div>
-                    </div>
-                )}
-                
-                <p className="text-slate-700 mb-4 leading-relaxed text-base">{activity.content}</p>
-                
-                {activity.image && (
-                    <div className="-mx-6 mb-4">
-                        <Image
-                            src={activity.image}
-                            alt="Publication"
-                            width={800}
-                            height={400}
-                            className="w-full h-[32rem] object-cover hover:scale-105 transition-transform duration-300"
-                        />
-                    </div>
-                )}
-            </div>
-
-            <div className="px-6 py-4 bg-slate-50 border-t border-slate-100">
-                <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-6">
-                        <button className="flex items-center space-x-2 text-slate-600 hover:text-red-500 transition-colors">
-                            <Heart className="h-5 w-5" />
-                            <span className="text-base font-medium">{activity.likes}</span>
-                        </button>
-                        <button className="flex items-center space-x-2 text-slate-600 hover:text-blue-500 transition-colors">
-                            <MessageCircle className="h-5 w-5" />
-                            <span className="text-base font-medium">{activity.comments}</span>
-                        </button>
-                        <button className="flex items-center space-x-2 text-slate-600 hover:text-green-500 transition-colors">
-                            <Share2 className="h-5 w-5" />
-                            <span className="text-base font-medium">{activity.shares}</span>
-                        </button>
-                    </div>
-                    {isEvent && (
-                        <button className="bg-gradient-to-r from-indigo-500 to-purple-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:from-indigo-600 hover:to-purple-700 transition-all duration-300">
-                            {t('participate_button')}
-                        </button>
-                    )}
-                </div>
-            </div>
-        </motion.div>
-    );
-}
-
 export default function ActivityFeed() {
     const t = useTranslations('landing_page');
-    
+    const [activities, setActivities] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+
+    // Fonction pour récupérer les données réelles
+    const fetchRealData = async () => {
+        try {
+            setLoading(true);
+            setError(null);
+
+            // Essayer de récupérer le feed global (publications + événements)
+            const globalFeed = await getGlobalFeedAPI(0, 5, 'createdAt', 'desc');
+            
+            if (globalFeed && globalFeed.content && globalFeed.content.length > 0) {
+                // Convertir les données du feed en format attendu
+                const convertedActivities = globalFeed.content.map((item) => ({
+                    ...item,
+                    type: item.eventId ? 'event' : 'publication', // Détecter si c'est un événement ou une publication
+                    id: item.postId || item.eventId || item.id
+                }));
+                
+                setActivities(convertedActivities);
+            } else {
+                // Si pas de données, utiliser les fake data
+                console.log('Aucune donnée réelle trouvée, utilisation des données factices');
+                setActivities(fakeActivities);
+            }
+        } catch (error) {
+            console.error('Erreur lors du chargement du feed:', error);
+            setError(error.message);
+            // En cas d'erreur, utiliser les fake data
+            setActivities(fakeActivities);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    // Charger les données au montage
+    useEffect(() => {
+        fetchRealData();
+    }, []);
+
     return (
         <section className="py-20 bg-white">
             <div className="container mx-auto px-4">
@@ -250,9 +180,50 @@ export default function ActivityFeed() {
                 </div>
 
                 <div className="max-w-xl mx-auto space-y-6">
-                    {activities.map((activity, index) => (
-                        <ActivityCard key={activity.id} activity={activity} index={index} />
-                    ))}
+                    {loading ? (
+                        // Skeleton loading
+                        [...Array(3)].map((_, index) => (
+                            <div key={index} className="bg-white rounded-2xl shadow-lg overflow-hidden animate-pulse">
+                                <div className="p-6 border-b border-slate-100">
+                                    <div className="flex items-center space-x-3">
+                                        <div className="w-12 h-12 bg-gray-300 rounded-full"></div>
+                                        <div className="flex-1">
+                                            <div className="h-4 bg-gray-300 rounded mb-2"></div>
+                                            <div className="h-3 bg-gray-300 rounded w-2/3"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className="p-6">
+                                    <div className="h-4 bg-gray-300 rounded mb-4"></div>
+                                    <div className="h-80 bg-gray-300 rounded"></div>
+                                </div>
+                            </div>
+                        ))
+                    ) : activities.length > 0 ? (
+                        activities.map((activity, index) => (
+                            <motion.div
+                                key={activity.id}
+                                initial={{ opacity: 0, y: 20 }}
+                                whileInView={{ opacity: 1, y: 0 }}
+                                viewport={{ once: true }}
+                                transition={{ duration: 0.5, delay: index * 0.1 }}
+                            >
+                                <UnifiedPostCard 
+                                    item={activity}
+                                    type={activity.type}
+                                    variant="landing"
+                                    showActions={false} // Pas d'actions interactives sur la landing page
+                                />
+                            </motion.div>
+                        ))
+                    ) : (
+                        // Message d'erreur ou pas de données
+                        <div className="text-center py-12">
+                            <p className="text-slate-600 text-lg">
+                                {error ? 'Erreur lors du chargement des activités' : 'Aucune activité disponible pour le moment'}
+                            </p>
+                        </div>
+                    )}
                 </div>
 
                 <div className="text-center mt-16">

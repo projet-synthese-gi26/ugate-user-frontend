@@ -8,19 +8,7 @@ import { ClientMotionWrapper } from '@/components/shared/ClientMotionWrapper';
 import { SyndicateCard } from './SyndicateCard'; // On importe la carte client
 import { useState, useEffect, useRef } from 'react';
 import { useTranslations } from 'next-intl';
-
-const popularSyndicats = [
-    { id: 1, name: "Syndicat National de l'Éducation", members: 250000, image: "https://images.unsplash.com/photo-1497633762265-9d179a990aa6?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80" },
-    { id: 2, name: "Union des Travailleurs de la Santé", members: 180000, image: "https://images.unsplash.com/photo-1584820927498-cfe5211fd8bf?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80" },
-    { id: 3, name: "Fédération des Employés du Commerce", members: 150000, image: "https://images.unsplash.com/photo-1556740758-90de374c12ad?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80" },
-    { id: 4, name: "Syndicat des Transporteurs", members: 120000, image: "https://images.unsplash.com/photo-1449824913935-59a10b8d2000?w=1350&q=80" },
-    { id: 5, name: "Alliance des Agriculteurs", members: 95000, image: "https://images.unsplash.com/photo-1574943320219-553eb213f72d?w=1350&q=80" },
-    { id: 6, name: "Syndicat des Artisans", members: 85000, image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=1350&q=80" },
-    { id: 7, name: "Union des Techniciens", members: 110000, image: "https://images.unsplash.com/photo-1581092795442-4c93f4c7b3f1?w=1350&q=80" },
-    { id: 8, name: "Fédération des Cuisiniers", members: 75000, image: "https://images.unsplash.com/photo-1556909114-b0d0c76b91b8?w=1350&q=80" },
-    { id: 9, name: "Syndicat des Ingénieurs", members: 135000, image: "https://images.unsplash.com/photo-1581092795442-4c93f4c7b3f1?w=1350&q=80" },
-    { id: 10, name: "Alliance des Commerçants", members: 90000, image: "https://images.unsplash.com/photo-1556740749-887f6717d7e4?w=1350&q=80" },
-];
+import { getAllSyndicatesAPI } from '@/lib/api/syndicate';
 
 export default function PopularSyndicates() {
     const t = useTranslations('landing_page');
@@ -28,6 +16,26 @@ export default function PopularSyndicates() {
     const [canScrollLeft, setCanScrollLeft] = useState(false);
     const [canScrollRight, setCanScrollRight] = useState(true);
     const [isAutoScrolling, setIsAutoScrolling] = useState(true);
+    const [syndicates, setSyndicates] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+
+    // Fonction pour récupérer les syndicats
+    const fetchSyndicates = async () => {
+        try {
+            setLoading(true);
+            const response = await getAllSyndicatesAPI(0, 10); // Récupérer 10 syndicats
+            setSyndicates(response.content || response || []);
+            setError(null);
+        } catch (err) {
+            console.error('Erreur lors du chargement des syndicats:', err);
+            setError(err.message);
+            // En cas d'erreur, on garde un tableau vide
+            setSyndicates([]);
+        } finally {
+            setLoading(false);
+        }
+    };
 
     const checkScrollPosition = () => {
         if (scrollContainerRef.current) {
@@ -57,9 +65,15 @@ export default function PopularSyndicates() {
         }
     };
 
+    // Effect pour charger les syndicats au montage du composant
+    useEffect(() => {
+        fetchSyndicates();
+    }, []);
+
+    // Effect pour gérer le scroll et l'auto-scroll
     useEffect(() => {
         const container = scrollContainerRef.current;
-        if (container) {
+        if (container && syndicates.length > 0) {
             container.addEventListener('scroll', checkScrollPosition);
             checkScrollPosition();
 
@@ -81,7 +95,7 @@ export default function PopularSyndicates() {
                 if (autoScrollInterval) clearInterval(autoScrollInterval);
             };
         }
-    }, [isAutoScrolling]);
+    }, [isAutoScrolling, syndicates.length]);
 
     return (
         <ClientMotionWrapper delay={0.6} className="py-16 bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-900">
@@ -126,11 +140,33 @@ export default function PopularSyndicates() {
                         onMouseEnter={() => setIsAutoScrolling(false)}
                         onMouseLeave={() => setIsAutoScrolling(true)}
                     >
-                        {popularSyndicats.map((syndicat) => (
-                            <div key={syndicat.id} className="flex-shrink-0 w-80">
-                                <SyndicateCard syndicat={syndicat} />
+                        {loading ? (
+                            // Skeleton loading
+                            [...Array(3)].map((_, index) => (
+                                <div key={index} className="flex-shrink-0 w-80">
+                                    <div className="bg-white rounded-2xl overflow-hidden shadow-lg animate-pulse">
+                                        <div className="h-48 bg-gray-300"></div>
+                                        <div className="p-6">
+                                            <div className="h-6 bg-gray-300 rounded mb-4"></div>
+                                            <div className="h-4 bg-gray-300 rounded w-24"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            ))
+                        ) : syndicates.length > 0 ? (
+                            syndicates.map((syndicat) => (
+                                <div key={syndicat.id} className="flex-shrink-0 w-80">
+                                    <SyndicateCard syndicat={syndicat} />
+                                </div>
+                            ))
+                        ) : (
+                            // Message si aucun syndicat
+                            <div className="flex-shrink-0 w-full text-center py-12">
+                                <p className="text-white/80 text-lg">
+                                    {error ? 'Erreur lors du chargement des syndicats' : 'Aucun syndicat disponible pour le moment'}
+                                </p>
                             </div>
-                        ))}
+                        )}
                     </div>
                 </div>
             </div>
