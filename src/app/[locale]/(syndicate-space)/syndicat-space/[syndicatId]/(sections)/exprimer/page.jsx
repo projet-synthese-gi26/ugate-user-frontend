@@ -4,8 +4,10 @@ import { getPostsAPI } from "@/lib/api/posts";
 
 async function getPublications(syndicatId) {
     try {
-        const posts = await getPostsAPI(syndicatId);
-        return posts;
+        const postsData = await getPostsAPI(syndicatId);
+        // Extraire le tableau de posts de la réponse paginée
+        const postsArray = Array.isArray(postsData) ? postsData : (postsData?.content || []);
+        return postsArray;
     } catch (error) {
         console.error(`Failed to fetch posts for syndicate ${syndicatId}:`, error);
         return [];

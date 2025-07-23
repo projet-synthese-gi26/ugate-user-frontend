@@ -36,7 +36,9 @@ function PublicationsFeedInner({ initialPosts = [], syndicatId }) {
         try {
             await executeWithRetry(async () => {
                 const postsData = await getPostsAPI(syndicatId);
-                setPosts(postsData || []);
+                // Extraire le tableau de posts de la réponse paginée
+                const postsArray = Array.isArray(postsData) ? postsData : (postsData?.content || []);
+                setPosts(postsArray);
                 setLastRefresh(Date.now());
                 clearError('posts');
             }, 'refresh-posts', {
