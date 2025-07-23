@@ -6,6 +6,7 @@ import { motion } from 'framer-motion';
 import Image from 'next/image';
 import { useTranslations } from "next-intl";
 import { Calendar, MapPin, Clock, User, Users, Heart, Share2 } from 'lucide-react';
+import { STATIC_FILES_URL } from '@/lib/constants';
 
 export default function EventCard({ event, onShowParticipants, onUpdateEvent }) {
     const t = useTranslations('common');
@@ -56,7 +57,22 @@ export default function EventCard({ event, onShowParticipants, onUpdateEvent }) 
 
                 {/* ... (Infos: Heure, Lieu) ... */}
                 
-                {event.images && event.images[0] && <div className="relative rounded-xl overflow-hidden mb-6 h-64"><Image src={event.images[0]} alt="Event" fill style={{ objectFit: 'cover' }} /></div>}
+                {/* Image de l'événement */}
+                {(event.imageUrl || (event.imageUrls && event.imageUrls[0])) && (
+                    <div className="relative rounded-xl overflow-hidden mb-6 h-64">
+                        <Image 
+                            src={
+                                event.imageUrl && event.imageUrl.startsWith('/') 
+                                    ? `${STATIC_FILES_URL}${event.imageUrl}` 
+                                    : event.imageUrl || (event.imageUrls && event.imageUrls[0])
+                            } 
+                            alt={event.title} 
+                            fill 
+                            style={{ objectFit: 'cover' }}
+                            className="hover:scale-105 transition-transform duration-300"
+                        />
+                    </div>
+                )}
 
                 {/* Barre d'actions */}
                 <div className="flex items-center justify-between mb-6">
