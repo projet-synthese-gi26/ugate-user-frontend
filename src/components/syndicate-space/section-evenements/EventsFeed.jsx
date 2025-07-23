@@ -40,14 +40,23 @@ function EventsFeedInner({ initialEvents = [], syndicatId }) {
             await executeWithRetry(async () => {
                 const eventsData = await getEventsAPI(syndicatId, page, size, 'startDate', 'DESC');
                 
-                // Gérer la structure de réponse paginée
+                // Gérer la structure de réponse paginée et convertir les dates
+                let events = [];
                 if (eventsData && eventsData.content) {
-                    setEvents(eventsData.content);
+                    events = eventsData.content;
                 } else if (Array.isArray(eventsData)) {
-                    setEvents(eventsData);
-                } else {
-                    setEvents([]);
+                    events = eventsData;
                 }
+                
+                // Convertir les dates string en objets Date
+                const eventsWithDates = events.map(event => ({
+                    ...event,
+                    startDate: new Date(event.startDate),
+                    endDate: new Date(event.endDate),
+                    createdAt: new Date(event.createdAt)
+                }));
+                
+                setEvents(eventsWithDates);
                 
                 setLastRefresh(Date.now());
                 clearError('events');
@@ -84,8 +93,15 @@ function EventsFeedInner({ initialEvents = [], syndicatId }) {
                 const { createEventAPI } = await import('@/lib/api/event');
                 const createdEvent = await createEventAPI(syndicatId, newEventData, newEventData.imageFile);
                 
-                // Ajouter l'événement créé à la liste
-                setEvents(prevEvents => [createdEvent, ...prevEvents]);
+                // Convertir les dates de l'événement créé et l'ajouter à la liste
+                const eventWithDates = {
+                    ...createdEvent,
+                    startDate: new Date(createdEvent.startDate),
+                    endDate: new Date(createdEvent.endDate),
+                    createdAt: new Date(createdEvent.createdAt)
+                };
+                
+                setEvents(prevEvents => [eventWithDates, ...prevEvents]);
                 setIsCreateModalOpen(false);
                 clearError('create-event');
             }, 'create-event', {

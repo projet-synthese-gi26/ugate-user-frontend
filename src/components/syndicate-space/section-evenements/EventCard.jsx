@@ -37,9 +37,15 @@ export default function EventCard({ event, onShowParticipants, onUpdateEvent }) 
             <div className="p-6 sm:p-8">
                 {/* ... (Header avec auteur, titre, date) ... */}
                  <div className="flex items-start mb-6">
-                    <Image src={event.author.profileImage} alt={event.author.name} width={56} height={56} className="w-14 h-14 rounded-full object-cover ring-4 ring-blue-100 dark:ring-blue-900/50" />
+                    {event.author?.profileImage ? (
+                        <Image src={event.author.profileImage} alt={event.author.name} width={56} height={56} className="w-14 h-14 rounded-full object-cover ring-4 ring-blue-100 dark:ring-blue-900/50" />
+                    ) : (
+                        <div className="w-14 h-14 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold text-lg ring-4 ring-blue-100 dark:ring-blue-900/50">
+                            {event.author?.name?.charAt(0).toUpperCase() || 'U'}
+                        </div>
+                    )}
                     <div className="ml-4 flex-grow"><h3 className="font-bold text-2xl text-gray-800 dark:text-white mb-1">{event.title}</h3>
-                        <div className="flex items-center text-sm text-gray-600 dark:text-gray-400"><User className="w-4 h-4 mr-1.5 text-blue-500"/><span className="font-medium">{event.author.name}</span><span className="mx-2">•</span><Calendar className="w-4 h-4 mr-1.5 text-blue-500"/><span>{event.startDate.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long' })}</span></div>
+                        <div className="flex items-center text-sm text-gray-600 dark:text-gray-400"><User className="w-4 h-4 mr-1.5 text-blue-500"/><span className="font-medium">{event.author?.name || 'Utilisateur anonyme'}</span><span className="mx-2">•</span><Calendar className="w-4 h-4 mr-1.5 text-blue-500"/><span>{event.startDate.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long' })}</span></div>
                     </div>
                  </div>
 
