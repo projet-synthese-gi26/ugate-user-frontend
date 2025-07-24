@@ -7,7 +7,7 @@ import Image from "next/image";
 import { useTranslations } from 'next-intl';
 
 // Hero Section Component
-export function HeroSection() {
+function HeroSection() {
     const t = useTranslations('heroComponent');
     return (
         <section className="relative bg-gradient-to-br from-slate-900 via-blue-800 to-blue-900 text-white py-24 lg:py-32">
@@ -74,7 +74,7 @@ export function HeroSection() {
 }
 
 // Features Section Component
-export function FeaturesSection() {
+function FeaturesSection() {
     const t = useTranslations('landing_page');
     const features = [
         {
@@ -291,7 +291,7 @@ function ActivityCard({ activity, index }) {
     );
 }
 
-export function ActivityFeed() {
+function ActivityFeed() {
     const t = useTranslations('landing_page');
     const activities = [
         {
@@ -371,7 +371,7 @@ export function ActivityFeed() {
 }
 
 // Stats Section Component
-export function StatsSection() {
+function StatsSection() {
     const t = useTranslations('landing_page');
     const stats = [
         { label: t('stats_syndicates'), value: "1,500+" },
