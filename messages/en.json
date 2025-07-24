@@ -233,50 +233,15 @@
     "load_more_error_toast": "An error occurred while loading.",
     "end_of_list_message": "You have reached the end of the list.",
     "no_results_title": "No union found",
-    "no_results_description": "Try adjusting your filters or search."
-  },
-  "explore_page": {
+    "no_results_description": "Try adjusting your filters or search.",
     "details": "Details",
     "join": "Join",
     "members": "members",
     "certified": "Certified Union"
   },
-  "profile_page": {
-    "back_to_explorer": "Back to exploration",
-    "join_button": "Join",
-    "key_info_title": "Key information",
-    "members": "Members",
-    "founded": "Founded in",
-    "type": "Type",
-    "contact_title": "Contact",
-    "mission_title": "Our Mission",
-    "no_description": "This union has not yet provided a description.",
-    "activities_title": "Recent activities",
-    "shop_title": "Shop",
-    "no_products": "No products are currently available.",
-    "order_button": "Order",
-    "locations_title": "Our branches",
-    "services_title": "Services offered",
-    "team_title": "The leadership team"
-  },
-  "profile_page": {
-    "back_to_explorer": "Back to exploration",
-    "join_button": "Join",
-    "key_info_title": "Key information",
-    "members": "Members",
-    "founded": "Founded in",
-    "type": "Type",
-    "contact_title": "Contact",
-    "mission_title": "Our Mission",
-    "no_description": "This union has not yet provided a description.",
-    "activities_title": "Recent activities",
-    "shop_title": "Shop",
-    "no_products": "No products are currently available.",
-    "order_button": "Order",
-    "locations_title": "Our branches",
-    "services_title": "Services offered",
-    "team_title": "The leadership team"
-  },
+  
+
+
   "adhesion_modal": {
     "title": "Join {syndicatName}",
     "subtitle": "Follow the steps to finalize your membership application."
@@ -454,6 +419,34 @@
       "cta_secondary": "Explore unions",
       "image_alt": "Modern union management"
     },
+  "profile_page": {
+    "back_to_explorer": "Back to exploration",
+    "join_button": "Join",
+    "key_info_title": "Key information",
+    "members": "Members",
+    "founded": "Founded in",
+    "type": "Type",
+    "contact_title": "Contact",
+    "mission_title": "Our Mission",
+    "no_description": "This union has not yet provided a description.",
+    "activities_title": "Recent activities",
+    "shop_title": "Shop",
+    "no_products": "No products are currently available.",
+    "order_button": "Order",
+    "locations_title": "Our branches",
+    "services_title": "Services offered",
+    "team_title": "The leadership team"
+  },
+
+  "heroComponent": {
+    "title_part1": "Revolutionize",
+    "title_highlighted": "union management",
+    "subtitle": "A modern platform to optimize the communication, transparency, and efficiency of your union organization.",
+    "cta_main": "Get started now",
+    "cta_secondary": "Explore unions",
+    "image_alt": "Modern union management"
+  },
+
   "feed": {
     "empty_feed": "The news feed is empty for now.",
     "come_back_later": "Come back later to see the latest posts and events."
