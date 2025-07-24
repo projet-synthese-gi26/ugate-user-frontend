@@ -4,6 +4,7 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslations } from 'next-intl';
+import { Link } from '@/navigation';
 import UGateIcon from '@/components/shared/UGateIcon';
 
 const AnimatedText = ({ texts }) => {
@@ -48,9 +49,11 @@ export default function LoginAside({ animatedTexts }) {
                 transition={{ duration: 0.5 }}
                 className="text-white text-center relative z-10"
             >
-                <div className="flex justify-center mb-8">
-                    <UGateIcon className="h-20 w-20" />
-                </div>
+                <Link href="/">
+                    <div className="flex justify-center mb-8">
+                        <UGateIcon className="h-20 w-20" />
+                    </div>
+                </Link>
                 <h1 className="text-5xl font-bold mb-8">{t('app_name')}</h1>
                 <AnimatedText texts={animatedTexts} />
             </motion.div>
