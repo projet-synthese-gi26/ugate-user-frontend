@@ -447,6 +447,15 @@
     "image_alt": "Modern union management"
   },
 
+  "heroComponent": {
+    "title_part1": "Revolutionize",
+    "title_highlighted": "union management",
+    "subtitle": "A modern platform to optimize the communication, transparency, and efficiency of your union organization.",
+    "cta_main": "Get started now",
+    "cta_secondary": "Explore unions",
+    "image_alt": "Modern union management"
+  },
+
   "feed": {
     "empty_feed": "The news feed is empty for now.",
     "come_back_later": "Come back later to see the latest posts and events."
