@@ -233,31 +233,11 @@
     "load_more_error_toast": "Ein Fehler ist beim Laden aufgetreten.",
     "end_of_list_message": "Sie haben das Ende der Liste erreicht.",
     "no_results_title": "Keine Gewerkschaft gefunden",
-    "no_results_description": "Versuchen Sie, Ihre Filter oder Suche anzupassen."
-  },
-  "explore_page": {
+    "no_results_description": "Versuchen Sie, Ihre Filter oder Suche anzupassen.",
     "details": "Details",
     "join": "Beitreten",
     "members": "Mitglieder",
     "certified": "Zertifizierte Gewerkschaft"
-  },
-  "profile_page": {
-    "back_to_explorer": "Zurück zur Erkundung",
-    "join_button": "Beitreten",
-    "key_info_title": "Wichtige Informationen",
-    "members": "Mitglieder",
-    "founded": "Gegründet in",
-    "type": "Typ",
-    "contact_title": "Kontakt",
-    "mission_title": "Unsere Mission",
-    "no_description": "Diese Gewerkschaft hat noch keine Beschreibung bereitgestellt.",
-    "activities_title": "Aktuelle Aktivitäten",
-    "shop_title": "Shop",
-    "no_products": "Derzeit sind keine Produkte verfügbar.",
-    "order_button": "Bestellen",
-    "locations_title": "Unsere Zweigstellen",
-    "services_title": "Angebotene Dienstleistungen",
-    "team_title": "Das Führungsteam"
   },
   "profile_page": {
     "back_to_explorer": "Zurück zur Erkundung",

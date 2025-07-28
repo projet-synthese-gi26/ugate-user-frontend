@@ -7,7 +7,7 @@ import { STATIC_FILES_URL } from '@/lib/constants';
 import { useTranslations } from "next-intl";
 
 export default function ExploreCard({ syndicat, itemVariants, onDetails, onAdhere }) {
-    const t = useTranslations('explore_page');
+    const t = useTranslations('explorer_page');
 
     const formatMemberCount = (count) => {
         if (!count) return '0';
