@@ -3,7 +3,7 @@
 
 import { motion } from 'framer-motion';
 import { Mail, Globe, Share2 } from 'lucide-react';
-import { useTranslation } from 'react-i18next';
+import { useTranslations } from 'next-intl';
 
 /**
  * Carte affichant les informations de contact d'un syndicat.
@@ -11,7 +11,7 @@ import { useTranslation } from 'react-i18next';
  * @param {object} variants - Les variantes d'animation framer-motion.
  */
 export default function ProfileContactCard({ syndicate, variants }) {
-    const { t } = useTranslation();
+    const t = useTranslations('profile_page');
 
     const formatUrl = (url) => {
         if (!url) return null;
@@ -25,7 +25,7 @@ export default function ProfileContactCard({ syndicate, variants }) {
             variants={variants}
         >
             <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-4">
-                {t('profile_page.contact_title')}
+                {t('contact_title')}
             </h3>
             <div className="space-y-4">
                 {syndicate.email && (

@@ -4,10 +4,10 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { CheckCircle, Copy, Download } from "lucide-react";
-import { useTranslation } from "react-i18next";
+import { useTranslations } from "next-intl";
 
 export const Confirmation = ({ membershipId, antenne, onComplete }) => {
-    const { t } = useTranslation();
+    const t = useTranslations('confirmation');
     const [copied, setCopied] = useState(false);
 
     const copyToClipboard = () => {

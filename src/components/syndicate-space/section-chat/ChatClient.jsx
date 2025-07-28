@@ -3,9 +3,14 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, Send, Paperclip, Mic, ArrowLeft, MoreVertical, Plus, Phone, Video, Lock, Users, MessageCircle } from 'lucide-react';
-import { useTranslation } from 'react-i18next';
+import { Search, Send, Paperclip, Mic, ArrowLeft, MoreVertical, Plus, Phone, Video, Lock, Users, MessageCircle, RefreshCw, AlertCircle } from 'lucide-react';
+import { useTranslations } from 'next-intl';
+import { toast } from 'react-hot-toast';
 import Image from 'next/image';
+import { useErrorHandler, useApiWithRetry } from '@/hooks/useErrorHandler';
+import { ErrorState, EmptyState, InlineError } from '../ErrorStates';
+import ErrorBoundary from '../ErrorBoundary';
+import { sendMessageAPI, getChatMessagesAPI } from '@/lib/api/chat';
 
 // --- SOUS-COMPOSANTS DE STYLE AMÉLIORÉS ---
 
@@ -53,20 +58,101 @@ const Message = ({ msg, isSent, isGroup }) => (
 
 
 // --- COMPOSANT PRINCIPAL ---
-export default function ChatClient({ initialChats, initialMessages, initialMembers }) {
-    const { t } = useTranslation();
+function ChatClientInner({ initialChats = [], initialMessages = {}, initialMembers = [], syndicatId }) {
+    const t = useTranslations('chat');
+    const { handleError, clearError, hasError, getError } = useErrorHandler();
+    const { executeWithRetry, loading: apiLoading } = useApiWithRetry();
+    
     const [view, setView] = useState('list');
-    const [chats, setChats] = useState(initialChats);
-    const [messages, setMessages] = useState(initialMessages);
+    const [chats, setChats] = useState(initialChats || []);
+    const [messages, setMessages] = useState(initialMessages || {});
     const [activeChat, setActiveChat] = useState(null);
     const [newMessage, setNewMessage] = useState('');
     const [searchTerm, setSearchTerm] = useState('');
+    const [isLoadingMessages, setIsLoadingMessages] = useState(false);
+    const [isSendingMessage, setIsSendingMessage] = useState(false);
     const messagesEndRef = useRef(null);
 
-    useEffect(() => { messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' }); }, [messages, activeChat]);
+    useEffect(() => { 
+        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' }); 
+    }, [messages, activeChat]);
     
-    const handleSendMessage = () => { /* ... */ };
-    const startNewChat = (member) => { /* ... */ };
+    // Charger les messages d'un chat
+    const loadChatMessages = async (chatId) => {
+        if (messages[chatId]) return; // Déjà chargé
+        
+        setIsLoadingMessages(true);
+        try {
+            await executeWithRetry(async () => {
+                const chatMessages = await getChatMessagesAPI(syndicatId, chatId);
+                setMessages(prev => ({
+                    ...prev,
+                    [chatId]: chatMessages || []
+                }));
+                clearError(`messages-${chatId}`);
+            }, `load-messages-${chatId}`, {
+                maxRetries: 2
+            });
+        } catch (error) {
+            // L'erreur est déjà gérée par executeWithRetry
+        } finally {
+            setIsLoadingMessages(false);
+        }
+    };
+    
+    const handleSendMessage = async () => {
+        if (!newMessage.trim() || !activeChat || isSendingMessage) return;
+        
+        const messageText = newMessage.trim();
+        setNewMessage('');
+        setIsSendingMessage(true);
+        
+        // Message optimiste
+        const tempMessage = {
+            id: Date.now(),
+            text: messageText,
+            sender: 'Vous',
+            time: new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }),
+            avatar: 'https://i.pravatar.cc/150?img=1'
+        };
+        
+        setMessages(prev => ({
+            ...prev,
+            [activeChat.id]: [...(prev[activeChat.id] || []), tempMessage]
+        }));
+        
+        try {
+            await executeWithRetry(async () => {
+                await sendMessageAPI(syndicatId, activeChat.id, messageText);
+                clearError(`send-message-${activeChat.id}`);
+            }, `send-message-${activeChat.id}`, {
+                maxRetries: 2,
+                onError: () => {
+                    // Supprimer le message optimiste en cas d'échec
+                    setMessages(prev => ({
+                        ...prev,
+                        [activeChat.id]: (prev[activeChat.id] || []).filter(msg => msg.id !== tempMessage.id)
+                    }));
+                }
+            });
+        } catch (error) {
+            // L'erreur est déjà gérée par executeWithRetry
+        } finally {
+            setIsSendingMessage(false);
+        }
+    };
+    
+    const startNewChat = (member) => {
+        // Implémentation pour créer un nouveau chat
+        console.log('Starting new chat with:', member);
+    };
+    
+    // Charger les messages quand on sélectionne un chat
+    useEffect(() => {
+        if (activeChat) {
+            loadChatMessages(activeChat.id);
+        }
+    }, [activeChat]);
 
     const filteredChats = chats.filter(c => c.name.toLowerCase().includes(searchTerm.toLowerCase()));
     const filteredMembers = initialMembers.filter(m => m.name.toLowerCase().includes(searchTerm.toLowerCase()) && !chats.some(c => c.id === m.id));
@@ -74,8 +160,74 @@ export default function ChatClient({ initialChats, initialMessages, initialMembe
     // Styles pour les bordures subtiles
     const borderStyle = "border-gray-200/80 dark:border-white/10";
 
+    const renderChatMessages = () => {
+        if (hasError(`messages-${activeChat.id}`)) {
+            return (
+                <div className="flex-grow flex items-center justify-center p-8">
+                    <ErrorState 
+                        error={getError(`messages-${activeChat.id}`)}
+                        onRetry={() => loadChatMessages(activeChat.id)}
+                        onDismiss={() => clearError(`messages-${activeChat.id}`)}
+                        variant="compact"
+                    />
+                </div>
+            );
+        }
+        
+        if (isLoadingMessages) {
+            return (
+                <div className="flex-grow flex items-center justify-center p-8">
+                    <div className="flex items-center gap-3 text-neutral-500">
+                        <RefreshCw className="w-6 h-6 animate-spin" />
+                        <span>Chargement des messages...</span>
+                    </div>
+                </div>
+            );
+        }
+        
+        const chatMessages = messages[activeChat.id] || [];
+        
+        if (chatMessages.length === 0) {
+            return (
+                <div className="flex-grow flex items-center justify-center p-8">
+                    <EmptyState
+                        icon={MessageCircle}
+                        title="Aucun message"
+                        description="Commencez la conversation !"
+                        className="bg-transparent"
+                    />
+                </div>
+            );
+        }
+        
+        return (
+            <div className="flex-grow overflow-y-auto p-4 bg-neutral-50 dark:bg-neutral-800/50">
+                {chatMessages.map(msg => (
+                    <Message 
+                        key={msg.id} 
+                        msg={msg} 
+                        isSent={msg.sender === 'Vous'} 
+                        isGroup={activeChat.isGroup} 
+                    />
+                ))}
+                <div ref={messagesEndRef} />
+            </div>
+        );
+    };
+
     return (
-        <div className={`flex h-[calc(100vh-150px)] bg-white dark:bg-gray-800/60 rounded-2xl shadow-2xl border ${borderStyle} overflow-hidden`}>
+        <div className="space-y-6">
+            {/* Header avec gestion d'erreurs globales */}
+            <AnimatePresence>
+                {hasError('send-message') && (
+                    <InlineError 
+                        error={getError('send-message')}
+                        className="mb-4"
+                    />
+                )}
+            </AnimatePresence>
+            
+            <div className={`flex h-[calc(100vh-200px)] bg-white dark:bg-neutral-800 rounded-2xl shadow-soft border border-neutral-200 dark:border-neutral-700 overflow-hidden`}>
             
             {/* --- COLONNE DE GAUCHE (LISTE DES CHATS) --- */}
             <div className={`w-full md:w-1/3 xl:w-1/4 border-r ${borderStyle} flex-col transition-transform duration-300 ${view === 'chat' && !activeChat ? 'flex' : view === 'list' ? 'flex' : 'hidden md:flex'}`}>
@@ -99,20 +251,66 @@ export default function ChatClient({ initialChats, initialMessages, initialMembe
                                 <div className="flex items-center gap-3"><button onClick={() => setActiveChat(null)} className="md:hidden p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full"><ArrowLeft /></button>{activeChat.isGroup ? <div className="w-10 h-10 rounded-lg bg-blue-600 flex items-center justify-center"><Users size={20} className="text-white"/></div> : <Image src={activeChat.avatar} alt={activeChat.name} width={40} height={40} className="w-10 h-10 rounded-full" />}<div><h2 className="font-semibold text-lg">{activeChat.name}</h2>{activeChat.online && <p className="text-xs text-green-500">En ligne</p>}</div></div>
                                 <div className="flex items-center gap-1"><button className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full"><Phone size={20}/></button><button className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full"><Video size={20}/></button><button className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full"><MoreVertical size={20}/></button></div>
                             </header>
-                            <div className="flex-grow overflow-y-auto p-4 bg-gray-50 dark:bg-gray-800/50">{messages[activeChat.id]?.map(msg => <Message key={msg.id} msg={msg} isSent={msg.sender === 'Vous'} isGroup={activeChat.isGroup} />)}<div ref={messagesEndRef} /></div>
-                            <footer className={`p-3 border-t ${borderStyle} bg-white dark:bg-gray-800 flex-shrink-0`}><div className="flex items-center gap-2 bg-gray-100 dark:bg-gray-700 rounded-full px-2"><input type="text" placeholder={t("chat.message_placeholder")} value={newMessage} onChange={(e) => setNewMessage(e.target.value)} onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()} className="flex-grow px-2 py-2 bg-transparent focus:outline-none" /><button className="p-2 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-full"><Paperclip size={20}/></button><button onClick={handleSendMessage} className="p-3 bg-blue-600 text-white rounded-full hover:bg-blue-700 disabled:bg-gray-400" disabled={!newMessage.trim()}><Send size={18} /></button></div></footer>
+                            {renderChatMessages()}
+                            <footer className={`p-3 border-t ${borderStyle} bg-white dark:bg-neutral-800 flex-shrink-0`}>
+                                <div className="flex items-center gap-2 bg-neutral-100 dark:bg-neutral-700 rounded-full px-2">
+                                    <input 
+                                        type="text" 
+                                        placeholder={t("chat.message_placeholder")} 
+                                        value={newMessage} 
+                                        onChange={(e) => setNewMessage(e.target.value)} 
+                                        onKeyPress={(e) => e.key === 'Enter' && !e.shiftKey && (e.preventDefault(), handleSendMessage())}
+                                        className="flex-grow px-2 py-2 bg-transparent focus:outline-none disabled:opacity-50" 
+                                        disabled={isSendingMessage}
+                                    />
+                                    <button 
+                                        className="p-2 hover:bg-neutral-200 dark:hover:bg-neutral-600 rounded-full transition-colors"
+                                        disabled={isSendingMessage}
+                                    >
+                                        <Paperclip size={20}/>
+                                    </button>
+                                    <button 
+                                        onClick={handleSendMessage} 
+                                        className="p-3 bg-primary-600 text-white rounded-full hover:bg-primary-700 disabled:bg-neutral-400 transition-colors flex items-center justify-center" 
+                                        disabled={!newMessage.trim() || isSendingMessage}
+                                    >
+                                        {isSendingMessage ? (
+                                            <RefreshCw size={18} className="animate-spin" />
+                                        ) : (
+                                            <Send size={18} />
+                                        )}
+                                    </button>
+                                </div>
+                            </footer>
                         </motion.div>
                     ) : view === 'search' ? (
                         <motion.div key="search-view" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="h-full flex flex-col p-4 bg-white dark:bg-gray-800">
                            {/* ... Vue de recherche ... */}
                         </motion.div>
                     ) : (
-                        <motion.div key="placeholder-view" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="h-full flex items-center justify-center text-center text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-gray-800/50">
-                            <div className="flex flex-col items-center gap-2"><MessageCircle size={48} className="text-gray-300 dark:text-gray-600" /><p className="font-medium">{t("chat.select_conversation")}</p></div>
+                        <motion.div key="placeholder-view" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="h-full flex items-center justify-center text-center text-neutral-500 dark:text-neutral-400 bg-neutral-50 dark:bg-neutral-800/50">
+                            <EmptyState
+                                icon={MessageCircle}
+                                title="Sélectionnez une conversation"
+                                description="Choisissez un contact ou un groupe pour commencer à discuter"
+                                className="bg-transparent"
+                            />
                         </motion.div>
                     )}
                 </AnimatePresence>
             </div>
         </div>
+    );
+}
+
+// Wrapper avec ErrorBoundary
+export default function ChatClient(props) {
+    return (
+        <ErrorBoundary
+            title="Erreur dans la section Chat"
+            subtitle="Une erreur s'est produite lors du chargement du chat."
+        >
+            <ChatClientInner {...props} />
+        </ErrorBoundary>
     );
 }

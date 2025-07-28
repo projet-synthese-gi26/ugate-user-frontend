@@ -32,7 +32,7 @@ export default function FileUploader({ label, onFileSelect }) {
             >
                 <input type="file" ref={fileInputRef} onChange={handleFileChange} accept="image/*" className="hidden" />
                 {file ? (
-                    <div className="flex items-center justify-center text-green-600">
+                    <div className="flex items-center justify-center text-blue-800">
                         <CheckCircle className="mr-2" /><span>{file.name}</span>
                     </div>
                 ) : (

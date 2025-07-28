@@ -1,11 +1,9 @@
-
 "use client";
-
 import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { useGoogleLogin } from '@react-oauth/google';
-import { useTranslation } from 'react-i18next';
-import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
+import { useRouter } from '@/navigation';
 import toast from 'react-hot-toast';
 import { loginWithGoogle, loginWithApple } from '@/lib/api/auth';
 
@@ -21,9 +19,9 @@ const SocialButton = ({ children, ...props }) => (
     </motion.button>
 );
 
-
 export default function SocialLogins() {
-    const { t } = useTranslation();
+    const t = useTranslations('login_page');
+    const tCommon = useTranslations('common');
     const router = useRouter();
     const [isAppleSDKLoaded, setIsAppleSDKLoaded] = useState(false);
 
@@ -32,20 +30,20 @@ export default function SocialLogins() {
         // La meilleure approche est "auth-code" pour la sécurité
         flow: 'auth-code',
         onSuccess: async (codeResponse) => {
-            toast.loading(t('common.loading'));
+            toast.loading(tCommon('loading'));
             try {
                 // On envoie le code au backend via notre fonction API
                 await loginWithGoogle(codeResponse.code);
                 toast.dismiss();
-                toast.success(t('login_page.success_title'));
-                router.push('/dashboard');
+                toast.success(t('success_title'));
+                router.push('/home');
             } catch (error) {
                 toast.dismiss();
-                toast.error(error.response?.data?.message || 'Erreur de connexion avec Google.');
+                toast.error(error.response?.data?.message || t('generic_error'));
             }
         },
         onError: () => {
-            toast.error('La connexion Google a échoué. Veuillez réessayer.');
+            toast.error(t('generic_error'));
         }
     });
 
@@ -70,21 +68,21 @@ export default function SocialLogins() {
 
     const handleAppleSignIn = async () => {
         if (!isAppleSDKLoaded) {
-            toast.error("Le SDK Apple n'est pas encore chargé.");
+            toast.error(tCommon('loading'));
             return;
         }
         try {
             const data = await window.AppleID.auth.signIn();
-            toast.loading(t('common.loading'));
+            toast.loading(tCommon('loading'));
             await loginWithApple(data.authorization.code);
             toast.dismiss();
-            toast.success(t('login_page.success_title'));
+            toast.success(t('success_title'));
             router.push('/dashboard');
         } catch (error) {
             toast.dismiss();
             // Ne pas montrer d'erreur si l'utilisateur annule manuellement
             if (error.error !== "popup_closed_by_user") {
-                toast.error(error.response?.data?.message || 'Erreur de connexion avec Apple.');
+                toast.error(error.response?.data?.message || t('generic_error'));
             }
         }
     };
@@ -93,12 +91,11 @@ export default function SocialLogins() {
         <div className="w-full">
             <SocialButton onClick={() => googleLogin()}>
                 <img src="/google-logo.svg" alt="Google" className="w-5 h-5 mr-3" />
-                {t("login_page.with_google")}
+                {t("with_google")}
             </SocialButton>
-
             <SocialButton onClick={handleAppleSignIn} disabled={!isAppleSDKLoaded}>
                 <img src="/apple-logo.svg" alt="Apple" className="w-5 h-5 mr-3" />
-                {isAppleSDKLoaded ? 'Se connecter avec Apple' : 'Chargement...'}
+                {isAppleSDKLoaded ? t('with_apple') : tCommon('loading_dots')}
             </SocialButton>
         </div>
     );

@@ -4,13 +4,13 @@
 import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Smile, Image as ImageIcon, Send, X, Clock } from 'lucide-react';
-import { useTranslation } from 'react-i18next';
+import { useTranslations } from 'next-intl';
 import Image from 'next/image';
 import Comment from './comments/Comment';
 import EmojiPicker from './comments/EmojiPicker';
 
 export default function CommentModal({ post, isOpen, onClose, onAddComment }) {
-    const { t } = useTranslation();
+    const t = useTranslations('comments');
     
     // Initialise l'état des commentaires avec les données du post
     // On ajoute 'showReplies' pour contrôler l'affichage des réponses localement

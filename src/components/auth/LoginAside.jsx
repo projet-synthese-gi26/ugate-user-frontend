@@ -3,7 +3,9 @@
 
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Building } from 'lucide-react';
+import { useTranslations } from 'next-intl';
+import { Link } from '@/navigation';
+import UGateIcon from '@/components/shared/UGateIcon';
 
 const AnimatedText = ({ texts }) => {
     const [index, setIndex] = useState(0);
@@ -32,9 +34,10 @@ const AnimatedText = ({ texts }) => {
 };
 
 export default function LoginAside({ animatedTexts }) {
+    const t = useTranslations();
     return (
-        <div className="hidden md:flex w-1/2 bg-gradient-to-br from-blue-600 to-blue-800 flex-col justify-center items-center p-12 relative overflow-hidden">
-            <div className="absolute inset-0 bg-blue-700 opacity-20">
+        <div className="hidden md:flex w-1/2 bg-gradient-to-br from-blue-900 to-blue-950 flex-col justify-center items-center p-12 relative overflow-hidden">
+            <div className="absolute inset-0 bg-blue-900 opacity-20">
                 <svg className="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
                     <path d="M0,0 L100,0 L100,100 L0,100 Z" fill="none" stroke="white" strokeWidth="0.5"/>
                     <path d="M0,50 Q50,0 100,50 Q50,100 0,50 Z" fill="none" stroke="white" strokeWidth="0.5"/>
@@ -46,10 +49,12 @@ export default function LoginAside({ animatedTexts }) {
                 transition={{ duration: 0.5 }}
                 className="text-white text-center relative z-10"
             >
-                <div className="flex justify-center mb-8">
-                    <Building size={80} className="text-white" />
-                </div>
-                <h1 className="text-5xl font-bold mb-8">SyndicManager</h1>
+                <Link href="/">
+                    <div className="flex justify-center mb-8">
+                        <UGateIcon className="h-20 w-20" />
+                    </div>
+                </Link>
+                <h1 className="text-5xl font-bold mb-8">{t('app_name')}</h1>
                 <AnimatedText texts={animatedTexts} />
             </motion.div>
         </div>

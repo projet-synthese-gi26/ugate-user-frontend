@@ -1,11 +1,14 @@
-
+import createNextIntlPlugin from 'next-intl/plugin';
+import i18nConfig from './src/i18n.js';
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+    // Mode strict React
     reactStrictMode: true,
-    turbopack: {
-        enabled: true,
-    },
+
+    output: 'standalone',
+    
+
     images: {
         remotePatterns: [
             {
@@ -14,22 +17,36 @@ const nextConfig = {
                 port: '',
                 pathname: '/**',
             },
-            { // --- AJOUTEZ CE NOUVEL OBJET ---
+            {
                 protocol: 'https',
-                hostname: 'i.pravatar.cc', // Le nouveau domaine à autoriser
+                hostname: 'i.pravatar.cc',
                 port: '',
-                pathname: '/**', // Autorise toutes les images de ce domaine
+                pathname: '/**',
+            },
+            {
+                protocol: 'http',
+                hostname: '167.235.62.116',
+                port: '7014',
+                pathname: '/**',
             },
         ],
     },
+    
+    // Réécriture des URLs pour l'API
     async rewrites() {
         return [
             {
                 source: '/api/:path*',
-                destination: 'http://167.235.62.116:7014/api/:path*', // URL de votre backend
+                destination: 'http://167.235.62.116:7014/api/:path*',
             },
         ]
     },
+    
+    // Optimisations pour Docker
+    experimental: {
+        // Optimise le tracing des fichiers pour Docker
+        outputFileTracingRoot: process.cwd(),
+    },
 };
 
-export default nextConfig;
+export default createNextIntlPlugin(i18nConfig)(nextConfig);

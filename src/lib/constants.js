@@ -1,0 +1,1 @@
+export const STATIC_FILES_URL = 'http://167.235.62.116:7014';

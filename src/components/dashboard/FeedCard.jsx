@@ -1,105 +1,126 @@
-// src/components/dashboard/FeedCard.jsx
 "use client";
-
 import { motion } from 'framer-motion';
 import Image from 'next/image';
-import { formatDistanceToNow } from 'date-fns';
+import { formatDistanceToNow, format } from 'date-fns';
 import { fr } from 'date-fns/locale';
-import { 
-    Clock, Heart, MessageCircle, Share2, Bookmark, Calendar, User, Send 
-} from 'lucide-react';
+import { Clock, Heart, MessageCircle, Share2, MapPin, User } from 'lucide-react';
 import { useState } from 'react';
-import { useTranslation } from 'react-i18next';
+import { useTranslations } from 'next-intl';
+import FeedItemHeader from './FeedItemHeader';
+import { SyndicatDefaultAvatar } from '../shared/SyndicatDefaultAvatar';
+import { STATIC_FILES_URL } from '@/lib/constants';
 
-// Variantes d'animation pour la carte elle-même
-const itemVariants = {
-    hidden: { y: 20, opacity: 0 },
-    visible: { y: 0, opacity: 1, transition: { duration: 0.5, ease: 'easeOut' } },
-};
+const ActionButton = ({ icon: Icon, text, onClick, active, activeColor = 'text-red-500' }) => (
+    <motion.button
+        onClick={onClick}
+        className={`flex items-center justify-center w-full gap-2 py-2.5 rounded-lg transition-all duration-200 ${
+            active
+                ? `${activeColor.replace('text-', 'bg-').replace('-500', '-100')} dark:${activeColor.replace('text-', 'bg-').replace('-500', '-900/50')} ${activeColor}`
+                : 'text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700'
+        }`}
+        whileHover={{ scale: 1.05 }}
+        whileTap={{ scale: 0.95 }}
+    >
+        <Icon size={18} fill={active ? 'currentColor' : 'none'} />
+        <span className="font-medium text-sm">{text}</span>
+    </motion.button>
+);
 
 export default function FeedCard({ item }) {
-    const { t } = useTranslation();
+    const t = useTranslations('common');
     const [liked, setLiked] = useState(false);
-    const [bookmarked, setBookmarked] = useState(false);
-
-    // --- CORRECTION CENTRALE ---
-    // On détermine la date principale à utiliser.
-    // 'createdAt' pour les publications, 'startDate' pour les événements.
     const dateToUse = item.createdAt || item.startDate;
+    const timeAgo = dateToUse ? formatDistanceToNow(new Date(dateToUse), { addSuffix: true, locale: fr }) : t('unknown_date');
+    const imageUrl = item.image && item.image.startsWith('/') ? `${STATIC_FILES_URL}${item.image}` : item.image;
 
-    let timeAgo = t('common.unknown_date'); // Fallback text
-    if (dateToUse) {
-        try {
-            // On s'assure que l'on passe un objet Date valide.
-            const dateObject = new Date(dateToUse);
-            if (!isNaN(dateObject.getTime())) {
-                timeAgo = formatDistanceToNow(dateObject, { addSuffix: true, locale: fr });
-            }
-        } catch (e) {
-            console.error("Erreur de formatage de date pour l'item :", item, e);
-        }
-    }
-    // --- FIN DE LA CORRECTION ---
-
-    // On détermine si l'item est une publication ou un événement
-    // La présence de la propriété 'content' est un bon indicateur pour une publication.
-    const isPublication = 'content' in item;
-
-    if (isPublication) {
-        // === RENDU POUR UNE PUBLICATION ===
+    if (item.type === 'publication') {
+        const authorAvatarUrl = item.author.avatar && item.author.avatar.startsWith('/') ? `${STATIC_FILES_URL}${item.author.avatar}` : item.author.avatar;
         return (
-            <motion.div variants={itemVariants} className="bg-white dark:bg-gray-800/50 p-6 rounded-2xl shadow-lg border dark:border-gray-700">
-                <div className="flex items-center mb-4">
-                    <Image src={item.author.avatar} alt={item.author.name} width={48} height={48} className="w-12 h-12 rounded-full mr-4 object-cover"/>
-                    <div className="flex-grow">
-                        <p className="font-bold text-gray-900 dark:text-white">{item.author.name}</p>
-                        <p className="text-xs text-gray-500 dark:text-gray-400 flex items-center gap-1"><Clock size={12}/> {timeAgo}</p>
-                    </div>
-                    <motion.button whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }} onClick={() => setBookmarked(!bookmarked)} className={`p-2 rounded-full transition-colors ${bookmarked ? "text-blue-500 bg-blue-100 dark:bg-blue-900/50" : "text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700"}`}>
-                        <Bookmark fill={bookmarked ? 'currentColor' : 'none'}/>
-                    </motion.button>
-                </div>
-                <p className="text-gray-700 dark:text-gray-300 mb-4 whitespace-pre-wrap">{item.content}</p>
-                {item.image && <Image src={item.image} alt="Contenu de la publication" width={800} height={500} className="rounded-lg w-full h-auto mb-4"/>}
-                <div className="flex items-center justify-between border-t border-gray-200 dark:border-gray-700 pt-4">
-                    <motion.button onClick={() => setLiked(!liked)} className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-semibold transition-colors ${liked ? "text-red-500 bg-red-100 dark:bg-red-900/50" : "text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"}`} whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                        <Heart fill={liked ? 'currentColor' : 'none'} size={18}/> {t('common.like')}
-                    </motion.button>
-                    <motion.button className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-semibold text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700" whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                        <MessageCircle size={18}/> {t('common.comment')}
-                    </motion.button>
-                    <motion.button className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-semibold text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700" whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                        <Share2 size={18}/> {t('common.share')}
-                    </motion.button>
-                </div>
-            </motion.div>
-        );
-    } else {
-        // === RENDU POUR UN ÉVÉNEMENT ===
-        return (
-             <motion.div variants={itemVariants} className="bg-white dark:bg-gray-800/50 rounded-2xl shadow-lg border dark:border-gray-700 overflow-hidden">
-                {item.image && <Image src={item.image} alt="Image de l'événement" width={800} height={400} className="w-full h-48 object-cover"/>}
-                <div className="p-6">
-                    <div className="flex justify-between items-start mb-2">
+            <div className="bg-white dark:bg-gray-800/60 rounded-2xl shadow-xl border border-gray-200/50 dark:border-white/10 overflow-hidden">
+                <FeedItemHeader syndicat={item.syndicat} branch={item.branch} />
+                <div className="p-5 sm:p-6">
+                    <div className="flex items-start gap-4 mb-4">
+                        {authorAvatarUrl ? (
+                            <Image src={authorAvatarUrl} alt={item.author.name} width={48} height={48} className="w-12 h-12 rounded-full object-cover ring-2 ring-white/50 dark:ring-white/10" />
+                        ) : (
+                            <SyndicatDefaultAvatar name={item.author.name} size={48} />
+                        )}
                         <div>
-                            <p className="text-xs font-bold uppercase text-blue-500 dark:text-blue-400">{t('events.upcoming_event')}</p>
-                             <h3 className="text-xl font-bold text-gray-900 dark:text-white mt-1">{item.title}</h3>
-                        </div>
-                        <div className="text-right flex-shrink-0 ml-4">
-                            <p className="font-bold text-lg text-gray-800 dark:text-gray-200">{new Date(dateToUse).getDate()}</p>
-                            <p className="text-sm uppercase text-gray-500 dark:text-gray-400">{new Date(dateToUse).toLocaleString('fr-FR', { month: 'short' })}</p>
+                            <p className="font-bold text-gray-900 dark:text-white">{item.author.name}</p>
+                            <p className="text-xs text-gray-500 dark:text-gray-400 flex items-center gap-1.5">
+                                <Clock size={12} /> {timeAgo}
+                            </p>
                         </div>
                     </div>
-                    <p className="text-sm text-gray-600 dark:text-gray-400 mb-4 line-clamp-2">{item.description}</p>
-                    <div className="text-xs text-gray-500 dark:text-gray-400">
-                        <p className="flex items-center gap-2"><User size={14}/> Organisé par <strong>{item.author.name}</strong></p>
-                        <p className="flex items-center gap-2 mt-1"><Clock size={14}/> Publié {timeAgo}</p>
+                    <p className="text-gray-700 dark:text-gray-300 mb-5 whitespace-pre-wrap text-base leading-relaxed">{item.content}</p>
+                    {imageUrl && (
+                        <div className="rounded-xl overflow-hidden shadow-lg">
+                            <Image src={imageUrl} alt="Contenu" width={800} height={500} className="w-full h-auto" />
+                        </div>
+                    )}
+                    <div className="flex justify-between items-center text-sm text-gray-500 dark:text-gray-400 my-4">
+                        <span>
+                            {item.likes} {t('likes__one', { count: item.likes })}
+                        </span>
+                        <span>
+                            {item.comments?.length || 0} {t('comments_one', { count: item.comments?.length || 0 })}
+                        </span>
                     </div>
-                    <motion.button className="w-full mt-6 py-2 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition-colors" whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-                        {t('events.see_and_join')}
-                    </motion.button>
+                    <div className="flex items-center justify-around border-t border-gray-100 dark:border-gray-700/50 pt-3 gap-2">
+                        <ActionButton icon={Heart} text={t('like')} onClick={() => setLiked(!liked)} active={liked} activeColor="text-red-500" />
+                        <ActionButton icon={MessageCircle} text={t('comment')} activeColor="text-blue-500" />
+                        <ActionButton icon={Share2} text={t('share')} activeColor="text-green-500" />
+                    </div>
                 </div>
-            </motion.div>
+            </div>
         );
     }
+
+    if (item.type === 'event') {
+        const startDate = new Date(dateToUse);
+        return (
+            <div className="bg-white dark:bg-gray-800/60 rounded-2xl shadow-xl border border-gray-200/50 dark:border-white/10 overflow-hidden">
+                <FeedItemHeader syndicat={item.syndicat} branch={item.branch} />
+                {imageUrl && (
+                    <div className="relative h-52 group">
+                        <Image src={imageUrl} alt={item.title} fill style={{ objectFit: 'cover' }} className="transition-transform duration-300 group-hover:scale-105" />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent"></div>
+                        <div className="absolute bottom-4 left-5">
+                            <h3 className="text-2xl font-bold text-white drop-shadow-lg">{item.title}</h3>
+                            <p className="text-sm text-white/90 drop-shadow-md">{item.description}</p>
+                        </div>
+                    </div>
+                )}
+                <div className="p-5 sm:p-6">
+                    <div className="grid grid-cols-3 gap-4 text-center mb-5">
+                        <div className="p-3 bg-blue-50 dark:bg-blue-900/40 rounded-lg">
+                            <p className="text-xl font-bold text-blue-600 dark:text-blue-300">{format(startDate, 'dd')}</p>
+                            <p className="text-xs font-semibold text-blue-500 dark:text-blue-400 uppercase">{format(startDate, 'MMM', { locale: fr })}</p>
+                        </div>
+                        <div className="p-3 bg-green-50 dark:bg-green-900/40 rounded-lg col-span-2">
+                            <p className="font-semibold text-green-700 dark:text-green-300">{format(startDate, 'EEEE', { locale: fr })}</p>
+                            <p className="text-xs text-green-600 dark:text-green-400">{format(startDate, 'HH:mm')}</p>
+                        </div>
+                    </div>
+                    <div className="text-sm text-gray-600 dark:text-gray-400 space-y-2 mb-6">
+                        <p className="flex items-center gap-2">
+                            <MapPin size={16} className="text-purple-500" /> {item.location}
+                        </p>
+                        <p className="flex items-center gap-2">
+                            <User size={16} className="text-purple-500" /> Organisé par <strong>{item.author.name}</strong>
+                        </p>
+                    </div>
+                    <motion.button
+                        className="w-full py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all"
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                    >
+                        {t('see_and_join')} ({item.participants?.length || 0} {t('participants')})
+                    </motion.button>
+                </div>
+            </div>
+        );
+    }
+
+    return null;
 }

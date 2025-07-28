@@ -13,39 +13,48 @@ import { motion } from 'framer-motion';
  */
 export default function NotificationCard({ icon: Icon, title, message, time, type }) {
     const bgColors = {
-        info: 'bg-blue-50 dark:bg-blue-900/50 border-blue-200 dark:border-blue-800/50',
-        success: 'bg-green-50 dark:bg-green-900/50 border-green-200 dark:border-green-800/50',
-        warning: 'bg-yellow-50 dark:bg-yellow-900/50 border-yellow-200 dark:border-yellow-800/50',
+        info: 'bg-primary-50 dark:bg-primary-900/20 border-primary-100 dark:border-primary-800/30',
+        success: 'bg-emerald-50 dark:bg-emerald-900/20 border-emerald-100 dark:border-emerald-800/30',
+        warning: 'bg-amber-50 dark:bg-amber-900/20 border-amber-100 dark:border-amber-800/30',
     };
 
     const iconBgColors = {
-        info: 'bg-blue-100 dark:bg-blue-800/50',
-        success: 'bg-green-100 dark:bg-green-800/50',
-        warning: 'bg-yellow-100 dark:bg-yellow-800/50',
+        info: 'bg-primary-100 dark:bg-primary-800/30',
+        success: 'bg-emerald-100 dark:bg-emerald-800/30',
+        warning: 'bg-amber-100 dark:bg-amber-800/30',
     };
     
     const iconTextColors = {
-        info: 'text-blue-600 dark:text-blue-300',
-        success: 'text-green-600 dark:text-green-300',
-        warning: 'text-yellow-600 dark:text-yellow-400',
+        info: 'text-primary-600 dark:text-primary-400',
+        success: 'text-emerald-600 dark:text-emerald-400',
+        warning: 'text-amber-600 dark:text-amber-400',
     };
 
     return (
         <motion.div
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -20 }}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
             transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-            className={`p-4 rounded-xl border ${bgColors[type] || bgColors.info} transition-all duration-300 hover:shadow-md hover:border-transparent`}
+            className={`p-4 rounded-xl border ${bgColors[type] || bgColors.info} transition-all duration-200 hover:shadow-soft cursor-pointer group`}
         >
             <div className="flex items-start">
-                <div className={`flex-shrink-0 p-2 rounded-full ${iconBgColors[type] || iconBgColors.info}`}>
-                    <Icon className={`w-5 h-5 ${iconTextColors[type] || iconTextColors.info}`} />
+                <div className={`flex-shrink-0 p-2.5 rounded-xl ${iconBgColors[type] || iconBgColors.info} group-hover:scale-105 transition-transform duration-200`}>
+                    <Icon className={`w-4 h-4 ${iconTextColors[type] || iconTextColors.info}`} />
                 </div>
-                <div className="ml-3 flex-1">
-                    <h4 className="font-semibold text-sm text-gray-800 dark:text-gray-100">{title}</h4>
-                    <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">{message}</p>
-                    <span className="text-xs text-gray-500 dark:text-gray-400 mt-2 block">{time}</span>
+                <div className="ml-3 flex-1 min-w-0">
+                    <h4 className="font-semibold text-sm text-neutral-800 dark:text-neutral-100 group-hover:text-neutral-900 dark:group-hover:text-white transition-colors duration-200">
+                        {title}
+                    </h4>
+                    <p className="text-sm text-neutral-600 dark:text-neutral-300 mt-1 leading-relaxed">
+                        {message}
+                    </p>
+                    <div className="flex items-center justify-between mt-2">
+                        <span className="text-xs font-medium text-neutral-500 dark:text-neutral-400">
+                            {time}
+                        </span>
+                        <div className="w-2 h-2 rounded-full bg-current opacity-20"></div>
+                    </div>
                 </div>
             </div>
         </motion.div>

@@ -4,7 +4,7 @@
 import { useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { CheckCircle, ChevronLeft, ChevronRight } from "lucide-react";
-import { useTranslation } from "react-i18next";
+import { useTranslations } from "next-intl";
 import { AntenneSelection } from "./AntenneSelection.jsx";
 import { UserTypeSelection } from "./UserTypeSelection.jsx";
 import { IndividualForm } from "./IndividualMembershipForm.jsx";
@@ -12,7 +12,7 @@ import { Confirmation } from "./MembershipConfirmation.jsx";
 import { antennesData } from "@/lib/fakeData/antenne.js";
 
 export const AdhereSyndicatForm = ({ syndicat, onComplete }) => {
-    const { t } = useTranslation();
+    const t = useTranslations('adhesion_form');
     const [currentStep, setCurrentStep] = useState(1);
     const [selectedAntenne, setSelectedAntenne] = useState(null);
     const [selectedUserType, setSelectedUserType] = useState(null);

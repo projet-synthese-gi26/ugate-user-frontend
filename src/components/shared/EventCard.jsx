@@ -4,7 +4,7 @@
 import { useState } from "react";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
-import { useTranslation } from "react-i18next";
+import { useTranslations } from "next-intl";
 import { Calendar, MapPin, Clock, Users, User, CheckCircle } from "lucide-react";
 import { SyndicatDefaultAvatar } from '@/components/shared/SyndicatDefaultAvatar.jsx';
 
@@ -19,7 +19,7 @@ const InfoPill = ({ icon: Icon, text, colorClass = 'blue' }) => (
 export default function EventCard({ event, onUpdateEvent, onShowParticipants }) {
     const [isExpanded, setIsExpanded] = useState(false);
     const [isParticipating, setIsParticipating] = useState(false);
-    const { t } = useTranslation();
+    const t = useTranslations('common');
 
     // S'assurer que event.startDate et event.endDate sont des objets Date valides
     const startDate = event.startDate ? new Date(event.startDate) : new Date();

@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Swal from 'sweetalert2';
+import { useTranslations } from 'next-intl';
 import { createSyndicateAPI } from '@/lib/api/syndicates';
 import { useUser } from '@/context/UserContext';
 
@@ -10,16 +11,17 @@ import Step1_TypeSelection from './Step1_TypeSelection';
 import Step2_AnonymousForm from './Step2_AnonymousForm';
 import Step3_Antennes from './Step3_Antennes';
 
-const Step2Accredited = ({ goBackToStep1 }) => (
+const Step2Accredited = ({ goBackToStep1, t }) => (
     <div className="p-8 text-center">
-        <h2 className="text-2xl font-bold mb-4">Fonctionnalité à venir</h2>
-        <p className="text-gray-600 mb-6">Le processus de création pour les syndicats accrédités est en cours de développement.</p>
-        <button onClick={goBackToStep1} className="text-blue-600 font-semibold">Retour</button>
+        <h2 className="text-2xl font-bold mb-4">{t('upcoming_feature')}</h2>
+        <p className="text-gray-600 mb-6">{t('accredited_syndicate_development')}</p>
+        <button onClick={goBackToStep1} className="text-blue-800 font-semibold hover:text-blue-900 transition-colors">{t('back')}</button>
     </div>
 );
 
 export function CreateSyndicateWizard({ onSuccess }) {
     const { user } = useUser();
+    const t = useTranslations('create_syndicate');
     const [currentStep, setCurrentStep] = useState(1);
     const [syndicatType, setSyndicatType] = useState("");
 
@@ -134,7 +136,7 @@ export function CreateSyndicateWizard({ onSuccess }) {
                     );
                 }
                 if (syndicatType === "accredited") {
-                    return <Step2Accredited goBackToStep1={goBackToStep1} />;
+                    return <Step2Accredited goBackToStep1={goBackToStep1} t={t} />;
                 }
                 return goBackToStep1();
             case 3:

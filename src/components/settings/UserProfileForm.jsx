@@ -2,7 +2,7 @@
 "use client";
 
 import { useForm, FormProvider, Controller } from 'react-hook-form';
-import { useTranslation } from 'react-i18next';
+import { useTranslations } from 'next-intl';
 import { toast } from 'react-hot-toast';
 import { User, Phone, Mail, Camera, FileText, GraduationCap, Save } from 'lucide-react';
 import FormSection from './FormSection';
@@ -11,7 +11,7 @@ import DynamicFieldArray from './DynamicFieldArray';
 import { FileUploader } from '../forms/adhesion/file-uploader'; // On réutilise ce composant
 
 export default function UserProfileForm({ initialData }) {
-    const { t } = useTranslation();
+    const t = useTranslations('settings_page');
 
     // On transforme la liste de strings en objets pour `useFieldArray`
     const transformedData = {

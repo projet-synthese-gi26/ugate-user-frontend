@@ -1,46 +1,53 @@
+'use client';
 
-"use client";
-
-import Image from "next/image";
-import Link from "next/link";
-import { motion } from "framer-motion";
-import { Users, ChevronRight } from "lucide-react";
-
-const t = (key) => key.replace(/_/g, ' ');
+import Image from 'next/image';
+import { Link } from '@/navigation';
+import { Users, ChevronRight } from 'lucide-react';
 
 export function SyndicateCard({ syndicat }) {
+    const formatMembers = (count) => {
+        if (count >= 1000000) {
+            return `${(count / 1000000).toFixed(1)}M`;
+        } else if (count >= 1000) {
+            return `${(count / 1000).toFixed(0)}k`;
+        }
+        return count.toString();
+    };
+
+    // Gestion de la compatibilité entre les données fake et les données réelles de l'API
+    const imageUrl = syndicat.bannerUrl || syndicat.image || '/placeholder-image.jpg';
+    const memberCount = syndicat.memberCount || syndicat.members || 0;
+
     return (
-        <motion.div
-            className="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition duration-300"
-            whileHover={{ y: -5 }}
-        >
-            <div className="relative w-full h-48">
+        <div className="bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:scale-105">
+            <div className="relative h-48 overflow-hidden">
                 <Image
-                    src={syndicat.image}
+                    src={imageUrl}
                     alt={syndicat.name}
                     fill
-                    style={{ objectFit: 'cover' }}
+                    className="object-cover transition-transform duration-300 hover:scale-110"
                 />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+                <div className="absolute bottom-4 left-4 right-4">
+                    <div className="flex items-center text-white text-sm">
+                        <Users className="w-4 h-4 mr-2" />
+                        <span className="font-semibold">{formatMembers(memberCount)} membres</span>
+                    </div>
+                </div>
             </div>
+            
             <div className="p-6">
-                <h3 className="text-xl font-semibold text-indigo-800 mb-4 h-14">
+                <h3 className="text-xl font-bold text-slate-900 mb-4 line-clamp-2">
                     {syndicat.name}
                 </h3>
-                <div className="flex items-center text-gray-600 mb-4">
-                    <Users className="h-5 w-5 mr-2 text-[#6BAED6]" />
-                    <span>{syndicat.members.toLocaleString()} membres</span>
-                </div>
-                <Link href={`/syndicat/${syndicat.id}`} passHref>
-                    <motion.button
-                        className="w-full bg-gradient-to-r from-[#6BAED6] to-indigo-700 text-white py-2 rounded-md flex items-center justify-center transition duration-300 hover:opacity-90 shadow-md"
-                        whileHover={{ scale: 1.03 }}
-                        whileTap={{ scale: 0.98 }}
-                    >
-                        {t("en_savoir_plus")}
-                        <ChevronRight className="ml-2 h-4 w-4" />
-                    </motion.button>
+                
+                <Link href={`/explorer/${syndicat.id}`}>
+                    <button className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition-all duration-200 transform hover:scale-105 flex items-center justify-center group">
+                        En savoir plus
+                        <ChevronRight className="w-4 h-4 ml-2 transition-transform duration-200 group-hover:translate-x-1" />
+                    </button>
                 </Link>
             </div>
-        </motion.div>
+        </div>
     );
 }

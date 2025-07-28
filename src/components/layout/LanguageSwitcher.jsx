@@ -2,27 +2,19 @@
 "use client";
 
 import { useState } from 'react';
-import { useRouter, usePathname } from 'next/navigation';
-import { useTranslation } from 'react-i18next';
+import { useRouter, usePathname } from '@/navigation';
+import { useLocale } from 'next-intl';
 import { Globe, ChevronDown } from 'lucide-react';
-import i18nConfig from '../../../i18nConfig';
 
 export default function LanguageSwitcher() {
-    const { i18n } = useTranslation();
-    const currentLocale = i18n.language;
+    const currentLocale = useLocale();
     const router = useRouter();
-    const currentPathname = usePathname();
+    const pathname = usePathname();
     const [isOpen, setIsOpen] = useState(false);
 
     const handleChange = (newLocale) => {
-        // ex: pathname is /fr/dashboard
-        // currentLocale is 'fr'
-        // newLocale is 'en'
-        // newPathname will be /en/dashboard
-        const newPathname = currentPathname.replace(`/${currentLocale}`, `/${newLocale}`);
-
-        // On utilise le routeur de Next pour changer de page, ce qui conserve l'état client
-        router.push(newPathname);
+        // Utilise next-intl navigation pour changer de locale
+        router.push(pathname, { locale: newLocale });
         setIsOpen(false);
     };
 
@@ -45,7 +37,7 @@ export default function LanguageSwitcher() {
 
             {isOpen && (
                 <div className="absolute right-0 mt-2 w-40 bg-white dark:bg-gray-800 rounded-lg shadow-lg py-1 z-50 border dark:border-gray-700">
-                    {i18nConfig.locales.map((locale) => (
+                    {['fr', 'en', 'de'].map((locale) => (
                         <button
                             key={locale}
                             onClick={() => handleChange(locale)}

@@ -2,9 +2,11 @@
 
 import { motion } from "framer-motion";
 import Image from "next/image";
-import { useRouter } from 'next/navigation';
-import { ArrowRightCircle, Users, BarChart2, TrendingUp } from "lucide-react";
-import { useTranslation } from "react-i18next";
+import { useRouter } from '@/navigation';
+import { ArrowRightCircle, Users, BarChart2 } from "lucide-react";
+import { useTranslations } from "next-intl";
+import { STATIC_FILES_URL } from "@/lib/constants";
+import { SyndicatDefaultAvatar } from "../shared/SyndicatDefaultAvatar";
 
 const itemVariants = {
     hidden: { y: 20, opacity: 0 },
@@ -13,25 +15,14 @@ const itemVariants = {
 
 export default function SyndicateCard({ syndicat }) {
     const router = useRouter();
-    const { t } = useTranslation();
+    const t = useTranslations('syndicats_page');
 
     const handleAccessSpace = (syndicatId) => {
-        router.push(`/syndicat-space/${syndicatId}`);
+        router.push(`/syndicat-space/${syndicatId}/membres`);
     };
 
-    const TrendIndicator = ({ trend }) => {
-        switch (trend) {
-            case "up":
-                return <TrendingUp className="h-5 w-5 text-green-500" title="Tendance à la hausse" />;
-            case "down":
-                return <TrendingUp className="h-5 w-5 text-red-500 rotate-180" title="Tendance à la baisse" />;
-            default:
-                return <BarChart2 className="h-5 w-5 text-gray-400 dark:text-gray-500" title="Tendance stable" />;
-        }
-    };
-
-    // CORRECTION ICI : On utilise syndicat.memberCount et on ajoute un fallback `|| 0`
-    const memberDisplayCount = (syndicat.memberCount || 0).toLocaleString();
+    const bannerUrl = syndicat.bannerUrl && syndicat.bannerUrl.startsWith('/') ? `${STATIC_FILES_URL}${syndicat.bannerUrl}` : "/placeholder-cover.jpg";
+    const logoUrl = syndicat.logoUrl && syndicat.logoUrl.startsWith('/') ? `${STATIC_FILES_URL}${syndicat.logoUrl}` : null;
 
     return (
         <motion.div
@@ -40,49 +31,34 @@ export default function SyndicateCard({ syndicat }) {
             whileHover={{ y: -8 }}
         >
             <div className="relative aspect-video">
-                <Image
-                    src={syndicat.bannerUrl || "/placeholder-cover.jpg"}
-                    alt={syndicat.name}
-                    fill
-                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                    style={{ objectFit: 'cover' }}
-                    className="transition-transform duration-500 group-hover:scale-105"
-                />
+                <Image src={bannerUrl} alt={syndicat.name} fill sizes="(max-width: 768px) 100vw, 50vw" style={{ objectFit: 'cover' }} className="transition-transform duration-500 group-hover:scale-105" onError={(e) => { e.currentTarget.src = "/placeholder-cover.jpg"; }}/>
                 <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent"></div>
-                <div className="absolute bottom-4 left-4">
-                    <span className="text-sm font-semibold text-white bg-blue-600/90 rounded-lg px-3 py-1.5 shadow-md">
-                        {syndicat.type || 'Syndicat'}
-                    </span>
+                <div className="absolute -bottom-10 left-6">
+                    <div className="w-20 h-20 bg-white dark:bg-gray-800 rounded-full p-1 shadow-lg border-4 border-white dark:border-gray-800">
+                        {logoUrl ? <Image src={logoUrl} alt={`${syndicat.name} logo`} width={80} height={80} className="rounded-full object-cover w-full h-full" /> : <SyndicatDefaultAvatar name={syndicat.name} size={72} />}
+                    </div>
                 </div>
             </div>
 
-            <div className="p-6 flex flex-col flex-grow">
+            <div className="p-6 pt-12 flex flex-col flex-grow">
                 <h2 className="text-xl font-bold text-gray-900 dark:text-white line-clamp-2 leading-snug h-14">
                     {syndicat.name}
                 </h2>
-
                 <div className="flex items-center justify-between text-gray-600 dark:text-gray-400 my-4">
                     <div className="flex items-center space-x-2">
-                        <Users className="h-5 w-5 text-blue-500" />
-                        <span className="text-sm font-medium">
-                            {/* On utilise la variable corrigée */}
-                            {memberDisplayCount} membres
-                        </span>
+                        <Users className="h-5 w-5 text-blue-700" />
+                        <span className="text-sm font-medium">{(syndicat.memberCount || 0).toLocaleString()} membres</span>
                     </div>
-                    <TrendIndicator trend={syndicat.trend} />
+                    <BarChart2 className="h-5 w-5 text-gray-400 dark:text-gray-500" title="Tendance stable" />
                 </div>
-                
                 <div className="mt-auto pt-4 border-t border-gray-100 dark:border-gray-700">
                     <motion.button
-                        className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-3 rounded-xl hover:shadow-lg transition-all flex items-center justify-center font-semibold group-hover:from-blue-700 group-hover:to-indigo-700"
-                        whileHover={{ scale: 1.03 }}
-                        whileTap={{ scale: 0.98 }}
+                        className="w-full bg-gradient-to-r from-blue-700 to-blue-800 text-white py-3 rounded-xl hover:shadow-lg transition-all flex items-center justify-center font-semibold group-hover:from-blue-600 group-hover:to-blue-700"
+                        whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.98 }}
                         onClick={() => handleAccessSpace(syndicat.id)}
                     >
-                        <span>{t("syndicats_page.access_space")}</span>
-                        <ArrowRightCircle
-                            className="h-5 w-5 ml-2 transition-transform duration-300 group-hover:translate-x-1"
-                        />
+                        <span>{t("access_space")}</span>
+                        <ArrowRightCircle className="h-5 w-5 ml-2 transition-transform duration-300 group-hover:translate-x-1" />
                     </motion.button>
                 </div>
             </div>

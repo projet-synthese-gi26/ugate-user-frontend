@@ -1,77 +1,116 @@
 // src/lib/fakeData/homeFeedFake.js
 
-export const homeFeedFake = [
-    {
-        id: 1,
-        author: {
-            name: "Union des Travailleurs de la Santé",
-            avatar: "https://images.unsplash.com/photo-1579684385127-1ef15d508118?w=80&h=80&fit=crop",
-        },
-        content: "Grande nouvelle ! Suite à nos discussions, une prime de risque exceptionnelle a été validée pour tout le personnel soignant impliqué dans la gestion de la récente épidémie. Votre dévouement est reconnu et récompensé. 💪 #Solidarité #Santé",
-        image: "https://images.unsplash.com/photo-1584820927498-cfe5211fd8bf?w=1200&h=800&fit=crop",
-        timestamp: "Il y a 2 heures",
-        createdAt: new Date(Date.now() - 2 * 60 * 60 * 1000),
-        likes: 256,
-        comments: [
-            {
-                author: { name: "Dr. Marie Claire", avatar: "https://i.pravatar.cc/150?img=25" },
-                content: "Enfin une reconnaissance méritée ! Bravo à toute l'équipe de négociation.",
-            },
-            {
-                author: { name: "Alain infirmier", avatar: "https://i.pravatar.cc/150?img=60" },
-                content: "Excellente nouvelle pour le moral des troupes. Merci !",
-            },
-        ],
-        syndicat: {
-            name: "Santé Publique",
-            coverImage: "...",
-        },
+// Données factices pour le fil d'actualité de la page d'accueil.
+// Chaque item a maintenant un type ('publication' ou 'event') et un contexte (syndicat/branch).
+
+export const homeFeedFakeData = [
+  {
+    type: 'publication',
+    id: 'pub1',
+    syndicat: {
+      id: 'syn1',
+      name: 'Syndicat National des Développeurs',
+      logoUrl: null, // Test du fallback avatar
     },
-    {
-        id: 2,
-        title: "Assemblée Générale Annuelle",
-        description: "Ordre du jour : bilan de l'année, élections du nouveau bureau et perspectives 2025. Votre présence est cruciale pour l'avenir de notre syndicat. Un pot de l'amitié clôturera la session.",
-        startDate: new Date(Date.now() + 15 * 24 * 60 * 60 * 1000), // Dans 15 jours
-        endDate: new Date(Date.now() + 15 * 24 * 60 * 60 * 1000 + 3*60*60*1000), // Durée de 3h
-        location: "Palais des Congrès, Yaoundé",
-        image: "https://images.unsplash.com/photo-1527192491265-7e15c55b1ed2?w=1200&h=600&fit=crop",
-        author: {
-            name: "Fédération des Artisans",
-            avatar: "https://images.unsplash.com/photo-1595821733973-b14a94379b9f?w=80&h=80&fit=crop",
-        },
-        createdAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000), // Posté hier
-        likes: 78,
-        comments: [
-            {
-                author: { name: "Paul Menuisier", avatar: "https://i.pravatar.cc/150?img=12" },
-                content: "Je serai là ! Impatient de discuter des nouveaux projets.",
-            },
-        ],
-        syndicat: {
-            name: "Artisanat",
-            coverImage: "...",
-        },
+    branch: {
+      id: 'branch1',
+      name: 'Antenne de Douala'
     },
-    {
-        id: 3,
-        author: {
-            name: "Guilde des Développeurs",
-            avatar: "https://images.unsplash.com/photo-1550439062-609e1531270e?w=80&h=80&fit=crop",
-        },
-        content: "Nous organisons un workshop gratuit sur les nouvelles fonctionnalités de React 19 le mois prochain. Au programme : Actions, useFormState, et bien plus. Places limitées, lien d'inscription en commentaire ! 🚀 #React #Dev",
-        image: null, // Publication sans image
-        timestamp: "Il y a 1 jour",
-        createdAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000),
-        likes: 112,
-        comments: [
-            {
-                author: { name: "Sophie Frontend", avatar: "https://i.pravatar.cc/150?img=27" },
-                content: "Inscrite ! Hâte d'y être.",
-            },
-        ],
-        syndicat: {
-            name: "Technologie",
-            coverImage: "...",
-        },
+    author: {
+      name: 'Jean Dupont',
+      avatar: 'https://i.pravatar.cc/150?img=3'
     },
-];
+    content: "Excellente nouvelle ! Suite à nos discussions avec le GICAM, nous avons obtenu une revalorisation significative de la grille salariale pour les développeurs juniors et intermédiaires. Plus de détails seront partagés lors de la réunion de vendredi.",
+    image: 'https://images.unsplash.com/photo-1556740738-b6a63e27c4df?crop=entropy&q=80&w=800',
+    createdAt: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(), // Il y a 2 heures
+    likes: 128,
+    comments: 15,
+  },
+  {
+    type: 'event',
+    id: 'evt1',
+    syndicat: {
+      id: 'syn2',
+      name: 'Union des Travailleurs de la Santé',
+      logoUrl: '/syndicate-logos/logo-uts.png', // Chemin d'image exemple
+    },
+    branch: {
+      id: 'branch3',
+      name: 'Hôpital Laquintinie'
+    },
+    title: "Assemblée Générale Annuelle",
+    description: "Ordre du jour : élection du nouveau bureau, bilan financier de l'année écoulée et perspectives pour 2026. Votre présence est cruciale pour l'avenir de notre union.",
+    startDate: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000).toISOString(), // Dans 5 jours
+    endDate: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000 + 3 * 60 * 60 * 1000).toISOString(), // Durée de 3h
+    location: "Salle de conférence, Hôpital Laquintinie",
+    image: 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?crop=entropy&q=80&w=800',
+    author: { name: 'Marie Claire N.', avatar: 'https://i.pravatar.cc/150?img=5' },
+    participants: 76,
+  },
+  {
+    type: 'publication',
+    id: 'pub2',
+    syndicat: {
+      id: 'syn3',
+      name: 'Fédération des Enseignants du Supérieur',
+      logoUrl: '/syndicate-logos/logo-fes.png',
+    },
+    branch: {
+      id: 'branch5',
+      name: 'Université de Yaoundé I'
+    },
+    author: {
+      name: 'Prof. Anicet K.',
+      avatar: 'https://i.pravatar.cc/150?img=12'
+    },
+    content: "Rappel : La date limite pour la soumission des dossiers de candidature pour les bourses de recherche est fixée au 30 juillet 2025. Aucun dossier ne sera accepté après cette date. Encourageons nos jeunes chercheurs !",
+    image: null, // Publication sans image
+    createdAt: new Date(Date.now() - 22 * 60 * 60 * 1000).toISOString(), // Il y a 22 heures
+    likes: 45,
+    comments: 7,
+  },
+  {
+    type: 'event',
+    id: 'evt2',
+    syndicat: {
+      id: 'syn1',
+      name: 'Syndicat National des Développeurs',
+      logoUrl: null,
+    },
+    branch: {
+      id: 'branch2',
+      name: 'Antenne de Yaoundé'
+    },
+    title: "Workshop : Introduction à Rust & WebAssembly",
+    description: "Découvrez la puissance de Rust pour le développement web haute performance. Cet atelier pratique vous guidera à travers la création de votre premier module WebAssembly.",
+    startDate: new Date(Date.now() + 12 * 24 * 60 * 60 * 1000).toISOString(), // Dans 12 jours
+    endDate: new Date(Date.now() + 12 * 24 * 60 * 60 * 1000 + 4 * 60 * 60 * 1000).toISOString(),
+    location: "ActivSpaces, Bonanjo",
+    image: 'https://images.unsplash.com/photo-1593720213428-28a5b9e94613?crop=entropy&q=80&w=800',
+    author: { name: 'Cédric T.', avatar: 'https://i.pravatar.cc/150?img=8' },
+    participants: 32,
+  },
+  {
+    type: 'publication',
+    id: 'pub3',
+    syndicat: {
+      id: 'syn2',
+      name: 'Union des Travailleurs de la Santé',
+      logoUrl: '/syndicate-logos/logo-uts.png',
+    },
+    branch: {
+      id: 'branch4',
+      name: 'Hôpital Général de Douala'
+    },
+    author: {
+      name: 'Dr. Elise F.',
+      avatar: 'https://i.pravatar.cc/150?img=25'
+    },
+    content: "Une nouvelle prime de risque a été validée pour le personnel soignant en contact direct avec les zones d'épidémie. C'est une victoire pour notre sécurité et une reconnaissance de notre engagement.",
+    image: 'https://images.unsplash.com/photo-1576091160550-2173dba999ef?crop=entropy&q=80&w=800',
+    createdAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(), // Il y a 2 jours
+    likes: 250,
+    comments: 41,
+  },
+].sort((a, b) => new Date(b.createdAt || b.startDate) - new Date(a.createdAt || a.startDate));
+// On trie par date pour que le fil soit chronologique

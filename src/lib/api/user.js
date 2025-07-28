@@ -1,30 +1,38 @@
 import axios from './instance';
 
 /**
- * Récupère le profil de l'utilisateur basé sur l'ID stocké dans le localStorage.
- * C'est une authentification "de confiance" pour la démo.
+ * Récupère le profil de l'utilisateur actuellement authentifié en appelant l'endpoint /api/profile.
+ * L'identité de l'utilisateur est déterminée par le token JWT qui est automatiquement
+ * ajouté à la requête par l'intercepteur Axios.
  * @returns {Promise<object>} Le DTO UserProfileResponse.
  */
 export const getAuthenticatedUserProfile = async () => {
-    const email = localStorage.getItem('email');
+    // Appel de la route GET /api/profile, comme convenu.
+    // L'endpoint est sécurisé côté backend et utilisera le Principal du token.
+    const response = await axios.get('/profile');
+    return response.data;
+};
 
-    if (!email) {
-        console.error("Aucun email trouvé dans le localStorage. L'utilisateur doit se connecter.");
-        return Promise.reject(new Error("Utilisateur non connecté."));
-    }
+/**
+ * Met à jour le profil de l'utilisateur authentifié via l'endpoint PUT /api/profile.
+ * @param {object} profileData - Les données du profil à mettre à jour.
+ * @returns {Promise<object>} Le DTO UserProfileResponse mis à jour.
+ */
+export const updateUserProfileAPI = async (profileData) => {
+    // Appel de la route PUT /api/profile.
+    const response = await axios.put('/profile', profileData);
+    return response.data;
+};
 
-    try {
-        const response = await axios.get('/profile', {
-            params: {
-                email: email
-            }
-        });
-        
-        console.log("API a répondu avec le profil :", response);
-        console.log("API a répondu avec le profil 2 :", response.data);
-        return response.data;
-    } catch (error) {
-        console.error(`Erreur lors de la récupération du profil pour l'utilisateur ${email}:`, error);
-        throw error;
-    }
+/**
+ * Met à jour l'avatar de l'utilisateur authentifié via l'endpoint POST /api/profile/avatar.
+ * @param {FormData} formData - L'objet FormData contenant le fichier de l'avatar.
+ * @returns {Promise<string>} L'URL du nouvel avatar.
+ */
+export const updateUserAvatarAPI = async (formData) => {
+    // Appel de la route POST /api/profile/avatar.
+    const response = await axios.post('/profile/avatar', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+    });
+    return response.data;
 };

@@ -1,67 +1,51 @@
-import api from './instance';
-import Cookies from 'js-cookie';
+import axios from './instance';
 
-export const registerWithEmail = async (userData) => {
-    const payload = {
-        first_name: userData.firstName,
-        last_name: userData.lastName,
-        email: userData.email,
-        password: userData.password,
-        username: userData.email,
-        phone_number: userData.phone || null 
-    };
-    const response = await api.post('/register', payload);
+export const loginWithEmail = async (email, password) => {
+    const response = await axios.post('/auth/login', { email, password });
+    if (response.data?.token) {
+        localStorage.setItem('token', response.data.token);
+        localStorage.setItem('email', response.data.email);
+    }
     return response.data;
 };
 
-export const loginWithEmail = async (email, password) => {
-    const payload = {
-        username: email,
-        password: password
-    };
-    const response = await api.post('/login', payload);
-    const { accessToken, user } = response.data;
-
-    if (accessToken && accessToken.token) {
-        Cookies.set('authToken', accessToken.token, { expires: 1, secure: true, sameSite: 'strict' });
-        localStorage.setItem('user', JSON.stringify(user));
+export const registerWithEmail = async (userData) => {
+    const response = await axios.post('/auth/register', userData);
+    if (response.data?.token) {
+        localStorage.setItem('token', response.data.token);
+        localStorage.setItem('email', response.data.email);
     }
+    return response.data;
+};
+
+// Fonction utilitaire pour obtenir la langue courante
+const getCurrentLocale = () => {
+    if (typeof window === 'undefined') return 'fr'; // défaut côté serveur
     
-    return user;
+    const path = window.location.pathname;
+    const locale = path.split('/')[1];
+    
+    // Vérifier si c'est une langue supportée
+    if (['fr', 'en', 'de'].includes(locale)) {
+        return locale;
+    }
+    return 'fr'; // défaut
 };
 
 export const logout = () => {
-    Cookies.remove('authToken');
-    localStorage.removeItem('user');
-    window.location.href = '/login'; // Redirige vers la page de login
-};
-
-export const getAuthenticatedUser = () => {
-    const userJson = localStorage.getItem('user');
-    if (!userJson) return null;
-    
-    try {
-        return JSON.parse(userJson);
-    } catch (error) {
-        console.error("Failed to parse user data from localStorage", error);
-        return null;
+    localStorage.removeItem('token');
+    localStorage.removeItem('email');
+    // Rediriger l'utilisateur en préservant la langue
+    if (typeof window !== 'undefined') {
+        const locale = getCurrentLocale();
+        window.location.href = `/${locale}/login`;
     }
 };
 
 export const loginWithGoogle = async (authCode) => {
-    // A implémenter : envoyer le authCode au backend
-    console.log("Sending Google auth code to backend:", authCode);
-    // const response = await api.post('/auth/google', { code: authCode });
-    // Handle token and user data similar to loginWithEmail
-    // return response.data;
-    throw new Error("Google login not implemented on backend yet.");
+    return Promise.reject(new Error("Login Google non implémenté."));
 };
 
 export const loginWithApple = async (authCode) => {
-    // A implémenter : envoyer le authCode au backend
-    console.log("Sending Apple auth code to backend:", authCode);
-    // const response = await api.post('/auth/apple', { code: authCode });
-    // Handle token and user data similar to loginWithEmail
-    // return response.data;
-    throw new Error("Apple login not implemented on backend yet.");
+    return Promise.reject(new Error("Login Apple non implémenté."));
 };

@@ -5,12 +5,11 @@ import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { motion } from 'framer-motion';
 import { User, Mail, Lock, Calendar, AlertCircle } from 'lucide-react';
-import { useTranslation } from 'react-i18next';
-import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import Swal from 'sweetalert2';
 import { registerWithEmail } from '@/lib/api/auth';
 import PasswordStrengthIndicator from './PasswordStrength';
-import Link from 'next/link'; // Ajouté pour le lien "Déjà enregistré ?"
+import { Link, useRouter } from '@/navigation'; // Ajouté pour le lien "Déjà enregistré ?"
 
 // Composant Alert pour les messages d'erreur de validation
 const Alert = ({ children }) => (
@@ -27,12 +26,12 @@ const Input = React.forwardRef(({ icon: Icon, error, ...props }, ref) => (
             <input
                 {...props}
                 ref={ref}
-                className={`w-full px-4 py-3 text-gray-700 bg-white border rounded-lg focus:border-blue-400 focus:outline-none focus:ring focus:ring-blue-300 focus:ring-opacity-40 pl-12 transition-colors ${
+                className={`w-full px-4 py-3 text-gray-700 bg-white border rounded-lg focus:border-blue-800 focus:outline-none focus:ring focus:ring-blue-700 focus:ring-opacity-40 pl-12 transition-colors ${
                     error ? 'border-red-500' : 'border-gray-300'
                 }`}
             />
             <Icon className={`absolute left-3 top-1/2 transform -translate-y-1/2 ${
-                error ? 'text-red-500' : 'text-blue-400'
+                error ? 'text-red-500' : 'text-blue-800'
             }`} size={20} />
         </div>
         {error && <Alert>{error.message}</Alert>}
@@ -45,7 +44,7 @@ const Button = ({ children, ...props }) => (
     <motion.button
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
-        className="w-full px-6 py-3 rounded-lg text-white bg-blue-500 hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 transition-all duration-200 disabled:bg-blue-300 disabled:cursor-not-allowed"
+        className="w-full px-6 py-3 rounded-lg text-white bg-blue-900 hover:bg-blue-950 focus:outline-none focus:ring-2 focus:ring-blue-900 focus:ring-opacity-50 transition-all duration-200 disabled:bg-blue-700 disabled:cursor-not-allowed"
         {...props}
     >
         {children}
@@ -58,16 +57,16 @@ export default function RegisterForm() {
     });
     const [isLoading, setIsLoading] = useState(false);
     const router = useRouter();
-    const { t } = useTranslation();
+    const t = useTranslations('register_page');
     const password = watch('password', ''); // Surveille le champ password pour l'indicateur de force
 
     // Valide la complexité du mot de passe
     const validatePassword = (value) => {
         const passwordErrors = [];
-        if (value.length < 8) passwordErrors.push(t('register_page.password_strength_8_chars'));
-        if (!/[A-Z]/.test(value)) passwordErrors.push(t('register_page.password_strength_uppercase'));
-        if (!/[0-9]/.test(value)) passwordErrors.push(t('register_page.password_strength_number'));
-        if (!/[^A-Za-z0-9]/.test(value)) passwordErrors.push(t('register_page.password_strength_special'));
+        if (value.length < 8) passwordErrors.push(t('password_strength_8_chars'));
+        if (!/[A-Z]/.test(value)) passwordErrors.push(t('password_strength_uppercase'));
+        if (!/[0-9]/.test(value)) passwordErrors.push(t('password_strength_number'));
+        if (!/[^A-Za-z0-9]/.test(value)) passwordErrors.push(t('password_strength_special'));
 
         return passwordErrors.length === 0 || passwordErrors.join(', ');
     };
@@ -82,27 +81,27 @@ export default function RegisterForm() {
 
             await Swal.fire({
                 icon: 'success',
-                title: t('register_page.success_title'),
-                text: t('register_page.success_text', { name: `${data.firstName} ${data.lastName}` }),
+                title: t('success_title'),
+                text: t('success_text', { name: `${data.firstName} ${data.lastName}` }),
             });
             router.push('/login');
 
         } catch (error) {
             console.error("Erreur d'inscription:", error);
-            let errorMessage = t('register_page.generic_error');
+            let errorMessage = t('generic_error');
 
             if (error.response) {
                 // Si le backend renvoie un message d'erreur spécifique (ex: email déjà utilisé)
                 if (error.response.data && error.response.data.message) {
                     errorMessage = error.response.data.message;
                 } else if (error.response.status === 400) {
-                    errorMessage = t('register_page.validation_error');
+                    errorMessage = t('validation_error');
                 }
             }
             
             Swal.fire({
                 icon: 'error',
-                title: t('register_page.error_title'),
+                title: t('error_title'),
                 text: errorMessage,
             });
         } finally {
@@ -116,21 +115,21 @@ export default function RegisterForm() {
                 <Input
                     icon={User}
                     type="text"
-                    placeholder={t("register_page.last_name_placeholder")}
+                    placeholder={t("last_name_placeholder")}
                     error={errors.lastName}
                     {...register("lastName", {
-                        required: t("register_page.last_name_required"),
-                        minLength: { value: 2, message: t("register_page.last_name_min_length") }
+                        required: t("last_name_required"),
+                        minLength: { value: 2, message: t("last_name_min_length") }
                     })}
                 />
                 <Input
                     icon={User}
                     type="text"
-                    placeholder={t("register_page.first_name_placeholder")}
+                    placeholder={t("first_name_placeholder")}
                     error={errors.firstName}
                     {...register("firstName", {
-                        required: t("register_page.first_name_required"),
-                        minLength: { value: 2, message: t("register_page.first_name_min_length") }
+                        required: t("first_name_required"),
+                        minLength: { value: 2, message: t("first_name_min_length") }
                     })}
                 />
             </div>
@@ -138,13 +137,13 @@ export default function RegisterForm() {
             <Input
                 icon={Mail}
                 type="email"
-                placeholder={t("login_page.email_placeholder")}
+                placeholder={t("email_placeholder")}
                 error={errors.email}
                 {...register("email", {
-                    required: t("login_page.email_required"),
+                    required: t("email_required"),
                     pattern: {
                         value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-                        message: t("login_page.email_invalid"),
+                        message: t("email_invalid"),
                     }
                 })}
             />
@@ -152,13 +151,13 @@ export default function RegisterForm() {
             <Input
                 icon={Calendar}
                 type="date"
-                placeholder={t("register_page.dob_placeholder")}
+                placeholder={t("dob_placeholder")}
                 error={errors.dateOfBirth}
                 {...register("dateOfBirth", {
-                    required: t("register_page.dob_required"),
+                    required: t("dob_required"),
                     validate: value => {
                         const age = new Date().getFullYear() - new Date(value).getFullYear();
-                        return age >= 18 || t("register_page.dob_age_validation");
+                        return age >= 18 || t("dob_age_validation");
                     }
                 })}
             />
@@ -167,10 +166,10 @@ export default function RegisterForm() {
                 <Input
                     icon={Lock}
                     type="password"
-                    placeholder={t("login_page.password_placeholder")}
+                    placeholder={t("password_placeholder")}
                     error={errors.password}
                     {...register("password", {
-                        required: t("login_page.password_required"),
+                        required: t("password_required"),
                         validate: validatePassword
                     })}
                 />
@@ -180,25 +179,25 @@ export default function RegisterForm() {
             <Input
                 icon={Lock}
                 type="password"
-                placeholder={t("register_page.password_confirm_placeholder")}
+                placeholder={t("password_confirm_placeholder")}
                 error={errors.passwordConfirm}
                 {...register("passwordConfirm", {
-                    required: t("register_page.password_confirm_required"),
-                    validate: value => value === password || t("register_page.password_mismatch")
+                    required: t("password_confirm_required"),
+                    validate: value => value === password || t("password_mismatch")
                 })}
             />
 
             <div className="pt-4">
                 <Button type="submit" disabled={isLoading}>
-                    {isLoading ? t('register_page.register_button_loading') : t('register_page.register_button')}
+                    {isLoading ? t('register_button_loading') : t('register_button')}
                 </Button>
             </div>
 
             <div className="mt-8 text-center">
                 <p className="text-gray-600">
-                    {t("register_page.already_registered")}{' '}
-                    <Link href="/login" className="text-blue-500 hover:underline">
-                        {t("register_page.login_here")}
+                    {t("already_registered")}{' '}
+                    <Link href="/login" className="text-blue-900 hover:underline">
+                        {t("login_here")}
                     </Link>
                 </p>
             </div>

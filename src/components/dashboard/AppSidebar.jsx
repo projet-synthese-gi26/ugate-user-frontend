@@ -1,25 +1,20 @@
-// src/components/dashboard/AppSidebar.jsx
 "use client";
-
 import { motion } from "framer-motion";
 import { LogOut } from "lucide-react";
-import Link from 'next/link';
-import { useRouter, usePathname } from 'next/navigation';
-import { navItems } from "./navItems.js";
-import { useTranslation } from "react-i18next";
+import { Link, useRouter, usePathname } from '@/navigation';
+import { useTranslations } from "next-intl";
+import { getNavItems } from "./navItems.jsx";
 
 export default function AppSidebar({ isOpen }) {
     const router = useRouter();
-    const pathname = usePathname(); // Hook pour obtenir la route actuelle
-    const { t } = useTranslation();
+    const pathname = usePathname();
+    const t = useTranslations('dashboard.sidebar');
+    const navItems = getNavItems();
 
     const handleLogout = () => {
-        // Idéalement, appeler une fonction API de déconnexion ici
-        // logout();
         router.push('/login');
     };
 
-    // La route active est déterminée par rapport au chemin actuel
     const isActive = (route) => pathname.startsWith(route);
 
     return (
@@ -39,7 +34,7 @@ export default function AppSidebar({ isOpen }) {
                                     ? `bg-gradient-to-r ${item.gradient} text-white shadow-lg`
                                     : "bg-white text-gray-600 hover:bg-gray-50"
                             } ${isOpen ? "flex items-center" : "flex justify-center"}`}
-                            title={isOpen ? '' : item.label} // Tooltip quand la sidebar est fermée
+                            title={isOpen ? '' : item.label}
                         >
                             <item.icon className={`h-6 w-6 flex-shrink-0 ${isOpen ? "mr-3" : ""}`} />
                             {isOpen && (
@@ -58,10 +53,10 @@ export default function AppSidebar({ isOpen }) {
                     whileHover={{ scale: isOpen ? 1.02 : 1.1 }}
                     whileTap={{ scale: 0.98 }}
                     className="w-full p-3 bg-gradient-to-r from-red-500 to-pink-600 text-white rounded-xl shadow-lg flex items-center justify-center"
-                    title={isOpen ? '' : "Déconnexion"}
+                    title={isOpen ? '' : t("logout")}
                 >
                     <LogOut className="h-6 w-6" />
-                    {isOpen && <span className="font-medium ml-2">Déconnexion</span>}
+                    {isOpen && <span className="font-medium ml-2">{t("logout")}</span>}
                 </motion.button>
             </div>
         </motion.nav>
