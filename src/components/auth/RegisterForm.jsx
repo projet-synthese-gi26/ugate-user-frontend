@@ -4,7 +4,7 @@
 import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { motion } from 'framer-motion';
-import { User, Mail, Lock, Calendar, AlertCircle } from 'lucide-react';
+import { User, Mail, Lock, Phone, AlertCircle } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import Swal from 'sweetalert2';
 import { registerWithEmail } from '@/lib/api/auth';
@@ -73,11 +73,15 @@ export default function RegisterForm() {
 
     // Soumission du formulaire
     const onSubmit = async (data) => {
+        console.log("1. La fonction onSubmit a été appelée.");
+        console.log("Données du formulaire :", data);
         setIsLoading(true);
         try {
+            console.log("2. Début du bloc try : Appel de registerWithEmail...");
             // Le backend attend "dateOfBirth" au format YYYY-MM-DD,
             // ce qui est le format par défaut des inputs type="date".
             await registerWithEmail(data);
+            console.log("3. Appel API réussi.");
 
             await Swal.fire({
                 icon: 'success',
@@ -87,10 +91,11 @@ export default function RegisterForm() {
             router.push('/login');
 
         } catch (error) {
-            console.error("Erreur d'inscription:", error);
+            console.error("4. ERREUR dans le bloc catch :", error);
             let errorMessage = t('generic_error');
 
             if (error.response) {
+                console.error("Détails de l'erreur API :", error.response);
                 // Si le backend renvoie un message d'erreur spécifique (ex: email déjà utilisé)
                 if (error.response.data && error.response.data.message) {
                     errorMessage = error.response.data.message;
@@ -105,9 +110,12 @@ export default function RegisterForm() {
                 text: errorMessage,
             });
         } finally {
+            console.log("5. Bloc finally exécuté.");
             setIsLoading(false);
         }
     };
+    
+    console.log("Erreurs de validation du formulaire :", errors);
 
     return (
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
@@ -133,6 +141,16 @@ export default function RegisterForm() {
                     })}
                 />
             </div>
+            <Input
+                icon={User} // Assuming User icon for username as well, or we can choose another
+                type="text"
+                placeholder={t("username_placeholder")}
+                error={errors.username}
+                {...register("username", {
+                    required: t("username_required"),
+                    minLength: { value: 3, message: t("username_min_length") }
+                })}
+            />
 
             <Input
                 icon={Mail}
@@ -147,17 +165,16 @@ export default function RegisterForm() {
                     }
                 })}
             />
-
             <Input
-                icon={Calendar}
-                type="date"
-                placeholder={t("dob_placeholder")}
-                error={errors.dateOfBirth}
-                {...register("dateOfBirth", {
-                    required: t("dob_required"),
-                    validate: value => {
-                        const age = new Date().getFullYear() - new Date(value).getFullYear();
-                        return age >= 18 || t("dob_age_validation");
+                icon={Phone}
+                type="tel" // Use type="tel" for phone numbers
+                placeholder={t("phone_placeholder")}
+                error={errors.phone}
+                {...register("phone", {
+                    required: t("phone_required"),
+                    pattern: {
+                        value: /^\+?[1-9]\d{1,14}$/, // E.164 format for international phone numbers
+                        message: t("phone_invalid"),
                     }
                 })}
             />

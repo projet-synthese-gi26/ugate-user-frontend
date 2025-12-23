@@ -24,7 +24,7 @@ export default function ProfileHeader({ onAvatarClick }) {
 
     return (
         <motion.div
-            className="bg-white dark:bg-gray-800/50 p-6 rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700 mb-8"
+            className="bg-white p-6 rounded-2xl shadow-lg border border-gray-100 mb-8"
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
         >
@@ -35,7 +35,7 @@ export default function ProfileHeader({ onAvatarClick }) {
                         alt="Photo de profil"
                         width={128}
                         height={128}
-                        className="w-32 h-32 rounded-full object-cover border-4 border-blue-200 dark:border-blue-700"
+                        className="w-32 h-32 rounded-full object-cover border-4 border-blue-200"
                     />
                     <button
                         type="button"
@@ -47,10 +47,10 @@ export default function ProfileHeader({ onAvatarClick }) {
                     </button>
                 </div>
                 <div className="flex-grow text-center md:text-left">
-                    <h2 className="text-3xl font-bold text-gray-800 dark:text-white">
+                    <h2 className="text-3xl font-bold text-gray-800">
                         {firstName} {lastName}
                     </h2>
-                    <div className="mt-2 space-y-1 text-gray-600 dark:text-gray-400">
+                    <div className="mt-2 space-y-1 text-gray-600">
                         <p className="flex items-center justify-center md:justify-start gap-2">
                             <Mail size={16} className="text-blue-500" />
                             {email}

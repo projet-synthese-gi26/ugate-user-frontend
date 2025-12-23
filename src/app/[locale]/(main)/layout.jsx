@@ -4,10 +4,10 @@ import { useState, useEffect } from "react";
 import AppHeader from "@/components/dashboard/AppHeader";
 import AppSidebar from "@/components/dashboard/AppSidebar";
 import NotificationsPanel from "@/components/dashboard/NotificationsPanel";
-import { getAuthenticatedUserProfile } from "@/lib/api/user";
 import { toast } from 'react-hot-toast';
 import UserContext from "@/context/UserContext";
 import NavigationLoader from "@/components/shared/NavigationLoader";
+import { logout } from "@/lib/api/auth"; // Importer la fonction de déconnexion
 
 export default function DashboardLayout({ children }) {
     const [isSidebarOpen, setIsSidebarOpen] = useState(true);
@@ -16,23 +16,32 @@ export default function DashboardLayout({ children }) {
     const [loadingUser, setLoadingUser] = useState(true);
 
     useEffect(() => {
-        const fetchUserProfile = async () => {
-            try {
-                const profile = await getAuthenticatedUserProfile();
-                setUserData(profile);
-            } catch (error) {
-                console.error("Failed to fetch user profile:", error);
-                toast.error("Impossible de charger les données de votre session.");
-                // La redirection vers /login est gérée par l'intercepteur Axios
-            } finally {
-                setLoadingUser(false);
+        // Lire directement les données utilisateur depuis le localStorage
+        try {
+            const userJson = localStorage.getItem('user');
+            if (userJson) {
+                setUserData(JSON.parse(userJson));
+            } else {
+                // Si l'utilisateur n'est pas dans le localStorage, la session est invalide
+                throw new Error("Données utilisateur non trouvées");
             }
-        };
-
-        fetchUserProfile();
+        } catch (error) {
+            console.error("Erreur de chargement de la session utilisateur:", error);
+            toast.error("Votre session est invalide ou a expiré. Veuillez vous reconnecter.");
+            // L'intercepteur Axios redirigera, mais on peut forcer ici pour plus de réactivité
+            logout();
+        } finally {
+            setLoadingUser(false);
+        }
     }, []);
 
     if (loadingUser) {
+        return <NavigationLoader />;
+    }
+    
+    // Si après le chargement, les données utilisateur ne sont toujours pas là, ne rien rendre.
+    // La redirection via logout() aura déjà été initiée.
+    if (!userData) {
         return <NavigationLoader />;
     }
 

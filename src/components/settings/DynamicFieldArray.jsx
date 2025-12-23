@@ -24,7 +24,7 @@ export default function DynamicFieldArray({ name, placeholder, t }) {
     });
 
     // Constante pour les styles des inputs pour la cohérence
-    const inputClasses = "flex-grow p-3 border rounded-lg bg-white text-gray-900 border-gray-300 dark:bg-gray-800 dark:text-gray-200 dark:border-gray-600 placeholder-gray-400 dark:placeholder-gray-500 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition";
+    const inputClasses = "flex-grow p-3 border rounded-lg bg-white text-gray-900 border-gray-300 placeholder-gray-400 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition";
 
     return (
         <div>
@@ -57,7 +57,7 @@ export default function DynamicFieldArray({ name, placeholder, t }) {
                                 <motion.button
                                     type="button"
                                     onClick={() => remove(index)}
-                                    className="p-3 text-red-500 hover:bg-red-100 dark:hover:bg-red-900/50 rounded-lg transition-colors mt-px"
+                                    className="p-3 text-red-500 hover:bg-red-100 rounded-lg transition-colors mt-px"
                                     whileHover={{ scale: 1.1 }}
                                     whileTap={{ scale: 0.95 }}
                                     aria-label={`Supprimer la formation ${index + 1}`}
@@ -73,12 +73,12 @@ export default function DynamicFieldArray({ name, placeholder, t }) {
             <motion.button
                 type="button"
                 onClick={() => append({ value: "" })}
-                className="flex items-center text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 font-semibold text-sm mt-4 p-2 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/50 transition-colors"
+                className="flex items-center text-blue-600 hover:text-blue-800 font-semibold text-sm mt-4 p-2 rounded-lg hover:bg-blue-50 transition-colors"
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
             >
                 <Plus size={16} className="mr-2" />
-                {t('settings_page.add_formation_button')}
+                {t('add_formation_button')}
             </motion.button>
         </div>
     );

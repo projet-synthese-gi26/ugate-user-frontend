@@ -50,9 +50,9 @@ export const logout = () => {
 /**
  * Récupère le token depuis les cookies.
  * Fonctionne à la fois sur le serveur et le client.
- * @returns {string|undefined} Le token JWT ou undefined.
+ * @returns {Promise<string|undefined>} Le token JWT ou undefined.
  */
-const getToken = () => {
+export const getToken = async () => {
     if (typeof window === 'undefined') {
         // Côté Serveur : on utilise 'next/headers'
         const cookieStore = cookies();
@@ -66,10 +66,10 @@ const getToken = () => {
 /**
  * Décode le token JWT pour obtenir le payload.
  * Retourne null si le token est invalide ou absent.
- * @returns {object|null} Le payload du token décodé.
+ * @returns {Promise<object|null>} Le payload du token décodé.
  */
-const getDecodedToken = () => {
-    const token = getToken();
+const getDecodedToken = async () => {
+    const token = await getToken();
     if (!token) return null;
     try {
         return jwtDecode(token);
@@ -88,32 +88,32 @@ const getDecodedToken = () => {
 /**
  * Récupère une information spécifique depuis le payload du token.
  * @param {string} claim - La clé de l'information à récupérer (ex: 'email', 'given_name').
- * @returns {any|null} La valeur de l'information ou null.
+ * @returns {Promise<any|null>} La valeur de l'information ou null.
  */
-const getClaimFromToken = (claim) => {
-    const decoded = getDecodedToken();
+const getClaimFromToken = async (claim) => {
+    const decoded = await getDecodedToken();
     return decoded ? decoded[claim] : null;
 };
 
 // --- Exemples de fonctions helpers spécifiques ---
 
-export const getUserIdFromToken = () => {
+export const getUserIdFromToken = async () => {
     // Les tokens utilisent souvent 'sub' pour l'ID utilisateur. À adapter selon votre backend.
     return getClaimFromToken('sub');
 };
 
-export const getFirstNameToken = () => {
+export const getFirstNameToken = async () => {
     // Les tokens utilisent souvent 'given_name'. À adapter.
     return getClaimFromToken('given_name');
 };
 
-export const getLastNameToken = () => {
+export const getLastNameToken = async () => {
     // Les tokens utilisent souvent 'family_name'. À adapter.
     return getClaimFromToken('family_name');
 };
 
-export const getFullNameFromToken = () => {
-    const decoded = getDecodedToken();
+export const getFullNameFromToken = async () => {
+    const decoded = await getDecodedToken();
     if (!decoded) return null;
     // Tente de construire le nom complet de plusieurs manières possibles
     if (decoded.name) return decoded.name;
@@ -121,28 +121,28 @@ export const getFullNameFromToken = () => {
     return null;
 };
 
-export const getEmailToken = () => {
+export const getEmailToken = async () => {
     return getClaimFromToken('email');
 };
 
-export const getProfilFromToken = () => {
+export const getProfilFromToken = async () => {
     // Les tokens utilisent souvent 'picture'. À adapter.
     return getClaimFromToken('picture');
 };
 
-export const getRoleFromToken = () => {
+export const getRoleFromToken = async () => {
     // La gestion des rôles peut être complexe.
     // Souvent 'roles' ou 'authorities' est un tableau.
-    const roles = getClaimFromToken('roles');
+    const roles = await getClaimFromToken('roles');
     return Array.isArray(roles) ? roles[0] : roles; // Retourne le premier rôle par défaut
 };
 
 /**
  * Vérifie si l'utilisateur est authentifié.
- * @returns {boolean}
+ * @returns {Promise<boolean>}
  */
-export const isAuthenticated = () => {
-    const token = getToken();
+export const isAuthenticated = async () => {
+    const token = await getToken();
     // On pourrait ajouter une vérification de l'expiration ici
     return !!token;
 };

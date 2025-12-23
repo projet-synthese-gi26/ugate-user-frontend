@@ -29,11 +29,19 @@ export const getUserFeedAPI = async (page = 0, size = 20, sortBy = 'createdAt', 
  * @param {string} sortDirection - Direction du tri ('asc' ou 'desc')
  * @returns {Promise} Promesse contenant la réponse paginée
  */
-export const getGlobalFeedAPI = async (page = 0, size = 20, sortBy = 'createdAt', sortDirection = 'desc') => {
+export const getGlobalFeedAPI = async (page = 0, size = 20, sortBy = 'createdAt', sortDirection = 'desc', token = null) => {
     try {
         const params = createPaginationParams(page, size, sortBy, sortDirection);
         
-        const response = await apiInstance.get('/feed/global', { params });
+        const config = { params };
+        if (token) {
+            config.headers = {
+                ...config.headers,
+                'Authorization': `Bearer ${token}`
+            };
+        }
+
+        const response = await apiInstance.get('/feed/global', config);
         return processPaginatedResponse(response);
     } catch (error) {
         throw handleAPIError(error, 'Impossible de récupérer le feed global');

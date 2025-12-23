@@ -6,7 +6,7 @@ import { Mail, Lock, AlertCircle } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import Swal from 'sweetalert2';
 import { Link, useRouter } from '@/navigation';
-import { loginWithEmail } from '@/lib/api/auth';
+import { loginWithIdentifier } from '@/lib/api/auth';
 
 // Composant Input réutilisable avec icône
 const Input = React.forwardRef(({ icon: Icon, error, ...props }, ref) => (
@@ -57,7 +57,7 @@ export default function LoginForm() {
     const onSubmit = async (data) => {
         setIsLoading(true);
         try {
-            await loginWithEmail(data.email, data.password);
+            await loginWithIdentifier(data.email, data.password);
             await Swal.fire({
                 icon: 'success',
                 title: t("success_title"),

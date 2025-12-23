@@ -3,16 +3,14 @@ import {Link} from '@/navigation';
 import Feed from "@/components/dashboard/Feed"; // On réutilise le Feed existant
 import WelcomeSection from "@/components/dashboard/WelcomeSection";
 import { getGlobalFeedAPI } from "@/lib/api/feed";
-import { getAuthenticatedUserProfile } from "@/lib/api/user";
+import { getToken } from "@/lib/auth/accountService";
 
 async function getDashboardData() {
     try {
-        // Vérifier si l'utilisateur est connecté
-        const user = await getAuthenticatedUserProfile().catch(() => null);
+        const token = await getToken(); // Récupère le token côté serveur
         
-        // Si connecté, récupérer le feed personnalisé, sinon le feed global
-        // Dashboard n'a pas de limitation sur le nombre d'éléments
-        const feedData = await getGlobalFeedAPI(0, 50);
+        // On passe le token à l'appel API
+        const feedData = await getGlobalFeedAPI(0, 50, 'createdAt', 'desc', token);
         
         return {
             feed: feedData.content || [],

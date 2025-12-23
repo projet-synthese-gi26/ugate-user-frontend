@@ -1,20 +1,38 @@
 import axios from './instance';
 
-export const loginWithEmail = async (email, password) => {
-    const response = await axios.post('/auth/login', { email, password });
-    if (response.data?.token) {
-        localStorage.setItem('token', response.data.token);
-        localStorage.setItem('email', response.data.email);
+export const loginWithIdentifier = async (identifier, password) => {
+    const response = await axios.post('/auth/login', { identifier, password });
+    if (response.data?.accessToken) {
+        localStorage.setItem('accessToken', response.data.accessToken);
+        localStorage.setItem('refreshToken', response.data.refreshToken);
+        localStorage.setItem('user', JSON.stringify(response.data.user));
     }
     return response.data;
 };
 
 export const registerWithEmail = async (userData) => {
+    // Note: This needs to be adapted if the registration endpoint has changed
     const response = await axios.post('/auth/register', userData);
-    if (response.data?.token) {
-        localStorage.setItem('token', response.data.token);
-        localStorage.setItem('email', response.data.email);
+    if (response.data?.accessToken) {
+        localStorage.setItem('accessToken', response.data.accessToken);
+        localStorage.setItem('refreshToken', response.data.refreshToken);
+        localStorage.setItem('user', JSON.stringify(response.data.user));
     }
+    return response.data;
+};
+
+export const updateUser = async (userId, userData) => {
+    // L'intercepteur Axios injectera automatiquement le token Bearer
+    const response = await axios.put(`/users/${userId}`, userData);
+    
+    // Mettre à jour les informations utilisateur dans le localStorage si la réponse contient des données
+    if (response.data) {
+        // Récupérer l'objet utilisateur existant pour conserver les infos non modifiées (rôles, etc.)
+        const existingUser = JSON.parse(localStorage.getItem('user')) || {};
+        const updatedUser = { ...existingUser, ...response.data };
+        localStorage.setItem('user', JSON.stringify(updatedUser));
+    }
+    
     return response.data;
 };
 
@@ -33,8 +51,11 @@ const getCurrentLocale = () => {
 };
 
 export const logout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('email');
+    localStorage.removeItem('accessToken');
+    localStorage.removeItem('refreshToken');
+    localStorage.removeItem('user');
+    localStorage.removeItem('email'); // Nettoyage de l'ancienne clé
+    
     // Rediriger l'utilisateur en préservant la langue
     if (typeof window !== 'undefined') {
         const locale = getCurrentLocale();
