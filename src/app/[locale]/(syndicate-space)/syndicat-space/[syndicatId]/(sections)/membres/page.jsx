@@ -1,10 +1,24 @@
-import {getTranslations} from 'next-intl/server'; // CORRECTION : On importe le bon helper
+import { getTranslations } from 'next-intl/server'; // CORRECTION : On importe le bon helper
 import { getBranchMembersAPI, getAdhesionRequestsAPI } from '@/lib/api/membership';
 import { getSyndicateDetailsAPI } from '@/lib/api/syndicates';
 import MembersClient from '@/components/syndicate-space/section-membres/MembersClient';
 import { notFound } from 'next/navigation';
+import { MOCK_MEMBERS, MOCK_REQUESTS, MOCK_SYNDICATE } from '@/lib/fakeData/syndicateSpaceMock'; // <-- IMPORT
+
 
 async function getMembersData(syndicateId) {
+    // AJOUT DE CETTE CONDITION
+    if (syndicateId === 'test-id') {
+        return {
+            members: MOCK_MEMBERS,
+            requests: MOCK_REQUESTS,
+            branches: MOCK_SYNDICATE.branches,
+            stats: { total: 143, active: 142, pending: 1 },
+            syndicateDetails: MOCK_SYNDICATE
+        };
+    }
+
+
     try {
         // Récupérer les détails du syndicat
         const syndicateDetails = await getSyndicateDetailsAPI(syndicateId);
@@ -16,15 +30,15 @@ async function getMembersData(syndicateId) {
         // Gérer le cas où il n'y a pas de branches définies
         if (!syndicateDetails.branches || syndicateDetails.branches.length === 0) {
             console.warn(`No branches found for syndicate ${syndicateId}`);
-            return { 
-                members: [], 
-                requests: [], 
-                branches: [], 
+            return {
+                members: [],
+                requests: [],
+                branches: [],
                 stats: { total: 0, active: 0, pending: 0 },
-                syndicateDetails 
+                syndicateDetails
             };
         }
-        
+
         // Prendre la première branche comme référence
         const mainBranchId = syndicateDetails.branches[0].id;
 
@@ -54,23 +68,23 @@ async function getMembersData(syndicateId) {
             pending: requests?.length || 0
         };
 
-        return { 
-            members: members || [], 
-            requests: requests || [], 
-            branches: syndicateDetails.branches || [], 
+        return {
+            members: members || [],
+            requests: requests || [],
+            branches: syndicateDetails.branches || [],
             stats,
-            syndicateDetails 
+            syndicateDetails
         };
 
     } catch (error) {
         console.error(`Failed to fetch members data for syndicate ${syndicateId}:`, error);
         // En cas d'erreur critique, retourner un état vide mais valide
-        return { 
-            members: [], 
-            requests: [], 
-            branches: [], 
+        return {
+            members: [],
+            requests: [],
+            branches: [],
             stats: { total: 0, active: 0, pending: 0 },
-            error: error.message 
+            error: error.message
         };
     }
 }
@@ -78,7 +92,7 @@ async function getMembersData(syndicateId) {
 export default async function MembersPage({ params }) {
     const { locale, syndicatId } = await params;
     const t = await getTranslations();
-    
+
     // Récupérer les données avec gestion d'erreur robuste
     const data = await getMembersData(syndicatId);
 
@@ -87,7 +101,7 @@ export default async function MembersPage({ params }) {
     if (!data || (data.error && !data.syndicateDetails)) {
         notFound();
     }
-    
+
     return (
         <div className="space-y-8">
             {data.error && (
@@ -104,8 +118,8 @@ export default async function MembersPage({ params }) {
                     </div>
                 </div>
             )}
-            
-            <MembersClient 
+
+            <MembersClient
                 initialMembers={data.members || []}
                 initialRequests={data.requests || []}
                 branches={data.branches || []}

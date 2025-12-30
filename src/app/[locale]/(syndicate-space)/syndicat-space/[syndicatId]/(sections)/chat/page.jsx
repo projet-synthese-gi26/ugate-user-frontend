@@ -1,15 +1,24 @@
 // src/app/(syndicate-space)/syndicat-space/[syndicatId]/(sections)/chat/page.jsx
-import {getTranslations} from 'next-intl/server';
+import { getTranslations } from 'next-intl/server';
 import ChatClientV2 from "@/components/syndicate-space/section-chat/ChatClientV2";
 import { getChatRoomsAPI, getChatRoomMembersAPI } from "@/lib/api/chat";
+import { MOCK_CHATS, MOCK_MEMBERS } from '@/lib/fakeData/syndicateSpaceMock'; // <-- IMPORT
 
 async function getChatData(syndicatId) {
+    // AJOUT DE CETTE CONDITION
+    if (syndicatId === 'test-id') {
+        return {
+            chats: MOCK_CHATS,
+            messages: [], // Les messages sont chargés dynamiquement, on peut laisser vide ici
+            members: MOCK_MEMBERS
+        };
+    }
     try {
         console.log(`Récupération des données de chat pour le syndicat ${syndicatId}...`);
-        
+
         // Récupérer les salles de chat du syndicat
         const chatRooms = await getChatRoomsAPI(syndicatId);
-        
+
         // Pour l'instant, créer une salle par défaut si aucune n'existe
         let rooms = chatRooms || [];
         if (rooms.length === 0) {
@@ -26,7 +35,7 @@ async function getChatData(syndicatId) {
                 hasNotifications: true
             }];
         }
-        
+
         // Récupérer les membres de la première salle pour l'affichage initial
         let members = [];
         if (rooms.length > 0) {
@@ -37,15 +46,15 @@ async function getChatData(syndicatId) {
                 members = [];
             }
         }
-        
-        return { 
+
+        return {
             chats: rooms,
             messages: [], // Les messages seront chargés dynamiquement par room
             members: members
         };
     } catch (error) {
         console.error(`Erreur lors de la récupération des données de chat pour ${syndicatId}:`, error);
-        
+
         // Fallback vers une salle par défaut en cas d'erreur
         return {
             chats: [{
@@ -74,7 +83,7 @@ export default async function ChatPage({ params }) {
     return (
         // Le layout de l'espace syndicat a déjà un padding, on enlève celui du composant principal
         <div className="h-full">
-            <ChatClientV2 
+            <ChatClientV2
                 initialChats={chatData.chats}
                 initialMembers={chatData.members}
             />

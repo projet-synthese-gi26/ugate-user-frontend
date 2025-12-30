@@ -14,8 +14,8 @@ export default function ParticipantsModal({ event, onClose }) {
                 <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={onClose}>
                     <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.9, opacity: 0 }} className="bg-white dark:bg-gray-800 rounded-2xl p-6 max-w-md w-full shadow-2xl" onClick={e => e.stopPropagation()}>
                         <div className="flex justify-between items-center mb-6">
-                            <h3 className="text-2xl font-bold text-gray-800 dark:text-white flex items-center gap-2"><Users />{t("events_page.participants_title")}</h3>
-                            <button onClick={onClose} className="p-2 text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full"><X/></button>
+                            <h3 className="text-2xl font-bold text-gray-800 dark:text-white flex items-center gap-2"><Users />{t("participants_title")}</h3>
+                            <button onClick={onClose} className="p-2 text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full"><X /></button>
                         </div>
                         <div className="max-h-80 overflow-y-auto space-y-3 pr-2">
                             {event.participants.map((participant, index) => (

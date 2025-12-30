@@ -1,8 +1,15 @@
-import {getTranslations} from 'next-intl/server'; // CORRECTION : On importe le bon helper
+import { getTranslations } from 'next-intl/server'; // CORRECTION : On importe le bon helper
 import PublicationsFeed from "@/components/syndicate-space/section-exprimer/PublicationsFeed";
 import { getPostsAPI } from "@/lib/api/posts";
+import { MOCK_POSTS } from '@/lib/fakeData/syndicateSpaceMock'; // <-- IMPORT
+
 
 async function getPublications(syndicatId) {
+    // AJOUT DE CETTE CONDITION
+    if (syndicatId === 'test-id') {
+        return MOCK_POSTS;
+    }
+
     try {
         const postsData = await getPostsAPI(syndicatId);
         // Extraire le tableau de posts de la réponse paginée

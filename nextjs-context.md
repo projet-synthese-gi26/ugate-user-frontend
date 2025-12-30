@@ -2,7 +2,7 @@
 
 ## Informations générales
 
-- **Date de génération**: 20/07/2025 11:35:16
+- **Date de génération**: 12/30/2025, 7:07:31 PM
 
 ## Structure du projet
 
@@ -16,12 +16,13 @@
   📋 en.json
   📋 fr.json
 📜 middleware.js
-📝 nextjs-context.md
 📋 package.json
 📁 public/
 📝 README.md
 📁 src/
   📁 app/
+    📜 layout.js
+    📜 page.js
     📁 [locale]/
       📁 (auth)/
         ⚛️ layout.jsx
@@ -80,7 +81,7 @@
       ⚛️ FeedCard.jsx
       ⚛️ FeedItem.jsx
       ⚛️ FeedItemHeader.jsx
-      📜 navItems.js
+      ⚛️ navItems.jsx
       ⚛️ NotificationsPanel.jsx
       ⚛️ WelcomeSection.jsx
     📁 explorer/
@@ -135,6 +136,8 @@
       ⚛️ SearchModal.jsx
       ⚛️ SyndicatDefaultAvatar.jsx
       ⚛️ ToastProvider.jsx
+      ⚛️ UGateIcon.jsx
+      ⚛️ UnifiedPostCard.jsx
     📁 syndicate-profile/
       ⚛️ ProfileActivities.jsx
       ⚛️ ProfileContactCard.jsx
@@ -147,9 +150,13 @@
       ⚛️ ProfileShop.jsx
       ⚛️ SyndicateProfileClient.jsx
     📁 syndicate-space/
+      ⚛️ ErrorBoundary.jsx
+      ⚛️ ErrorStates.jsx
+      ⚛️ LoadingErrorPage.jsx
       ⚛️ NotificationCard.jsx
       📁 section-chat/
         ⚛️ ChatClient.jsx
+        ⚛️ ChatClientV2.jsx
       📁 section-evenements/
         ⚛️ CreateEventModal.jsx
         ⚛️ EventCard.jsx
@@ -165,13 +172,20 @@
         ⚛️ NewPostModal.jsx
         ⚛️ Post.jsx
         ⚛️ PublicationsFeed.jsx
+      📁 section-finances/
+        ⚛️ FinancesClient.jsx
       📁 section-membres/
         ⚛️ MembersClient.jsx
         ⚛️ StatCard.jsx
         ⚛️ TabButton.jsx
+      📁 section-partenaires/
+        ⚛️ PartnersClient.jsx
+      📁 section-votes/
+        ⚛️ VotesClient.jsx
       ⚛️ SyndicateHeader.jsx
       ⚛️ SyndicateNotificationsPanel.jsx
       ⚛️ SyndicateSidebar.jsx
+      ⚛️ SyndicateSpaceLoader.jsx
     📁 syndicats/
       ⚛️ CreateSyndicateModal.jsx
       ⚛️ MySyndicatesPage.jsx
@@ -180,6 +194,10 @@
       ⚛️ SyndicateList.jsx
   📁 context/
     📜 UserContext.js
+  📁 hooks/
+    📜 useErrorHandler.js
+    📜 usePermissions.js
+    📜 useRouteLoading.js
   📁 i18n/
     ⚛️ navigation.jsx
     ⚛️ request.jsx
@@ -188,11 +206,14 @@
   📁 lib/
     📁 api/
       📜 auth.js
+      📜 chat.js
       📜 event.js
+      📜 feed.js
       📜 helpers.js
       📜 index.js
       📜 instance.js
       📜 membership.js
+      📜 notifications.js
       📜 posts.js
       📜 search.js
       📜 syndicate.js
@@ -204,15 +225,23 @@
     📜 constants.js
     📁 fakeData/
       📜 antenne.js
+      📜 chat.js
       ⚛️ exploreSyndicatFake.jsx
+      📜 feed.js
+      📜 finance.js
       ⚛️ homeFeedFake.jsx
+      📜 index.js
+      📜 members.js
       📜 mySyndicatFake.js
+      📜 partners.js
       📜 syndicateDetailsFake.js
+      📜 syndicates.js
+      📜 syndicateSpaceMock.js
+      📜 votes.js
     ⚛️ fakeData.jsx
     📁 utils/
       📜 timeAgo.js
   📜 navigation.js
-  📁 [locale]/
 📜 tailwind.config.js
 ```
 
@@ -300,7 +329,12 @@ import i18nConfig from './src/i18n.js';
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+    // Mode strict React
     reactStrictMode: true,
+
+    output: 'standalone',
+    
+
     images: {
         remotePatterns: [
             {
@@ -323,6 +357,8 @@ const nextConfig = {
             },
         ],
     },
+    
+    // Réécriture des URLs pour l'API
     async rewrites() {
         return [
             {
@@ -330,6 +366,12 @@ const nextConfig = {
                 destination: 'http://167.235.62.116:7014/api/:path*',
             },
         ]
+    },
+    
+    // Optimisations pour Docker
+    experimental: {
+        // Optimise le tracing des fichiers pour Docker
+        outputFileTracingRoot: process.cwd(),
     },
 };
 
@@ -342,7 +384,7 @@ export default createNextIntlPlugin(i18nConfig)(nextConfig);
 // tailwind.config.js
 
 /** @type {import('tailwindcss').Config} */
-module.exports = {
+const config = {
     // Active le mode sombre basé sur une classe
     darkMode: 'class',
 
@@ -353,13 +395,98 @@ module.exports = {
         './src/app/**/*.{js,ts,jsx,tsx,mdx}',
     ],
     theme: {
-        extend: {},
+        extend: {
+            colors: {
+                // Système de couleurs professionnel - Blanc principal, Bleu foncé secondaire
+                primary: {
+                    50: '#f8faff',
+                    100: '#f0f6ff', 
+                    200: '#e1ecff',
+                    300: '#c7ddff',
+                    400: '#a8c5ff',
+                    500: '#85a8ff',
+                    600: '#6584ff',
+                    700: '#4c63e8',
+                    800: '#1e40af', // Bleu foncé principal
+                    900: '#1e3a8a',
+                    950: '#172554'
+                },
+                neutral: {
+                    50: '#fafafa',
+                    100: '#f5f5f5',
+                    200: '#e5e5e5',
+                    300: '#d4d4d4',
+                    400: '#a3a3a3',
+                    500: '#737373',
+                    600: '#525252',
+                    700: '#404040',
+                    800: '#262626',
+                    900: '#171717'
+                },
+                accent: {
+                    blue: '#1e40af',
+                    lightBlue: '#3b82f6',
+                    gray: '#6b7280'
+                }
+            },
+            fontFamily: {
+                'sans': ['Inter', 'system-ui', 'sans-serif'],
+                'display': ['Inter', 'system-ui', 'sans-serif']
+            },
+            spacing: {
+                '18': '4.5rem',
+                '88': '22rem',
+                '112': '28rem',
+                '128': '32rem'
+            },
+            borderRadius: {
+                'xl': '0.75rem',
+                '2xl': '1rem',
+                '3xl': '1.5rem'
+            },
+            boxShadow: {
+                'soft': '0 2px 8px rgba(0, 0, 0, 0.04)',
+                'medium': '0 4px 16px rgba(0, 0, 0, 0.08)',
+                'strong': '0 8px 32px rgba(0, 0, 0, 0.12)',
+                'blue': '0 4px 16px rgba(30, 64, 175, 0.15)'
+            },
+            backdropBlur: {
+                'xs': '2px'
+            }
+        },
     },
     plugins: [],
-}
+};
+
+export default config;
+
 ```
 
 ## Pages, Layouts & Routes
+
+### /\layout (layout)
+
+- **Fichier**: `src\app\layout.js`
+- **Type**: App Router, Composant Serveur
+
+```jsx
+export default function RootLayout({ children }) {
+  return children;
+}
+```
+
+### /\page (page)
+
+- **Fichier**: `src\app\page.js`
+- **Type**: App Router, Composant Serveur
+
+```jsx
+import { redirect } from 'next/navigation';
+
+export default function RootPage() {
+  redirect('/fr');
+}
+```
 
 ### /\:locale\(auth)\layout (layout)
 
@@ -434,7 +561,7 @@ export default async function LoginPage({ params }) {
                     <div className="mt-8 text-center">
                         <p className="text-gray-600">
                             {t("login_page.no_account")}{' '}
-                            <Link href="/register" className="text-blue-500 hover:underline">
+                            <Link href="/register" className="text-blue-900 hover:underline">
                                 {t("login_page.register_here")}
                             </Link>
                         </p>
@@ -490,7 +617,7 @@ export default async function RegisterPage({ params }) {
                     <div className="mt-8 text-center">
                         <p className="text-gray-600">
                             {t("register_page.already_registered")}{' '}
-                            <Link href="/login" className="text-blue-500 hover:underline">
+                            <Link href="/login" className="text-blue-900 hover:underline">
                                 {t("register_page.login_here")}
                             </Link>
                         </p>
@@ -521,7 +648,7 @@ import ExplorerClient from "@/components/explorer/ExplorerClient";
 import ExploreHeader from "@/components/explorer/ExploreHeader";
 
 export default function ExplorerPage() {
-    const { t } = useTranslation();
+    const t = useTranslations();
 
     const [syndicates, setSyndicates] = useState([]);
     const [page, setPage] = useState(0);
@@ -638,7 +765,8 @@ async function getSyndicateDetails(id) {
 
 // Génération des métadonnées dynamiques pour le SEO
 export async function generateMetadata({ params }) {
-    const syndicate = await getSyndicateDetails(params.syndicatId);
+    const { syndicatId } = await params;
+    const syndicate = await getSyndicateDetails(syndicatId);
     if (!syndicate) {
         return { title: 'Syndicat non trouvé' };
     }
@@ -649,7 +777,7 @@ export async function generateMetadata({ params }) {
 }
 
 export default async function SyndicateProfilePage({ params }) {
-    const { syndicatId, locale } = params;
+    const { syndicatId, locale } = await params;
     const t = await getTranslations();
 
     const syndicateData = await getSyndicateDetails(syndicatId);
@@ -682,17 +810,33 @@ export default async function SyndicateProfilePage({ params }) {
 
 ```jsx
 import {getTranslations} from 'next-intl/server';
-import {Link} from '@/i18n/navigation';
+import {Link} from '@/navigation';
 import Feed from "@/components/dashboard/Feed"; // On réutilise le Feed existant
 import WelcomeSection from "@/components/dashboard/WelcomeSection";
-import { homeFeedFakeData } from "@/lib/fakeData/homeFeedFake";
-
+import { getGlobalFeedAPI } from "@/lib/api/feed";
+import { getToken } from "@/lib/auth/accountService";
 
 async function getDashboardData() {
-    await new Promise(resolve => setTimeout(resolve, 300));
-    return {
-        feed: homeFeedFakeData
-    };
+    try {
+        const token = await getToken(); // Récupère le token côté serveur
+        
+        // On passe le token à l'appel API
+        const feedData = await getGlobalFeedAPI(0, 50, 'createdAt', 'desc', token);
+        
+        return {
+            feed: feedData.content || [],
+            totalPages: feedData.totalPages || 0,
+            totalElements: feedData.totalElements || 0
+        };
+    } catch (error) {
+        console.error('Erreur lors de la récupération du feed:', error);
+        // Fallback vers un feed vide en cas d'erreur
+        return {
+            feed: [],
+            totalPages: 0,
+            totalElements: 0
+        };
+    }
 }
 
 export default async function HomePage({ params }) {
@@ -708,7 +852,7 @@ export default async function HomePage({ params }) {
                 <h2 className="text-2xl font-bold mb-6 text-gray-800 dark:text-gray-200">
                     {t("dashboard.news_and_events")}
                 </h2>
-                {/* Le composant Feed existant fonctionnera parfaitement avec le FeedCard amélioré */}
+                {/* Le composant Feed utilise maintenant UnifiedPostCard pour la cohérence avec la landing page */}
                 <Feed initialFeed={feed} />
             </div>
         </div>
@@ -728,10 +872,10 @@ import { useState, useEffect } from "react";
 import AppHeader from "@/components/dashboard/AppHeader";
 import AppSidebar from "@/components/dashboard/AppSidebar";
 import NotificationsPanel from "@/components/dashboard/NotificationsPanel";
-import { getAuthenticatedUserProfile } from "@/lib/api/user";
 import { toast } from 'react-hot-toast';
 import UserContext from "@/context/UserContext";
 import NavigationLoader from "@/components/shared/NavigationLoader";
+import { logout } from "@/lib/api/auth"; // Importer la fonction de déconnexion
 
 export default function DashboardLayout({ children }) {
     const [isSidebarOpen, setIsSidebarOpen] = useState(true);
@@ -740,23 +884,32 @@ export default function DashboardLayout({ children }) {
     const [loadingUser, setLoadingUser] = useState(true);
 
     useEffect(() => {
-        const fetchUserProfile = async () => {
-            try {
-                const profile = await getAuthenticatedUserProfile();
-                setUserData(profile);
-            } catch (error) {
-                console.error("Failed to fetch user profile:", error);
-                toast.error("Impossible de charger les données de votre session.");
-                // La redirection vers /login est gérée par l'intercepteur Axios
-            } finally {
-                setLoadingUser(false);
+        // Lire directement les données utilisateur depuis le localStorage
+        try {
+            const userJson = localStorage.getItem('user');
+            if (userJson) {
+                setUserData(JSON.parse(userJson));
+            } else {
+                // Si l'utilisateur n'est pas dans le localStorage, la session est invalide
+                throw new Error("Données utilisateur non trouvées");
             }
-        };
-
-        fetchUserProfile();
+        } catch (error) {
+            console.error("Erreur de chargement de la session utilisateur:", error);
+            toast.error("Votre session est invalide ou a expiré. Veuillez vous reconnecter.");
+            // L'intercepteur Axios redirigera, mais on peut forcer ici pour plus de réactivité
+            logout();
+        } finally {
+            setLoadingUser(false);
+        }
     }, []);
 
     if (loadingUser) {
+        return <NavigationLoader />;
+    }
+    
+    // Si après le chargement, les données utilisateur ne sont toujours pas là, ne rien rendre.
+    // La redirection via logout() aura déjà été initiée.
+    if (!userData) {
         return <NavigationLoader />;
     }
 
@@ -809,20 +962,28 @@ export default function Loading() {
 // src/app/(main)/parametres/page.jsx
 import {getTranslations} from 'next-intl/server';
 import UserProfileForm from "@/components/settings/UserProfileForm";
-import { getFirstNameToken, getLastNameToken, getEmailToken, getProfilFromToken } from "@/lib/auth/accountService"; // On supposera que ce service est côté serveur
+import { getUserIdFromToken, getFirstNameToken, getLastNameToken, getEmailToken, getProfilFromToken } from "@/lib/auth/accountService";
 
-// Simule la récupération des données de l'utilisateur connecté côté serveur
+// Récupère les données de l'utilisateur connecté côté serveur
 async function getAuthenticatedUserData() {
-    // Dans une vraie application, vous décoderiez un token JWT depuis un cookie ici
-    await new Promise(resolve => setTimeout(resolve, 200)); // Simule la latence
+    // On attend les résultats des fonctions asynchrones
+    const [userId, firstName, lastName, email, profilePicture] = await Promise.all([
+        getUserIdFromToken(),
+        getFirstNameToken(),
+        getLastNameToken(),
+        getEmailToken(),
+        getProfilFromToken()
+    ]);
+
     return {
-        firstName: getFirstNameToken() || 'John',
-        lastName: getLastNameToken() || 'Doe',
-        email: getEmailToken() || 'john.doe@example.com',
-        phone: "+237 679 39 04 71", // Donnée factice pour l'exemple
-        profilePicture: getProfilFromToken(),
-        formations: ["Master en Génie Logiciel", "Certification React Avancé"], // Données initiales
-        cvUrl: "/path/to/existing/cv.pdf" // Donnée initiale
+        id: userId, // ID est crucial pour les appels API
+        firstName: firstName || '',
+        lastName: lastName || '',
+        email: email || '',
+        phone: "", // Ce champ sera probablement récupéré via un autre appel API ou stocké dans le token
+        profilePicture: profilePicture,
+        formations: [], // Données à récupérer plus tard
+        cvUrl: ""
     };
 }
 
@@ -832,13 +993,13 @@ export default async function SettingsPage({ params }) {
     const userData = await getAuthenticatedUserData();
 
     return (
-        <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-8">
+        <div className="min-h-screen bg-gray-50 py-8">
             <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-5xl">
                 <div className="text-center mb-10">
                     <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
                         {t('settings_page.title')}
                     </h1>
-                    <p className="mt-2 text-lg text-gray-600 dark:text-gray-400">
+                    <p className="mt-2 text-lg text-gray-600">
                         {t('settings_page.subtitle')}
                     </p>
                 </div>
@@ -868,7 +1029,7 @@ import SyndicateList from "@/components/syndicats/SyndicateList";
 import { getMySyndicatesAPI } from "@/lib/api/syndicates";
 
 export default function MySyndicatesPage() {
-    const { t } = useTranslation();
+    const t = useTranslations();
     const [syndicates, setSyndicates] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
 
@@ -942,24 +1103,13 @@ export default function MarketingLayout({ children }) {
 import { HeroSection, FeaturesSection, StatsSection } from '@/components/landing/ModernLandingPage';
 import ActivityFeed from '@/components/landing/ActivityFeed';
 import PopularSyndicates from '@/components/landing/PopularSyndicates';
-import {getTranslations} from 'next-intl/server';
 
 export default async function LandingPage({ params }) {
     const { locale } = await params;
-    const t = await getTranslations();
-
-    const heroData = {
-        title_part1: t('heroComponent.title_part1'),
-        title_highlighted: t('heroComponent.title_highlighted'),
-        subtitle: t('heroComponent.subtitle'),
-        cta_main: t('heroComponent.cta_main'),
-        cta_secondary: t('heroComponent.cta_secondary'),
-        image_alt: t('heroComponent.image_alt')
-    };
 
     return (
         <div className="scroll-smooth">
-            <HeroSection heroData={heroData} />
+            <HeroSection />
             <FeaturesSection />
             <ActivityFeed />
             <PopularSyndicates />
@@ -976,31 +1126,92 @@ export default async function LandingPage({ params }) {
 
 ```jsx
 // src/app/(syndicate-space)/syndicat-space/[syndicatId]/(sections)/chat/page.jsx
-import {getTranslations} from 'next-intl/server';
-import ChatClient from "@/components/syndicate-space/section-chat/ChatClient";
-import { fakeChats, fakeMessages, fakeSyndicateMembers } from '@/lib/fakeData/syndicateDetailsFake';
+import { getTranslations } from 'next-intl/server';
+import ChatClientV2 from "@/components/syndicate-space/section-chat/ChatClientV2";
+import { getChatRoomsAPI, getChatRoomMembersAPI } from "@/lib/api/chat";
+import { MOCK_CHATS, MOCK_MEMBERS } from '@/lib/fakeData/syndicateSpaceMock'; // <-- IMPORT
 
 async function getChatData(syndicatId) {
-    console.log(`Récupération des données de chat pour le syndicat ${syndicatId}...`);
-    await new Promise(resolve => setTimeout(resolve, 200));
-    return { 
-        chats: fakeChats, 
-        messages: fakeMessages,
-        members: fakeSyndicateMembers
-    };
+    // AJOUT DE CETTE CONDITION
+    if (syndicatId === 'test-id') {
+        return {
+            chats: MOCK_CHATS,
+            messages: [], // Les messages sont chargés dynamiquement, on peut laisser vide ici
+            members: MOCK_MEMBERS
+        };
+    }
+    try {
+        console.log(`Récupération des données de chat pour le syndicat ${syndicatId}...`);
+
+        // Récupérer les salles de chat du syndicat
+        const chatRooms = await getChatRoomsAPI(syndicatId);
+
+        // Pour l'instant, créer une salle par défaut si aucune n'existe
+        let rooms = chatRooms || [];
+        if (rooms.length === 0) {
+            rooms = [{
+                id: 'general',
+                name: 'Général',
+                description: 'Discussion générale du syndicat',
+                type: 'GENERAL',
+                isPrivate: false,
+                memberCount: 0,
+                unreadCount: 0,
+                lastMessageAt: null,
+                lastMessagePreview: null,
+                hasNotifications: true
+            }];
+        }
+
+        // Récupérer les membres de la première salle pour l'affichage initial
+        let members = [];
+        if (rooms.length > 0) {
+            try {
+                members = await getChatRoomMembersAPI(syndicatId, rooms[0].id);
+            } catch (error) {
+                console.warn('Impossible de récupérer les membres:', error);
+                members = [];
+            }
+        }
+
+        return {
+            chats: rooms,
+            messages: [], // Les messages seront chargés dynamiquement par room
+            members: members
+        };
+    } catch (error) {
+        console.error(`Erreur lors de la récupération des données de chat pour ${syndicatId}:`, error);
+
+        // Fallback vers une salle par défaut en cas d'erreur
+        return {
+            chats: [{
+                id: 'general',
+                name: 'Général',
+                description: 'Discussion générale du syndicat',
+                type: 'GENERAL',
+                isPrivate: false,
+                memberCount: 0,
+                unreadCount: 0,
+                lastMessageAt: null,
+                lastMessagePreview: 'Aucun message pour le moment',
+                hasNotifications: true
+            }],
+            messages: [],
+            members: []
+        };
+    }
 }
 
 export default async function ChatPage({ params }) {
-    const { locale, syndicatId } = params;
+    const { locale, syndicatId } = await params;
     const t = await getTranslations();
     const chatData = await getChatData(syndicatId);
 
     return (
         // Le layout de l'espace syndicat a déjà un padding, on enlève celui du composant principal
         <div className="h-full">
-            <ChatClient 
+            <ChatClientV2
                 initialChats={chatData.chats}
-                initialMessages={chatData.messages}
                 initialMembers={chatData.members}
             />
         </div>
@@ -1015,36 +1226,75 @@ export default async function ChatPage({ params }) {
 
 ```jsx
 // src/app/(main)/syndicat-space/[syndicatId]/(sections)/evenements/page.jsx
-import {getTranslations} from 'next-intl/server';
-import { fakeEvents } from "@/lib/fakeData/syndicateDetailsFake"; 
+import { getTranslations } from 'next-intl/server';
 import EventsFeed from "@/components/syndicate-space/section-evenements/EventsFeed";
+import { getEventsAPI } from "@/lib/api/event";
+import { MOCK_EVENTS } from '@/lib/fakeData/syndicateSpaceMock'; // <-- IMPORT
 
 async function getEvents(syndicatId) {
-    console.log(`Récupération des événements pour le syndicat ${syndicatId}...`);
-    await new Promise(resolve => setTimeout(resolve, 300));
-    const eventsWithDates = fakeEvents.map(event => ({
-        ...event,
-        startDate: new Date(event.startDate),
-        endDate: new Date(event.endDate)
-    }));
-    return eventsWithDates;
+    // AJOUT DE CETTE CONDITION
+    if (syndicatId === 'test-id') {
+        console.log('Chargement des événements MOCK');
+        return MOCK_EVENTS;
+    }
+
+    try {
+        console.log(`Récupération des événements pour le syndicat ${syndicatId}...`);
+
+        const eventsData = await getEventsAPI(syndicatId, 0, 20);
+
+        // Vérifier si eventsData et eventsData.content existent
+        if (!eventsData || !eventsData.content) {
+            console.log('Aucun événement trouvé (réponse vide)');
+            return [];
+        }
+
+        // Convertir les dates string en objets Date si nécessaire
+        const eventsWithDates = eventsData.content.map(event => ({
+            ...event,
+            startDate: new Date(event.startDate),
+            endDate: new Date(event.endDate),
+            createdAt: new Date(event.createdAt)
+        }));
+
+        console.log(`${eventsWithDates.length} événements récupérés`);
+        return eventsWithDates;
+    } catch (error) {
+        console.error(`Erreur lors de la récupération des événements pour ${syndicatId}:`, error);
+
+        // Si c'est une 404, c'est normal (pas d'événements)
+        if (error.response?.status === 404) {
+            console.log('Aucun événement trouvé (404)');
+            return [];
+        }
+
+        // Si c'est une 401, c'est un problème d'auth - on la laisse remonter
+        if (error.response?.status === 401) {
+            throw error;
+        }
+
+        // Pour les autres erreurs, fallback vers un tableau vide
+        return [];
+    }
 }
 
 export default async function EventsPage({ params }) {
-    const { locale, syndicatId } = params;
+    const { locale, syndicatId } = await params;
     const t = await getTranslations();
     const initialEvents = await getEvents(syndicatId);
 
     return (
-        <div className="max-w-4xl mx-auto py-8">
-            <div className="text-center mb-12">
-                <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
-                    {t('events_page.title')}
-                </h1>
-                <p className="mt-2 text-gray-600 dark:text-gray-400">{t('events_page.subtitle')}</p>
+        <div className="space-y-8">
+            <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-8 mb-8">
+                <div className="text-center">
+                    <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-700 to-blue-800 bg-clip-text text-transparent mb-4">
+                        {t('events_page.title')}
+                    </h1>
+                    <p className="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">{t('events_page.subtitle')}</p>
+                </div>
             </div>
-            
-            <EventsFeed initialEvents={initialEvents} />
+
+            <EventsFeed initialEvents={initialEvents} syndicatId={syndicatId} />
         </div>
     );
 }
@@ -1056,14 +1306,23 @@ export default async function EventsPage({ params }) {
 - **Type**: App Router, Composant Serveur
 
 ```jsx
-import {getTranslations} from 'next-intl/server'; // CORRECTION : On importe le bon helper
+import { getTranslations } from 'next-intl/server'; // CORRECTION : On importe le bon helper
 import PublicationsFeed from "@/components/syndicate-space/section-exprimer/PublicationsFeed";
 import { getPostsAPI } from "@/lib/api/posts";
+import { MOCK_POSTS } from '@/lib/fakeData/syndicateSpaceMock'; // <-- IMPORT
+
 
 async function getPublications(syndicatId) {
+    // AJOUT DE CETTE CONDITION
+    if (syndicatId === 'test-id') {
+        return MOCK_POSTS;
+    }
+
     try {
-        const posts = await getPostsAPI(syndicatId);
-        return posts;
+        const postsData = await getPostsAPI(syndicatId);
+        // Extraire le tableau de posts de la réponse paginée
+        const postsArray = Array.isArray(postsData) ? postsData : (postsData?.content || []);
+        return postsArray;
     } catch (error) {
         console.error(`Failed to fetch posts for syndicate ${syndicatId}:`, error);
         return [];
@@ -1071,20 +1330,22 @@ async function getPublications(syndicatId) {
 }
 
 export default async function ExprimerPage({ params }) {
-    const { locale, syndicatId } = params;
+    const { locale, syndicatId } = await params;
     // CORRECTION : On utilise `initTranslations`
     const t = await getTranslations();
     const initialPosts = await getPublications(syndicatId);
 
     return (
-        <div className="max-w-3xl mx-auto py-8">
-            <div className="text-center mb-12">
-                <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent mb-4">
-                    {t("express_page.title")}
-                </h1>
-                <p className="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
-                    {t("express_page.subtitle")}
-                </p>
+        <div className="space-y-8">
+            <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-8 mb-8">
+                <div className="text-center">
+                    <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-700 to-blue-800 bg-clip-text text-transparent mb-4">
+                        {t("express_page.title")}
+                    </h1>
+                    <p className="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
+                        {t("express_page.subtitle")}
+                    </p>
+                </div>
             </div>
             <PublicationsFeed initialPosts={initialPosts} syndicatId={syndicatId} />
         </div>
@@ -1098,64 +1359,132 @@ export default async function ExprimerPage({ params }) {
 - **Type**: App Router, Composant Serveur
 
 ```jsx
-import {getTranslations} from 'next-intl/server'; // CORRECTION : On importe le bon helper
+import { getTranslations } from 'next-intl/server'; // CORRECTION : On importe le bon helper
 import { getBranchMembersAPI, getAdhesionRequestsAPI } from '@/lib/api/membership';
 import { getSyndicateDetailsAPI } from '@/lib/api/syndicates';
 import MembersClient from '@/components/syndicate-space/section-membres/MembersClient';
 import { notFound } from 'next/navigation';
+import { MOCK_MEMBERS, MOCK_REQUESTS, MOCK_SYNDICATE } from '@/lib/fakeData/syndicateSpaceMock'; // <-- IMPORT
+
 
 async function getMembersData(syndicateId) {
+    // AJOUT DE CETTE CONDITION
+    if (syndicateId === 'test-id') {
+        return {
+            members: MOCK_MEMBERS,
+            requests: MOCK_REQUESTS,
+            branches: MOCK_SYNDICATE.branches,
+            stats: { total: 143, active: 142, pending: 1 },
+            syndicateDetails: MOCK_SYNDICATE
+        };
+    }
+
+
     try {
+        // Récupérer les détails du syndicat
         const syndicateDetails = await getSyndicateDetailsAPI(syndicateId);
-        if (!syndicateDetails || !syndicateDetails.branches || syndicateDetails.branches.length === 0) {
-            // Dans le cas où il n'y a pas de branche, on ne peut rien récupérer.
-            // On renvoie un état vide et gérable.
+        if (!syndicateDetails) {
+            console.warn(`Syndicate ${syndicateId} not found`);
             return { members: [], requests: [], branches: [], stats: { total: 0, active: 0, pending: 0 } };
         }
-        
-        // On prend la première branche comme référence pour les membres et les demandes.
-        // C'est une simplification, une logique plus complexe pourrait être nécessaire si un syndicat a plusieurs branches gérables.
-        const mainBranchId = syndicateDetails.branches[0].id; 
 
-        const [members, requests] = await Promise.all([
-            getBranchMembersAPI(mainBranchId),
-            getAdhesionRequestsAPI(syndicateId, mainBranchId)
-        ]);
+        // Gérer le cas où il n'y a pas de branches définies
+        if (!syndicateDetails.branches || syndicateDetails.branches.length === 0) {
+            console.warn(`No branches found for syndicate ${syndicateId}`);
+            return {
+                members: [],
+                requests: [],
+                branches: [],
+                stats: { total: 0, active: 0, pending: 0 },
+                syndicateDetails
+            };
+        }
+
+        // Prendre la première branche comme référence
+        const mainBranchId = syndicateDetails.branches[0].id;
+
+        // Essayer de récupérer les membres et demandes, avec gestion d'erreur individuelle
+        let members = [];
+        let requests = [];
+
+        try {
+            members = await getBranchMembersAPI(mainBranchId);
+        } catch (error) {
+            console.warn(`Failed to fetch members for branch ${mainBranchId}:`, error.message);
+            // L'API peut ne pas être implémentée, on continue avec un tableau vide
+            members = [];
+        }
+
+        try {
+            requests = await getAdhesionRequestsAPI(syndicateId, mainBranchId);
+        } catch (error) {
+            console.warn(`Failed to fetch adhesion requests for branch ${mainBranchId}:`, error.message);
+            // L'API peut ne pas être implémentée, on continue avec un tableau vide
+            requests = [];
+        }
 
         const stats = {
-            total: members.length + requests.length,
-            active: members.length,
-            pending: requests.length
+            total: (members?.length || 0) + (requests?.length || 0),
+            active: members?.length || 0,
+            pending: requests?.length || 0
         };
 
-        return { members, requests, branches: syndicateDetails.branches, stats };
+        return {
+            members: members || [],
+            requests: requests || [],
+            branches: syndicateDetails.branches || [],
+            stats,
+            syndicateDetails
+        };
 
     } catch (error) {
         console.error(`Failed to fetch members data for syndicate ${syndicateId}:`, error);
-        // En cas d'erreur API, on renvoie également un état vide pour éviter un crash.
-        return { members: [], requests: [], branches: [], stats: { total: 0, active: 0, pending: 0 } };
+        // En cas d'erreur critique, retourner un état vide mais valide
+        return {
+            members: [],
+            requests: [],
+            branches: [],
+            stats: { total: 0, active: 0, pending: 0 },
+            error: error.message
+        };
     }
 }
 
 export default async function MembersPage({ params }) {
-    const { locale, syndicatId } = params;
-    // CORRECTION : On utilise `initTranslations` au lieu de `getTranslations`
+    const { locale, syndicatId } = await params;
     const t = await getTranslations();
+
+    // Récupérer les données avec gestion d'erreur robuste
     const data = await getMembersData(syndicatId);
 
-    // Bien que getMembersData soit robuste, on garde le notFound au cas où
-    // une logique future déciderait de le lancer (par ex. si syndicateDetails est null).
-    if (!data) {
+    // Si on n'arrive pas à récupérer les données de base du syndicat, alors 404
+    // Mais si c'est juste les APIs membres qui échouent, on affiche quand même la page
+    if (!data || (data.error && !data.syndicateDetails)) {
         notFound();
     }
-    
+
     return (
         <div className="space-y-8">
-            <MembersClient 
-                initialMembers={data.members}
-                initialRequests={data.requests}
-                branches={data.branches}
-                stats={data.stats}
+            {data.error && (
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+                    <div className="flex items-center">
+                        <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center mr-3">
+                            <svg className="w-4 h-4 text-blue-700" fill="currentColor" viewBox="0 0 20 20">
+                                <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+                            </svg>
+                        </div>
+                        <p className="text-sm text-blue-800 font-medium">
+                            Chargement en cours... Certaines données peuvent apparaître progressivement.
+                        </p>
+                    </div>
+                </div>
+            )}
+
+            <MembersClient
+                initialMembers={data.members || []}
+                initialRequests={data.requests || []}
+                branches={data.branches || []}
+                stats={data.stats || { total: 0, active: 0, pending: 0 }}
                 syndicatId={syndicatId}
             />
         </div>
@@ -1169,7 +1498,49 @@ export default async function MembersPage({ params }) {
 - **Type**: App Router, Composant Serveur
 
 ```jsx
+import { getTranslations } from 'next-intl/server';
+import VotesClient from "@/components/syndicate-space/section-votes/VotesClient";
+import { getVotesAPI } from "@/lib/api/vote";
+import { MOCK_VOTES } from '@/lib/fakeData/syndicateSpaceMock';
 
+async function getVotes(syndicatId) {
+    // Injection des données de test
+    if (syndicatId === 'test-id') {
+        return MOCK_VOTES;
+    }
+
+    try {
+        const votes = await getVotesAPI(syndicatId);
+        return votes || [];
+    } catch (error) {
+        console.error("Erreur lors de la récupération des votes:", error);
+        return [];
+    }
+}
+
+export default async function VotesPage({ params }) {
+    const resolvedParams = await params;
+    const { syndicatId } = resolvedParams;
+    const t = await getTranslations();
+    const initialVotes = await getVotes(syndicatId);
+
+    return (
+        <div className="space-y-8">
+            <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 p-8 mb-8">
+                <div className="text-center">
+                    <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-700 to-blue-800 bg-clip-text text-transparent mb-4">
+                        {t('votes_page.title')}
+                    </h1>
+                    <p className="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
+                        {t('votes_page.subtitle')}
+                    </p>
+                </div>
+            </div>
+
+            <VotesClient initialVotes={initialVotes} />
+        </div>
+    );
+}
 ```
 
 ### /\:locale\(syndicate-space)\syndicat-space\:syndicatId\layout (layout)
@@ -1178,29 +1549,52 @@ export default async function MembersPage({ params }) {
 - **Type**: App Router, Composant Serveur
 
 ```jsx
-// src/app/(syndicate-space)/syndicat-space/[syndicatId]/layout.jsx
-
 import { notFound } from 'next/navigation';
 import { getSyndicateDetailsAPI } from '@/lib/api/syndicates';
-import SyndicateSpaceClientLayout from './SyndicateSpaceClientLayout';
+// IMPORTANT : On importe les données fictives ici
+import { MOCK_SYNDICATE } from '@/lib/fakeData/syndicateSpaceMock';
+import SyndicateSpaceClientLayout from './SyndicateSpaceClientLayout'; // Note: le chemin relatif est correct ici car on est dans le même dossier
+import LoadingErrorPage from '@/components/syndicate-space/LoadingErrorPage';
 
 async function getSyndicateData(syndicateId) {
+    // 1. INTERCEPTION POUR LE TEST
+    // Si l'ID est 'test-id', on retourne immédiatement les fausses données
+    // sans essayer d'appeler l'API (ce qui provoquerait une erreur).
+    if (syndicateId === 'test-id') {
+        return { data: MOCK_SYNDICATE, error: null };
+    }
+
+    // 2. LOGIQUE NORMALE (Appel API)
     try {
         const data = await getSyndicateDetailsAPI(syndicateId);
-        return data;
+        return { data, error: null };
     } catch (error) {
         console.error(`Failed to fetch syndicate data for ID ${syndicateId}:`, error);
+
+        // 404 = syndicat n'existe pas
         if (error.response && error.response.status === 404) {
             notFound();
         }
-        throw new Error("Impossible de charger les données du syndicat.");
+
+        // Toutes les autres erreurs (timeout, réseau, code, variable manquante)
+        // déclenchent l'affichage de la LoadingErrorPage que vous voyez actuellement.
+        return { data: null, error: 'loading_error' };
     }
 }
 
 export default async function SyndicateSpaceLayout({ children, params }) {
-    const { syndicatId } = params;
-    const syndicateData = await getSyndicateData(syndicatId);
+    // Note : params est une Promise dans les versions récentes de Next.js, il faut l'attendre
+    const resolvedParams = await params;
+    const { syndicatId } = resolvedParams;
 
+    const { data: syndicateData, error } = await getSyndicateData(syndicatId);
+
+    // Si une erreur est survenue lors de la récupération (catch block)
+    if (error === 'loading_error') {
+        return <LoadingErrorPage />;
+    }
+
+    // Si aucune donnée n'est trouvée (mais pas d'erreur technique)
     if (!syndicateData) {
         notFound();
     }
@@ -1227,8 +1621,8 @@ import { redirect } from 'next/navigation';
  * Son seul rôle est de rediriger l'utilisateur vers la première section par défaut,
  * par exemple, la page "membres".
  */
-export default function SyndicateRootPage({ params }) {
-    const { syndicatId } = params;
+export default async function SyndicateRootPage({ params }) {
+    const { syndicatId } = await params;
 
     // Redirige de /syndicat-space/1 vers /syndicat-space/1/membres
     redirect(`/syndicat-space/${syndicatId}/membres`);
@@ -1265,8 +1659,8 @@ async function getMessages(locale) {
 export async function generateMetadata({ params }) {
   const { locale } = await params; // Ajout d'await ici
   return {
-    title: 'UGate',
-    description: 'Votre application UGate',
+    title: 'U-Gate',
+    description: 'Votre application U-Gate',
   };
 }
 
@@ -1308,35 +1702,71 @@ export default function Loading() {
 ### `/api/src\lib\api\auth`
 
 - **Fichier**: `src\lib\api\auth.js`
-- **Fonctions/Méthodes exportées**: loginWithEmail, registerWithEmail, logout, loginWithGoogle, loginWithApple
+- **Fonctions/Méthodes exportées**: loginWithIdentifier, registerWithEmail, updateUser, logout, loginWithGoogle, loginWithApple
 
 ```typescript
 import axios from './instance';
 
-export const loginWithEmail = async (email, password) => {
-    const response = await axios.post('/auth/login', { email, password });
-    if (response.data?.token) {
-        localStorage.setItem('token', response.data.token);
-        localStorage.setItem('email', response.data.email);
+export const loginWithIdentifier = async (identifier, password) => {
+    const response = await axios.post('/auth/login', { identifier, password });
+    if (response.data?.accessToken) {
+        localStorage.setItem('accessToken', response.data.accessToken);
+        localStorage.setItem('refreshToken', response.data.refreshToken);
+        localStorage.setItem('user', JSON.stringify(response.data.user));
     }
     return response.data;
 };
 
 export const registerWithEmail = async (userData) => {
+    // Note: This needs to be adapted if the registration endpoint has changed
     const response = await axios.post('/auth/register', userData);
-    if (response.data?.token) {
-        localStorage.setItem('token', response.data.token);
-        localStorage.setItem('email', response.data.email);
+    if (response.data?.accessToken) {
+        localStorage.setItem('accessToken', response.data.accessToken);
+        localStorage.setItem('refreshToken', response.data.refreshToken);
+        localStorage.setItem('user', JSON.stringify(response.data.user));
     }
     return response.data;
 };
 
+export const updateUser = async (userId, userData) => {
+    // L'intercepteur Axios injectera automatiquement le token Bearer
+    const response = await axios.put(`/users/${userId}`, userData);
+    
+    // Mettre à jour les informations utilisateur dans le localStorage si la réponse contient des données
+    if (response.data) {
+        // Récupérer l'objet utilisateur existant pour conserver les infos non modifiées (rôles, etc.)
+        const existingUser = JSON.parse(localStorage.getItem('user')) || {};
+        const updatedUser = { ...existingUser, ...response.data };
+        localStorage.setItem('user', JSON.stringify(updatedUser));
+    }
+    
+    return response.data;
+};
+
+// Fonction utilitaire pour obtenir la langue courante
+const getCurrentLocale = () => {
+    if (typeof window === 'undefined') return 'fr'; // défaut côté serveur
+    
+    const path = window.location.pathname;
+    const locale = path.split('/')[1];
+    
+    // Vérifier si c'est une langue supportée
+    if (['fr', 'en', 'de'].includes(locale)) {
+        return locale;
+    }
+    return 'fr'; // défaut
+};
+
 export const logout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('email');
-    // Optionnel : rediriger l'utilisateur
+    localStorage.removeItem('accessToken');
+    localStorage.removeItem('refreshToken');
+    localStorage.removeItem('user');
+    localStorage.removeItem('email'); // Nettoyage de l'ancienne clé
+    
+    // Rediriger l'utilisateur en préservant la langue
     if (typeof window !== 'undefined') {
-        window.location.href = '/login';
+        const locale = getCurrentLocale();
+        window.location.href = `/${locale}/login`;
     }
 };
 
@@ -1349,10 +1779,297 @@ export const loginWithApple = async (authCode) => {
 };
 ```
 
+### `/api/src\lib\api\chat`
+
+- **Fichier**: `src\lib\api\chat.js`
+- **Fonctions/Méthodes exportées**: getChatRoomsAPI, createChatRoomAPI, getChatRoomDetailsAPI, deleteChatRoomAPI, getChatRoomMembersAPI, joinChatRoomAPI, leaveChatRoomAPI, addMemberToChatRoomAPI, removeMemberFromChatRoomAPI, getChatMessagesAPI, sendChatMessageAPI, editChatMessageAPI, deleteChatMessageAPI, addReactionToChatMessageAPI, removeReactionFromChatMessageAPI, markChatMessagesAsReadAPI, updateTypingStatusAPI
+
+```typescript
+// src/lib/api/chat.js
+import apiInstance from './instance';
+import { createPaginationParams, processPaginatedResponse, handleAPIError } from './helpers';
+
+// ===== GESTION DES SALLES =====
+
+/**
+ * Récupère toutes les salles de chat d'un syndicat
+ * @param {string} syndicateId - ID du syndicat
+ * @returns {Promise} Promesse contenant la liste des salles
+ */
+export const getChatRoomsAPI = async (syndicateId) => {
+    try {
+        const response = await apiInstance.get(`/syndicates/${syndicateId}/chat/rooms`);
+        return response.data;
+    } catch (error) {
+        throw handleAPIError(error, 'Impossible de récupérer les salles de chat');
+    }
+};
+
+/**
+ * Crée une nouvelle salle de chat
+ * @param {string} syndicateId - ID du syndicat
+ * @param {Object} roomData - Données de la salle
+ * @returns {Promise} Promesse contenant la salle créée
+ */
+export const createChatRoomAPI = async (syndicateId, roomData) => {
+    try {
+        const response = await apiInstance.post(`/syndicates/${syndicateId}/chat/rooms`, roomData);
+        return response.data;
+    } catch (error) {
+        throw handleAPIError(error, 'Impossible de créer la salle de chat');
+    }
+};
+
+/**
+ * Récupère les détails d'une salle de chat
+ * @param {string} syndicateId - ID du syndicat
+ * @param {string} roomId - ID de la salle
+ * @returns {Promise} Promesse contenant les détails de la salle
+ */
+export const getChatRoomDetailsAPI = async (syndicateId, roomId) => {
+    try {
+        const response = await apiInstance.get(`/syndicates/${syndicateId}/chat/rooms/${roomId}`);
+        return response.data;
+    } catch (error) {
+        throw handleAPIError(error, 'Impossible de récupérer les détails de la salle');
+    }
+};
+
+/**
+ * Supprime une salle de chat
+ * @param {string} syndicateId - ID du syndicat
+ * @param {string} roomId - ID de la salle
+ * @returns {Promise} Promesse vide
+ */
+export const deleteChatRoomAPI = async (syndicateId, roomId) => {
+    try {
+        await apiInstance.delete(`/syndicates/${syndicateId}/chat/rooms/${roomId}`);
+    } catch (error) {
+        throw handleAPIError(error, 'Impossible de supprimer la salle de chat');
+    }
+};
+
+// ===== GESTION DES MEMBRES =====
+
+/**
+ * Récupère les membres d'une salle de chat
+ * @param {string} syndicateId - ID du syndicat
+ * @param {string} roomId - ID de la salle
+ * @returns {Promise} Promesse contenant la liste des membres
+ */
+export const getChatRoomMembersAPI = async (syndicateId, roomId) => {
+    try {
+        const response = await apiInstance.get(`/syndicates/${syndicateId}/chat/rooms/${roomId}/members`);
+        return response.data;
+    } catch (error) {
+        throw handleAPIError(error, 'Impossible de récupérer les membres de la salle');
+    }
+};
+
+/**
+ * Rejoint une salle de chat publique
+ * @param {string} syndicateId - ID du syndicat
+ * @param {string} roomId - ID de la salle
+ * @returns {Promise} Promesse vide
+ */
+export const joinChatRoomAPI = async (syndicateId, roomId) => {
+    try {
+        await apiInstance.post(`/syndicates/${syndicateId}/chat/rooms/${roomId}/join`);
+    } catch (error) {
+        throw handleAPIError(error, 'Impossible de rejoindre la salle de chat');
+    }
+};
+
+/**
+ * Quitte une salle de chat
+ * @param {string} syndicateId - ID du syndicat
+ * @param {string} roomId - ID de la salle
+ * @returns {Promise} Promesse vide
+ */
+export const leaveChatRoomAPI = async (syndicateId, roomId) => {
+    try {
+        await apiInstance.post(`/syndicates/${syndicateId}/chat/rooms/${roomId}/leave`);
+    } catch (error) {
+        throw handleAPIError(error, 'Impossible de quitter la salle de chat');
+    }
+};
+
+/**
+ * Ajoute un membre à une salle de chat
+ * @param {string} syndicateId - ID du syndicat
+ * @param {string} roomId - ID de la salle
+ * @param {string} userId - ID de l'utilisateur à ajouter
+ * @returns {Promise} Promesse vide
+ */
+export const addMemberToChatRoomAPI = async (syndicateId, roomId, userId) => {
+    try {
+        await apiInstance.post(`/syndicates/${syndicateId}/chat/rooms/${roomId}/members/${userId}`);
+    } catch (error) {
+        throw handleAPIError(error, 'Impossible d\'ajouter le membre à la salle');
+    }
+};
+
+/**
+ * Supprime un membre d'une salle de chat
+ * @param {string} syndicateId - ID du syndicat
+ * @param {string} roomId - ID de la salle
+ * @param {string} userId - ID de l'utilisateur à supprimer
+ * @returns {Promise} Promesse vide
+ */
+export const removeMemberFromChatRoomAPI = async (syndicateId, roomId, userId) => {
+    try {
+        await apiInstance.delete(`/syndicates/${syndicateId}/chat/rooms/${roomId}/members/${userId}`);
+    } catch (error) {
+        throw handleAPIError(error, 'Impossible de supprimer le membre de la salle');
+    }
+};
+
+// ===== GESTION DES MESSAGES =====
+
+/**
+ * Récupère les messages d'une salle de chat
+ * @param {string} syndicateId - ID du syndicat
+ * @param {string} roomId - ID de la salle
+ * @param {number} page - Numéro de page (commence à 0)
+ * @param {number} size - Taille de la page
+ * @returns {Promise} Promesse contenant la réponse paginée
+ */
+export const getChatMessagesAPI = async (syndicateId, roomId, page = 0, size = 50) => {
+    try {
+        const params = { page, size };
+        const response = await apiInstance.get(`/syndicates/${syndicateId}/chat/rooms/${roomId}/messages`, { params });
+        return processPaginatedResponse(response);
+    } catch (error) {
+        throw handleAPIError(error, 'Impossible de récupérer les messages');
+    }
+};
+
+/**
+ * Envoie un message dans une salle de chat
+ * @param {string} syndicateId - ID du syndicat
+ * @param {string} roomId - ID de la salle
+ * @param {Object} messageData - Données du message
+ * @returns {Promise} Promesse contenant le message envoyé
+ */
+export const sendChatMessageAPI = async (syndicateId, roomId, messageData) => {
+    try {
+        const response = await apiInstance.post(`/syndicates/${syndicateId}/chat/rooms/${roomId}/messages`, messageData);
+        return response.data;
+    } catch (error) {
+        throw handleAPIError(error, 'Impossible d\'envoyer le message');
+    }
+};
+
+/**
+ * Édite un message existant
+ * @param {string} syndicateId - ID du syndicat
+ * @param {string} roomId - ID de la salle
+ * @param {string} messageId - ID du message
+ * @param {string} newContent - Nouveau contenu du message
+ * @returns {Promise} Promesse contenant le message modifié
+ */
+export const editChatMessageAPI = async (syndicateId, roomId, messageId, newContent) => {
+    try {
+        const response = await apiInstance.put(`/syndicates/${syndicateId}/chat/rooms/${roomId}/messages/${messageId}`, newContent);
+        return response.data;
+    } catch (error) {
+        throw handleAPIError(error, 'Impossible de modifier le message');
+    }
+};
+
+/**
+ * Supprime un message
+ * @param {string} syndicateId - ID du syndicat
+ * @param {string} roomId - ID de la salle
+ * @param {string} messageId - ID du message
+ * @returns {Promise} Promesse vide
+ */
+export const deleteChatMessageAPI = async (syndicateId, roomId, messageId) => {
+    try {
+        await apiInstance.delete(`/syndicates/${syndicateId}/chat/rooms/${roomId}/messages/${messageId}`);
+    } catch (error) {
+        throw handleAPIError(error, 'Impossible de supprimer le message');
+    }
+};
+
+// ===== RÉACTIONS ET STATUTS =====
+
+/**
+ * Ajoute une réaction à un message
+ * @param {string} syndicateId - ID du syndicat
+ * @param {string} roomId - ID de la salle
+ * @param {string} messageId - ID du message
+ * @param {string} reaction - Emoji de réaction
+ * @returns {Promise} Promesse vide
+ */
+export const addReactionToChatMessageAPI = async (syndicateId, roomId, messageId, reaction) => {
+    try {
+        await apiInstance.post(`/syndicates/${syndicateId}/chat/rooms/${roomId}/messages/${messageId}/reactions`, null, {
+            params: { reaction }
+        });
+    } catch (error) {
+        throw handleAPIError(error, 'Impossible d\'ajouter la réaction');
+    }
+};
+
+/**
+ * Supprime une réaction d'un message
+ * @param {string} syndicateId - ID du syndicat
+ * @param {string} roomId - ID de la salle
+ * @param {string} messageId - ID du message
+ * @param {string} reaction - Emoji de réaction
+ * @returns {Promise} Promesse vide
+ */
+export const removeReactionFromChatMessageAPI = async (syndicateId, roomId, messageId, reaction) => {
+    try {
+        await apiInstance.delete(`/syndicates/${syndicateId}/chat/rooms/${roomId}/messages/${messageId}/reactions`, {
+            params: { reaction }
+        });
+    } catch (error) {
+        throw handleAPIError(error, 'Impossible de supprimer la réaction');
+    }
+};
+
+/**
+ * Marque les messages comme lus
+ * @param {string} syndicateId - ID du syndicat
+ * @param {string} roomId - ID de la salle
+ * @param {string} lastMessageId - ID du dernier message lu
+ * @returns {Promise} Promesse vide
+ */
+export const markChatMessagesAsReadAPI = async (syndicateId, roomId, lastMessageId) => {
+    try {
+        await apiInstance.post(`/syndicates/${syndicateId}/chat/rooms/${roomId}/read`, null, {
+            params: { lastMessageId }
+        });
+    } catch (error) {
+        throw handleAPIError(error, 'Impossible de marquer les messages comme lus');
+    }
+};
+
+/**
+ * Met à jour le statut "en train d'écrire"
+ * @param {string} syndicateId - ID du syndicat
+ * @param {string} roomId - ID de la salle
+ * @param {boolean} isTyping - Statut en train d'écrire
+ * @returns {Promise} Promesse vide
+ */
+export const updateTypingStatusAPI = async (syndicateId, roomId, isTyping) => {
+    try {
+        await apiInstance.post(`/syndicates/${syndicateId}/chat/rooms/${roomId}/typing`, null, {
+            params: { isTyping }
+        });
+    } catch (error) {
+        // Ne pas lancer d'erreur pour le statut typing (non critique)
+        console.warn('Impossible de mettre à jour le statut typing:', error);
+    }
+};
+```
+
 ### `/api/src\lib\api\event`
 
 - **Fichier**: `src\lib\api\event.js`
-- **Fonctions/Méthodes exportées**: getEventsAPI, createEventAPI
+- **Fonctions/Méthodes exportées**: getEventsAPI, createEventAPI, getRecentPublicEventsAPI
 
 ```typescript
 import axios from './instance';
@@ -1367,17 +2084,165 @@ import axios from './instance';
  * @returns {Promise<Object>} Résultats paginés avec événements
  */
 export const getEventsAPI = async (syndicateId, page = 0, size = 20, sortBy = 'startDate', sortDirection = 'ASC') => {
-    const response = await axios.get(`/syndicates/${syndicateId}/events`, {
-        params: { page, size, sortBy, sortDirection }
-    });
-    return response.data;
+    try {
+        const response = await axios.get(`/syndicates/${syndicateId}/events`, {
+            params: { page, size, sortBy, sortDirection }
+        });
+        return response.data;
+    } catch (error) {
+        // Si c'est une 404, on retourne une structure vide au lieu de fail
+        if (error.response?.status === 404) {
+            console.log('Aucun événement trouvé pour ce syndicat');
+            return {
+                content: [],
+                totalElements: 0,
+                totalPages: 0,
+                size: size,
+                number: page
+            };
+        }
+        // Pour les autres erreurs (401, 500, etc.), on les laisse remonter
+        throw error;
+    }
 };
 
-export const createEventAPI = async (syndicateId, formData) => {
-    const response = await axios.post(`/syndicates/${syndicateId}/events`, formData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-    });
-    return response.data;
+export const createEventAPI = async (syndicateId, eventData, imageFile = null) => {
+    try {
+        const formData = new FormData();
+        
+        // Préparer les données de l'événement
+        const requestData = {
+            title: eventData.title,
+            description: eventData.description,
+            location: eventData.location,
+            startDate: new Date(eventData.startDate).toISOString(),
+            endDate: new Date(eventData.endDate).toISOString()
+        };
+        
+        // Ajouter les données JSON
+        formData.append('eventData', new Blob([JSON.stringify(requestData)], {
+            type: 'application/json'
+        }));
+        
+        // Ajouter l'image si elle existe
+        if (imageFile) {
+            formData.append('imageFile', imageFile);
+        }
+        
+        const response = await axios.post(`/syndicates/${syndicateId}/events`, formData, {
+            headers: { 'Content-Type': 'multipart/form-data' },
+        });
+        
+        return response.data;
+    } catch (error) {
+        console.error('Erreur lors de la création de l\'événement:', error);
+        throw error;
+    }
+};
+
+/**
+ * Récupère les événements publics récents de la plateforme (pour landing page)
+ * @param {number} size - Nombre d'événements à récupérer
+ * @returns {Promise<Array>} Liste des événements récents
+ */
+export const getRecentPublicEventsAPI = async (size = 5) => {
+    try {
+        // Utilise le feed global public qui ne nécessite pas d'authentification
+        const response = await axios.get('/feed/global', {
+            params: { 
+                page: 0, 
+                size: size, 
+                sortBy: 'createdAt', 
+                sortDirection: 'desc' 
+            }
+        });
+        
+        // Filtrer seulement les événements (pas les publications)
+        if (response.data && response.data.content) {
+            return response.data.content.filter(item => item.eventId && !item.postId);
+        }
+        return [];
+    } catch (error) {
+        console.error('Erreur lors de la récupération des événements publics:', error);
+        return [];
+    }
+};
+```
+
+### `/api/src\lib\api\feed`
+
+- **Fichier**: `src\lib\api\feed.js`
+- **Fonctions/Méthodes exportées**: getUserFeedAPI, getGlobalFeedAPI, getSyndicateFeedAPI
+
+```typescript
+// src/lib/api/feed.js
+import apiInstance from './instance';
+import { createPaginationParams, processPaginatedResponse, handleAPIError } from './helpers';
+
+/**
+ * Récupère le feed personnalisé de l'utilisateur connecté
+ * @param {number} page - Numéro de page (commence à 0)
+ * @param {number} size - Taille de la page
+ * @param {string} sortBy - Champ de tri (défaut: 'createdAt')
+ * @param {string} sortDirection - Direction du tri ('asc' ou 'desc')
+ * @returns {Promise} Promesse contenant la réponse paginée
+ */
+export const getUserFeedAPI = async (page = 0, size = 20, sortBy = 'createdAt', sortDirection = 'desc') => {
+    try {
+        const params = createPaginationParams(page, size, sortBy, sortDirection);
+        
+        const response = await apiInstance.get('/feed', { params });
+        return processPaginatedResponse(response);
+    } catch (error) {
+        throw handleAPIError(error, 'Impossible de récupérer le feed personnalisé');
+    }
+};
+
+/**
+ * Récupère le feed global public
+ * @param {number} page - Numéro de page (commence à 0)
+ * @param {number} size - Taille de la page
+ * @param {string} sortBy - Champ de tri (défaut: 'createdAt')
+ * @param {string} sortDirection - Direction du tri ('asc' ou 'desc')
+ * @returns {Promise} Promesse contenant la réponse paginée
+ */
+export const getGlobalFeedAPI = async (page = 0, size = 20, sortBy = 'createdAt', sortDirection = 'desc', token = null) => {
+    try {
+        const params = createPaginationParams(page, size, sortBy, sortDirection);
+        
+        const config = { params };
+        if (token) {
+            config.headers = {
+                ...config.headers,
+                'Authorization': `Bearer ${token}`
+            };
+        }
+
+        const response = await apiInstance.get('/feed/global', config);
+        return processPaginatedResponse(response);
+    } catch (error) {
+        throw handleAPIError(error, 'Impossible de récupérer le feed global');
+    }
+};
+
+/**
+ * Récupère le feed d'un syndicat spécifique
+ * @param {string} syndicateId - ID du syndicat
+ * @param {number} page - Numéro de page (commence à 0)
+ * @param {number} size - Taille de la page
+ * @param {string} sortBy - Champ de tri (défaut: 'createdAt')
+ * @param {string} sortDirection - Direction du tri ('asc' ou 'desc')
+ * @returns {Promise} Promesse contenant la réponse paginée
+ */
+export const getSyndicateFeedAPI = async (syndicateId, page = 0, size = 20, sortBy = 'createdAt', sortDirection = 'desc') => {
+    try {
+        const params = createPaginationParams(page, size, sortBy, sortDirection);
+        
+        const response = await apiInstance.get(`/syndicates/${syndicateId}/feed`, { params });
+        return processPaginatedResponse(response);
+    } catch (error) {
+        throw handleAPIError(error, `Impossible de récupérer le feed du syndicat ${syndicateId}`);
+    }
 };
 ```
 
@@ -1699,42 +2564,54 @@ export { default as apiClient } from './instance';
 
 ```typescript
 import axios from 'axios';
-import Cookies from 'js-cookie';
 
 const axiosInstance = axios.create({
-    baseURL: 'http://167.235.62.116:7014/api',
+    baseURL: process.env.NEXT_PUBLIC_API_BASE_URL || 'https://auth-service.pynfi.com/api',
     timeout: 10000,
     headers: {
         'Content-Type': 'application/json',
     },
 });
 
+// Intercepteur pour injecter le token dans chaque requête
 axiosInstance.interceptors.request.use(
     (config) => {
         if (typeof window !== 'undefined') {
-            const token = localStorage.getItem('token');
+            const token = localStorage.getItem('accessToken');
             if (token) {
                 config.headers.Authorization = `Bearer ${token}`;
             }
         }
         return config;
     },
-    (error) => Promise.reject(error)
+    (error) => {
+        return Promise.reject(error);
+    }
 );
+
 
 axiosInstance.interceptors.response.use(
     (response) => response,
     (error) => {
-        if (typeof window !== 'undefined' && error.response && (error.response.status === 401 || error.response.status === 403)) {
-            localStorage.removeItem('token');
-            localStorage.removeItem('email');
-            if (window.location.pathname !== '/login') {
-                window.location.href = '/login';
+        if (error.response && (error.response.status === 401 || error.response.status === 403)) {
+            if (typeof window !== 'undefined' && !window.location.pathname.endsWith('/login')) {
+                // Nettoyage complet du localStorage
+                localStorage.removeItem('accessToken');
+                localStorage.removeItem('refreshToken');
+                localStorage.removeItem('user');
+                localStorage.removeItem('email'); // Au cas où l'ancien est toujours là
+                localStorage.removeItem('userId'); // Nettoyer aussi l'ancien userId
+
+                // Redirection vers la page de connexion en gardant la locale
+                const path = window.location.pathname;
+                const locale = path.split('/')[1] || 'fr';
+                window.location.href = `/${locale}/login`;
             }
         }
         return Promise.reject(error);
     }
 );
+
 
 export default axiosInstance;
 ```
@@ -1768,10 +2645,94 @@ export const getBranchMembersAPI = async (branchId) => {
 };
 ```
 
+### `/api/src\lib\api\notifications`
+
+- **Fichier**: `src\lib\api\notifications.js`
+- **Fonctions/Méthodes exportées**: getNotificationsAPI, markNotificationAsReadAPI, markAllNotificationsAsReadAPI, getUnreadNotificationsCountAPI, deleteNotificationAPI
+
+```typescript
+// src/lib/api/notifications.js
+import apiInstance from './instance';
+import { createPaginationParams, processPaginatedResponse, handleAPIError } from './helpers';
+
+/**
+ * Récupère les notifications de l'utilisateur connecté
+ * @param {number} page - Numéro de page (commence à 0)
+ * @param {number} size - Taille de la page
+ * @param {boolean} unreadOnly - Filtrer uniquement les notifications non lues
+ * @returns {Promise} Promesse contenant la réponse paginée
+ */
+export const getNotificationsAPI = async (page = 0, size = 20, unreadOnly = false) => {
+    try {
+        const params = {
+            page,
+            size,
+            unreadOnly
+        };
+        
+        const response = await apiInstance.get('/notifications', { params });
+        return processPaginatedResponse(response);
+    } catch (error) {
+        throw handleAPIError(error, 'Impossible de récupérer les notifications');
+    }
+};
+
+/**
+ * Marque une notification comme lue
+ * @param {string} notificationId - ID de la notification
+ * @returns {Promise} Promesse vide
+ */
+export const markNotificationAsReadAPI = async (notificationId) => {
+    try {
+        await apiInstance.post(`/notifications/${notificationId}/mark-read`);
+    } catch (error) {
+        throw handleAPIError(error, 'Impossible de marquer la notification comme lue');
+    }
+};
+
+/**
+ * Marque toutes les notifications comme lues
+ * @returns {Promise} Promesse vide
+ */
+export const markAllNotificationsAsReadAPI = async () => {
+    try {
+        await apiInstance.post('/notifications/mark-all-read');
+    } catch (error) {
+        throw handleAPIError(error, 'Impossible de marquer toutes les notifications comme lues');
+    }
+};
+
+/**
+ * Obtient le nombre de notifications non lues
+ * @returns {Promise} Promesse contenant le nombre
+ */
+export const getUnreadNotificationsCountAPI = async () => {
+    try {
+        const response = await apiInstance.get('/notifications/unread-count');
+        return response.data;
+    } catch (error) {
+        throw handleAPIError(error, 'Impossible de récupérer le nombre de notifications non lues');
+    }
+};
+
+/**
+ * Supprime une notification
+ * @param {string} notificationId - ID de la notification
+ * @returns {Promise} Promesse vide
+ */
+export const deleteNotificationAPI = async (notificationId) => {
+    try {
+        await apiInstance.delete(`/notifications/${notificationId}`);
+    } catch (error) {
+        throw handleAPIError(error, 'Impossible de supprimer la notification');
+    }
+};
+```
+
 ### `/api/src\lib\api\posts`
 
 - **Fichier**: `src\lib\api\posts.js`
-- **Fonctions/Méthodes exportées**: getPostsAPI, createPostAPI, likePostAPI, addCommentAPI, getCommentsAPI, likeCommentAPI
+- **Fonctions/Méthodes exportées**: getPostsAPI, createPostAPI, likePostAPI, addCommentAPI, getCommentsAPI, likeCommentAPI, getRecentPublicPostsAPI
 
 ```typescript
 import axios from './instance';
@@ -1793,9 +2754,7 @@ export const getPostsAPI = async (syndicateId, page = 0, size = 20, sortBy = 'cr
 };
 
 export const createPostAPI = async (syndicateId, formData) => {
-    const response = await axios.post(`/syndicates/${syndicateId}/posts`, formData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-    });
+    const response = await axios.post(`/syndicates/${syndicateId}/posts`, formData);
     return response.data;
 };
 
@@ -1827,6 +2786,34 @@ export const getCommentsAPI = async (syndicateId, postId, page = 0, size = 20) =
 
 export const likeCommentAPI = async (syndicateId, postId, commentId, liked) => {
     await axios.post(`/syndicates/${syndicateId}/posts/${postId}/comments/${commentId}/like?liked=${liked}`);
+};
+
+/**
+ * Récupère les publications publiques récentes de la plateforme (pour landing page)
+ * @param {number} size - Nombre de publications à récupérer
+ * @returns {Promise<Array>} Liste des publications récentes
+ */
+export const getRecentPublicPostsAPI = async (size = 5) => {
+    try {
+        // Utilise le feed global public qui ne nécessite pas d'authentification
+        const response = await axios.get('/feed/global', {
+            params: { 
+                page: 0, 
+                size: size, 
+                sortBy: 'createdAt', 
+                sortDirection: 'desc' 
+            }
+        });
+        
+        // Filtrer seulement les publications (pas les événements)
+        if (response.data && response.data.content) {
+            return response.data.content.filter(item => !item.eventId && item.postId);
+        }
+        return [];
+    } catch (error) {
+        console.error('Erreur lors de la récupération des publications publiques:', error);
+        return [];
+    }
 };
 ```
 
@@ -2223,14 +3210,16 @@ export const submitVoteAPI = async (syndicateId, voteId, choiceId) => {
 
 - **Fichier**: `src\components\auth\LoginAside.jsx`
 - **Props**: `texts`
-- **Hooks**: useState, useEffect
+- **Hooks**: useState, useEffect, useTranslations
 ```jsx
 
 "use client";
 
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Building } from 'lucide-react';
+import { useTranslations } from 'next-intl';
+import { Link } from '@/navigation';
+import UGateIcon from '@/components/shared/UGateIcon';
 
 const AnimatedText = ({ texts }) => {
     const [index, setIndex] = useState(0);
@@ -2259,9 +3248,10 @@ const AnimatedText = ({ texts }) => {
 };
 
 export default function LoginAside({ animatedTexts }) {
+    const t = useTranslations();
     return (
-        <div className="hidden md:flex w-1/2 bg-gradient-to-br from-blue-600 to-blue-800 flex-col justify-center items-center p-12 relative overflow-hidden">
-            <div className="absolute inset-0 bg-blue-700 opacity-20">
+        <div className="hidden md:flex w-1/2 bg-gradient-to-br from-blue-900 to-blue-950 flex-col justify-center items-center p-12 relative overflow-hidden">
+            <div className="absolute inset-0 bg-blue-900 opacity-20">
                 <svg className="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
                     <path d="M0,0 L100,0 L100,100 L0,100 Z" fill="none" stroke="white" strokeWidth="0.5"/>
                     <path d="M0,50 Q50,0 100,50 Q50,100 0,50 Z" fill="none" stroke="white" strokeWidth="0.5"/>
@@ -2273,10 +3263,12 @@ export default function LoginAside({ animatedTexts }) {
                 transition={{ duration: 0.5 }}
                 className="text-white text-center relative z-10"
             >
-                <div className="flex justify-center mb-8">
-                    <Building size={80} className="text-white" />
-                </div>
-                <h1 className="text-5xl font-bold mb-8">SyndicManager</h1>
+                <Link href="/">
+                    <div className="flex justify-center mb-8">
+                        <UGateIcon className="h-20 w-20" />
+                    </div>
+                </Link>
+                <h1 className="text-5xl font-bold mb-8">{t('app_name')}</h1>
                 <AnimatedText texts={animatedTexts} />
             </motion.div>
         </div>
@@ -2290,18 +3282,15 @@ export default function LoginAside({ animatedTexts }) {
 - **Props**: `children, ...props`
 - **Hooks**: useState, useForm, useTranslations, useRouter
 ```jsx
-// src/components/auth/LoginForm.jsx
 "use client";
-
 import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { motion } from 'framer-motion';
 import { Mail, Lock, AlertCircle } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import { useRouter } from 'next/navigation';
 import Swal from 'sweetalert2';
-import { Link } from '@/navigation';
-import { loginWithEmail } from '@/lib/api/auth'; // Importe la fonction API de login
+import { Link, useRouter } from '@/navigation';
+import { loginWithIdentifier } from '@/lib/api/auth';
 
 // Composant Input réutilisable avec icône
 const Input = React.forwardRef(({ icon: Icon, error, ...props }, ref) => (
@@ -2310,12 +3299,12 @@ const Input = React.forwardRef(({ icon: Icon, error, ...props }, ref) => (
             <input
                 {...props}
                 ref={ref}
-                className={`w-full px-4 py-3 text-gray-700 bg-white border rounded-lg focus:border-blue-400 focus:outline-none focus:ring focus:ring-blue-300 focus:ring-opacity-40 pl-12 transition-colors ${
+                className={`w-full px-4 py-3 text-gray-700 bg-white border rounded-lg focus:border-blue-800 focus:outline-none focus:ring focus:ring-blue-700 focus:ring-opacity-40 pl-12 transition-colors ${
                     error ? 'border-red-500' : 'border-gray-300'
                 }`}
             />
             <Icon className={`absolute left-3 top-1/2 transform -translate-y-1/2 ${
-                error ? 'text-red-500' : 'text-blue-400'
+                error ? 'text-red-500' : 'text-blue-800'
             }`} size={20} />
         </div>
         {error && (
@@ -2326,6 +3315,7 @@ const Input = React.forwardRef(({ icon: Icon, error, ...props }, ref) => (
         )}
     </div>
 ));
+
 Input.displayName = 'Input';
 
 // Composant Button avec animations Framer Motion
@@ -2333,7 +3323,7 @@ const Button = ({ children, ...props }) => (
     <motion.button
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
-        className="w-full px-6 py-3 text-white bg-blue-500 rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 disabled:bg-blue-300 disabled:cursor-not-allowed transition-all duration-200"
+        className="w-full px-6 py-3 text-white bg-blue-900 rounded-lg hover:bg-blue-950 focus:outline-none focus:ring-2 focus:ring-blue-900 focus:ring-opacity-50 disabled:bg-blue-700 disabled:cursor-not-allowed transition-all duration-200"
         {...props}
     >
         {children}
@@ -2345,44 +3335,41 @@ export default function LoginForm() {
     const [isLoading, setIsLoading] = useState(false);
     const router = useRouter();
     const t = useTranslations('login_page');
+    const tErrors = useTranslations('errors');
 
     // Gestionnaire de soumission du formulaire
     const onSubmit = async (data) => {
         setIsLoading(true);
         try {
-            await loginWithEmail(data.email, data.password);
-
+            await loginWithIdentifier(data.email, data.password);
             await Swal.fire({
                 icon: 'success',
-                title: t("login_page.success_title"),
-                text: t("login_page.success_text"),
+                title: t("success_title"),
+                text: t("success_text"),
                 timer: 1500,
                 showConfirmButton: false,
             });
             router.push('/home'); // Redirige vers la page d'accueil de l'utilisateur connecté
-
         } catch (error) {
             console.error("Erreur de connexion:", error);
-            let errorMessage = t('login_page.generic_error');
-
+            let errorMessage = t('generic_error');
             if (error.response) {
                 // Erreurs HTTP spécifiques de l'API (401 BadCredentialsException, 403 DisabledException)
                 if (error.response.status === 401) {
-                    errorMessage = t('login_page.invalid_credentials');
+                    errorMessage = t('invalid_credentials');
                 } else if (error.response.status === 403) {
-                    errorMessage = t('login_page.account_disabled');
+                    errorMessage = t('account_disabled');
                 } else if (error.response.data && error.response.data.message) {
                     // Si le backend renvoie un DTO d'erreur avec un message spécifique
                     errorMessage = error.response.data.message;
                 }
-            } else if (error.message === "Token expiré" || error.message === "Token invalide") {
+            } else if (error.message === tErrors('token_expired') || error.message === tErrors('token_invalid')) {
                 // Erreur de token détectée côté client par l'intercepteur de requête
-                errorMessage = t('login_page.token_invalid_expired');
+                errorMessage = t('token_invalid_expired');
             }
-
             Swal.fire({
                 icon: 'error',
-                title: t('login_page.error_title'),
+                title: t('error_title'),
                 text: errorMessage,
             });
         } finally {
@@ -2396,58 +3383,56 @@ export default function LoginForm() {
                 <Input
                     icon={Mail}
                     type="email"
-                    placeholder={t('login_page.email_placeholder')}
+                    placeholder={t('email_placeholder')}
                     error={errors.email}
                     {...register("email", {
-                        required: t('login_page.email_required'),
+                        required: t('email_required'),
                         pattern: {
                             value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-                            message: t('login_page.email_invalid'),
+                            message: t('email_invalid'),
                         }
                     })}
                 />
             </div>
-
             <div>
                 <Input
                     icon={Lock}
                     type="password"
-                    placeholder={t('login_page.password_placeholder')}
+                    placeholder={t('password_placeholder')}
                     error={errors.password}
                     {...register("password", {
-                        required: t('login_page.password_required'),
+                        required: t('password_required'),
                     })}
                 />
             </div>
-
             <div className="flex items-center justify-between mb-4">
                 {/* Checkbox "Se souvenir de moi" (logique non implémentée côté client/server pour le moment) */}
                 <div className="flex items-center">
                     <input
                         type="checkbox"
                         id="remember"
-                        className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                        className="h-4 w-4 text-blue-900 focus:ring-blue-900 border-gray-300 rounded"
                         {...register("remember")}
                     />
                     <label htmlFor="remember" className="ml-2 block text-sm text-gray-900">
-                        {t("login_page.remember_me")}
+                        {t("remember_me")}
                     </label>
                 </div>
                 {/* Lien "Mot de passe oublié ?" */}
                 <div className="text-sm">
-                    <Link href="/forgot-password" className="font-medium text-blue-600 hover:underline">
-                        {t("login_page.forgot_password")} ?
+                    <Link href="/forgot-password" className="font-medium text-blue-900 hover:underline">
+                        {t("forgot_password")}
                     </Link>
                 </div>
             </div>
-
             {/* Bouton de soumission */}
             <Button type="submit" disabled={isLoading}>
-                {isLoading ? t('login_page.login_button_loading') : t("login_page.login_button")}
+                {isLoading ? t('login_button_loading') : t("login_button")}
             </Button>
         </form>
     );
 }
+
 ```
 
 ### PasswordStrengthIndicator
@@ -2475,7 +3460,7 @@ export default function PasswordStrengthIndicator({ password = '' }) {
     const getColor = () => {
         if (strength <= 1) return 'bg-red-500';
         if (strength === 2) return 'bg-yellow-500';
-        if (strength === 3) return 'bg-blue-500';
+        if (strength === 3) return 'bg-blue-900';
         return 'bg-green-500';
     };
 
@@ -2502,13 +3487,12 @@ export default function PasswordStrengthIndicator({ password = '' }) {
 import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { motion } from 'framer-motion';
-import { User, Mail, Lock, Calendar, AlertCircle } from 'lucide-react';
+import { User, Mail, Lock, Phone, AlertCircle } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import { useRouter } from 'next/navigation';
 import Swal from 'sweetalert2';
 import { registerWithEmail } from '@/lib/api/auth';
 import PasswordStrengthIndicator from './PasswordStrength';
-import { Link } from '@/navigation'; // Ajouté pour le lien "Déjà enregistré ?"
+import { Link, useRouter } from '@/navigation'; // Ajouté pour le lien "Déjà enregistré ?"
 
 // Composant Alert pour les messages d'erreur de validation
 const Alert = ({ children }) => (
@@ -2525,12 +3509,12 @@ const Input = React.forwardRef(({ icon: Icon, error, ...props }, ref) => (
             <input
                 {...props}
                 ref={ref}
-                className={`w-full px-4 py-3 text-gray-700 bg-white border rounded-lg focus:border-blue-400 focus:outline-none focus:ring focus:ring-blue-300 focus:ring-opacity-40 pl-12 transition-colors ${
+                className={`w-full px-4 py-3 text-gray-700 bg-white border rounded-lg focus:border-blue-800 focus:outline-none focus:ring focus:ring-blue-700 focus:ring-opacity-40 pl-12 transition-colors ${
                     error ? 'border-red-500' : 'border-gray-300'
                 }`}
             />
             <Icon className={`absolute left-3 top-1/2 transform -translate-y-1/2 ${
-                error ? 'text-red-500' : 'text-blue-400'
+                error ? 'text-red-500' : 'text-blue-800'
             }`} size={20} />
         </div>
         {error && <Alert>{error.message}</Alert>}
@@ -2543,7 +3527,7 @@ const Button = ({ children, ...props }) => (
     <motion.button
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
-        className="w-full px-6 py-3 rounded-lg text-white bg-blue-500 hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 transition-all duration-200 disabled:bg-blue-300 disabled:cursor-not-allowed"
+        className="w-full px-6 py-3 rounded-lg text-white bg-blue-900 hover:bg-blue-950 focus:outline-none focus:ring-2 focus:ring-blue-900 focus:ring-opacity-50 transition-all duration-200 disabled:bg-blue-700 disabled:cursor-not-allowed"
         {...props}
     >
         {children}
@@ -2562,51 +3546,59 @@ export default function RegisterForm() {
     // Valide la complexité du mot de passe
     const validatePassword = (value) => {
         const passwordErrors = [];
-        if (value.length < 8) passwordErrors.push(t('register_page.password_strength_8_chars'));
-        if (!/[A-Z]/.test(value)) passwordErrors.push(t('register_page.password_strength_uppercase'));
-        if (!/[0-9]/.test(value)) passwordErrors.push(t('register_page.password_strength_number'));
-        if (!/[^A-Za-z0-9]/.test(value)) passwordErrors.push(t('register_page.password_strength_special'));
+        if (value.length < 8) passwordErrors.push(t('password_strength_8_chars'));
+        if (!/[A-Z]/.test(value)) passwordErrors.push(t('password_strength_uppercase'));
+        if (!/[0-9]/.test(value)) passwordErrors.push(t('password_strength_number'));
+        if (!/[^A-Za-z0-9]/.test(value)) passwordErrors.push(t('password_strength_special'));
 
         return passwordErrors.length === 0 || passwordErrors.join(', ');
     };
 
     // Soumission du formulaire
     const onSubmit = async (data) => {
+        console.log("1. La fonction onSubmit a été appelée.");
+        console.log("Données du formulaire :", data);
         setIsLoading(true);
         try {
+            console.log("2. Début du bloc try : Appel de registerWithEmail...");
             // Le backend attend "dateOfBirth" au format YYYY-MM-DD,
             // ce qui est le format par défaut des inputs type="date".
             await registerWithEmail(data);
+            console.log("3. Appel API réussi.");
 
             await Swal.fire({
                 icon: 'success',
-                title: t('register_page.success_title'),
-                text: t('register_page.success_text', { name: `${data.firstName} ${data.lastName}` }),
+                title: t('success_title'),
+                text: t('success_text', { name: `${data.firstName} ${data.lastName}` }),
             });
             router.push('/login');
 
         } catch (error) {
-            console.error("Erreur d'inscription:", error);
-            let errorMessage = t('register_page.generic_error');
+            console.error("4. ERREUR dans le bloc catch :", error);
+            let errorMessage = t('generic_error');
 
             if (error.response) {
+                console.error("Détails de l'erreur API :", error.response);
                 // Si le backend renvoie un message d'erreur spécifique (ex: email déjà utilisé)
                 if (error.response.data && error.response.data.message) {
                     errorMessage = error.response.data.message;
                 } else if (error.response.status === 400) {
-                    errorMessage = t('register_page.validation_error');
+                    errorMessage = t('validation_error');
                 }
             }
             
             Swal.fire({
                 icon: 'error',
-                title: t('register_page.error_title'),
+                title: t('error_title'),
                 text: errorMessage,
             });
         } finally {
+            console.log("5. Bloc finally exécuté.");
             setIsLoading(false);
         }
     };
+    
+    console.log("Erreurs de validation du formulaire :", errors);
 
     return (
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
@@ -2614,49 +3606,58 @@ export default function RegisterForm() {
                 <Input
                     icon={User}
                     type="text"
-                    placeholder={t("register_page.last_name_placeholder")}
+                    placeholder={t("last_name_placeholder")}
                     error={errors.lastName}
                     {...register("lastName", {
-                        required: t("register_page.last_name_required"),
-                        minLength: { value: 2, message: t("register_page.last_name_min_length") }
+                        required: t("last_name_required"),
+                        minLength: { value: 2, message: t("last_name_min_length") }
                     })}
                 />
                 <Input
                     icon={User}
                     type="text"
-                    placeholder={t("register_page.first_name_placeholder")}
+                    placeholder={t("first_name_placeholder")}
                     error={errors.firstName}
                     {...register("firstName", {
-                        required: t("register_page.first_name_required"),
-                        minLength: { value: 2, message: t("register_page.first_name_min_length") }
+                        required: t("first_name_required"),
+                        minLength: { value: 2, message: t("first_name_min_length") }
                     })}
                 />
             </div>
-
             <Input
-                icon={Mail}
-                type="email"
-                placeholder={t("login_page.email_placeholder")}
-                error={errors.email}
-                {...register("email", {
-                    required: t("login_page.email_required"),
-                    pattern: {
-                        value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-                        message: t("login_page.email_invalid"),
-                    }
+                icon={User} // Assuming User icon for username as well, or we can choose another
+                type="text"
+                placeholder={t("username_placeholder")}
+                error={errors.username}
+                {...register("username", {
+                    required: t("username_required"),
+                    minLength: { value: 3, message: t("username_min_length") }
                 })}
             />
 
             <Input
-                icon={Calendar}
-                type="date"
-                placeholder={t("register_page.dob_placeholder")}
-                error={errors.dateOfBirth}
-                {...register("dateOfBirth", {
-                    required: t("register_page.dob_required"),
-                    validate: value => {
-                        const age = new Date().getFullYear() - new Date(value).getFullYear();
-                        return age >= 18 || t("register_page.dob_age_validation");
+                icon={Mail}
+                type="email"
+                placeholder={t("email_placeholder")}
+                error={errors.email}
+                {...register("email", {
+                    required: t("email_required"),
+                    pattern: {
+                        value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+                        message: t("email_invalid"),
+                    }
+                })}
+            />
+            <Input
+                icon={Phone}
+                type="tel" // Use type="tel" for phone numbers
+                placeholder={t("phone_placeholder")}
+                error={errors.phone}
+                {...register("phone", {
+                    required: t("phone_required"),
+                    pattern: {
+                        value: /^\+?[1-9]\d{1,14}$/, // E.164 format for international phone numbers
+                        message: t("phone_invalid"),
                     }
                 })}
             />
@@ -2665,10 +3666,10 @@ export default function RegisterForm() {
                 <Input
                     icon={Lock}
                     type="password"
-                    placeholder={t("login_page.password_placeholder")}
+                    placeholder={t("password_placeholder")}
                     error={errors.password}
                     {...register("password", {
-                        required: t("login_page.password_required"),
+                        required: t("password_required"),
                         validate: validatePassword
                     })}
                 />
@@ -2678,25 +3679,25 @@ export default function RegisterForm() {
             <Input
                 icon={Lock}
                 type="password"
-                placeholder={t("register_page.password_confirm_placeholder")}
+                placeholder={t("password_confirm_placeholder")}
                 error={errors.passwordConfirm}
                 {...register("passwordConfirm", {
-                    required: t("register_page.password_confirm_required"),
-                    validate: value => value === password || t("register_page.password_mismatch")
+                    required: t("password_confirm_required"),
+                    validate: value => value === password || t("password_mismatch")
                 })}
             />
 
             <div className="pt-4">
                 <Button type="submit" disabled={isLoading}>
-                    {isLoading ? t('register_page.register_button_loading') : t('register_page.register_button')}
+                    {isLoading ? t('register_button_loading') : t('register_button')}
                 </Button>
             </div>
 
             <div className="mt-8 text-center">
                 <p className="text-gray-600">
-                    {t("register_page.already_registered")}{' '}
-                    <Link href="/login" className="text-blue-500 hover:underline">
-                        {t("register_page.login_here")}
+                    {t("already_registered")}{' '}
+                    <Link href="/login" className="text-blue-900 hover:underline">
+                        {t("login_here")}
                     </Link>
                 </p>
             </div>
@@ -2711,14 +3712,12 @@ export default function RegisterForm() {
 - **Props**: `children, ...props`
 - **Hooks**: useEffect, useState, useGoogleLogin, useTranslations, useRouter, usePopup
 ```jsx
-
 "use client";
-
 import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { useGoogleLogin } from '@react-oauth/google';
 import { useTranslations } from 'next-intl';
-import { useRouter } from 'next/navigation';
+import { useRouter } from '@/navigation';
 import toast from 'react-hot-toast';
 import { loginWithGoogle, loginWithApple } from '@/lib/api/auth';
 
@@ -2734,9 +3733,9 @@ const SocialButton = ({ children, ...props }) => (
     </motion.button>
 );
 
-
 export default function SocialLogins() {
     const t = useTranslations('login_page');
+    const tCommon = useTranslations('common');
     const router = useRouter();
     const [isAppleSDKLoaded, setIsAppleSDKLoaded] = useState(false);
 
@@ -2745,20 +3744,20 @@ export default function SocialLogins() {
         // La meilleure approche est "auth-code" pour la sécurité
         flow: 'auth-code',
         onSuccess: async (codeResponse) => {
-            toast.loading(t('common.loading'));
+            toast.loading(tCommon('loading'));
             try {
                 // On envoie le code au backend via notre fonction API
                 await loginWithGoogle(codeResponse.code);
                 toast.dismiss();
-                toast.success(t('login_page.success_title'));
-                router.push('/dashboard');
+                toast.success(t('success_title'));
+                router.push('/home');
             } catch (error) {
                 toast.dismiss();
-                toast.error(error.response?.data?.message || 'Erreur de connexion avec Google.');
+                toast.error(error.response?.data?.message || t('generic_error'));
             }
         },
         onError: () => {
-            toast.error('La connexion Google a échoué. Veuillez réessayer.');
+            toast.error(t('generic_error'));
         }
     });
 
@@ -2783,21 +3782,21 @@ export default function SocialLogins() {
 
     const handleAppleSignIn = async () => {
         if (!isAppleSDKLoaded) {
-            toast.error("Le SDK Apple n'est pas encore chargé.");
+            toast.error(tCommon('loading'));
             return;
         }
         try {
             const data = await window.AppleID.auth.signIn();
-            toast.loading(t('common.loading'));
+            toast.loading(tCommon('loading'));
             await loginWithApple(data.authorization.code);
             toast.dismiss();
-            toast.success(t('login_page.success_title'));
+            toast.success(t('success_title'));
             router.push('/dashboard');
         } catch (error) {
             toast.dismiss();
             // Ne pas montrer d'erreur si l'utilisateur annule manuellement
             if (error.error !== "popup_closed_by_user") {
-                toast.error(error.response?.data?.message || 'Erreur de connexion avec Apple.');
+                toast.error(error.response?.data?.message || t('generic_error'));
             }
         }
     };
@@ -2806,16 +3805,16 @@ export default function SocialLogins() {
         <div className="w-full">
             <SocialButton onClick={() => googleLogin()}>
                 <img src="/google-logo.svg" alt="Google" className="w-5 h-5 mr-3" />
-                {t("login_page.with_google")}
+                {t("with_google")}
             </SocialButton>
-
             <SocialButton onClick={handleAppleSignIn} disabled={!isAppleSDKLoaded}>
                 <img src="/apple-logo.svg" alt="Apple" className="w-5 h-5 mr-3" />
-                {isAppleSDKLoaded ? 'Se connecter avec Apple' : 'Chargement...'}
+                {isAppleSDKLoaded ? t('with_apple') : tCommon('loading_dots')}
             </SocialButton>
         </div>
     );
 }
+
 ```
 
 ### AppHeader
@@ -2825,25 +3824,25 @@ export default function SocialLogins() {
 - **Hooks**: useTranslations, useUser
 ```jsx
 "use client";
-
 import { motion } from "framer-motion";
-import { Bell, Building, ChevronLeft, ChevronRight, Search } from "lucide-react";
+import { Bell, ChevronLeft, ChevronRight, Search } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { Link } from '@/navigation';
 import ThemeSwitcher from '../layout/ThemeSwitcher';
 import LanguageSwitcher from '../layout/LanguageSwitcher';
 import { SyndicatDefaultAvatar } from '@/components/shared/SyndicatDefaultAvatar.jsx';
+import UGateIcon from '@/components/shared/UGateIcon';
 import { useUser } from "@/context/UserContext";
 import { STATIC_FILES_URL } from '@/lib/constants';
 
 export default function AppHeader({ isSidebarOpen, onSidebarToggle, onNotificationToggle }) {
     const { user, isLoading } = useUser();
-    const t = useTranslations('dashboard');
+    const t = useTranslations('header');
 
     const profileImageSrc = !isLoading && user?.profilePictureUrl
         ? `${STATIC_FILES_URL}${user.profilePictureUrl}`
         : null;
-        
+
     const displayUserName = isLoading ? "..." : user?.firstName || "Invité";
 
     return (
@@ -2854,8 +3853,8 @@ export default function AppHeader({ isSidebarOpen, onSidebarToggle, onNotificati
                         {isSidebarOpen ? <ChevronLeft size={24} /> : <ChevronRight size={24} />}
                     </button>
                     <div className="hidden md:flex items-center">
-                        <Building className="h-8 w-8 text-blue-600" />
-                        <h1 className="ml-2 text-xl font-bold text-gray-800 dark:text-gray-200">SyndicManager</h1>
+                        <UGateIcon className="h-8 w-8 text-blue-800" />
+                        <span className="text-2xl font-bold text-blue-800 ml-2">U-Gate</span>
                     </div>
                 </div>
                 <div className="flex items-center space-x-2 md:space-x-4">
@@ -2884,6 +3883,7 @@ export default function AppHeader({ isSidebarOpen, onSidebarToggle, onNotificati
         </header>
     );
 };
+
 ```
 
 ### AppSidebar
@@ -2892,28 +3892,23 @@ export default function AppHeader({ isSidebarOpen, onSidebarToggle, onNotificati
 - **Props**: `isOpen`
 - **Hooks**: useRouter, usePathname, useTranslations
 ```jsx
-// src/components/dashboard/AppSidebar.jsx
 "use client";
-
 import { motion } from "framer-motion";
 import { LogOut } from "lucide-react";
-import { Link } from '@/navigation';
-import { useRouter, usePathname } from 'next/navigation';
-import { navItems } from "./navItems.js";
+import { Link, useRouter, usePathname } from '@/navigation';
 import { useTranslations } from "next-intl";
+import { getNavItems } from "./navItems.jsx";
 
 export default function AppSidebar({ isOpen }) {
     const router = useRouter();
-    const pathname = usePathname(); // Hook pour obtenir la route actuelle
-    const t = useTranslations('dashboard');
+    const pathname = usePathname();
+    const t = useTranslations('dashboard.sidebar');
+    const navItems = getNavItems();
 
     const handleLogout = () => {
-        // Idéalement, appeler une fonction API de déconnexion ici
-        // logout();
         router.push('/login');
     };
 
-    // La route active est déterminée par rapport au chemin actuel
     const isActive = (route) => pathname.startsWith(route);
 
     return (
@@ -2933,7 +3928,7 @@ export default function AppSidebar({ isOpen }) {
                                     ? `bg-gradient-to-r ${item.gradient} text-white shadow-lg`
                                     : "bg-white text-gray-600 hover:bg-gray-50"
                             } ${isOpen ? "flex items-center" : "flex justify-center"}`}
-                            title={isOpen ? '' : item.label} // Tooltip quand la sidebar est fermée
+                            title={isOpen ? '' : item.label}
                         >
                             <item.icon className={`h-6 w-6 flex-shrink-0 ${isOpen ? "mr-3" : ""}`} />
                             {isOpen && (
@@ -2952,50 +3947,58 @@ export default function AppSidebar({ isOpen }) {
                     whileHover={{ scale: isOpen ? 1.02 : 1.1 }}
                     whileTap={{ scale: 0.98 }}
                     className="w-full p-3 bg-gradient-to-r from-red-500 to-pink-600 text-white rounded-xl shadow-lg flex items-center justify-center"
-                    title={isOpen ? '' : "Déconnexion"}
+                    title={isOpen ? '' : t("logout")}
                 >
                     <LogOut className="h-6 w-6" />
-                    {isOpen && <span className="font-medium ml-2">Déconnexion</span>}
+                    {isOpen && <span className="font-medium ml-2">{t("logout")}</span>}
                 </motion.button>
             </div>
         </motion.nav>
     );
 }
+
 ```
 
 ### Feed
 
 - **Fichier**: `src\components\dashboard\Feed.jsx`
 - **Props**: `initialFeed`
-- **Hooks**: 
+- **Hooks**: useTranslations
 ```jsx
-// src/components/dashboard/Feed.jsx
 "use client";
-
-import FeedCard from './FeedCard';
+import UnifiedPostCard from '@/components/shared/UnifiedPostCard';
+import { useTranslations } from 'next-intl';
 
 /**
  * Affiche le fil d'actualité en mappant chaque item à un composant FeedCard.
  * @param {Array} initialFeed - Le tableau des publications et événements.
  */
 export default function Feed({ initialFeed }) {
+    const t = useTranslations('feed');
+
     if (!initialFeed || initialFeed.length === 0) {
         return (
             <div className="text-center py-16 text-gray-500 dark:text-gray-400">
-                <p>Le fil d'actualité est vide pour le moment.</p>
-                <p>Revenez plus tard pour voir les dernières publications et événements.</p>
+                <p>{t('empty_feed')}</p>
+                <p>{t('come_back_later')}</p>
             </div>
         );
     }
-
     return (
-        <div>
+        <div className="space-y-6">
             {initialFeed.map(item => (
-                <FeedCard key={`${item.id}-${item.createdAt}`} item={item} />
+                <UnifiedPostCard 
+                    key={`${item.id || item.postId || item.eventId}-${item.createdAt || item.startDate}`} 
+                    item={item}
+                    type={item.type || (item.postId ? 'publication' : 'event')}
+                    variant="landing"
+                    showActions={true}
+                />
             ))}
         </div>
     );
 }
+
 ```
 
 ### FeedCard
@@ -3005,7 +4008,6 @@ export default function Feed({ initialFeed }) {
 - **Hooks**: useState, useTranslations
 ```jsx
 "use client";
-
 import { motion } from 'framer-motion';
 import Image from 'next/image';
 import { formatDistanceToNow, format } from 'date-fns';
@@ -3018,63 +4020,86 @@ import { SyndicatDefaultAvatar } from '../shared/SyndicatDefaultAvatar';
 import { STATIC_FILES_URL } from '@/lib/constants';
 
 const ActionButton = ({ icon: Icon, text, onClick, active, activeColor = 'text-red-500' }) => (
-    <motion.button onClick={onClick} className={`flex items-center justify-center w-full gap-2 py-2.5 rounded-lg transition-all duration-200 ${ active ? `${activeColor.replace('text-', 'bg-').replace('-500', '-100')} dark:${activeColor.replace('text-', 'bg-').replace('-500', '-900/50')} ${activeColor}` : 'text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700' }`} whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+    <motion.button
+        onClick={onClick}
+        className={`flex items-center justify-center w-full gap-2 py-2.5 rounded-lg transition-all duration-200 ${
+            active
+                ? `${activeColor.replace('text-', 'bg-').replace('-500', '-100')} dark:${activeColor.replace('text-', 'bg-').replace('-500', '-900/50')} ${activeColor}`
+                : 'text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700'
+        }`}
+        whileHover={{ scale: 1.05 }}
+        whileTap={{ scale: 0.95 }}
+    >
         <Icon size={18} fill={active ? 'currentColor' : 'none'} />
         <span className="font-medium text-sm">{text}</span>
     </motion.button>
 );
 
 export default function FeedCard({ item }) {
-    const t = useTranslations('dashboard');
+    const t = useTranslations('common');
     const [liked, setLiked] = useState(false);
-
     const dateToUse = item.createdAt || item.startDate;
-    const timeAgo = dateToUse ? formatDistanceToNow(new Date(dateToUse), { addSuffix: true, locale: fr }) : t('common.unknown_date');
+    const timeAgo = dateToUse ? formatDistanceToNow(new Date(dateToUse), { addSuffix: true, locale: fr }) : t('unknown_date');
     const imageUrl = item.image && item.image.startsWith('/') ? `${STATIC_FILES_URL}${item.image}` : item.image;
 
     if (item.type === 'publication') {
         const authorAvatarUrl = item.author.avatar && item.author.avatar.startsWith('/') ? `${STATIC_FILES_URL}${item.author.avatar}` : item.author.avatar;
-
         return (
             <div className="bg-white dark:bg-gray-800/60 rounded-2xl shadow-xl border border-gray-200/50 dark:border-white/10 overflow-hidden">
                 <FeedItemHeader syndicat={item.syndicat} branch={item.branch} />
                 <div className="p-5 sm:p-6">
                     <div className="flex items-start gap-4 mb-4">
-                        {authorAvatarUrl ? <Image src={authorAvatarUrl} alt={item.author.name} width={48} height={48} className="w-12 h-12 rounded-full object-cover ring-2 ring-white/50 dark:ring-white/10" /> : <SyndicatDefaultAvatar name={item.author.name} size={48} />}
+                        {authorAvatarUrl ? (
+                            <Image src={authorAvatarUrl} alt={item.author.name} width={48} height={48} className="w-12 h-12 rounded-full object-cover ring-2 ring-white/50 dark:ring-white/10" />
+                        ) : (
+                            <SyndicatDefaultAvatar name={item.author.name} size={48} />
+                        )}
                         <div>
                             <p className="font-bold text-gray-900 dark:text-white">{item.author.name}</p>
-                            <p className="text-xs text-gray-500 dark:text-gray-400 flex items-center gap-1.5"><Clock size={12}/> {timeAgo}</p>
+                            <p className="text-xs text-gray-500 dark:text-gray-400 flex items-center gap-1.5">
+                                <Clock size={12} /> {timeAgo}
+                            </p>
                         </div>
                     </div>
                     <p className="text-gray-700 dark:text-gray-300 mb-5 whitespace-pre-wrap text-base leading-relaxed">{item.content}</p>
-                    {imageUrl && <div className="rounded-xl overflow-hidden shadow-lg"><Image src={imageUrl} alt="Contenu" width={800} height={500} className="w-full h-auto"/></div>}
+                    {imageUrl && (
+                        <div className="rounded-xl overflow-hidden shadow-lg">
+                            <Image src={imageUrl} alt="Contenu" width={800} height={500} className="w-full h-auto" />
+                        </div>
+                    )}
                     <div className="flex justify-between items-center text-sm text-gray-500 dark:text-gray-400 my-4">
-                        <span>{item.likes} {t('common.like', {count: item.likes})}</span>
-                        <span>{item.comments?.length || 0} {t('common.comment', {count: item.comments?.length || 0})}</span>
+                        <span>
+                            {item.likes} {t('likes__one', { count: item.likes })}
+                        </span>
+                        <span>
+                            {item.comments?.length || 0} {t('comments_one', { count: item.comments?.length || 0 })}
+                        </span>
                     </div>
                     <div className="flex items-center justify-around border-t border-gray-100 dark:border-gray-700/50 pt-3 gap-2">
-                        <ActionButton icon={Heart} text={t('common.like')} onClick={() => setLiked(!liked)} active={liked} activeColor="text-red-500" />
-                        <ActionButton icon={MessageCircle} text={t('common.comment')} activeColor="text-blue-500" />
-                        <ActionButton icon={Share2} text={t('common.share')} activeColor="text-green-500" />
+                        <ActionButton icon={Heart} text={t('like')} onClick={() => setLiked(!liked)} active={liked} activeColor="text-red-500" />
+                        <ActionButton icon={MessageCircle} text={t('comment')} activeColor="text-blue-500" />
+                        <ActionButton icon={Share2} text={t('share')} activeColor="text-green-500" />
                     </div>
                 </div>
             </div>
         );
-    } 
+    }
 
     if (item.type === 'event') {
         const startDate = new Date(dateToUse);
         return (
-             <div className="bg-white dark:bg-gray-800/60 rounded-2xl shadow-xl border border-gray-200/50 dark:border-white/10 overflow-hidden">
+            <div className="bg-white dark:bg-gray-800/60 rounded-2xl shadow-xl border border-gray-200/50 dark:border-white/10 overflow-hidden">
                 <FeedItemHeader syndicat={item.syndicat} branch={item.branch} />
-                {imageUrl && <div className="relative h-52 group">
-                    <Image src={imageUrl} alt={item.title} fill style={{ objectFit: 'cover' }} className="transition-transform duration-300 group-hover:scale-105" />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent"></div>
-                    <div className="absolute bottom-4 left-5">
-                         <h3 className="text-2xl font-bold text-white drop-shadow-lg">{item.title}</h3>
-                         <p className="text-sm text-white/90 drop-shadow-md">{item.description}</p>
+                {imageUrl && (
+                    <div className="relative h-52 group">
+                        <Image src={imageUrl} alt={item.title} fill style={{ objectFit: 'cover' }} className="transition-transform duration-300 group-hover:scale-105" />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent"></div>
+                        <div className="absolute bottom-4 left-5">
+                            <h3 className="text-2xl font-bold text-white drop-shadow-lg">{item.title}</h3>
+                            <p className="text-sm text-white/90 drop-shadow-md">{item.description}</p>
+                        </div>
                     </div>
-                </div>}
+                )}
                 <div className="p-5 sm:p-6">
                     <div className="grid grid-cols-3 gap-4 text-center mb-5">
                         <div className="p-3 bg-blue-50 dark:bg-blue-900/40 rounded-lg">
@@ -3087,18 +4112,28 @@ export default function FeedCard({ item }) {
                         </div>
                     </div>
                     <div className="text-sm text-gray-600 dark:text-gray-400 space-y-2 mb-6">
-                        <p className="flex items-center gap-2"><MapPin size={16} className="text-purple-500"/> {item.location}</p>
-                        <p className="flex items-center gap-2"><User size={16} className="text-purple-500"/> Organisé par <strong>{item.author.name}</strong></p>
+                        <p className="flex items-center gap-2">
+                            <MapPin size={16} className="text-purple-500" /> {item.location}
+                        </p>
+                        <p className="flex items-center gap-2">
+                            <User size={16} className="text-purple-500" /> Organisé par <strong>{item.author.name}</strong>
+                        </p>
                     </div>
-                    <motion.button className="w-full py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all" whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-                        {t('events.see_and_join')} ({item.participants?.length || 0} {t('participants')})
+                    <motion.button
+                        className="w-full py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all"
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                    >
+                        {t('see_and_join')} ({item.participants?.length || 0} {t('participants')})
                     </motion.button>
                 </div>
             </div>
         );
     }
+
     return null;
 }
+
 ```
 
 ### FeedItem
@@ -3340,26 +4375,59 @@ export default function FeedItemHeader({ syndicat, branch }) {
 
 ### navItems
 
-- **Fichier**: `src\components\dashboard\navItems.js`
+- **Fichier**: `src\components\dashboard\navItems.jsx`
 - **Props**: `N/A`
-- **Hooks**: 
+- **Hooks**: useTranslations
 ```jsx
-
 import { Compass, Home, Settings, Users } from "lucide-react";
+import { useTranslations } from "next-intl";
 
-export const navItems = [
-    { id: "dashboard", icon: Home, label: "Accueil", gradient: "from-blue-500 to-indigo-600", description: "Actualité", route: "/home" },
-    { id: "syndicats", icon: Users, label: "Mes Syndicats", gradient: "from-green-500 to-teal-600", description: "Gérer vos organisations", route: "/syndicats" },
-    { id: "explorer", icon: Compass, label: "Explorer", gradient: "from-purple-500 to-pink-600", description: "Découvrir de nouveaux syndicats", route: "/explorer" },
-    { id: "parametres", icon: Settings, label: "Paramètres", gradient: "from-gray-500 to-slate-600", description: "Configuration du compte", route: "/parametres" },
-];
+export const getNavItems = () => {
+    const t = useTranslations('dashboard.nav_items');
+
+    return [
+        {
+            id: "dashboard",
+            icon: Home,
+            label: t('dashboard.label'),
+            gradient: "from-blue-700 to-blue-800",
+            description: t('dashboard.description'),
+            route: "/home"
+        },
+        {
+            id: "syndicats",
+            icon: Users,
+            label: t('syndicats.label'),
+            gradient: "from-green-500 to-teal-600",
+            description: t('syndicats.description'),
+            route: "/syndicats"
+        },
+        {
+            id: "explorer",
+            icon: Compass,
+            label: t('explorer.label'),
+            gradient: "from-purple-500 to-pink-600",
+            description: t('explorer.description'),
+            route: "/explorer"
+        },
+        {
+            id: "parametres",
+            icon: Settings,
+            label: t('parametres.label'),
+            gradient: "from-gray-500 to-slate-600",
+            description: t('parametres.description'),
+            route: "/parametres"
+        }
+    ];
+};
+
 ```
 
 ### NotificationsPanel
 
 - **Fichier**: `src\components\dashboard\NotificationsPanel.jsx`
 - **Props**: `title, description, time, icon: Icon, gradient`
-- **Hooks**: useTranslations
+- **Hooks**: useTranslations, useState, useEffect
 ```jsx
 
 "use client";
@@ -3394,10 +4462,63 @@ function NotificationItem({ title, description, time, icon: Icon, gradient }) {
 }
 
 
-import { notificationsData } from '@/lib/fakeData';
+import { getNotificationsAPI, markNotificationAsReadAPI, markAllNotificationsAsReadAPI } from '@/lib/api/notifications';
+import { useState, useEffect } from 'react';
 
 export default function NotificationsPanel({ isOpen, onClose }) {
     const t = useTranslations('dashboard');
+    const [notifications, setNotifications] = useState([]);
+    const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState(null);
+
+    // Charger les notifications quand le panel s'ouvre
+    useEffect(() => {
+        if (isOpen) {
+            loadNotifications();
+        }
+    }, [isOpen]);
+
+    const loadNotifications = async () => {
+        setIsLoading(true);
+        setError(null);
+        
+        try {
+            const notificationsData = await getNotificationsAPI(0, 20, false);
+            setNotifications(notificationsData.content || []);
+        } catch (error) {
+            console.error('Erreur lors du chargement des notifications:', error);
+            setError('Impossible de charger les notifications');
+            setNotifications([]);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    const handleMarkAsRead = async (notificationId) => {
+        try {
+            await markNotificationAsReadAPI(notificationId);
+            setNotifications(prev => 
+                prev.map(notif => 
+                    notif.id === notificationId 
+                        ? { ...notif, isRead: true }
+                        : notif
+                )
+            );
+        } catch (error) {
+            console.error('Erreur lors du marquage comme lu:', error);
+        }
+    };
+
+    const handleMarkAllAsRead = async () => {
+        try {
+            await markAllNotificationsAsReadAPI();
+            setNotifications(prev => 
+                prev.map(notif => ({ ...notif, isRead: true }))
+            );
+        } catch (error) {
+            console.error('Erreur lors du marquage global:', error);
+        }
+    };
 
     return (
         <AnimatePresence>
@@ -3428,13 +4549,64 @@ export default function NotificationsPanel({ isOpen, onClose }) {
                                     <X size={20} />
                                 </button>
                             </div>
-                            <p className="text-sm text-gray-500">{t("notifications.subtitle", { count: notificationsData.length })}</p>
+                            <p className="text-sm text-gray-500">
+                                {t("notifications.subtitle", { count: notifications.length })}
+                            </p>
+                            {notifications.filter(n => !n.isRead).length > 0 && (
+                                <button
+                                    onClick={handleMarkAllAsRead}
+                                    className="text-sm text-blue-600 hover:text-blue-700 font-medium"
+                                >
+                                    Tout marquer comme lu
+                                </button>
+                            )}
                         </div>
 
                         <div className="flex-grow overflow-y-auto p-4 space-y-3">
-                            {notificationsData.map((notification) => (
-                                <NotificationItem key={notification.id} {...notification} />
-                            ))}
+                            {isLoading ? (
+                                <div className="text-center py-8">
+                                    <div className="animate-spin w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full mx-auto mb-4"></div>
+                                    <p className="text-gray-500">Chargement...</p>
+                                </div>
+                            ) : error ? (
+                                <div className="text-center py-8 text-red-500">
+                                    <p>{error}</p>
+                                    <button
+                                        onClick={loadNotifications}
+                                        className="mt-2 text-blue-600 hover:text-blue-700 font-medium"
+                                    >
+                                        Réessayer
+                                    </button>
+                                </div>
+                            ) : notifications.length === 0 ? (
+                                <div className="text-center py-8 text-gray-500">
+                                    <p>Aucune notification</p>
+                                </div>
+                            ) : (
+                                notifications.map((notification) => (
+                                    <div
+                                        key={notification.id}
+                                        onClick={() => !notification.isRead && handleMarkAsRead(notification.id)}
+                                        className={`cursor-pointer ${notification.isRead ? 'opacity-60' : ''}`}
+                                    >
+                                        <NotificationItem 
+                                            title={notification.title}
+                                            description={notification.message}
+                                            time={new Date(notification.createdAt).toLocaleString('fr-FR', {
+                                                day: '2-digit',
+                                                month: '2-digit',
+                                                hour: '2-digit',
+                                                minute: '2-digit'
+                                            })}
+                                            icon={notification.type === 'POST_LIKE' ? () => '👍' : 
+                                                  notification.type === 'COMMENT' ? () => '💬' : 
+                                                  notification.type === 'EVENT_REMINDER' ? () => '📅' : 
+                                                  () => '🔔'}
+                                            gradient="from-blue-500 to-indigo-600"
+                                        />
+                                    </div>
+                                ))
+                            )}
                         </div>
 
                         <div className="p-4 border-t bg-white">
@@ -3459,7 +4631,6 @@ export default function NotificationsPanel({ isOpen, onClose }) {
 - **Hooks**: useState, useTranslations, useUser
 ```jsx
 "use client";
-
 import { useState } from "react";
 import { Zap } from "lucide-react";
 import { useTranslations } from "next-intl";
@@ -3472,29 +4643,27 @@ export default function WelcomeSection() { // Plus besoin de props
     const [isModalOpen, setIsModalOpen] = useState(false);
 
     // Construit le nom complet. Gère le cas où `user` n'est pas encore chargé.
-    const fullName = isLoading ? "..." : `${user?.firstName || ''} ${user?.lastName || ''}`.trim();
+    const fullName = isLoading ? "..." : `${user?.firstName || ''} ${user?.lastName || ''}`.trim() || t('dear_user');
 
     return (
         <>
             <div className="text-center mb-12">
                 <h1 className="text-4xl md:text-5xl font-bold mb-4">
                     <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                        {t('dashboard.welcome', { name: fullName || t('dashboard.dear_user') })}
+                        {t('welcome', { name: fullName })}
                     </span>
                 </h1>
                 <p className="text-xl text-gray-600 mb-8">
-                    {t("dashboard.portal_description")}
+                    {t("portal_description")}
                 </p>
-
                 <button
                     onClick={() => setIsModalOpen(true)}
                     className="px-8 py-4 bg-gradient-to-r from-purple-600 to-blue-600 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center mx-auto"
                 >
                     <Zap className="w-6 h-6 inline-block mr-2" />
-                    {t("dashboard.launch_syndicate")}
+                    {t("launch_syndicate")}
                 </button>
             </div>
-
             <CreateSyndicateModal
                 isOpen={isModalOpen}
                 onClose={() => setIsModalOpen(false)}
@@ -3502,6 +4671,7 @@ export default function WelcomeSection() { // Plus besoin de props
         </>
     );
 }
+
 ```
 
 ### AdhesionModal
@@ -3510,9 +4680,7 @@ export default function WelcomeSection() { // Plus besoin de props
 - **Props**: `isOpen, onClose, syndicat`
 - **Hooks**: useTranslations
 ```jsx
-// src/components/explorer/AdhesionModal.jsx
 "use client";
-
 import { motion, AnimatePresence } from "framer-motion";
 import { X } from "lucide-react";
 import { useTranslations } from "next-intl";
@@ -3536,7 +4704,6 @@ export default function AdhesionModal({ isOpen, onClose, syndicat }) {
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
                     className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
-                    // Permet de fermer la modale en cliquant sur le fond
                     onClick={(e) => {
                         if (e.target === e.currentTarget) {
                             onClose();
@@ -3549,17 +4716,16 @@ export default function AdhesionModal({ isOpen, onClose, syndicat }) {
                         exit={{ scale: 0.9, opacity: 0, y: 20 }}
                         transition={{ duration: 0.3, ease: "easeInOut" }}
                         className="bg-gray-50 dark:bg-gray-900 rounded-2xl w-full max-w-5xl max-h-[90vh] flex flex-col shadow-2xl"
-                        // Empêche la propagation du clic pour ne pas fermer la modale en cliquant dessus
                         onClick={(e) => e.stopPropagation()}
                     >
                         {/* Header de la Modale */}
                         <div className="sticky top-0 p-4 sm:p-6 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center bg-gray-50 dark:bg-gray-900 rounded-t-2xl z-10">
                             <div>
                                 <h3 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">
-                                    {t('adhesion_modal.title', { syndicatName: syndicat.name })}
+                                    {t('title', { syndicatName: syndicat.name })}
                                 </h3>
                                 <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                                    {t('adhesion_modal.subtitle')}
+                                    {t('subtitle')}
                                 </p>
                             </div>
                             <button
@@ -3570,13 +4736,10 @@ export default function AdhesionModal({ isOpen, onClose, syndicat }) {
                                 <X size={24} />
                             </button>
                         </div>
-
                         {/* Contenu de la Modale (le wizard) */}
                         <div className="flex-grow overflow-y-auto">
                             <AdhereSyndicatForm
                                 syndicat={syndicat}
-                                // La fonction `onClose` est passée au wizard pour qu'il puisse
-                                // fermer la modale lui-même une fois le processus terminé.
                                 onComplete={onClose}
                             />
                         </div>
@@ -3586,23 +4749,26 @@ export default function AdhesionModal({ isOpen, onClose, syndicat }) {
         </AnimatePresence>
     );
 }
+
 ```
 
 ### ExploreCard
 
 - **Fichier**: `src\components\explorer\ExploreCard.jsx`
 - **Props**: `syndicat, itemVariants, onDetails, onAdhere`
-- **Hooks**: 
+- **Hooks**: useTranslations
 ```jsx
 "use client";
-
 import { motion } from "framer-motion";
 import Image from 'next/image';
 import { ChevronRight, UserPlus, Users, Star, ShieldCheck } from "lucide-react";
 import { SyndicatDefaultAvatar } from "../shared/SyndicatDefaultAvatar";
 import { STATIC_FILES_URL } from '@/lib/constants';
+import { useTranslations } from "next-intl";
 
 export default function ExploreCard({ syndicat, itemVariants, onDetails, onAdhere }) {
+    const t = useTranslations('explorer_page');
+
     const formatMemberCount = (count) => {
         if (!count) return '0';
         if (count >= 1000) return `${(count / 1000).toFixed(1)}k`;
@@ -3611,12 +4777,10 @@ export default function ExploreCard({ syndicat, itemVariants, onDetails, onAdher
 
     const logoUrl = syndicat.logoUrl ? `${STATIC_FILES_URL}${syndicat.logoUrl}` : null;
     const bannerUrl = syndicat.bannerUrl ? `${STATIC_FILES_URL}${syndicat.bannerUrl}` : "/placeholder-cover.jpg";
+    const rating = syndicat.rating || '4.5';
+    const certified = syndicat.certified || false;
+    const specialties = syndicat.specialties || ['Tech', 'Formation', 'Innovation'];
 
-    // Données factices pour les champs non gérés par le backend
-    const rating = syndicat.rating || '4.5'; // fallback
-    const certified = syndicat.certified || false; // fallback
-    const specialties = syndicat.specialties || ['Tech', 'Formation', 'Innovation']; // fallback
-    
     return (
         <motion.div
             className="group bg-white dark:bg-gray-800/50 rounded-2xl shadow-lg hover:shadow-xl dark:shadow-black/20 transition-all duration-300 border border-gray-100 dark:border-gray-700 overflow-hidden flex flex-col"
@@ -3631,15 +4795,21 @@ export default function ExploreCard({ syndicat, itemVariants, onDetails, onAdher
                         {logoUrl ? <Image src={logoUrl} alt={`${syndicat.name} logo`} width={80} height={80} className="rounded-full object-cover w-full h-full" /> : <SyndicatDefaultAvatar name={syndicat.name} size={72} />}
                     </div>
                 </div>
-                {certified && <div className="absolute top-3 right-3 bg-green-500 text-white p-2 rounded-full shadow-lg" title="Syndicat Certifié"><ShieldCheck className="w-4 h-4" /></div>}
+                {certified && <div className="absolute top-3 right-3 bg-green-500 text-white p-2 rounded-full shadow-lg" title={t('certified')}><ShieldCheck className="w-4 h-4" /></div>}
             </div>
             <div className="p-6 pt-10 flex flex-col flex-grow">
                 <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-3 leading-snug line-clamp-2 h-14">
                     {syndicat.name}
                 </h2>
                 <div className="flex items-center justify-between text-gray-600 dark:text-gray-400 text-sm mb-4">
-                    <div className="flex items-center" title="Nombre de membres"><Users className="h-4 w-4 mr-2 text-blue-500 flex-shrink-0"/><span className="font-medium">{formatMemberCount(syndicat.memberCount)} membres</span></div>
-                    <div className="flex items-center" title="Note moyenne"><Star className="h-4 w-4 mr-1 text-yellow-400 fill-current"/><span className="font-medium">{rating}</span></div>
+                    <div className="flex items-center" title={t('members')}>
+                        <Users className="h-4 w-4 mr-2 text-blue-500 flex-shrink-0"/>
+                        <span className="font-medium">{formatMemberCount(syndicat.memberCount)} {t('members')}</span>
+                    </div>
+                    <div className="flex items-center" title="Note moyenne">
+                        <Star className="h-4 w-4 mr-1 text-yellow-400 fill-current"/>
+                        <span className="font-medium">{rating}</span>
+                    </div>
                 </div>
                 <div className="flex flex-wrap gap-1 mb-4">
                     {specialties.slice(0, 3).map((specialty, index) => (
@@ -3647,19 +4817,30 @@ export default function ExploreCard({ syndicat, itemVariants, onDetails, onAdher
                     ))}
                 </div>
                 <div className="mt-auto pt-4 flex gap-3">
-                    <motion.button className="flex-1 bg-white dark:bg-gray-700 text-blue-600 dark:text-blue-300 py-2.5 rounded-lg border-2 border-blue-100 dark:border-blue-800 hover:border-blue-200 dark:hover:border-blue-600 hover:bg-blue-50 dark:hover:bg-gray-600 transition-all duration-300 flex items-center justify-center font-semibold" whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.98 }} onClick={() => onDetails(syndicat)}>
-                        <span>Détails</span>
+                    <motion.button
+                        className="flex-1 bg-white dark:bg-gray-700 text-blue-600 dark:text-blue-300 py-2.5 rounded-lg border-2 border-blue-100 dark:border-blue-800 hover:border-blue-200 dark:hover:border-blue-600 hover:bg-blue-50 dark:hover:bg-gray-600 transition-all duration-300 flex items-center justify-center font-semibold"
+                        whileHover={{ scale: 1.03 }}
+                        whileTap={{ scale: 0.98 }}
+                        onClick={() => onDetails(syndicat)}
+                    >
+                        <span>{t('details')}</span>
                         <ChevronRight className="ml-1 h-4 w-4"/>
                     </motion.button>
-                    <motion.button className="flex-1 bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-2.5 rounded-lg hover:shadow-lg transition-all duration-300 flex items-center justify-center font-semibold" whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.98 }} onClick={() => onAdhere(syndicat)}>
+                    <motion.button
+                        className="flex-1 bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-2.5 rounded-lg hover:shadow-lg transition-all duration-300 flex items-center justify-center font-semibold"
+                        whileHover={{ scale: 1.03 }}
+                        whileTap={{ scale: 0.98 }}
+                        onClick={() => onAdhere(syndicat)}
+                    >
                         <UserPlus className="mr-2 h-4 w-4"/>
-                        <span>Adhérer</span>
+                        <span>{t('join')}</span>
                     </motion.button>
                 </div>
             </div>
         </motion.div>
     );
 }
+
 ```
 
 ### ExploreHeader
@@ -3717,7 +4898,7 @@ export default function ExploreHeader({ syndicatesCount, t }) {
 import { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useTranslations } from "next-intl";
-import { useRouter } from 'next/navigation';
+import { useRouter } from '@/navigation';
 import { toast } from 'react-hot-toast';
 import { Search, Filter, AlertCircle, RefreshCw, Loader2 } from "lucide-react";
 import ExploreCard from "./ExploreCard";
@@ -3972,7 +5153,7 @@ export const AntenneSelection = ({ antennes, onSelect, selectedAntenne }) => {
 ### FileUploader
 
 - **Fichier**: `src\components\forms\adhesion\file-uploader.jsx`
-- **Props**: `label, icon, accept = "image/*", onFileSelect, required = false`
+- **Props**: `N/A`
 - **Hooks**: useState, useRef
 ```jsx
 // src/components/forms/adhesion/file-uploader.jsx
@@ -3982,16 +5163,39 @@ import { useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Upload, CheckCircle, AlertCircle, X, FileImage, Eye } from "lucide-react";
 
-export const FileUploader = ({ label, icon, accept = "image/*", onFileSelect, required = false }) => {
+export const FileUploader = ({ 
+    label, 
+    icon, 
+    accept = "image/*", 
+    acceptedFileTypes = "image/*",
+    onFileSelect, 
+    required = false,
+    maxSizeInMB = 5 
+}) => {
     const [file, setFile] = useState(null);
     const [error, setError] = useState(null);
     const [previewUrl, setPreviewUrl] = useState(null);
     const fileInputRef = useRef(null);
 
     const processFile = (selectedFile) => {
-        // Validation basique
-        if (selectedFile.size > 5 * 1024 * 1024) { setError('Fichier trop volumineux (max 5Mo)'); return; }
-        setFile(selectedFile); setError(null); onFileSelect(selectedFile);
+        // Validation de la taille
+        if (selectedFile.size > maxSizeInMB * 1024 * 1024) { 
+            setError(`Fichier trop volumineux (max ${maxSizeInMB}Mo)`); 
+            return; 
+        }
+        
+        // Validation du type de fichier
+        const fileType = acceptedFileTypes || accept;
+        if (fileType !== "*/*" && !selectedFile.type.match(fileType.replace("/*", "/.*"))) {
+            setError(`Type de fichier non supporté. Formats acceptés: ${fileType}`);
+            return;
+        }
+        
+        setFile(selectedFile); 
+        setError(null); 
+        onFileSelect(selectedFile);
+        
+        // Prévisualisation pour les images
         if (selectedFile.type.startsWith('image/')) {
             const reader = new FileReader();
             reader.onload = (e) => setPreviewUrl(e.target.result);
@@ -4012,14 +5216,26 @@ export const FileUploader = ({ label, icon, accept = "image/*", onFileSelect, re
                 {label} {required && <span className="text-red-500 ml-1">*</span>}
             </label>
             <motion.div onClick={() => fileInputRef.current?.click()} className={`relative cursor-pointer rounded-xl border-2 border-dashed p-6 text-center transition-all duration-300 ${file ? 'border-green-400 bg-green-50 dark:bg-green-900/50' : 'border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800/50 hover:border-blue-400'}`}>
-                <input type="file" ref={fileInputRef} onChange={handleFileChange} accept={accept} className="hidden" />
+                <input 
+                    type="file" 
+                    ref={fileInputRef} 
+                    onChange={handleFileChange} 
+                    accept={acceptedFileTypes || accept} 
+                    className="hidden" 
+                />
                 {file ? (
                     <div className="flex items-center justify-between">
                         <div className="flex items-center space-x-3"><CheckCircle className="w-6 h-6 text-green-500" /><p className="text-sm font-medium text-gray-900 dark:text-gray-200 truncate">{file.name}</p></div>
                         <button type="button" onClick={(e) => { e.stopPropagation(); removeFile(); }} className="p-1 text-red-500 hover:bg-red-100 rounded-full"><X className="w-4 h-4" /></button>
                     </div>
                 ) : (
-                    <div className="space-y-1 text-gray-500 dark:text-gray-400"><Upload className="mx-auto h-8 w-8" /><p className="text-sm font-semibold">Cliquer ou glisser un fichier</p><p className="text-xs">PNG, JPG, PDF (max 5Mo)</p></div>
+                    <div className="space-y-1 text-gray-500 dark:text-gray-400">
+                        {icon || <Upload className="mx-auto h-8 w-8" />}
+                        <p className="text-sm font-semibold">Cliquer ou glisser un fichier</p>
+                        <p className="text-xs">
+                            {acceptedFileTypes === "image/*" ? "PNG, JPG, GIF" : acceptedFileTypes} (max {maxSizeInMB}Mo)
+                        </p>
+                    </div>
                 )}
             </motion.div>
             <AnimatePresence>{error && <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="text-red-500 text-xs mt-1">{error}</motion.p>}</AnimatePresence>
@@ -4255,14 +5471,15 @@ export const UserTypeSelection = ({ onSelect, selectedType }) => {
 ### CreateSyndicateWizard
 
 - **Fichier**: `src\components\forms\create-syndicate\CreateSyndicateWizard.jsx`
-- **Props**: `goBackToStep1`
-- **Hooks**: useState, useUser
+- **Props**: `goBackToStep1, t`
+- **Hooks**: useState, useTranslations, useUser
 ```jsx
 "use client";
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Swal from 'sweetalert2';
+import { useTranslations } from 'next-intl';
 import { createSyndicateAPI } from '@/lib/api/syndicates';
 import { useUser } from '@/context/UserContext';
 
@@ -4270,16 +5487,17 @@ import Step1_TypeSelection from './Step1_TypeSelection';
 import Step2_AnonymousForm from './Step2_AnonymousForm';
 import Step3_Antennes from './Step3_Antennes';
 
-const Step2Accredited = ({ goBackToStep1 }) => (
+const Step2Accredited = ({ goBackToStep1, t }) => (
     <div className="p-8 text-center">
-        <h2 className="text-2xl font-bold mb-4">Fonctionnalité à venir</h2>
-        <p className="text-gray-600 mb-6">Le processus de création pour les syndicats accrédités est en cours de développement.</p>
-        <button onClick={goBackToStep1} className="text-blue-600 font-semibold">Retour</button>
+        <h2 className="text-2xl font-bold mb-4">{t('upcoming_feature')}</h2>
+        <p className="text-gray-600 mb-6">{t('accredited_syndicate_development')}</p>
+        <button onClick={goBackToStep1} className="text-blue-800 font-semibold hover:text-blue-900 transition-colors">{t('back')}</button>
     </div>
 );
 
 export function CreateSyndicateWizard({ onSuccess }) {
     const { user } = useUser();
+    const t = useTranslations('create_syndicate');
     const [currentStep, setCurrentStep] = useState(1);
     const [syndicatType, setSyndicatType] = useState("");
 
@@ -4394,7 +5612,7 @@ export function CreateSyndicateWizard({ onSuccess }) {
                     );
                 }
                 if (syndicatType === "accredited") {
-                    return <Step2Accredited goBackToStep1={goBackToStep1} />;
+                    return <Step2Accredited goBackToStep1={goBackToStep1} t={t} />;
                 }
                 return goBackToStep1();
             case 3:
@@ -4464,7 +5682,7 @@ export default function FileUploader({ label, onFileSelect }) {
             >
                 <input type="file" ref={fileInputRef} onChange={handleFileChange} accept="image/*" className="hidden" />
                 {file ? (
-                    <div className="flex items-center justify-center text-green-600">
+                    <div className="flex items-center justify-center text-blue-800">
                         <CheckCircle className="mr-2" /><span>{file.name}</span>
                     </div>
                 ) : (
@@ -4534,41 +5752,84 @@ export default function InteractiveMap({ onLocationSelect, selectedLocation, hei
 
 - **Fichier**: `src\components\forms\create-syndicate\Step1_TypeSelection.jsx`
 - **Props**: `handleTypeSelection`
-- **Hooks**: 
+- **Hooks**: useTranslations
 ```jsx
 // src/components/forms/create-syndicate/Step1_TypeSelection.jsx
 "use client";
 
 import { motion } from "framer-motion";
+import { useTranslations } from 'next-intl';
 import { Eye, Award, Shield, ChevronRight, CheckCircle, Users, Lock } from "lucide-react";
 
 export default function Step1_TypeSelection({ handleTypeSelection }) {
+    const t = useTranslations('create_syndicate');
     return (
         <div className="max-w-4xl mx-auto">
             <div className="text-center mb-12">
-                <h1 className="text-4xl sm:text-5xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 bg-clip-text text-transparent mb-6">Créer votre syndicat</h1>
-                <p className="text-lg sm:text-xl text-gray-600 mb-8">Choisissez le type de syndicat qui correspond à vos besoins.</p>
-                <div className="inline-flex items-center bg-blue-50 text-blue-700 px-4 py-2 rounded-full text-sm font-medium"><Shield className="w-4 h-4 mr-2" />Étape 1 sur 3</div>
+                <h1 className="text-4xl sm:text-5xl font-bold bg-gradient-to-r from-blue-800 to-blue-900 bg-clip-text text-transparent mb-6">{t('create_your_syndicate')}</h1>
+                <p className="text-lg sm:text-xl text-gray-600 mb-8">{t('choose_syndicate_type')}</p>
+                <div className="inline-flex items-center bg-blue-50 text-blue-700 px-4 py-2 rounded-full text-sm font-medium"><Shield className="w-4 h-4 mr-2" />{t('step_1_of_3')}</div>
             </div>
             <div className="grid md:grid-cols-2 gap-8">
-                <div onClick={() => handleTypeSelection("anonymous")} className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-emerald-50 to-teal-50 p-8 shadow-xl border border-emerald-100 cursor-pointer group hover:shadow-2xl transition-all duration-300">
-                    <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-100 rounded-full -translate-y-16 translate-x-16 opacity-50 group-hover:scale-150 transition-transform duration-500"></div>
+                <div onClick={() => handleTypeSelection("anonymous")} className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-blue-50 to-blue-100 p-8 shadow-xl border border-blue-200 cursor-pointer group hover:shadow-2xl transition-all duration-300">
+                    <div className="absolute top-0 right-0 w-32 h-32 bg-blue-200 rounded-full -translate-y-16 translate-x-16 opacity-50 group-hover:scale-150 transition-transform duration-500"></div>
                     <div className="relative z-10">
-                        <div className="flex items-center justify-between mb-6"><div className="p-3 bg-emerald-500 rounded-2xl shadow-lg"><Eye className="w-8 h-8 text-white" /></div><ChevronRight className="w-6 h-6 text-emerald-600 group-hover:translate-x-2 transition-transform" /></div>
-                        <h3 className="text-2xl font-bold text-emerald-800 mb-4">Syndicat Anonyme</h3>
-                        <p className="text-emerald-700 mb-6 leading-relaxed">Créez rapidement un syndicat sans vérification. Idéal pour commencer et rassembler vos collègues.</p>
-                        <div className="space-y-3"><div className="flex items-center text-emerald-600"><CheckCircle className="w-5 h-5 mr-3 flex-shrink-0" /><span className="text-sm">Création immédiate</span></div><div className="flex items-center text-emerald-600"><CheckCircle className="w-5 h-5 mr-3 flex-shrink-0" /><span className="text-sm">Aucune vérification requise</span></div><div className="flex items-center text-emerald-600"><CheckCircle className="w-5 h-5 mr-3 flex-shrink-0" /><span className="text-sm">Fonctionnalités de base</span></div></div>
-                        <div className="mt-6 pt-4 border-t border-emerald-200"><span className="inline-flex items-center text-sm font-medium text-emerald-700"><Users className="w-4 h-4 mr-2" />Parfait pour débuter</span></div>
+                        <div className="flex items-center justify-between mb-6">
+                            <div className="p-3 bg-blue-800 rounded-2xl shadow-lg">
+                                <Eye className="w-8 h-8 text-white" />
+                            </div>
+                            <ChevronRight className="w-6 h-6 text-blue-800 group-hover:translate-x-2 transition-transform" />
+                        </div>
+                        <h3 className="text-2xl font-bold text-blue-900 mb-4">{t('anonymous_syndicate')}</h3>
+                        <p className="text-blue-800 mb-6 leading-relaxed">{t('anonymous_description')}</p>
+                        <div className="space-y-3">
+                            <div className="flex items-center text-blue-800">
+                                <CheckCircle className="w-5 h-5 mr-3 flex-shrink-0" />
+                                <span className="text-sm">{t('immediate_creation')}</span>
+                            </div>
+                            <div className="flex items-center text-blue-800">
+                                <CheckCircle className="w-5 h-5 mr-3 flex-shrink-0" />
+                                <span className="text-sm">{t('no_verification_required')}</span>
+                            </div>
+                            <div className="flex items-center text-blue-800">
+                                <CheckCircle className="w-5 h-5 mr-3 flex-shrink-0" />
+                                <span className="text-sm">{t('basic_features')}</span>
+                            </div>
+                        </div>
+                        <div className="mt-6 pt-4 border-t border-blue-300">
+                            <span className="inline-flex items-center text-sm font-medium text-blue-800">
+                                <Users className="w-4 h-4 mr-2" />
+                                {t('perfect_to_start')}
+                            </span>
+                        </div>
                     </div>
                 </div>
-                <div onClick={() => handleTypeSelection("accredited")} className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-violet-50 to-purple-50 p-8 shadow-xl border border-violet-100 cursor-pointer group hover:shadow-2xl transition-all duration-300">
-                    <div className="absolute top-0 right-0 w-32 h-32 bg-violet-100 rounded-full -translate-y-16 translate-x-16 opacity-50 group-hover:scale-150 transition-transform duration-500"></div>
+                <div onClick={() => handleTypeSelection("accredited")} className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-gray-50 to-gray-100 p-8 shadow-xl border border-gray-200 cursor-pointer group hover:shadow-2xl transition-all duration-300">
+                    <div className="absolute top-0 right-0 w-32 h-32 bg-blue-100 rounded-full -translate-y-16 translate-x-16 opacity-50 group-hover:scale-150 transition-transform duration-500"></div>
                     <div className="relative z-10">
-                        <div className="flex items-center justify-between mb-6"><div className="p-3 bg-violet-500 rounded-2xl shadow-lg"><Award className="w-8 h-8 text-white" /></div><ChevronRight className="w-6 h-6 text-violet-600 group-hover:translate-x-2 transition-transform" /></div>
-                        <h3 className="text-2xl font-bold text-violet-800 mb-4">Syndicat Accrédité</h3>
-                        <p className="text-violet-700 mb-6 leading-relaxed">Processus de vérification complet pour un syndicat officiel avec toutes les fonctionnalités.</p>
-                        <div className="space-y-3"><div className="flex items-center text-violet-600"><CheckCircle className="w-5 h-5 mr-3 flex-shrink-0" /><span className="text-sm">Vérification complète</span></div><div className="flex items-center text-violet-600"><CheckCircle className="w-5 h-5 mr-3 flex-shrink-0" /><span className="text-sm">Statut officiel</span></div><div className="flex items-center text-violet-600"><CheckCircle className="w-5 h-5 mr-3 flex-shrink-0" /><span className="text-sm">Fonctionnalités avancées</span></div></div>
-                        <div className="mt-6 pt-4 border-t border-violet-200"><span className="inline-flex items-center text-sm font-medium text-violet-700"><Lock className="w-4 h-4 mr-2" />Reconnaissance officielle</span></div>
+                        <div className="flex items-center justify-between mb-6"><div className="p-3 bg-blue-500 rounded-2xl shadow-lg"><Award className="w-8 h-8 text-white" /></div><ChevronRight className="w-6 h-6 text-blue-600 group-hover:translate-x-2 transition-transform" /></div>
+                        <h3 className="text-2xl font-bold text-blue-800 mb-4">{t('accredited_syndicate')}</h3>
+                        <p className="text-blue-700 mb-6 leading-relaxed">{t('accredited_description')}</p>
+                        <div className="space-y-3">
+                            <div className="flex items-center text-blue-600">
+                                <CheckCircle className="w-5 h-5 mr-3 flex-shrink-0" />
+                                <span className="text-sm">{t('complete_verification')}</span>
+                            </div>
+                            <div className="flex items-center text-blue-600">
+                                <CheckCircle className="w-5 h-5 mr-3 flex-shrink-0" />
+                                <span className="text-sm">{t('official_status')}</span>
+                            </div>
+                            <div className="flex items-center text-blue-600">
+                                <CheckCircle className="w-5 h-5 mr-3 flex-shrink-0" />
+                                <span className="text-sm">{t('advanced_features')}</span>
+                            </div>
+                        </div>
+                        <div className="mt-6 pt-4 border-t border-blue-200">
+                            <span className="inline-flex items-center text-sm font-medium text-blue-700">
+                                <Lock className="w-4 h-4 mr-2" />
+                                {t('official_recognition')}
+                            </span>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -4612,62 +5873,62 @@ export default function Step2_AnonymousForm({ onNext, onBack, initialData, setFo
         onNext(data);
     };
 
-    const inputClasses = "w-full p-3 border rounded-xl bg-white text-gray-900 border-gray-300 placeholder-gray-400 dark:bg-gray-800 dark:text-gray-200 dark:border-gray-600 dark:placeholder-gray-500 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition";
+    const inputClasses = "w-full p-3 border rounded-xl bg-white text-gray-900 border-gray-300 placeholder-gray-400 dark:bg-gray-800 dark:text-gray-200 dark:border-gray-600 dark:placeholder-gray-500 focus:ring-2 focus:ring-blue-800 focus:border-blue-800 transition";
     const selectClasses = `${inputClasses} appearance-none`;
 
     return (
         <form onSubmit={handleSubmit(handleFormSubmit)} className="max-w-5xl mx-auto space-y-8">
             <div className="mb-8">
-                <button type="button" onClick={onBack} className="inline-flex items-center text-emerald-600 hover:text-emerald-800 font-medium mb-6 transition-colors">
+                <button type="button" onClick={onBack} className="inline-flex items-center text-blue-800 hover:text-blue-900 font-medium mb-6 transition-colors">
                     <ArrowLeft className="w-5 h-5 mr-2" />Retour au choix du type
                 </button>
                 <div className="text-center">
-                    <h1 className="text-4xl font-bold bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent mb-4">Informations du syndicat</h1>
+                    <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-800 to-blue-900 bg-clip-text text-transparent mb-4">Informations du syndicat</h1>
                     <p className="text-gray-600 dark:text-gray-400 text-lg">Remplissez les informations de base pour créer votre syndicat anonyme.</p>
                 </div>
             </div>
 
             <div className="bg-white dark:bg-gray-900/50 rounded-3xl p-8 shadow-lg border border-gray-100 dark:border-gray-800">
-                <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-200 mb-6 flex items-center"><Building2 className="w-6 h-6 mr-3 text-emerald-500" />Informations principales</h2>
+                <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-200 mb-6 flex items-center"><Building2 className="w-6 h-6 mr-3 text-blue-800" />Informations principales</h2>
                 <div className="grid gap-6 md:grid-cols-2">
                     <div>
-                        <label className="flex items-center text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2"><TextCursorInput className="w-4 h-4 mr-2 text-emerald-500" />Nom complet du syndicat *</label>
+                        <label className="flex items-center text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2"><TextCursorInput className="w-4 h-4 mr-2 text-blue-800" />Nom complet du syndicat *</label>
                         <input {...register("name", { required: "Le nom complet est requis" })} placeholder="Ex: Syndicat National des Développeurs" className={inputClasses} />
                         {errors.name && <p className="text-red-500 text-xs mt-1">{errors.name.message}</p>}
                     </div>
                     <div>
-                        <label className="flex items-center text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2"><Type className="w-4 h-4 mr-2 text-emerald-500" />Nom court / Acronyme *</label>
+                        <label className="flex items-center text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2"><Type className="w-4 h-4 mr-2 text-blue-800" />Nom court / Acronyme *</label>
                         <input {...register("shortName", { required: "L'acronyme est requis" })} placeholder="Ex: SND" className={inputClasses} />
                         {errors.shortName && <p className="text-red-500 text-xs mt-1">{errors.shortName.message}</p>}
                     </div>
                 </div>
                 <div className="grid gap-6 md:grid-cols-2 mt-6">
                     <div>
-                        <label className="flex items-center text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2"><AtSign className="w-4 h-4 mr-2 text-emerald-500" />Email de contact *</label>
+                        <label className="flex items-center text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2"><AtSign className="w-4 h-4 mr-2 text-blue-800" />Email de contact *</label>
                         <input type="email" {...register("email", { required: "L'email est requis", pattern: { value: /^\S+@\S+$/i, message: "Email invalide" } })} placeholder="contact@syndicat.com" className={inputClasses} />
                         {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email.message}</p>}
                     </div>
                     <div>
-                        <label className="flex items-center text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2"><Building2 className="w-4 h-4 mr-2 text-emerald-500" />Type d'organisation *</label>
+                        <label className="flex items-center text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2"><Building2 className="w-4 h-4 mr-2 text-blue-800" />Type d'organisation *</label>
                         <select {...register("type", { required: true })} className={selectClasses}>
                             {syndicatTypes.map((type) => (<option key={type.value} value={type.value}>{type.label}</option>))}
                         </select>
                     </div>
                 </div>
                 <div className="mt-6">
-                    <label className="flex items-center text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2"><History className="w-4 h-4 mr-2 text-emerald-500" />Date de fondation *</label>
+                    <label className="flex items-center text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2"><History className="w-4 h-4 mr-2 text-blue-800" />Date de fondation *</label>
                     <input type="date" {...register("foundedDate", { required: "La date de fondation est requise" })} className={inputClasses} />
                     {errors.foundedDate && <p className="text-red-500 text-xs mt-1">{errors.foundedDate.message}</p>}
                 </div>
                 <div className="mt-6">
-                    <label className="flex items-center text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2"><Palette className="w-4 h-4 mr-2 text-emerald-500" />Description *</label>
+                    <label className="flex items-center text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2"><Palette className="w-4 h-4 mr-2 text-blue-800" />Description *</label>
                     <textarea {...register("description", { required: "La description est requise" })} rows={4} placeholder="Décrivez les objectifs et la mission de votre syndicat..." className={inputClasses}></textarea>
                     {errors.description && <p className="text-red-500 text-xs mt-1">{errors.description.message}</p>}
                 </div>
             </div>
 
             <div className="bg-white dark:bg-gray-900/50 rounded-3xl p-8 shadow-lg border border-gray-100 dark:border-gray-800">
-                <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-200 mb-6 flex items-center"><ImageIcon className="w-6 h-6 mr-3 text-emerald-500" />Logo du syndicat</h2>
+                <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-200 mb-6 flex items-center"><ImageIcon className="w-6 h-6 mr-3 text-blue-800" />Logo du syndicat</h2>
                 <Controller
                     name="logoFile"
                     control={control}
@@ -4686,7 +5947,7 @@ export default function Step2_AnonymousForm({ onNext, onBack, initialData, setFo
             </div>
 
             <div className="text-center mt-8">
-                <button type="submit" className="w-full md:w-auto py-4 px-8 rounded-2xl font-bold text-white text-lg shadow-lg bg-gradient-to-r from-emerald-500 to-teal-500 hover:shadow-xl hover:from-emerald-600 hover:to-teal-600 transition-transform transform hover:scale-105">
+                <button type="submit" className="w-full md:w-auto py-4 px-8 rounded-2xl font-bold text-white text-lg shadow-lg bg-gradient-to-r from-blue-800 to-blue-900 hover:shadow-xl hover:from-blue-900 hover:to-blue-950 transition-transform transform hover:scale-105">
                     <span className="flex items-center justify-center">
                         <Map className="w-5 h-5 mr-3" />
                         Continuer vers les antennes
@@ -4880,16 +6141,20 @@ export default function Step3_Antennes({ onBack, onSubmit, antennes, setAntennes
 ### ActivityFeed
 
 - **Fichier**: `src\components\landing\ActivityFeed.jsx`
-- **Props**: `activity, index`
-- **Hooks**: 
+- **Props**: `N/A`
+- **Hooks**: useState, useEffect, useTranslations
 ```jsx
 "use client";
 
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Clock, Heart, MessageCircle, Share2, Users, Calendar, MapPin } from 'lucide-react';
-import Image from 'next/image';
+import { useTranslations } from 'next-intl';
+import { getRecentPublicPostsAPI } from '@/lib/api/posts';
+import { getRecentPublicEventsAPI } from '@/lib/api/event';
+import UnifiedPostCard from '@/components/shared/UnifiedPostCard';
 
-const activities = [
+// Données de fallback (fake data)
+const fakeActivities = [
     {
         id: 1,
         type: 'publication',
@@ -5004,143 +6269,133 @@ const activities = [
     }
 ];
 
-function ActivityCard({ activity, index }) {
-    const isEvent = activity.type === 'event';
-    
-    return (
-        <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5, delay: index * 0.1 }}
-            className="bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300"
-        >
-            <div className="p-6 border-b border-slate-100">
-                <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-3">
-                        <div className="relative">
-                            <Image
-                                src={activity.author.avatar}
-                                alt={activity.author.name}
-                                width={48}
-                                height={48}
-                                className="rounded-full"
-                            />
-                            {activity.syndicate.verified && (
-                                <div className="absolute -bottom-1 -right-1 bg-blue-500 rounded-full p-1">
-                                    <div className="w-2 h-2 bg-white rounded-full"></div>
-                                </div>
-                            )}
-                        </div>
-                        <div>
-                            <div className="flex items-center space-x-2">
-                                <h3 className="font-semibold text-slate-900 text-base">{activity.author.name}</h3>
-                                <span className="text-slate-500 text-sm">•</span>
-                                <span className="text-slate-600 text-sm">{activity.author.role}</span>
-                            </div>
-                            <div className="flex items-center space-x-2 text-slate-500 text-sm">
-                                <span>{activity.syndicate.name}</span>
-                                <span>•</span>
-                                <Clock className="h-4 w-4" />
-                                <span>{activity.timestamp}</span>
-                            </div>
-                        </div>
-                    </div>
-                    {isEvent && (
-                        <div className="bg-gradient-to-r from-indigo-100 to-purple-100 text-indigo-700 px-3 py-1 rounded-full text-sm font-medium">
-                            Événement
-                        </div>
-                    )}
-                </div>
-            </div>
-
-            <div className="p-6">
-                {isEvent && activity.event && (
-                    <div className="mb-4 bg-gradient-to-r from-indigo-50 to-purple-50 rounded-xl p-4 border border-indigo-100">
-                        <h4 className="font-semibold text-indigo-900 mb-2">{activity.event.title}</h4>
-                        <div className="flex flex-wrap items-center text-indigo-700 text-sm gap-4">
-                            <div className="flex items-center">
-                                <Calendar className="h-4 w-4 mr-1" />
-                                {activity.event.date}
-                            </div>
-                            <div className="flex items-center">
-                                <MapPin className="h-4 w-4 mr-1" />
-                                {activity.event.location}
-                            </div>
-                            <div className="flex items-center">
-                                <Users className="h-4 w-4 mr-1" />
-                                {activity.event.participants} participants
-                            </div>
-                        </div>
-                    </div>
-                )}
-                
-                <p className="text-slate-700 mb-4 leading-relaxed text-base">{activity.content}</p>
-                
-                {activity.image && (
-                    <div className="-mx-6 mb-4">
-                        <Image
-                            src={activity.image}
-                            alt="Publication"
-                            width={800}
-                            height={400}
-                            className="w-full h-[32rem] object-cover hover:scale-105 transition-transform duration-300"
-                        />
-                    </div>
-                )}
-            </div>
-
-            <div className="px-6 py-4 bg-slate-50 border-t border-slate-100">
-                <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-6">
-                        <button className="flex items-center space-x-2 text-slate-600 hover:text-red-500 transition-colors">
-                            <Heart className="h-5 w-5" />
-                            <span className="text-base font-medium">{activity.likes}</span>
-                        </button>
-                        <button className="flex items-center space-x-2 text-slate-600 hover:text-blue-500 transition-colors">
-                            <MessageCircle className="h-5 w-5" />
-                            <span className="text-base font-medium">{activity.comments}</span>
-                        </button>
-                        <button className="flex items-center space-x-2 text-slate-600 hover:text-green-500 transition-colors">
-                            <Share2 className="h-5 w-5" />
-                            <span className="text-base font-medium">{activity.shares}</span>
-                        </button>
-                    </div>
-                    {isEvent && (
-                        <button className="bg-gradient-to-r from-indigo-500 to-purple-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:from-indigo-600 hover:to-purple-700 transition-all duration-300">
-                            Participer
-                        </button>
-                    )}
-                </div>
-            </div>
-        </motion.div>
-    );
-}
-
 export default function ActivityFeed() {
+    const t = useTranslations('landing_page');
+    const [activities, setActivities] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+
+    // Fonction pour récupérer les données réelles
+    const fetchRealData = async () => {
+        try {
+            setLoading(true);
+            setError(null);
+
+            // Récupérer séparément les publications et événements (max 5 de chaque)
+            const [recentPosts, recentEvents] = await Promise.all([
+                getRecentPublicPostsAPI(5),
+                getRecentPublicEventsAPI(5)
+            ]);
+
+            // Convertir les données en format uniforme
+            const publications = recentPosts.map(post => ({
+                ...post,
+                type: 'publication',
+                id: post.postId || post.id
+            }));
+
+            const events = recentEvents.map(event => ({
+                ...event,
+                type: 'event',
+                id: event.eventId || event.id
+            }));
+
+            // Combiner publications et événements
+            const allActivities = [...publications, ...events];
+
+            // Si aucune publication ET aucun événement, utiliser fake data
+            if (allActivities.length === 0) {
+                console.log('Aucune donnée réelle trouvée, utilisation des données factices');
+                setActivities(fakeActivities);
+            } else {
+                // Trier par date de création (les plus récents en premier)
+                const sortedActivities = allActivities.sort((a, b) => {
+                    const dateA = new Date(a.createdAt || a.startDate);
+                    const dateB = new Date(b.createdAt || b.startDate);
+                    return dateB - dateA;
+                });
+
+                console.log(`Chargement de ${publications.length} publications et ${events.length} événements`);
+                setActivities(sortedActivities);
+            }
+        } catch (error) {
+            console.error('Erreur lors du chargement du feed:', error);
+            setError(error.message);
+            // En cas d'erreur, utiliser les fake data
+            setActivities(fakeActivities);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    // Charger les données au montage
+    useEffect(() => {
+        fetchRealData();
+    }, []);
+
     return (
         <section className="py-20 bg-white">
             <div className="container mx-auto px-4">
                 <div className="text-center mb-16">
                     <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-4">
-                        Au cœur de l'actualité syndicale
+                        {t('activity_feed_title')}
                     </h2>
                     <p className="text-xl text-slate-600 max-w-3xl mx-auto">
-                        Découvrez les initiatives, événements et succès qui façonnent 
-                        l'avenir du mouvement syndical
+                        {t('activity_feed_subtitle')}
                     </p>
                 </div>
 
                 <div className="max-w-xl mx-auto space-y-6">
-                    {activities.map((activity, index) => (
-                        <ActivityCard key={activity.id} activity={activity} index={index} />
-                    ))}
+                    {loading ? (
+                        // Skeleton loading
+                        [...Array(3)].map((_, index) => (
+                            <div key={index} className="bg-white rounded-2xl shadow-lg overflow-hidden animate-pulse">
+                                <div className="p-6 border-b border-slate-100">
+                                    <div className="flex items-center space-x-3">
+                                        <div className="w-12 h-12 bg-gray-300 rounded-full"></div>
+                                        <div className="flex-1">
+                                            <div className="h-4 bg-gray-300 rounded mb-2"></div>
+                                            <div className="h-3 bg-gray-300 rounded w-2/3"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className="p-6">
+                                    <div className="h-4 bg-gray-300 rounded mb-4"></div>
+                                    <div className="h-80 bg-gray-300 rounded"></div>
+                                </div>
+                            </div>
+                        ))
+                    ) : activities.length > 0 ? (
+                        activities.map((activity, index) => (
+                            <motion.div
+                                key={activity.id}
+                                initial={{ opacity: 0, y: 20 }}
+                                whileInView={{ opacity: 1, y: 0 }}
+                                viewport={{ once: true }}
+                                transition={{ duration: 0.5, delay: index * 0.1 }}
+                            >
+                                <UnifiedPostCard 
+                                    item={activity}
+                                    type={activity.type}
+                                    variant="landing"
+                                    showActions={false} // Pas d'actions interactives sur la landing page
+                                />
+                            </motion.div>
+                        ))
+                    ) : (
+                        // Message d'erreur ou pas de données
+                        <div className="text-center py-12">
+                            <p className="text-slate-600 text-lg">
+                                {error ? 'Erreur lors du chargement des activités' : 'Aucune activité disponible pour le moment'}
+                            </p>
+                        </div>
+                    )}
                 </div>
 
                 <div className="text-center mt-16">
                     <button className="group relative bg-blue-800 text-white px-14 py-4 rounded-2xl font-bold text-lg hover:bg-blue-900 hover:shadow-lg transition-all duration-300 shadow-md transform hover:scale-105">
                         <span className="flex items-center space-x-3">
-                            <span>Découvrir plus d'actualités</span>
+                            <span>{t('view_more_news')}</span>
                             <svg className="w-6 h-6 transition-transform duration-300 group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
                             </svg>
@@ -5148,7 +6403,7 @@ export default function ActivityFeed() {
                         <div className="absolute inset-0 bg-blue-700 rounded-2xl opacity-0 group-hover:opacity-30 transition-opacity duration-300"></div>
                     </button>
                     <p className="text-slate-600 mt-4 text-sm">
-                        Restez connecté avec la communauté syndicale
+                        {t('stay_connected_message')}
                     </p>
                 </div>
             </div>
@@ -5322,11 +6577,11 @@ export default function HeroSection({ heroData }) {
 }
 ```
 
-### HeroSection
+### ModernLandingPage
 
 - **Fichier**: `src\components\landing\ModernLandingPage.jsx`
 - **Props**: `N/A`
-- **Hooks**: 
+- **Hooks**: useTranslations
 ```jsx
 "use client";
 
@@ -5334,11 +6589,13 @@ import { motion } from "framer-motion";
 import { ChevronRight, Shield, Users, Building, MessageSquare, Calendar, BarChart3, Heart, Share2, Clock, MapPin, MessageCircle } from "lucide-react";
 import { Link } from "@/navigation";
 import Image from "next/image";
+import { useTranslations } from 'next-intl';
 
 // Hero Section Component
-export function HeroSection() {
+function HeroSection() {
+    const t = useTranslations('heroComponent');
     return (
-        <section className="relative bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-900 text-white py-24 lg:py-32">
+        <section className="relative bg-gradient-to-br from-slate-900 via-blue-800 to-blue-900 text-white py-24 lg:py-32">
             <div className="container mx-auto px-4">
                 <div className="max-w-7xl mx-auto flex flex-col lg:flex-row items-center gap-12">
                     <div className="flex-1 text-center lg:text-left">
@@ -5348,23 +6605,22 @@ export function HeroSection() {
                             transition={{ duration: 0.6 }}
                         >
                             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 leading-tight">
-                                Révolutionnez la{' '}
-                                <span className="bg-gradient-to-r from-blue-400 to-indigo-400 bg-clip-text text-transparent">
-                                    gestion syndicale
+                                {t('title_part1')}{' '}
+                                <span className="bg-gradient-to-r from-blue-500 to-blue-700 bg-clip-text text-transparent">
+                                    {t('title_highlighted')}
                                 </span>
                             </h1>
                             <p className="text-xl md:text-2xl mb-8 text-slate-300 leading-relaxed max-w-2xl">
-                                Plateforme moderne pour optimiser la communication, la transparence et l'efficacité 
-                                de votre organisation syndicale.
+                                {t('subtitle')}
                             </p>
                             <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
                                 <Link href="/register">
                                     <motion.button
-                                        className="bg-gradient-to-r from-blue-500 to-indigo-600 text-white px-8 py-4 rounded-lg font-semibold flex items-center justify-center hover:from-blue-600 hover:to-indigo-700 transition-all duration-300 shadow-lg hover:shadow-xl"
+                                        className="bg-gradient-to-r from-blue-700 to-blue-800 text-white px-8 py-4 rounded-lg font-semibold flex items-center justify-center hover:from-blue-600 hover:to-blue-700 transition-all duration-300 shadow-lg hover:shadow-xl"
                                         whileHover={{ scale: 1.02 }}
                                         whileTap={{ scale: 0.98 }}
                                     >
-                                        Commencer maintenant
+                                        {t('cta_main')}
                                         <ChevronRight className="ml-2 h-5 w-5" />
                                     </motion.button>
                                 </Link>
@@ -5374,7 +6630,7 @@ export function HeroSection() {
                                         whileHover={{ scale: 1.02 }}
                                         whileTap={{ scale: 0.98 }}
                                     >
-                                        Explorer les syndicats
+                                        {t('cta_secondary')}
                                     </motion.button>
                                 </Link>
                             </div>
@@ -5388,7 +6644,7 @@ export function HeroSection() {
                         >
                             <Image
                                 src="https://images.unsplash.com/photo-1560472354-b33ff0c44a43?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80"
-                                alt="Gestion syndicale moderne"
+                                alt={t('image_alt')}
                                 width={1350}
                                 height={900}
                                 className="rounded-xl shadow-2xl"
@@ -5403,37 +6659,38 @@ export function HeroSection() {
 }
 
 // Features Section Component
-export function FeaturesSection() {
+function FeaturesSection() {
+    const t = useTranslations('landing_page');
     const features = [
         {
             icon: Shield,
-            title: "Sécurité & Conformité",
-            description: "Plateforme sécurisée avec chiffrement des données et respect des réglementations."
+            title: t('feature_security_title'),
+            description: t('feature_security_desc')
         },
         {
             icon: Users,
-            title: "Gestion des Membres",
-            description: "Outils complets pour gérer les adhésions, cotisations et profils des membres."
+            title: t('feature_members_title'),
+            description: t('feature_members_desc')
         },
         {
             icon: Building,
-            title: "Gouvernance Transparente",
-            description: "Système de votes électroniques et tableaux de bord pour une gouvernance moderne."
+            title: t('feature_governance_title'),
+            description: t('feature_governance_desc')
         },
         {
             icon: MessageSquare,
-            title: "Communication Intégrée",
-            description: "Messagerie instantanée, forums et notifications pour une communication fluide."
+            title: t('feature_communication_title'),
+            description: t('feature_communication_desc')
         },
         {
             icon: Calendar,
-            title: "Événements & Assemblées",
-            description: "Organisation simplifiée d'événements avec gestion des inscriptions et rappels."
+            title: t('feature_events_title'),
+            description: t('feature_events_desc')
         },
         {
             icon: BarChart3,
-            title: "Analyses & Reporting",
-            description: "Tableaux de bord analytiques pour piloter votre organisation avec précision."
+            title: t('feature_analytics_title'),
+            description: t('feature_analytics_desc')
         }
     ];
 
@@ -5445,11 +6702,10 @@ export function FeaturesSection() {
             <div className="container mx-auto px-4">
                 <div className="text-center mb-16">
                     <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-4">
-                        Une plateforme complète pour votre syndicat
+                        {t('features_section_title')}
                     </h2>
                     <p className="text-xl text-slate-600 max-w-3xl mx-auto">
-                        Découvrez les fonctionnalités qui transformeront la façon dont vous gérez 
-                        votre organisation syndicale
+                        {t('features_section_subtitle')}
                     </p>
                 </div>
                 
@@ -5461,9 +6717,9 @@ export function FeaturesSection() {
                             whileInView={{ opacity: 1, y: 0 }}
                             viewport={{ once: true }}
                             transition={{ duration: 0.5, delay: index * 0.1 }}
-                            className="bg-slate-50 rounded-2xl p-8 hover:shadow-lg transition-all duration-300 border border-slate-200 hover:border-blue-200"
+                            className="bg-slate-50 rounded-2xl p-8 hover:shadow-lg transition-all duration-300 border border-slate-200 hover:border-blue-700"
                         >
-                            <div className="bg-gradient-to-r from-blue-500 to-indigo-600 rounded-xl p-3 w-14 h-14 flex items-center justify-center mb-6">
+                            <div className="bg-gradient-to-r from-blue-700 to-blue-800 rounded-xl p-3 w-14 h-14 flex items-center justify-center mb-6">
                                 <feature.icon className="h-7 w-7 text-white" />
                             </div>
                             <h3 className="text-xl font-semibold text-slate-900 mb-3">
@@ -5513,7 +6769,7 @@ function ActivityCard({ activity, index }) {
                             <div className="flex items-center space-x-2 text-slate-500 text-xs">
                                 <span>{activity.syndicate.name}</span>
                                 {activity.syndicate.verified && (
-                                    <div className="w-3 h-3 bg-blue-500 rounded-full flex items-center justify-center">
+                                    <div className="w-3 h-3 bg-blue-700 rounded-full flex items-center justify-center">
                                         <div className="w-1.5 h-1.5 bg-white rounded-full"></div>
                                     </div>
                                 )}
@@ -5522,7 +6778,7 @@ function ActivityCard({ activity, index }) {
                                 {isEvent && (
                                     <>
                                         <span>•</span>
-                                        <span className="text-blue-600 font-medium">Événement</span>
+                                        <span className="text-blue-700 font-medium">{t('event_label')}</span>
                                     </>
                                 )}
                             </div>
@@ -5553,7 +6809,7 @@ function ActivityCard({ activity, index }) {
                             </div>
                             <div className="flex items-center">
                                 <Users className="h-3 w-3 mr-1" />
-                                {activity.event.participants} participants
+                                {activity.event.participants} {t('participants')}
                             </div>
                         </div>
                     </div>
@@ -5579,15 +6835,15 @@ function ActivityCard({ activity, index }) {
                 <div className="flex items-center justify-between text-slate-500 text-xs">
                     <div className="flex items-center space-x-1">
                         <div className="flex items-center">
-                            <div className="w-4 h-4 bg-blue-500 rounded-full flex items-center justify-center mr-1">
+                            <div className="w-4 h-4 bg-blue-700 rounded-full flex items-center justify-center mr-1">
                                 <Heart className="w-2 h-2 text-white fill-current" />
                             </div>
                             <span>{activity.likes}</span>
                         </div>
                     </div>
                     <div className="flex items-center space-x-4">
-                        <span>{activity.comments} commentaires</span>
-                        <span>{activity.shares} partages</span>
+                        <span>{activity.comments} {t('comments')}</span>
+                        <span>{activity.shares} {t('shares')}</span>
                     </div>
                 </div>
             </div>
@@ -5596,21 +6852,21 @@ function ActivityCard({ activity, index }) {
             <div className="px-4 py-2 border-t border-slate-100">
                 <div className="flex items-center justify-between">
                     <div className="flex items-center w-full">
-                        <button className="flex items-center justify-center space-x-2 text-slate-600 hover:text-blue-600 px-3 py-2 rounded-md hover:bg-slate-50 transition-colors flex-1">
+                        <button className="flex items-center justify-center space-x-2 text-slate-600 hover:text-blue-700 px-3 py-2 rounded-md hover:bg-slate-50 transition-colors flex-1">
                             <Heart className="h-4 w-4" />
-                            <span className="text-sm font-medium">J'aime</span>
+                            <span className="text-sm font-medium">{t('like_button')}</span>
                         </button>
-                        <button className="flex items-center justify-center space-x-2 text-slate-600 hover:text-blue-600 px-3 py-2 rounded-md hover:bg-slate-50 transition-colors flex-1">
+                        <button className="flex items-center justify-center space-x-2 text-slate-600 hover:text-blue-700 px-3 py-2 rounded-md hover:bg-slate-50 transition-colors flex-1">
                             <MessageCircle className="h-4 w-4" />
-                            <span className="text-sm font-medium">Commenter</span>
+                            <span className="text-sm font-medium">{t('comment_button')}</span>
                         </button>
-                        <button className="flex items-center justify-center space-x-2 text-slate-600 hover:text-blue-600 px-3 py-2 rounded-md hover:bg-slate-50 transition-colors flex-1">
+                        <button className="flex items-center justify-center space-x-2 text-slate-600 hover:text-blue-700 px-3 py-2 rounded-md hover:bg-slate-50 transition-colors flex-1">
                             <Share2 className="h-4 w-4" />
-                            <span className="text-sm font-medium">Partager</span>
+                            <span className="text-sm font-medium">{t('share_button')}</span>
                         </button>
                         {isEvent && (
-                            <button className="bg-gradient-to-r from-indigo-500 to-purple-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:from-indigo-600 hover:to-purple-700 transition-all duration-300 ml-2">
-                                Participer
+                            <button className="bg-gradient-to-r from-blue-700 to-blue-800 text-white px-4 py-2 rounded-lg text-sm font-medium hover:from-blue-600 hover:to-blue-700 transition-all duration-300 ml-2">
+                                {t('participate_button')}
                             </button>
                         )}
                     </div>
@@ -5620,7 +6876,8 @@ function ActivityCard({ activity, index }) {
     );
 }
 
-export function ActivityFeed() {
+function ActivityFeed() {
+    const t = useTranslations('landing_page');
     const activities = [
         {
             id: 1,
@@ -5675,11 +6932,10 @@ export function ActivityFeed() {
             <div className="container mx-auto px-4">
                 <div className="text-center mb-16">
                     <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-4">
-                        Fil d'actualité des syndicats
+                        {t('activity_feed_title')}
                     </h2>
                     <p className="text-xl text-slate-600 max-w-3xl mx-auto">
-                        Restez informé des dernières actualités, événements et réalisations 
-                        de la communauté syndicale
+                        {t('activity_feed_subtitle')}
                     </p>
                 </div>
 
@@ -5691,7 +6947,7 @@ export function ActivityFeed() {
 
                 <div className="text-center mt-12">
                     <button className="bg-gradient-to-r from-slate-900 to-slate-800 text-white px-8 py-3 rounded-lg font-semibold hover:from-slate-800 hover:to-slate-700 transition-all duration-300 shadow-lg hover:shadow-xl">
-                        Voir plus d'actualités
+                        {t('view_more_news')}
                     </button>
                 </div>
             </div>
@@ -5700,23 +6956,24 @@ export function ActivityFeed() {
 }
 
 // Stats Section Component
-export function StatsSection() {
+function StatsSection() {
+    const t = useTranslations('landing_page');
     const stats = [
-        { label: "Syndicats partenaires", value: "1,500+" },
-        { label: "Membres actifs", value: "50,000+" },
-        { label: "Satisfaction client", value: "98%" },
-        { label: "Événements organisés", value: "3,200+" }
+        { label: t('stats_syndicates'), value: "1,500+" },
+        { label: t('stats_members'), value: "50,000+" },
+        { label: t('stats_satisfaction'), value: "98%" },
+        { label: t('stats_events'), value: "3,200+" }
     ];
 
     return (
-        <section className="py-20 bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 relative overflow-hidden">
+        <section className="py-20 bg-gradient-to-r from-blue-700 via-blue-800 to-blue-700 relative overflow-hidden">
             <div className="container mx-auto px-4 relative z-10">
                 <div className="text-center mb-16">
                     <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
-                        Une plateforme de confiance
+                        {t('stats_section_title')}
                     </h2>
                     <p className="text-xl text-blue-100 max-w-2xl mx-auto">
-                        Rejoignez des milliers d'organisations qui nous font confiance
+                        {t('stats_section_subtitle')}
                     </p>
                 </div>
                 
@@ -5751,13 +7008,16 @@ export default function ModernLandingPage() {
         </div>
     );
 }
+
+// Export des composants individuels pour réutilisation
+export { HeroSection, FeaturesSection, ActivityFeed, StatsSection };
 ```
 
 ### PopularSyndicates
 
 - **Fichier**: `src\components\landing\PopularSyndicates.jsx`
-- **Props**: `key`
-- **Hooks**: useState, useEffect, useRef, useEnter, useLeave
+- **Props**: `N/A`
+- **Hooks**: useState, useEffect, useRef, useTranslations, useEnter, useLeave
 ```jsx
 
 'use client';
@@ -5768,27 +7028,35 @@ import { Users, ChevronRight, ChevronLeft } from 'lucide-react';
 import { ClientMotionWrapper } from '@/components/shared/ClientMotionWrapper';
 import { SyndicateCard } from './SyndicateCard'; // On importe la carte client
 import { useState, useEffect, useRef } from 'react';
-
-const popularSyndicats = [
-    { id: 1, name: "Syndicat National de l'Éducation", members: 250000, image: "https://images.unsplash.com/photo-1497633762265-9d179a990aa6?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80" },
-    { id: 2, name: "Union des Travailleurs de la Santé", members: 180000, image: "https://images.unsplash.com/photo-1584820927498-cfe5211fd8bf?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80" },
-    { id: 3, name: "Fédération des Employés du Commerce", members: 150000, image: "https://images.unsplash.com/photo-1556740758-90de374c12ad?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80" },
-    { id: 4, name: "Syndicat des Transporteurs", members: 120000, image: "https://images.unsplash.com/photo-1449824913935-59a10b8d2000?w=1350&q=80" },
-    { id: 5, name: "Alliance des Agriculteurs", members: 95000, image: "https://images.unsplash.com/photo-1574943320219-553eb213f72d?w=1350&q=80" },
-    { id: 6, name: "Syndicat des Artisans", members: 85000, image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=1350&q=80" },
-    { id: 7, name: "Union des Techniciens", members: 110000, image: "https://images.unsplash.com/photo-1581092795442-4c93f4c7b3f1?w=1350&q=80" },
-    { id: 8, name: "Fédération des Cuisiniers", members: 75000, image: "https://images.unsplash.com/photo-1556909114-b0d0c76b91b8?w=1350&q=80" },
-    { id: 9, name: "Syndicat des Ingénieurs", members: 135000, image: "https://images.unsplash.com/photo-1581092795442-4c93f4c7b3f1?w=1350&q=80" },
-    { id: 10, name: "Alliance des Commerçants", members: 90000, image: "https://images.unsplash.com/photo-1556740749-887f6717d7e4?w=1350&q=80" },
-];
-
-const t = (key) => key.replace(/_/g, ' ');
+import { useTranslations } from 'next-intl';
+import { getAllSyndicatesAPI } from '@/lib/api/syndicate';
 
 export default function PopularSyndicates() {
+    const t = useTranslations('landing_page');
     const scrollContainerRef = useRef(null);
     const [canScrollLeft, setCanScrollLeft] = useState(false);
     const [canScrollRight, setCanScrollRight] = useState(true);
     const [isAutoScrolling, setIsAutoScrolling] = useState(true);
+    const [syndicates, setSyndicates] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+
+    // Fonction pour récupérer les syndicats
+    const fetchSyndicates = async () => {
+        try {
+            setLoading(true);
+            const response = await getAllSyndicatesAPI(0, 10); // Récupérer 10 syndicats
+            setSyndicates(response.content || response || []);
+            setError(null);
+        } catch (err) {
+            console.error('Erreur lors du chargement des syndicats:', err);
+            setError(err.message);
+            // En cas d'erreur, on garde un tableau vide
+            setSyndicates([]);
+        } finally {
+            setLoading(false);
+        }
+    };
 
     const checkScrollPosition = () => {
         if (scrollContainerRef.current) {
@@ -5818,9 +7086,15 @@ export default function PopularSyndicates() {
         }
     };
 
+    // Effect pour charger les syndicats au montage du composant
+    useEffect(() => {
+        fetchSyndicates();
+    }, []);
+
+    // Effect pour gérer le scroll et l'auto-scroll
     useEffect(() => {
         const container = scrollContainerRef.current;
-        if (container) {
+        if (container && syndicates.length > 0) {
             container.addEventListener('scroll', checkScrollPosition);
             checkScrollPosition();
 
@@ -5842,18 +7116,17 @@ export default function PopularSyndicates() {
                 if (autoScrollInterval) clearInterval(autoScrollInterval);
             };
         }
-    }, [isAutoScrolling]);
+    }, [isAutoScrolling, syndicates.length]);
 
     return (
         <ClientMotionWrapper delay={0.6} className="py-16 bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-900">
             <div className="container mx-auto px-4">
                 <div className="text-center mb-12">
                     <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
-                        Les syndicats les plus actifs
+                        {t('syndicats_populaires')}
                     </h2>
                     <p className="text-xl text-blue-100 max-w-3xl mx-auto">
-                        Rejoignez des milliers de membres dans les organisations syndicales 
-                        les plus dynamiques et influentes
+                        {t('popular_syndicates_subtitle')}
                     </p>
                 </div>
                 
@@ -5888,11 +7161,33 @@ export default function PopularSyndicates() {
                         onMouseEnter={() => setIsAutoScrolling(false)}
                         onMouseLeave={() => setIsAutoScrolling(true)}
                     >
-                        {popularSyndicats.map((syndicat) => (
-                            <div key={syndicat.id} className="flex-shrink-0 w-80">
-                                <SyndicateCard syndicat={syndicat} />
+                        {loading ? (
+                            // Skeleton loading
+                            [...Array(3)].map((_, index) => (
+                                <div key={index} className="flex-shrink-0 w-80">
+                                    <div className="bg-white rounded-2xl overflow-hidden shadow-lg animate-pulse">
+                                        <div className="h-48 bg-gray-300"></div>
+                                        <div className="p-6">
+                                            <div className="h-6 bg-gray-300 rounded mb-4"></div>
+                                            <div className="h-4 bg-gray-300 rounded w-24"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            ))
+                        ) : syndicates.length > 0 ? (
+                            syndicates.map((syndicat) => (
+                                <div key={syndicat.id} className="flex-shrink-0 w-80">
+                                    <SyndicateCard syndicat={syndicat} />
+                                </div>
+                            ))
+                        ) : (
+                            // Message si aucun syndicat
+                            <div className="flex-shrink-0 w-full text-center py-12">
+                                <p className="text-white/80 text-lg">
+                                    {error ? 'Erreur lors du chargement des syndicats' : 'Aucun syndicat disponible pour le moment'}
+                                </p>
                             </div>
-                        ))}
+                        )}
                     </div>
                 </div>
             </div>
@@ -5980,11 +7275,15 @@ export function SyndicateCard({ syndicat }) {
         return count.toString();
     };
 
+    // Gestion de la compatibilité entre les données fake et les données réelles de l'API
+    const imageUrl = syndicat.bannerUrl || syndicat.image || '/placeholder-image.jpg';
+    const memberCount = syndicat.memberCount || syndicat.members || 0;
+
     return (
         <div className="bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:scale-105">
             <div className="relative h-48 overflow-hidden">
                 <Image
-                    src={syndicat.image}
+                    src={imageUrl}
                     alt={syndicat.name}
                     fill
                     className="object-cover transition-transform duration-300 hover:scale-110"
@@ -5993,7 +7292,7 @@ export function SyndicateCard({ syndicat }) {
                 <div className="absolute bottom-4 left-4 right-4">
                     <div className="flex items-center text-white text-sm">
                         <Users className="w-4 h-4 mr-2" />
-                        <span className="font-semibold">{formatMembers(syndicat.members)} membres</span>
+                        <span className="font-semibold">{formatMembers(memberCount)} membres</span>
                     </div>
                 </div>
             </div>
@@ -6003,12 +7302,11 @@ export function SyndicateCard({ syndicat }) {
                     {syndicat.name}
                 </h3>
                 
-                <Link
-                    href={`/syndicats/${syndicat.id}`}
-                    className="inline-flex items-center text-blue-600 hover:text-blue-700 font-semibold transition-colors duration-200 group"
-                >
-                    En savoir plus
-                    <ChevronRight className="w-4 h-4 ml-1 transition-transform duration-200 group-hover:translate-x-1" />
+                <Link href={`/explorer/${syndicat.id}`}>
+                    <button className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition-all duration-200 transform hover:scale-105 flex items-center justify-center group">
+                        En savoir plus
+                        <ChevronRight className="w-4 h-4 ml-2 transition-transform duration-200 group-hover:translate-x-1" />
+                    </button>
                 </Link>
             </div>
         </div>
@@ -6036,7 +7334,7 @@ export default function AppFooter() {
         { icon: Facebook, href: '#', label: 'Facebook' },
         { icon: Twitter, href: '#', label: 'Twitter' },
         { icon: Linkedin, href: '#', label: 'LinkedIn' },
-        { icon: Mail, href: 'mailto:contact@syndicmanager.com', label: 'Email' },
+        { icon: Mail, href: 'mailto:contact@u-gate.com', label: 'Email' },
     ];
     
     return (
@@ -6044,7 +7342,7 @@ export default function AppFooter() {
             <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6">
                 <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
                     <p className="text-sm text-gray-600 dark:text-gray-400">
-                        © {new Date().getFullYear()} SyndicManager. {t('footer.all_rights_reserved')}
+                        © {new Date().getFullYear()} U-Gate. {t('footer.all_rights_reserved')}
                     </p>
                     <div className="flex space-x-4">
                         {socialLinks.map((link) => (
@@ -6078,8 +7376,8 @@ export default function AppFooter() {
 
 import { motion } from 'framer-motion';
 import { useTranslations } from 'next-intl';
-import { Building } from 'lucide-react';
 import { Link } from '@/navigation';
+import UGateIcon from '@/components/shared/UGateIcon';
 
 const sectionVariants = {
     hidden: { opacity: 0, y: 30 },
@@ -6102,8 +7400,7 @@ export default function LandingPageFooter() {
                 <div className="grid gap-8 md:grid-cols-3">
                     <div>
                         <div className="flex items-center space-x-2 mb-4">
-                            <Building className="h-6 w-6" />
-                            <span className="text-xl font-semibold">SyndicManager</span>
+                            <UGateIcon className="h-6 w-6" showText={true} />
                         </div>
                         <p className="text-indigo-100">{t("description_plateforme")}</p>
                     </div>
@@ -6130,74 +7427,76 @@ export default function LandingPageFooter() {
 
 - **Fichier**: `src\components\layout\LandingPageHeader.jsx`
 - **Props**: `N/A`
-- **Hooks**: useState, usePathname, useTranslations
+- **Hooks**: useState, usePathname, useRouter, useTranslations, useLocale
 ```jsx
 
 "use client";
 
 import { useState } from 'react';
-import { Link } from '@/navigation';
-import { usePathname } from 'next/navigation';
-import { useTranslations } from 'next-intl';
+import { Link, usePathname, useRouter } from '@/navigation';
+import { useTranslations, useLocale } from 'next-intl';
 import { motion } from 'framer-motion';
-import { Building, LogIn, UserPlus, Home, Globe } from 'lucide-react';
+import { LogIn, UserPlus, Home, Globe } from 'lucide-react';
+import UGateIcon from '@/components/shared/UGateIcon';
 
 
 export default function LandingPageHeader() {
     const t = useTranslations('header');
     const pathname = usePathname();
+    const router = useRouter();
+    const locale = useLocale();
     const [openDropdown, setOpenDropdown] = useState(false);
 
-    const changeLanguage = (lng) => {
-        i18n.changeLanguage(lng);
+    const changeLanguage = (newLocale) => {
+        router.push(pathname, { locale: newLocale });
         setOpenDropdown(false);
     };
 
     return (
         <header className="bg-white shadow-md py-3 sticky top-0 z-50">
             <div className="container mx-auto px-4 flex justify-between items-center">
-                <Link href="/" className="flex items-center space-x-2 text-blue-600">
-                    <svg className="h-8 w-8" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <defs>
-                            <linearGradient id="ugate-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                                <stop offset="0%" stopColor="#1E40AF" />
-                                <stop offset="100%" stopColor="#3B82F6" />
-                            </linearGradient>
-                        </defs>
-                        <rect width="40" height="40" rx="8" fill="url(#ugate-gradient)" />
-                        <path d="M8 12h24v16H8z" fill="#ffffff" fillOpacity="0.1" />
-                        <path d="M12 8v8h4V8h4v8h4V8h4v24H8V8h4z" fill="#ffffff" fillOpacity="0.9" />
-                        <path d="M16 20h8v8h-8z" fill="#1E40AF" />
-                        <circle cx="20" cy="24" r="2" fill="#ffffff" />
-                        <path d="M10 30h20v2H10z" fill="#ffffff" />
-                        <text x="20" y="36" textAnchor="middle" fontSize="6" fill="#ffffff" fontWeight="bold">U</text>
-                    </svg>
-                    <span className="text-2xl font-bold">U-Gate</span>
+                <Link href="/" className="flex items-center space-x-2 text-blue-700">
+                    <UGateIcon className="h-8 w-8" showText={true} />
                 </Link>
                 <div className="flex space-x-4 items-center">
                     <div className="relative">
                         <button
                             onClick={() => setOpenDropdown(prev => !prev)}
-                            className="flex items-center space-x-1 px-3 py-2 rounded-full border text-gray-700 hover:bg-blue-100 transition duration-300"
+                            className="flex items-center space-x-1 px-3 py-2 rounded-full border text-gray-700 hover:bg-blue-50 transition duration-300"
                         >
                             <Globe className="h-5 w-5" />
-                            <span>Langue</span>
+                            <span>{locale.toUpperCase()}</span>
                         </button>
                         {openDropdown && (
                             <div className="absolute right-0 mt-2 bg-white shadow-lg rounded-lg py-2 w-40 z-50">
-                                <button onClick={() => changeLanguage('fr')} className="block px-4 py-2 text-gray-700 hover:bg-blue-100 w-full text-left">Français</button>
-                                <button onClick={() => changeLanguage('en')} className="block px-4 py-2 text-gray-700 hover:bg-blue-100 w-full text-left">English</button>
-                                <button onClick={() => changeLanguage('de')} className="block px-4 py-2 text-gray-700 hover:bg-blue-100 w-full text-left">Deutsch</button>
+                                <button 
+                                    onClick={() => changeLanguage('fr')} 
+                                    className={`block px-4 py-2 text-gray-700 hover:bg-blue-50 w-full text-left ${locale === 'fr' ? 'bg-blue-100 font-semibold' : ''}`}
+                                >
+                                    Français
+                                </button>
+                                <button 
+                                    onClick={() => changeLanguage('en')} 
+                                    className={`block px-4 py-2 text-gray-700 hover:bg-blue-50 w-full text-left ${locale === 'en' ? 'bg-blue-100 font-semibold' : ''}`}
+                                >
+                                    English
+                                </button>
+                                <button 
+                                    onClick={() => changeLanguage('de')} 
+                                    className={`block px-4 py-2 text-gray-700 hover:bg-blue-50 w-full text-left ${locale === 'de' ? 'bg-blue-100 font-semibold' : ''}`}
+                                >
+                                    Deutsch
+                                </button>
                             </div>
                         )}
                     </div>
                     <Link href="/login" passHref>
-                        <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="bg-blue-100 text-blue-600 px-4 py-2 rounded-full border border-blue-300 flex items-center hover:bg-blue-200 transition duration-300">
+                        <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="bg-blue-50 text-blue-700 px-4 py-2 rounded-full border border-blue-700 flex items-center hover:bg-blue-100 transition duration-300">
                             <LogIn className="mr-2 h-4 w-4" /> {t("seConnecter")}
                         </motion.button>
                     </Link>
                     <Link href="/register" passHref>
-                        <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="bg-blue-600 text-white px-4 py-2 rounded-full flex items-center hover:bg-blue-700 transition duration-300">
+                        <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="bg-blue-700 text-white px-4 py-2 rounded-full flex items-center hover:bg-blue-800 transition duration-300">
                             <UserPlus className="mr-2 h-4 w-4" /> {t("sinscrire")}
                         </motion.button>
                     </Link>
@@ -6762,7 +8061,7 @@ export default function DynamicFieldArray({ name, placeholder, t }) {
     });
 
     // Constante pour les styles des inputs pour la cohérence
-    const inputClasses = "flex-grow p-3 border rounded-lg bg-white text-gray-900 border-gray-300 dark:bg-gray-800 dark:text-gray-200 dark:border-gray-600 placeholder-gray-400 dark:placeholder-gray-500 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition";
+    const inputClasses = "flex-grow p-3 border rounded-lg bg-white text-gray-900 border-gray-300 placeholder-gray-400 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition";
 
     return (
         <div>
@@ -6795,7 +8094,7 @@ export default function DynamicFieldArray({ name, placeholder, t }) {
                                 <motion.button
                                     type="button"
                                     onClick={() => remove(index)}
-                                    className="p-3 text-red-500 hover:bg-red-100 dark:hover:bg-red-900/50 rounded-lg transition-colors mt-px"
+                                    className="p-3 text-red-500 hover:bg-red-100 rounded-lg transition-colors mt-px"
                                     whileHover={{ scale: 1.1 }}
                                     whileTap={{ scale: 0.95 }}
                                     aria-label={`Supprimer la formation ${index + 1}`}
@@ -6811,12 +8110,12 @@ export default function DynamicFieldArray({ name, placeholder, t }) {
             <motion.button
                 type="button"
                 onClick={() => append({ value: "" })}
-                className="flex items-center text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 font-semibold text-sm mt-4 p-2 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/50 transition-colors"
+                className="flex items-center text-blue-600 hover:text-blue-800 font-semibold text-sm mt-4 p-2 rounded-lg hover:bg-blue-50 transition-colors"
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
             >
                 <Plus size={16} className="mr-2" />
-                {t('settings_page.add_formation_button')}
+                {t('add_formation_button')}
             </motion.button>
         </div>
     );
@@ -6837,13 +8136,13 @@ import { motion } from 'framer-motion';
 export default function FormSection({ title, icon: Icon, children }) {
     return (
         <motion.div
-            className="bg-white dark:bg-gray-800/50 p-6 rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700"
+            className="bg-white p-6 rounded-2xl shadow-lg border border-gray-100"
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, amount: 0.3 }}
             transition={{ duration: 0.5 }}
         >
-            <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-6 flex items-center">
+            <h3 className="text-xl font-bold text-gray-900 mb-6 flex items-center">
                 <Icon className="w-6 h-6 mr-3 text-blue-500" />
                 {title}
             </h3>
@@ -6887,7 +8186,7 @@ export default function ProfileHeader({ onAvatarClick }) {
 
     return (
         <motion.div
-            className="bg-white dark:bg-gray-800/50 p-6 rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700 mb-8"
+            className="bg-white p-6 rounded-2xl shadow-lg border border-gray-100 mb-8"
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
         >
@@ -6898,7 +8197,7 @@ export default function ProfileHeader({ onAvatarClick }) {
                         alt="Photo de profil"
                         width={128}
                         height={128}
-                        className="w-32 h-32 rounded-full object-cover border-4 border-blue-200 dark:border-blue-700"
+                        className="w-32 h-32 rounded-full object-cover border-4 border-blue-200"
                     />
                     <button
                         type="button"
@@ -6910,10 +8209,10 @@ export default function ProfileHeader({ onAvatarClick }) {
                     </button>
                 </div>
                 <div className="flex-grow text-center md:text-left">
-                    <h2 className="text-3xl font-bold text-gray-800 dark:text-white">
+                    <h2 className="text-3xl font-bold text-gray-800">
                         {firstName} {lastName}
                     </h2>
-                    <div className="mt-2 space-y-1 text-gray-600 dark:text-gray-400">
+                    <div className="mt-2 space-y-1 text-gray-600">
                         <p className="flex items-center justify-center md:justify-start gap-2">
                             <Mail size={16} className="text-blue-500" />
                             {email}
@@ -6941,15 +8240,17 @@ export default function ProfileHeader({ onAvatarClick }) {
 
 import { useForm, FormProvider, Controller } from 'react-hook-form';
 import { useTranslations } from 'next-intl';
-import { toast } from 'react-hot-toast';
+import Swal from 'sweetalert2';
 import { User, Phone, Mail, Camera, FileText, GraduationCap, Save } from 'lucide-react';
 import FormSection from './FormSection';
 import ProfileHeader from './ProfileHeader';
 import DynamicFieldArray from './DynamicFieldArray';
 import { FileUploader } from '../forms/adhesion/file-uploader'; // On réutilise ce composant
+import { updateUser } from "@/lib/api/auth";
 
 export default function UserProfileForm({ initialData }) {
     const t = useTranslations('settings_page');
+    const t_adhesion = useTranslations('adhesion_form');
 
     // On transforme la liste de strings en objets pour `useFieldArray`
     const transformedData = {
@@ -6964,12 +8265,30 @@ export default function UserProfileForm({ initialData }) {
     const onSubmit = async (data) => {
         // On re-transforme les données avant de les envoyer
         const payload = {
-            ...data,
-            formations: data.formations.map(f => f.value)
+            firstName: data.firstName,
+            lastName: data.lastName,
+            phone: data.phone,
+            formations: data.formations.map(f => f.value).filter(f => f) // On garde que les valeurs non-vides
         };
-        console.log("Données soumises :", payload);
-        await new Promise(resolve => setTimeout(resolve, 1500)); // Simule un appel API
-        toast.success(t('settings_page.success_toast'));
+        
+        try {
+            await updateUser(initialData.id, payload);
+            Swal.fire({
+                icon: "success",
+                title: t("success_title"),
+                text: t("success_message"),
+                timer: 2000,
+                showConfirmButton: false,
+            });
+        } catch (error) {
+            console.error("Erreur lors de la mise à jour du profil:", error);
+            const errorMessage = error.response?.data?.message || t("error_message");
+            Swal.fire({
+                icon: "error",
+                title: t("error_title"),
+                text: errorMessage,
+            });
+        }
     };
 
     return (
@@ -6978,43 +8297,43 @@ export default function UserProfileForm({ initialData }) {
             <ProfileHeader onAvatarClick={() => document.getElementById('profilePictureInput')?.click()} />
 
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
-                <FormSection title={t('settings_page.personal_info_title')} icon={User}>
+                <FormSection title={t('personal_info_title')} icon={User}>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{t('adhesion_form.first_name')}*</label>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">{t_adhesion('first_name')}*</label>
                             <input {...register("firstName", { required: true })} className="w-full ..."/>
                         </div>
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{t('adhesion_form.last_name')}*</label>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">{t_adhesion('last_name')}*</label>
                             <input {...register("lastName", { required: true })} className="w-full ..."/>
                         </div>
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{t('adhesion_form.phone')}*</label>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">{t_adhesion('phone')}*</label>
                             <input type="tel" {...register("phone", { required: true })} className="w-full ..."/>
                         </div>
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{t('adhesion_form.email')}*</label>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">{t_adhesion('email')}*</label>
                             <input type="email" {...register("email", { required: true })} className="w-full ..." disabled />
-                            <p className="text-xs text-gray-500 mt-1">{t('settings_page.email_disabled_info')}</p>
+                            <p className="text-xs text-gray-500 mt-1">{t('email_disabled_info')}</p>
                         </div>
                     </div>
                 </FormSection>
 
-                <FormSection title={t('settings_page.professional_info_title')} icon={FileText}>
+                <FormSection title={t('professional_info_title')} icon={FileText}>
                     <div id="profilePictureInput">
-                        <Controller name="profilePicture" control={control} render={({ field }) => <FileUploader label={t('adhesion_form.id_photo')} onFileSelect={field.onChange} />} />
+                        <Controller name="profilePicture" control={control} render={({ field }) => <FileUploader label={t_adhesion('id_photo')} onFileSelect={field.onChange} />} />
                     </div>
                     <Controller name="cv" control={control} render={({ field }) => <FileUploader label="CV (.pdf, .doc)" onFileSelect={field.onChange} accept=".pdf,.doc,.docx" />} />
                 </FormSection>
 
-                <FormSection title={t('settings_page.formations_title')} icon={GraduationCap}>
+                <FormSection title={t('formations_title')} icon={GraduationCap}>
                     <DynamicFieldArray name="formations" placeholder="Ex: Licence en Informatique" t={t} />
                 </FormSection>
 
                 <div className="flex justify-end">
                     <button type="submit" disabled={isSubmitting} className="px-8 py-3 bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700 disabled:bg-gray-400 flex items-center gap-2">
                         <Save size={18} />
-                        {isSubmitting ? t('settings_page.saving_button') : t('settings_page.save_button')}
+                        {isSubmitting ? t('saving_button') : t('save_button')}
                     </button>
                 </div>
             </form>
@@ -7435,7 +8754,7 @@ export default function PublicationsList({ limit = 3, publications = publication
 import { useState, useCallback, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Filter, Building } from "lucide-react";
-import { useRouter } from 'next/navigation'; // Utiliser useRouter de next/navigation
+import { useRouter } from '@/navigation';
 import { useTranslations } from "next-intl";
 
 const allSyndicats = [
@@ -7512,14 +8831,14 @@ export default function SearchModal({ isOpen, onClose }) {
                                 <input
                                     type="text"
                                     placeholder={t("rechercher_syndicat")}
-                                    className="flex-grow text-lg focus:outline-none border-b-2 border-blue-500 pb-2"
+                                    className="flex-grow text-lg focus:outline-none border-b-2 border-blue-700 pb-2"
                                     value={searchTerm}
                                     onChange={(e) => setSearchTerm(e.target.value)}
                                     autoFocus
                                 />
                                 <button
                                     onClick={handleSearch}
-                                    className="ml-4 bg-blue-600 text-white px-6 py-2 rounded-full hover:bg-blue-700 transition duration-300"
+                                    className="ml-4 bg-blue-700 text-white px-6 py-2 rounded-full hover:bg-blue-800 transition duration-300"
                                 >
                                     {t("rechercher")}
                                 </button>
@@ -7539,7 +8858,7 @@ export default function SearchModal({ isOpen, onClose }) {
                                             onClick={() => setSelectedCategory(category)}
                                             className={`px-3 py-1 rounded-full text-sm ${
                                                 selectedCategory === category
-                                                    ? "bg-blue-600 text-white"
+                                                    ? "bg-blue-700 text-white"
                                                     : "bg-gray-200 text-gray-700 hover:bg-gray-300"
                                             } transition duration-300`}
                                         >
@@ -7557,13 +8876,13 @@ export default function SearchModal({ isOpen, onClose }) {
                                             {filteredSyndicats.map((syndicat) => (
                                                 <motion.li
                                                     key={syndicat.id}
-                                                    className="flex items-center p-4 bg-gray-50 hover:bg-blue-100 rounded-lg transition duration-300 ease-in-out cursor-pointer"
+                                                    className="flex items-center p-4 bg-gray-50 hover:bg-blue-50 rounded-lg transition duration-300 ease-in-out cursor-pointer"
                                                     initial={{ opacity: 0, y: 20 }}
                                                     animate={{ opacity: 1, y: 0 }}
                                                     transition={{ duration: 0.3 }}
                                                     onClick={() => handleSyndicatClick(syndicat)}
                                                 >
-                                                    <Building className="h-10 w-10 text-blue-600 mr-4" />
+                                                    <Building className="h-10 w-10 text-blue-700 mr-4" />
                                                     <div>
                                                         <h4 className="text-lg font-semibold text-gray-800">{syndicat.name}</h4>
                                                         <p className="text-sm text-gray-500">
@@ -7732,6 +9051,370 @@ export default function ToastProvider() {
 }
 ```
 
+### UGateIcon
+
+- **Fichier**: `src\components\shared\UGateIcon.jsx`
+- **Props**: `className = "h-8 w-8", showText = false, size = 8`
+- **Hooks**: 
+```jsx
+// src/components/shared/UGateIcon.jsx
+"use client";
+
+export default function UGateIcon({ className = "h-8 w-8", showText = false, size = 8 }) {
+    const iconSize = `${size * 5}`;
+    
+    return (
+        <div className={`flex items-center space-x-2 ${showText ? '' : 'justify-center'}`}>
+            <svg 
+                className={className} 
+                viewBox="0 0 40 40" 
+                fill="none" 
+                xmlns="http://www.w3.org/2000/svg"
+            >
+                <defs>
+                    <linearGradient id="ugate-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stopColor="#1E40AF" />
+                        <stop offset="100%" stopColor="#3B82F6" />
+                    </linearGradient>
+                </defs>
+                <rect width="40" height="40" rx="8" fill="url(#ugate-gradient)" />
+                <path d="M8 12h24v16H8z" fill="#ffffff" fillOpacity="0.1" />
+                <path d="M12 8v8h4V8h4v8h4V8h4v24H8V8h4z" fill="#ffffff" fillOpacity="0.9" />
+                <path d="M16 20h8v8h-8z" fill="#1E40AF" />
+                <circle cx="20" cy="24" r="2" fill="#ffffff" />
+                <path d="M10 30h20v2H10z" fill="#ffffff" />
+                <text x="20" y="36" textAnchor="middle" fontSize="6" fill="#ffffff" fontWeight="bold">U</text>
+            </svg>
+            {showText && (
+                <span className="text-2xl font-bold text-blue-600">U-Gate</span>
+            )}
+        </div>
+    );
+}
+```
+
+### UnifiedPostCard
+
+- **Fichier**: `src\components\shared\UnifiedPostCard.jsx`
+- **Props**: `N/A`
+- **Hooks**: useState, useEffect, useTranslations
+```jsx
+// src/components/shared/UnifiedPostCard.jsx
+"use client";
+
+import { useState, useEffect } from "react";
+import { motion } from "framer-motion";
+import Image from 'next/image';
+import { Bookmark, Clock, Heart, MessageCircle, Share2, Flag, Calendar, MapPin, Users } from "lucide-react";
+import { useTranslations } from "next-intl";
+import timeAgo from "@/lib/utils/timeAgo";
+import { STATIC_FILES_URL } from '@/lib/constants';
+
+/**
+ * Composant de carte unifié pour les publications et événements
+ * Utilisable à la fois dans l'espace syndicat et la landing page
+ */
+export default function UnifiedPostCard({
+    item,
+    type = 'publication',
+    variant = 'landing',
+    onLike,
+    onComment,
+    onBookmark,
+    onShare,
+    showActions = true,
+    syndicatId
+}) {
+    // 1. Traducteur pour le contexte spécifique (express_page ou landing_page)
+    const t = useTranslations(variant === 'syndicate' ? 'express_page' : 'landing_page');
+    // 2. Traducteur pour les termes communs (report, like, etc.)
+    const tCommon = useTranslations('common');
+
+    const [liked, setLiked] = useState(false);
+    const [bookmarked, setBookmarked] = useState(false);
+    const [displayTimestamp, setDisplayTimestamp] = useState(() =>
+        timeAgo(item.createdAt || item.startDate || item.timestamp)
+    );
+
+    const isEvent = type === 'event';
+
+    // Mise à jour du timestamp
+    useEffect(() => {
+        const interval = setInterval(() => {
+            setDisplayTimestamp(timeAgo(item.createdAt || item.startDate || item.timestamp));
+        }, 60000);
+        return () => clearInterval(interval);
+    }, [item.createdAt, item.startDate, item.timestamp]);
+
+    // Gestion des actions
+    const handleLike = async () => {
+        const newLikedState = !liked;
+        setLiked(newLikedState);
+        if (onLike) {
+            await onLike(item, newLikedState);
+        }
+    };
+
+    const handleBookmark = () => {
+        setBookmarked(!bookmarked);
+        if (onBookmark) {
+            onBookmark(item, !bookmarked);
+        }
+    };
+
+    const handleComment = () => {
+        if (onComment) {
+            onComment(item);
+        }
+    };
+
+    const handleShare = () => {
+        if (onShare) {
+            onShare(item);
+        }
+    };
+
+    // Récupération des données selon le format
+    const getAuthorInfo = () => {
+        if (item.author) {
+            return {
+                name: item.author.name,
+                avatar: item.author.avatar,
+                role: item.author.role
+            };
+        }
+        return {
+            name: item.authorName,
+            avatar: item.authorAvatarUrl,
+            role: item.authorRole || ''
+        };
+    };
+
+    const getSyndicateInfo = () => {
+        if (item.syndicate) {
+            return {
+                name: item.syndicate.name,
+                verified: item.syndicate.verified || false
+            };
+        }
+        return {
+            name: item.syndicateName || '',
+            verified: false
+        };
+    };
+
+    const getStats = () => {
+        return {
+            likes: item.likes || 0,
+            comments: item.comments?.length || item.comments || 0,
+            shares: item.shares || 0
+        };
+    };
+
+    // --- GESTION SÉCURISÉE DES URLS ---
+
+    /**
+     * Vérifie si l'URL est absolue (http/https) ou relative.
+     * Si relative, ajoute STATIC_FILES_URL.
+     */
+    const getSafeUrl = (url) => {
+        if (!url) return null;
+        if (url.startsWith('http') || url.startsWith('https')) return url;
+        return `${STATIC_FILES_URL}${url}`;
+    };
+
+    const getImageUrl = () => {
+        return getSafeUrl(item.imageUrl || item.image);
+    };
+
+    const getAvatarUrl = () => {
+        const authorInfo = getAuthorInfo();
+        // Utilise getSafeUrl pour l'avatar, avec fallback sur pravatar
+        return getSafeUrl(authorInfo.avatar) || "https://i.pravatar.cc/150";
+    };
+    // -------------------------------------
+
+    const authorInfo = getAuthorInfo();
+    const syndicateInfo = getSyndicateInfo();
+    const stats = getStats();
+
+    return (
+        <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3, ease: "easeOut" }}
+            className="bg-white dark:bg-neutral-800 rounded-2xl shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300"
+        >
+            {/* Header */}
+            <div className="p-6 border-b border-slate-100 dark:border-neutral-700">
+                <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-3">
+                        <div className="relative">
+                            <Image
+                                src={getAvatarUrl()}
+                                alt={authorInfo.name || "Auteur"}
+                                width={48}
+                                height={48}
+                                className="w-12 h-12 rounded-full object-cover"
+                            />
+                            {syndicateInfo.verified && (
+                                <div className="absolute -bottom-1 -right-1 bg-blue-500 rounded-full p-1">
+                                    <div className="w-2 h-2 bg-white rounded-full"></div>
+                                </div>
+                            )}
+                        </div>
+                        <div>
+                            <div className="flex items-center space-x-2">
+                                <h3 className="font-semibold text-slate-900 dark:text-white text-base">{authorInfo.name}</h3>
+                                {authorInfo.role && (
+                                    <>
+                                        <span className="text-slate-500 text-sm">•</span>
+                                        <span className="text-slate-600 dark:text-neutral-400 text-sm">{authorInfo.role}</span>
+                                    </>
+                                )}
+                            </div>
+                            <div className="flex items-center space-x-2 text-slate-500 dark:text-neutral-400 text-sm">
+                                {syndicateInfo.name && (
+                                    <>
+                                        <span>{syndicateInfo.name}</span>
+                                        <span>•</span>
+                                    </>
+                                )}
+                                <Clock className="h-4 w-4" />
+                                <span>{displayTimestamp}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                        {isEvent && (
+                            <div className="bg-gradient-to-r from-indigo-100 to-purple-100 text-indigo-700 px-3 py-1 rounded-full text-sm font-medium">
+                                {t('event_label')}
+                            </div>
+                        )}
+                        {variant === 'syndicate' && onBookmark && (
+                            <motion.button
+                                whileHover={{ scale: 1.1 }}
+                                whileTap={{ scale: 0.9 }}
+                                onClick={handleBookmark}
+                                className={`p-2 rounded-xl transition-colors ${bookmarked
+                                    ? 'text-primary-600 bg-primary-100 dark:bg-primary-900/20 dark:text-primary-400'
+                                    : 'text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-700'
+                                    }`}
+                            >
+                                <Bookmark fill={bookmarked ? "currentColor" : "none"} className="w-5 h-5" />
+                            </motion.button>
+                        )}
+                    </div>
+                </div>
+            </div>
+
+            {/* Contenu */}
+            <div className="p-6">
+                {/* Informations événement */}
+                {isEvent && item.event && (
+                    <div className="mb-4 bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-900/20 rounded-xl p-4 border border-indigo-100 dark:border-indigo-800">
+                        <h4 className="font-semibold text-indigo-900 dark:text-indigo-300 mb-2">{item.event.title || item.title}</h4>
+                        <div className="flex flex-wrap items-center text-indigo-700 dark:text-indigo-400 text-sm gap-4">
+                            <div className="flex items-center">
+                                <Calendar className="h-4 w-4 mr-1" />
+                                {item.event.date || item.startDate}
+                            </div>
+                            <div className="flex items-center">
+                                <MapPin className="h-4 w-4 mr-1" />
+                                {item.event.location || item.location}
+                            </div>
+                            {(item.event.participants || item.participants) && (
+                                <div className="flex items-center">
+                                    <Users className="h-4 w-4 mr-1" />
+                                    {item.event.participants || item.participants} {tCommon('participants')}
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                )}
+
+                {/* Contenu texte */}
+                <p className="text-slate-700 dark:text-neutral-300 mb-4 leading-relaxed text-base whitespace-pre-wrap">
+                    {item.content || item.description}
+                </p>
+
+                {/* Image */}
+                {getImageUrl() && (
+                    <div className="-mx-6 mb-4">
+                        <Image
+                            src={getImageUrl()}
+                            alt="Contenu"
+                            width={800}
+                            height={400}
+                            className="w-full h-80 object-cover hover:scale-105 transition-transform duration-300"
+                        />
+                    </div>
+                )}
+            </div>
+
+            {/* Actions */}
+            {showActions && (
+                <div className="px-6 py-4 bg-slate-50 dark:bg-neutral-700/50 border-t border-slate-100 dark:border-neutral-700">
+                    <div className="flex items-center justify-between">
+                        <div className="flex items-center space-x-6">
+                            <motion.button
+                                whileHover={{ scale: 1.02 }}
+                                whileTap={{ scale: 0.98 }}
+                                onClick={handleLike}
+                                className={`flex items-center space-x-2 transition-colors ${liked
+                                    ? 'text-red-500'
+                                    : 'text-slate-600 dark:text-neutral-300 hover:text-red-500'
+                                    }`}
+                            >
+                                <Heart className={`h-5 w-5 ${liked ? 'fill-current' : ''}`} />
+                                <span className="text-base font-medium">{stats.likes}</span>
+                            </motion.button>
+
+                            <motion.button
+                                whileHover={{ scale: 1.02 }}
+                                whileTap={{ scale: 0.98 }}
+                                onClick={handleComment}
+                                className="flex items-center space-x-2 text-slate-600 dark:text-neutral-300 hover:text-blue-500 transition-colors"
+                            >
+                                <MessageCircle className="h-5 w-5" />
+                                <span className="text-base font-medium">{stats.comments}</span>
+                            </motion.button>
+
+                            <motion.button
+                                whileHover={{ scale: 1.02 }}
+                                whileTap={{ scale: 0.98 }}
+                                onClick={handleShare}
+                                className="flex items-center space-x-2 text-slate-600 dark:text-neutral-300 hover:text-green-500 transition-colors"
+                            >
+                                <Share2 className="h-5 w-5" />
+                                <span className="text-base font-medium">{stats.shares}</span>
+                            </motion.button>
+
+                            {variant === 'syndicate' && (
+                                <motion.button
+                                    whileHover={{ scale: 1.02 }}
+                                    whileTap={{ scale: 0.98 }}
+                                    className="flex items-center space-x-2 text-slate-600 dark:text-neutral-300 hover:text-orange-500 transition-colors"
+                                >
+                                    <Flag className="h-5 w-5" />
+                                    <span className="text-base font-medium">{tCommon('report')}</span>
+                                </motion.button>
+                            )}
+                        </div>
+
+                        {isEvent && (
+                            <button className="bg-gradient-to-r from-indigo-500 to-purple-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:from-indigo-600 hover:to-purple-700 transition-all duration-300">
+                                {tCommon('participate_button')}
+                            </button>
+                        )}
+                    </div>
+                </div>
+            )}
+        </motion.div>
+    );
+}
+```
+
 ### ProfileActivities
 
 - **Fichier**: `src\components\syndicate-profile\ProfileActivities.jsx`
@@ -7818,7 +9501,7 @@ export default function ProfileContactCard({ syndicate, variants }) {
             variants={variants}
         >
             <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-4">
-                {t('profile_page.contact_title')}
+                {t('contact_title')}
             </h3>
             <div className="space-y-4">
                 {syndicate.email && (
@@ -7874,7 +9557,7 @@ export default function ProfileHeader({ syndicate, variants }) {
                 </div>
                 <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.98 }} className="flex-shrink-0 px-4 py-2 sm:px-5 sm:py-2.5 bg-blue-600 text-white rounded-full shadow-lg flex items-center gap-2 font-semibold text-sm sm:text-base">
                     <LogIn size={18} />
-                    <span>{t('profile_page.join_button')}</span>
+                    <span>{t('join_button')}</span>
                 </motion.button>
             </div>
         </motion.div>
@@ -7900,14 +9583,14 @@ export default function ProfileKeyInfoCard({ syndicate, variants }) {
     const getYearFromDate = (isoDate) => isoDate ? new Date(isoDate).getFullYear() : "N/A";
 
     const keyInfo = [
-        { label: t('profile_page.members'), value: syndicate.memberCount?.toLocaleString() || '0', icon: Users },
-        { label: t('profile_page.founded'), value: getYearFromDate(syndicate.foundedDate), icon: Clock },
-        { label: t('profile_page.type'), value: syndicate.type, icon: Briefcase },
+        { label: t('members'), value: syndicate.memberCount?.toLocaleString() || '0', icon: Users },
+        { label: t('founded'), value: getYearFromDate(syndicate.foundedDate), icon: Clock },
+        { label: t('type'), value: syndicate.type, icon: Briefcase },
     ];
 
     return (
         <motion.div className="bg-white dark:bg-gray-800/50 p-6 rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700" variants={variants}>
-            <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-4">{t('profile_page.key_info_title')}</h3>
+            <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-4">{t('key_info_title')}</h3>
             <div className="space-y-4 text-sm">
                 {keyInfo.map((info) => (
                     <div key={info.label} className="flex justify-between items-center">
@@ -8199,7 +9882,7 @@ export default function ProfileShop({ products = [] }) {
     if (!products || products.length === 0) {
         return (
             <p className="text-sm text-center text-gray-500 dark:text-gray-400 py-8">
-                {t('profile_page.no_products')}
+                {t('no_products')}
             </p>
         );
     }
@@ -8254,7 +9937,7 @@ export default function ProfileShop({ products = [] }) {
                                 onClick={() => handleOrderClick(product.name)}
                             >
                                 <ShoppingCart size={14} />
-                                <span>{t('profile_page.order_button')}</span>
+                                <span>{t('order_button')}</span>
                             </motion.button>
                         </div>
                     </div>
@@ -8316,33 +9999,488 @@ export default function SyndicateProfileClient({ syndicate }) {
             <ProfileHeader syndicate={syndicate} variants={itemVariants} />
             <div className="relative grid grid-cols-1 lg:grid-cols-3 gap-8 pt-28">
                 <div className="lg:col-span-2 space-y-8">
-                    <ProfileSectionCard title={t('profile_page.mission_title')} icon={HeartHandshake} variants={itemVariants}>
+                    <ProfileSectionCard title={t('mission_title')} icon={HeartHandshake} variants={itemVariants}>
                         <p className="text-gray-600 dark:text-gray-400 leading-relaxed">
-                            {syndicate.description || t('profile_page.no_description')}
+                            {syndicate.description || t('no_description')}
                         </p>
                     </ProfileSectionCard>
-                    <ProfileSectionCard title={t('profile_page.activities_title')} icon={Calendar} variants={itemVariants}>
+                    <ProfileSectionCard title={t('activities_title')} icon={Calendar} variants={itemVariants}>
                         <ProfileActivities activities={fakeData.activities} />
                     </ProfileSectionCard>
-                    <ProfileSectionCard title={t('profile_page.shop_title')} icon={ShoppingBag} variants={itemVariants}>
+                    <ProfileSectionCard title={t('shop_title')} icon={ShoppingBag} variants={itemVariants}>
                         <ProfileShop products={fakeData.products} />
                     </ProfileSectionCard>
                 </div>
                 <div className="lg:col-span-1 space-y-8">
                     <ProfileKeyInfoCard syndicate={syndicate} variants={itemVariants} />
                     <ProfileContactCard syndicate={syndicate} variants={itemVariants} />
-                    <ProfileSectionCard title={t('profile_page.locations_title')} icon={MapPin} variants={itemVariants}>
+                    <ProfileSectionCard title={t('locations_title')} icon={MapPin} variants={itemVariants}>
                         <DynamicProfileMap antennes={syndicate.branches} />
                     </ProfileSectionCard>
-                    <ProfileSectionCard title={t('profile_page.services_title')} icon={Package} variants={itemVariants}>
+                    <ProfileSectionCard title={t('services_title')} icon={Package} variants={itemVariants}>
                         <ProfileServices services={fakeData.services} />
                     </ProfileSectionCard>
-                    <ProfileSectionCard title={t('profile_page.team_title')} icon={Users} variants={itemVariants}>
+                    <ProfileSectionCard title={t('team_title')} icon={Users} variants={itemVariants}>
                         <ProfileMembers members={syndicate.members} />
                     </ProfileSectionCard>
                 </div>
             </div>
         </motion.div>
+    );
+}
+```
+
+### WrappedComponent
+
+- **Fichier**: `src\components\syndicate-space\ErrorBoundary.jsx`
+- **Props**: `Component, errorBoundaryProps =`
+- **Hooks**: 
+```jsx
+"use client";
+
+import React from 'react';
+import { ErrorFallback } from './ErrorStates';
+
+class ErrorBoundary extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = { hasError: false, error: null, errorInfo: null };
+    }
+
+    static getDerivedStateFromError(error) {
+        return { hasError: true };
+    }
+
+    componentDidCatch(error, errorInfo) {
+        this.setState({
+            error: error,
+            errorInfo: errorInfo
+        });
+
+        // Logger l'erreur (remplacer par votre service de logging)
+        console.error('ErrorBoundary caught an error:', error, errorInfo);
+        
+        // Optionnel: envoyer l'erreur à un service de monitoring
+        if (typeof window !== 'undefined' && window.gtag) {
+            window.gtag('event', 'exception', {
+                description: error.toString(),
+                fatal: false
+            });
+        }
+    }
+
+    handleReset = () => {
+        this.setState({ hasError: false, error: null, errorInfo: null });
+    };
+
+    render() {
+        if (this.state.hasError) {
+            const { fallback: CustomFallback, title, subtitle } = this.props;
+            
+            if (CustomFallback) {
+                return <CustomFallback 
+                    error={this.state.error} 
+                    resetError={this.handleReset}
+                    errorInfo={this.state.errorInfo}
+                />;
+            }
+
+            return (
+                <ErrorFallback
+                    error={this.state.error}
+                    resetError={this.handleReset}
+                    title={title}
+                    subtitle={subtitle}
+                />
+            );
+        }
+
+        return this.props.children;
+    }
+}
+
+// HOC pour wrapper les composants facilement
+export const withErrorBoundary = (Component, errorBoundaryProps = {}) => {
+    const WrappedComponent = (props) => (
+        <ErrorBoundary {...errorBoundaryProps}>
+            <Component {...props} />
+        </ErrorBoundary>
+    );
+    
+    WrappedComponent.displayName = `withErrorBoundary(${Component.displayName || Component.name})`;
+    
+    return WrappedComponent;
+};
+
+export default ErrorBoundary;
+```
+
+### ErrorState
+
+- **Fichier**: `src\components\syndicate-space\ErrorStates.jsx`
+- **Props**: `errorType`
+- **Hooks**: 
+```jsx
+"use client";
+
+import { motion } from 'framer-motion';
+import { 
+    AlertTriangle, 
+    Wifi, 
+    Shield, 
+    RefreshCw, 
+    Home, 
+    AlertCircle,
+    Lock,
+    Clock,
+    Bug,
+    CheckCircle2
+} from 'lucide-react';
+
+const getErrorIcon = (errorType) => {
+    switch (errorType) {
+        case 'NETWORK':
+            return Wifi;
+        case 'AUTH':
+            return Lock;
+        case 'PERMISSION':
+            return Shield;
+        case 'NOT_FOUND':
+            return AlertTriangle;
+        case 'RATE_LIMIT':
+            return Clock;
+        case 'SERVER':
+            return AlertCircle;
+        case 'VALIDATION':
+            return AlertTriangle;
+        default:
+            return Bug;
+    }
+};
+
+const getErrorColor = (errorType) => {
+    switch (errorType) {
+        case 'NETWORK':
+            return 'text-orange-600 bg-orange-50 border-orange-200 dark:text-orange-400 dark:bg-orange-950 dark:border-orange-800';
+        case 'AUTH':
+            return 'text-red-600 bg-red-50 border-red-200 dark:text-red-400 dark:bg-red-950 dark:border-red-800';
+        case 'PERMISSION':
+            return 'text-yellow-600 bg-yellow-50 border-yellow-200 dark:text-yellow-400 dark:bg-yellow-950 dark:border-yellow-800';
+        case 'SERVER':
+            return 'text-red-600 bg-red-50 border-red-200 dark:text-red-400 dark:bg-red-950 dark:border-red-800';
+        case 'RATE_LIMIT':
+            return 'text-purple-600 bg-purple-50 border-purple-200 dark:text-purple-400 dark:bg-purple-950 dark:border-purple-800';
+        default:
+            return 'text-neutral-600 bg-neutral-50 border-neutral-200 dark:text-neutral-400 dark:bg-neutral-900 dark:border-neutral-700';
+    }
+};
+
+// Composant d'erreur complet pour les sections
+export const ErrorState = ({ 
+    error, 
+    onRetry, 
+    onDismiss,
+    variant = 'default',
+    className = '' 
+}) => {
+    if (!error) return null;
+
+    const Icon = getErrorIcon(error.type);
+    const colorClasses = getErrorColor(error.type);
+
+    const variants = {
+        default: 'p-8 rounded-2xl border',
+        compact: 'p-4 rounded-xl border',
+        minimal: 'p-3 rounded-lg border'
+    };
+
+    return (
+        <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            className={`${variants[variant]} ${colorClasses} ${className}`}
+        >
+            <div className="text-center">
+                <div className="flex justify-center mb-4">
+                    <div className="p-3 rounded-full bg-current/10">
+                        <Icon className="w-8 h-8" />
+                    </div>
+                </div>
+                
+                <h3 className="text-lg font-semibold mb-2">
+                    {error.title}
+                </h3>
+                
+                <p className="text-sm opacity-80 mb-6 max-w-md mx-auto">
+                    {error.message}
+                </p>
+
+                <div className="flex justify-center gap-3">
+                    {onRetry && (
+                        <motion.button
+                            whileHover={{ scale: 1.02 }}
+                            whileTap={{ scale: 0.98 }}
+                            onClick={onRetry}
+                            className="px-4 py-2 bg-current/10 hover:bg-current/20 text-current rounded-xl font-medium transition-all duration-200 flex items-center gap-2"
+                        >
+                            <RefreshCw className="w-4 h-4" />
+                            {error.action || 'Réessayer'}
+                        </motion.button>
+                    )}
+                    
+                    {onDismiss && (
+                        <motion.button
+                            whileHover={{ scale: 1.02 }}
+                            whileTap={{ scale: 0.98 }}
+                            onClick={onDismiss}
+                            className="px-4 py-2 bg-neutral-100 hover:bg-neutral-200 dark:bg-neutral-800 dark:hover:bg-neutral-700 text-neutral-700 dark:text-neutral-300 rounded-xl font-medium transition-all duration-200"
+                        >
+                            Fermer
+                        </motion.button>
+                    )}
+                </div>
+            </div>
+        </motion.div>
+    );
+};
+
+// Composant d'erreur inline pour les formulaires
+export const InlineError = ({ error, className = '' }) => {
+    if (!error) return null;
+
+    return (
+        <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            exit={{ opacity: 0, height: 0 }}
+            className={`flex items-center gap-2 p-3 bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800 rounded-xl text-red-600 dark:text-red-400 text-sm ${className}`}
+        >
+            <AlertTriangle className="w-4 h-4 flex-shrink-0" />
+            <span>{error.message}</span>
+        </motion.div>
+    );
+};
+
+// Composant de fallback pour les erreurs critiques
+export const ErrorFallback = ({ 
+    error, 
+    resetError, 
+    title = "Quelque chose s'est mal passé",
+    subtitle = "Une erreur inattendue s'est produite. Vous pouvez réessayer ou retourner à l'accueil."
+}) => {
+    return (
+        <div className="min-h-[400px] flex items-center justify-center p-8">
+            <div className="text-center max-w-md">
+                <div className="mb-6">
+                    <div className="w-20 h-20 bg-red-100 dark:bg-red-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <AlertTriangle className="w-10 h-10 text-red-600 dark:text-red-400" />
+                    </div>
+                </div>
+                
+                <h2 className="text-2xl font-bold text-neutral-800 dark:text-white mb-3">
+                    {title}
+                </h2>
+                
+                <p className="text-neutral-600 dark:text-neutral-400 mb-8">
+                    {subtitle}
+                </p>
+
+                <div className="flex justify-center gap-3">
+                    <motion.button
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                        onClick={resetError}
+                        className="px-6 py-3 bg-primary-600 hover:bg-primary-700 text-white rounded-xl font-medium transition-all duration-200 flex items-center gap-2"
+                    >
+                        <RefreshCw className="w-4 h-4" />
+                        Réessayer
+                    </motion.button>
+                    
+                    <motion.button
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                        onClick={() => window.location.href = '/home'}
+                        className="px-6 py-3 bg-neutral-100 hover:bg-neutral-200 dark:bg-neutral-800 dark:hover:bg-neutral-700 text-neutral-700 dark:text-neutral-300 rounded-xl font-medium transition-all duration-200 flex items-center gap-2"
+                    >
+                        <Home className="w-4 h-4" />
+                        Accueil
+                    </motion.button>
+                </div>
+
+                {process.env.NODE_ENV === 'development' && error && (
+                    <details className="mt-8 p-4 bg-neutral-100 dark:bg-neutral-800 rounded-xl text-left">
+                        <summary className="cursor-pointer text-sm font-medium text-neutral-700 dark:text-neutral-300">
+                            Détails de l'erreur (dev)
+                        </summary>
+                        <pre className="mt-2 text-xs text-neutral-600 dark:text-neutral-400 overflow-auto">
+                            {error?.stack || error?.toString()}
+                        </pre>
+                    </details>
+                )}
+            </div>
+        </div>
+    );
+};
+
+// Composant d'état vide avec design amélioré
+export const EmptyState = ({ 
+    icon: Icon = CheckCircle2,
+    title = "Aucune donnée",
+    description = "Il n'y a rien à afficher pour le moment.",
+    action = null,
+    className = ''
+}) => {
+    return (
+        <div className={`text-center p-12 ${className}`}>
+            <div className="mb-6">
+                <div className="w-16 h-16 bg-neutral-100 dark:bg-neutral-800 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                    <Icon className="w-8 h-8 text-neutral-400 dark:text-neutral-500" />
+                </div>
+            </div>
+            
+            <h3 className="text-lg font-semibold text-neutral-800 dark:text-white mb-2">
+                {title}
+            </h3>
+            
+            <p className="text-neutral-600 dark:text-neutral-400 mb-6 max-w-sm mx-auto">
+                {description}
+            </p>
+
+            {action && (
+                <div className="flex justify-center">
+                    {action}
+                </div>
+            )}
+        </div>
+    );
+};
+
+// Composant de notification de succès
+export const SuccessState = ({ 
+    title = "Succès !",
+    message,
+    onDismiss,
+    className = ''
+}) => {
+    return (
+        <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.9 }}
+            className={`p-4 bg-emerald-50 dark:bg-emerald-950 border border-emerald-200 dark:border-emerald-800 rounded-xl ${className}`}
+        >
+            <div className="flex items-start gap-3">
+                <div className="flex-shrink-0">
+                    <CheckCircle2 className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
+                </div>
+                <div className="flex-1 min-w-0">
+                    <h4 className="text-sm font-medium text-emerald-800 dark:text-emerald-200">
+                        {title}
+                    </h4>
+                    {message && (
+                        <p className="text-sm text-emerald-700 dark:text-emerald-300 mt-1">
+                            {message}
+                        </p>
+                    )}
+                </div>
+                {onDismiss && (
+                    <button
+                        onClick={onDismiss}
+                        className="flex-shrink-0 text-emerald-600 hover:text-emerald-800 dark:text-emerald-400 dark:hover:text-emerald-200"
+                    >
+                        <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+                        </svg>
+                    </button>
+                )}
+            </div>
+        </motion.div>
+    );
+};
+```
+
+### LoadingErrorPage
+
+- **Fichier**: `src\components\syndicate-space\LoadingErrorPage.jsx`
+- **Props**: `onRetry`
+- **Hooks**: useRouter, useTranslations
+```jsx
+"use client";
+
+import { motion } from 'framer-motion';
+import { RefreshCw, Home, AlertCircle } from 'lucide-react';
+import { useRouter } from '@/navigation';
+import { useTranslations } from 'next-intl';
+
+export default function LoadingErrorPage({ onRetry }) {
+    const router = useRouter();
+    const t = useTranslations('common');
+
+    return (
+        <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 flex items-center justify-center p-4">
+            <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="max-w-md mx-auto text-center bg-white rounded-2xl shadow-xl p-8"
+            >
+                <motion.div
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    transition={{ delay: 0.2 }}
+                    className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-6"
+                >
+                    <AlertCircle className="w-8 h-8 text-blue-700" />
+                </motion.div>
+
+                <motion.h1
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 0.3 }}
+                    className="text-2xl font-bold text-gray-900 mb-4"
+                >
+                    Chargement en cours...
+                </motion.h1>
+
+                <motion.p
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 0.4 }}
+                    className="text-gray-600 mb-8"
+                >
+                    Nous chargeons les données du syndicat. Cela peut prendre quelques instants.
+                </motion.p>
+
+                <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 0.5 }}
+                    className="space-y-3"
+                >
+                    {onRetry && (
+                        <motion.button
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
+                            onClick={onRetry}
+                            className="w-full bg-blue-700 text-white px-6 py-3 rounded-xl font-semibold flex items-center justify-center gap-2 hover:bg-blue-800 transition-all duration-200"
+                        >
+                            <RefreshCw className="w-4 h-4" />
+                            Réessayer
+                        </motion.button>
+                    )}
+                    
+                    <motion.button
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                        onClick={() => router.push('/home')}
+                        className="w-full bg-white border border-gray-200 text-gray-700 px-6 py-3 rounded-xl font-semibold flex items-center justify-center gap-2 hover:bg-gray-50 transition-all duration-200"
+                    >
+                        <Home className="w-4 h-4" />
+                        Retour à l'accueil
+                    </motion.button>
+                </motion.div>
+            </motion.div>
+        </div>
     );
 }
 ```
@@ -8368,39 +10506,48 @@ import { motion } from 'framer-motion';
  */
 export default function NotificationCard({ icon: Icon, title, message, time, type }) {
     const bgColors = {
-        info: 'bg-blue-50 dark:bg-blue-900/50 border-blue-200 dark:border-blue-800/50',
-        success: 'bg-green-50 dark:bg-green-900/50 border-green-200 dark:border-green-800/50',
-        warning: 'bg-yellow-50 dark:bg-yellow-900/50 border-yellow-200 dark:border-yellow-800/50',
+        info: 'bg-primary-50 dark:bg-primary-900/20 border-primary-100 dark:border-primary-800/30',
+        success: 'bg-emerald-50 dark:bg-emerald-900/20 border-emerald-100 dark:border-emerald-800/30',
+        warning: 'bg-amber-50 dark:bg-amber-900/20 border-amber-100 dark:border-amber-800/30',
     };
 
     const iconBgColors = {
-        info: 'bg-blue-100 dark:bg-blue-800/50',
-        success: 'bg-green-100 dark:bg-green-800/50',
-        warning: 'bg-yellow-100 dark:bg-yellow-800/50',
+        info: 'bg-primary-100 dark:bg-primary-800/30',
+        success: 'bg-emerald-100 dark:bg-emerald-800/30',
+        warning: 'bg-amber-100 dark:bg-amber-800/30',
     };
     
     const iconTextColors = {
-        info: 'text-blue-600 dark:text-blue-300',
-        success: 'text-green-600 dark:text-green-300',
-        warning: 'text-yellow-600 dark:text-yellow-400',
+        info: 'text-primary-600 dark:text-primary-400',
+        success: 'text-emerald-600 dark:text-emerald-400',
+        warning: 'text-amber-600 dark:text-amber-400',
     };
 
     return (
         <motion.div
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -20 }}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
             transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-            className={`p-4 rounded-xl border ${bgColors[type] || bgColors.info} transition-all duration-300 hover:shadow-md hover:border-transparent`}
+            className={`p-4 rounded-xl border ${bgColors[type] || bgColors.info} transition-all duration-200 hover:shadow-soft cursor-pointer group`}
         >
             <div className="flex items-start">
-                <div className={`flex-shrink-0 p-2 rounded-full ${iconBgColors[type] || iconBgColors.info}`}>
-                    <Icon className={`w-5 h-5 ${iconTextColors[type] || iconTextColors.info}`} />
+                <div className={`flex-shrink-0 p-2.5 rounded-xl ${iconBgColors[type] || iconBgColors.info} group-hover:scale-105 transition-transform duration-200`}>
+                    <Icon className={`w-4 h-4 ${iconTextColors[type] || iconTextColors.info}`} />
                 </div>
-                <div className="ml-3 flex-1">
-                    <h4 className="font-semibold text-sm text-gray-800 dark:text-gray-100">{title}</h4>
-                    <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">{message}</p>
-                    <span className="text-xs text-gray-500 dark:text-gray-400 mt-2 block">{time}</span>
+                <div className="ml-3 flex-1 min-w-0">
+                    <h4 className="font-semibold text-sm text-neutral-800 dark:text-neutral-100 group-hover:text-neutral-900 dark:group-hover:text-white transition-colors duration-200">
+                        {title}
+                    </h4>
+                    <p className="text-sm text-neutral-600 dark:text-neutral-300 mt-1 leading-relaxed">
+                        {message}
+                    </p>
+                    <div className="flex items-center justify-between mt-2">
+                        <span className="text-xs font-medium text-neutral-500 dark:text-neutral-400">
+                            {time}
+                        </span>
+                        <div className="w-2 h-2 rounded-full bg-current opacity-20"></div>
+                    </div>
                 </div>
             </div>
         </motion.div>
@@ -8412,16 +10559,21 @@ export default function NotificationCard({ icon: Icon, title, message, time, typ
 
 - **Fichier**: `src\components\syndicate-space\section-chat\ChatClient.jsx`
 - **Props**: `chat, onClick, isActive`
-- **Hooks**: useState, useRef, useEffect, useTranslations
+- **Hooks**: useState, useRef, useEffect, useTranslations, useErrorHandler, useApiWithRetry
 ```jsx
 // src/components/syndicate-space/section-chat/ChatClient.jsx
 "use client";
 
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, Send, Paperclip, Mic, ArrowLeft, MoreVertical, Plus, Phone, Video, Lock, Users, MessageCircle } from 'lucide-react';
+import { Search, Send, Paperclip, Mic, ArrowLeft, MoreVertical, Plus, Phone, Video, Lock, Users, MessageCircle, RefreshCw, AlertCircle } from 'lucide-react';
 import { useTranslations } from 'next-intl';
+import { toast } from 'react-hot-toast';
 import Image from 'next/image';
+import { useErrorHandler, useApiWithRetry } from '@/hooks/useErrorHandler';
+import { ErrorState, EmptyState, InlineError } from '../ErrorStates';
+import ErrorBoundary from '../ErrorBoundary';
+import { sendMessageAPI, getChatMessagesAPI } from '@/lib/api/chat';
 
 // --- SOUS-COMPOSANTS DE STYLE AMÉLIORÉS ---
 
@@ -8469,20 +10621,101 @@ const Message = ({ msg, isSent, isGroup }) => (
 
 
 // --- COMPOSANT PRINCIPAL ---
-export default function ChatClient({ initialChats, initialMessages, initialMembers }) {
+function ChatClientInner({ initialChats = [], initialMessages = {}, initialMembers = [], syndicatId }) {
     const t = useTranslations('chat');
+    const { handleError, clearError, hasError, getError } = useErrorHandler();
+    const { executeWithRetry, loading: apiLoading } = useApiWithRetry();
+    
     const [view, setView] = useState('list');
-    const [chats, setChats] = useState(initialChats);
-    const [messages, setMessages] = useState(initialMessages);
+    const [chats, setChats] = useState(initialChats || []);
+    const [messages, setMessages] = useState(initialMessages || {});
     const [activeChat, setActiveChat] = useState(null);
     const [newMessage, setNewMessage] = useState('');
     const [searchTerm, setSearchTerm] = useState('');
+    const [isLoadingMessages, setIsLoadingMessages] = useState(false);
+    const [isSendingMessage, setIsSendingMessage] = useState(false);
     const messagesEndRef = useRef(null);
 
-    useEffect(() => { messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' }); }, [messages, activeChat]);
+    useEffect(() => { 
+        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' }); 
+    }, [messages, activeChat]);
     
-    const handleSendMessage = () => { /* ... */ };
-    const startNewChat = (member) => { /* ... */ };
+    // Charger les messages d'un chat
+    const loadChatMessages = async (chatId) => {
+        if (messages[chatId]) return; // Déjà chargé
+        
+        setIsLoadingMessages(true);
+        try {
+            await executeWithRetry(async () => {
+                const chatMessages = await getChatMessagesAPI(syndicatId, chatId);
+                setMessages(prev => ({
+                    ...prev,
+                    [chatId]: chatMessages || []
+                }));
+                clearError(`messages-${chatId}`);
+            }, `load-messages-${chatId}`, {
+                maxRetries: 2
+            });
+        } catch (error) {
+            // L'erreur est déjà gérée par executeWithRetry
+        } finally {
+            setIsLoadingMessages(false);
+        }
+    };
+    
+    const handleSendMessage = async () => {
+        if (!newMessage.trim() || !activeChat || isSendingMessage) return;
+        
+        const messageText = newMessage.trim();
+        setNewMessage('');
+        setIsSendingMessage(true);
+        
+        // Message optimiste
+        const tempMessage = {
+            id: Date.now(),
+            text: messageText,
+            sender: 'Vous',
+            time: new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }),
+            avatar: 'https://i.pravatar.cc/150?img=1'
+        };
+        
+        setMessages(prev => ({
+            ...prev,
+            [activeChat.id]: [...(prev[activeChat.id] || []), tempMessage]
+        }));
+        
+        try {
+            await executeWithRetry(async () => {
+                await sendMessageAPI(syndicatId, activeChat.id, messageText);
+                clearError(`send-message-${activeChat.id}`);
+            }, `send-message-${activeChat.id}`, {
+                maxRetries: 2,
+                onError: () => {
+                    // Supprimer le message optimiste en cas d'échec
+                    setMessages(prev => ({
+                        ...prev,
+                        [activeChat.id]: (prev[activeChat.id] || []).filter(msg => msg.id !== tempMessage.id)
+                    }));
+                }
+            });
+        } catch (error) {
+            // L'erreur est déjà gérée par executeWithRetry
+        } finally {
+            setIsSendingMessage(false);
+        }
+    };
+    
+    const startNewChat = (member) => {
+        // Implémentation pour créer un nouveau chat
+        console.log('Starting new chat with:', member);
+    };
+    
+    // Charger les messages quand on sélectionne un chat
+    useEffect(() => {
+        if (activeChat) {
+            loadChatMessages(activeChat.id);
+        }
+    }, [activeChat]);
 
     const filteredChats = chats.filter(c => c.name.toLowerCase().includes(searchTerm.toLowerCase()));
     const filteredMembers = initialMembers.filter(m => m.name.toLowerCase().includes(searchTerm.toLowerCase()) && !chats.some(c => c.id === m.id));
@@ -8490,8 +10723,74 @@ export default function ChatClient({ initialChats, initialMessages, initialMembe
     // Styles pour les bordures subtiles
     const borderStyle = "border-gray-200/80 dark:border-white/10";
 
+    const renderChatMessages = () => {
+        if (hasError(`messages-${activeChat.id}`)) {
+            return (
+                <div className="flex-grow flex items-center justify-center p-8">
+                    <ErrorState 
+                        error={getError(`messages-${activeChat.id}`)}
+                        onRetry={() => loadChatMessages(activeChat.id)}
+                        onDismiss={() => clearError(`messages-${activeChat.id}`)}
+                        variant="compact"
+                    />
+                </div>
+            );
+        }
+        
+        if (isLoadingMessages) {
+            return (
+                <div className="flex-grow flex items-center justify-center p-8">
+                    <div className="flex items-center gap-3 text-neutral-500">
+                        <RefreshCw className="w-6 h-6 animate-spin" />
+                        <span>Chargement des messages...</span>
+                    </div>
+                </div>
+            );
+        }
+        
+        const chatMessages = messages[activeChat.id] || [];
+        
+        if (chatMessages.length === 0) {
+            return (
+                <div className="flex-grow flex items-center justify-center p-8">
+                    <EmptyState
+                        icon={MessageCircle}
+                        title="Aucun message"
+                        description="Commencez la conversation !"
+                        className="bg-transparent"
+                    />
+                </div>
+            );
+        }
+        
+        return (
+            <div className="flex-grow overflow-y-auto p-4 bg-neutral-50 dark:bg-neutral-800/50">
+                {chatMessages.map(msg => (
+                    <Message 
+                        key={msg.id} 
+                        msg={msg} 
+                        isSent={msg.sender === 'Vous'} 
+                        isGroup={activeChat.isGroup} 
+                    />
+                ))}
+                <div ref={messagesEndRef} />
+            </div>
+        );
+    };
+
     return (
-        <div className={`flex h-[calc(100vh-150px)] bg-white dark:bg-gray-800/60 rounded-2xl shadow-2xl border ${borderStyle} overflow-hidden`}>
+        <div className="space-y-6">
+            {/* Header avec gestion d'erreurs globales */}
+            <AnimatePresence>
+                {hasError('send-message') && (
+                    <InlineError 
+                        error={getError('send-message')}
+                        className="mb-4"
+                    />
+                )}
+            </AnimatePresence>
+            
+            <div className={`flex h-[calc(100vh-200px)] bg-white dark:bg-neutral-800 rounded-2xl shadow-soft border border-neutral-200 dark:border-neutral-700 overflow-hidden`}>
             
             {/* --- COLONNE DE GAUCHE (LISTE DES CHATS) --- */}
             <div className={`w-full md:w-1/3 xl:w-1/4 border-r ${borderStyle} flex-col transition-transform duration-300 ${view === 'chat' && !activeChat ? 'flex' : view === 'list' ? 'flex' : 'hidden md:flex'}`}>
@@ -8515,16 +10814,50 @@ export default function ChatClient({ initialChats, initialMessages, initialMembe
                                 <div className="flex items-center gap-3"><button onClick={() => setActiveChat(null)} className="md:hidden p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full"><ArrowLeft /></button>{activeChat.isGroup ? <div className="w-10 h-10 rounded-lg bg-blue-600 flex items-center justify-center"><Users size={20} className="text-white"/></div> : <Image src={activeChat.avatar} alt={activeChat.name} width={40} height={40} className="w-10 h-10 rounded-full" />}<div><h2 className="font-semibold text-lg">{activeChat.name}</h2>{activeChat.online && <p className="text-xs text-green-500">En ligne</p>}</div></div>
                                 <div className="flex items-center gap-1"><button className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full"><Phone size={20}/></button><button className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full"><Video size={20}/></button><button className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full"><MoreVertical size={20}/></button></div>
                             </header>
-                            <div className="flex-grow overflow-y-auto p-4 bg-gray-50 dark:bg-gray-800/50">{messages[activeChat.id]?.map(msg => <Message key={msg.id} msg={msg} isSent={msg.sender === 'Vous'} isGroup={activeChat.isGroup} />)}<div ref={messagesEndRef} /></div>
-                            <footer className={`p-3 border-t ${borderStyle} bg-white dark:bg-gray-800 flex-shrink-0`}><div className="flex items-center gap-2 bg-gray-100 dark:bg-gray-700 rounded-full px-2"><input type="text" placeholder={t("chat.message_placeholder")} value={newMessage} onChange={(e) => setNewMessage(e.target.value)} onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()} className="flex-grow px-2 py-2 bg-transparent focus:outline-none" /><button className="p-2 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-full"><Paperclip size={20}/></button><button onClick={handleSendMessage} className="p-3 bg-blue-600 text-white rounded-full hover:bg-blue-700 disabled:bg-gray-400" disabled={!newMessage.trim()}><Send size={18} /></button></div></footer>
+                            {renderChatMessages()}
+                            <footer className={`p-3 border-t ${borderStyle} bg-white dark:bg-neutral-800 flex-shrink-0`}>
+                                <div className="flex items-center gap-2 bg-neutral-100 dark:bg-neutral-700 rounded-full px-2">
+                                    <input 
+                                        type="text" 
+                                        placeholder={t("chat.message_placeholder")} 
+                                        value={newMessage} 
+                                        onChange={(e) => setNewMessage(e.target.value)} 
+                                        onKeyPress={(e) => e.key === 'Enter' && !e.shiftKey && (e.preventDefault(), handleSendMessage())}
+                                        className="flex-grow px-2 py-2 bg-transparent focus:outline-none disabled:opacity-50" 
+                                        disabled={isSendingMessage}
+                                    />
+                                    <button 
+                                        className="p-2 hover:bg-neutral-200 dark:hover:bg-neutral-600 rounded-full transition-colors"
+                                        disabled={isSendingMessage}
+                                    >
+                                        <Paperclip size={20}/>
+                                    </button>
+                                    <button 
+                                        onClick={handleSendMessage} 
+                                        className="p-3 bg-primary-600 text-white rounded-full hover:bg-primary-700 disabled:bg-neutral-400 transition-colors flex items-center justify-center" 
+                                        disabled={!newMessage.trim() || isSendingMessage}
+                                    >
+                                        {isSendingMessage ? (
+                                            <RefreshCw size={18} className="animate-spin" />
+                                        ) : (
+                                            <Send size={18} />
+                                        )}
+                                    </button>
+                                </div>
+                            </footer>
                         </motion.div>
                     ) : view === 'search' ? (
                         <motion.div key="search-view" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="h-full flex flex-col p-4 bg-white dark:bg-gray-800">
                            {/* ... Vue de recherche ... */}
                         </motion.div>
                     ) : (
-                        <motion.div key="placeholder-view" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="h-full flex items-center justify-center text-center text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-gray-800/50">
-                            <div className="flex flex-col items-center gap-2"><MessageCircle size={48} className="text-gray-300 dark:text-gray-600" /><p className="font-medium">{t("chat.select_conversation")}</p></div>
+                        <motion.div key="placeholder-view" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="h-full flex items-center justify-center text-center text-neutral-500 dark:text-neutral-400 bg-neutral-50 dark:bg-neutral-800/50">
+                            <EmptyState
+                                icon={MessageCircle}
+                                title="Sélectionnez une conversation"
+                                description="Choisissez un contact ou un groupe pour commencer à discuter"
+                                className="bg-transparent"
+                            />
                         </motion.div>
                     )}
                 </AnimatePresence>
@@ -8532,6 +10865,482 @@ export default function ChatClient({ initialChats, initialMessages, initialMembe
         </div>
     );
 }
+
+// Wrapper avec ErrorBoundary
+export default function ChatClient(props) {
+    return (
+        <ErrorBoundary
+            title="Erreur dans la section Chat"
+            subtitle="Une erreur s'est produite lors du chargement du chat."
+        >
+            <ChatClientInner {...props} />
+        </ErrorBoundary>
+    );
+}
+```
+
+### ChatClientV2
+
+- **Fichier**: `src\components\syndicate-space\section-chat\ChatClientV2.jsx`
+- **Props**: `initialChats = [], initialMembers = []`
+- **Hooks**: useState, useRef, useEffect, useTranslations, useParams
+```jsx
+// src/components/syndicate-space/section-chat/ChatClientV2.jsx
+"use client";
+
+import React, { useState, useRef, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Search, Send, Paperclip, Mic, ArrowLeft, MoreVertical, Plus, Phone, Video, Users, MessageCircle, AlertCircle } from 'lucide-react';
+import { useTranslations } from 'next-intl';
+import { useParams } from 'next/navigation';
+import Image from 'next/image';
+import { 
+    getChatMessagesAPI, 
+    sendChatMessageAPI, 
+    createChatRoomAPI, 
+    joinChatRoomAPI,
+    markChatMessagesAsReadAPI,
+    updateTypingStatusAPI 
+} from '@/lib/api/chat';
+
+const ChatClientV2 = ({ initialChats = [], initialMembers = [] }) => {
+    const params = useParams();
+    const syndicateId = params.syndicatId;
+    const t = useTranslations();
+    
+    // États principaux
+    const [chats, setChats] = useState(initialChats);
+    const [selectedChat, setSelectedChat] = useState(initialChats[0] || null);
+    const [messages, setMessages] = useState([]);
+    const [members, setMembers] = useState(initialMembers);
+    const [messageInput, setMessageInput] = useState('');
+    const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState(null);
+    
+    // États UI
+    const [searchTerm, setSearchTerm] = useState('');
+    const [showMembersList, setShowMembersList] = useState(false);
+    const [isTyping, setIsTyping] = useState(false);
+    const [typingUsers, setTypingUsers] = useState([]);
+    
+    // Références
+    const messagesEndRef = useRef(null);
+    const typingTimeoutRef = useRef(null);
+
+    // Charger les messages quand une salle est sélectionnée
+    useEffect(() => {
+        if (selectedChat && selectedChat.id && selectedChat.id !== 'general') {
+            loadMessages(selectedChat.id);
+        }
+    }, [selectedChat]);
+
+    // Faire défiler vers le bas quand de nouveaux messages arrivent
+    useEffect(() => {
+        scrollToBottom();
+    }, [messages]);
+
+    const scrollToBottom = () => {
+        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    };
+
+    const loadMessages = async (roomId) => {
+        if (!syndicateId || !roomId) return;
+        
+        setIsLoading(true);
+        setError(null);
+        
+        try {
+            const messagesData = await getChatMessagesAPI(syndicateId, roomId, 0, 50);
+            setMessages(messagesData.content || []);
+        } catch (error) {
+            console.error('Erreur lors du chargement des messages:', error);
+            setError('Impossible de charger les messages');
+            setMessages([]);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    const handleSendMessage = async () => {
+        if (!messageInput.trim() || !selectedChat || !syndicateId) return;
+        
+        const messageData = {
+            content: messageInput.trim(),
+            messageType: 'TEXT'
+        };
+        
+        setIsLoading(true);
+        
+        try {
+            const newMessage = await sendChatMessageAPI(syndicateId, selectedChat.id, messageData);
+            
+            // Ajouter le nouveau message à la liste
+            setMessages(prev => [...prev, newMessage]);
+            
+            // Vider l'input
+            setMessageInput('');
+            
+            // Marquer comme lu
+            if (newMessage.id) {
+                await markChatMessagesAsReadAPI(syndicateId, selectedChat.id, newMessage.id);
+            }
+            
+        } catch (error) {
+            console.error('Erreur lors de l\'envoi du message:', error);
+            setError('Impossible d\'envoyer le message');
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    const handleCreateRoom = async () => {
+        if (!syndicateId) return;
+        
+        const roomData = {
+            name: 'Nouvelle Discussion',
+            description: 'Salle créée automatiquement',
+            type: 'GENERAL',
+            isPrivate: false
+        };
+        
+        try {
+            const newRoom = await createChatRoomAPI(syndicateId, roomData);
+            setChats(prev => [...prev, newRoom]);
+            setSelectedChat(newRoom);
+        } catch (error) {
+            console.error('Erreur lors de la création de la salle:', error);
+            setError('Impossible de créer la salle');
+        }
+    };
+
+    const handleJoinRoom = async (roomId) => {
+        if (!syndicateId || !roomId) return;
+        
+        try {
+            await joinChatRoomAPI(syndicateId, roomId);
+            // Recharger les salles
+            // TODO: Implémenter le refresh des salles
+        } catch (error) {
+            console.error('Erreur lors de la jonction à la salle:', error);
+            setError('Impossible de rejoindre la salle');
+        }
+    };
+
+    const handleTyping = () => {
+        if (!selectedChat || !syndicateId) return;
+        
+        // Mettre à jour le statut typing local
+        if (!isTyping) {
+            setIsTyping(true);
+            updateTypingStatusAPI(syndicateId, selectedChat.id, true);
+        }
+        
+        // Réinitialiser le timeout
+        if (typingTimeoutRef.current) {
+            clearTimeout(typingTimeoutRef.current);
+        }
+        
+        typingTimeoutRef.current = setTimeout(() => {
+            setIsTyping(false);
+            updateTypingStatusAPI(syndicateId, selectedChat.id, false);
+        }, 2000);
+    };
+
+    const handleKeyPress = (e) => {
+        if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            handleSendMessage();
+        } else {
+            handleTyping();
+        }
+    };
+
+    const formatMessageTime = (dateString) => {
+        if (!dateString) return '';
+        const date = new Date(dateString);
+        return date.toLocaleTimeString('fr-FR', { 
+            hour: '2-digit', 
+            minute: '2-digit' 
+        });
+    };
+
+    const ChatListItem = ({ chat, onClick, isActive }) => {
+        const isGroup = chat.type !== 'PRIVATE';
+        const activeClasses = 'bg-blue-100 dark:bg-blue-900/50';
+        const hoverClasses = 'hover:bg-gray-100 dark:hover:bg-gray-700/50';
+
+        return (
+            <div 
+                onClick={onClick} 
+                className={`flex items-center p-3 cursor-pointer rounded-xl mb-1 transition-colors duration-200 ${
+                    isActive ? activeClasses : hoverClasses
+                }`}
+            >
+                <div className="relative flex-shrink-0">
+                    {isGroup ? (
+                        <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center">
+                            <Users className="text-white w-6 h-6" />
+                        </div>
+                    ) : (
+                        <div className="w-12 h-12 rounded-full bg-gray-300 dark:bg-gray-600 flex items-center justify-center">
+                            <MessageCircle className="text-gray-600 dark:text-gray-300 w-6 h-6" />
+                        </div>
+                    )}
+                    {chat.unreadCount > 0 && (
+                        <div className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 rounded-full flex items-center justify-center">
+                            <span className="text-white text-xs font-bold">
+                                {chat.unreadCount > 9 ? '9+' : chat.unreadCount}
+                            </span>
+                        </div>
+                    )}
+                </div>
+                <div className="ml-3 flex-grow overflow-hidden">
+                    <div className="flex justify-between items-center">
+                        <h3 className="font-semibold truncate text-gray-800 dark:text-white">
+                            {chat.name}
+                        </h3>
+                        <span className="text-xs text-gray-500 dark:text-gray-400 flex-shrink-0 ml-2">
+                            {chat.lastMessageAt ? formatMessageTime(chat.lastMessageAt) : ''}
+                        </span>
+                    </div>
+                    <p className="text-sm text-gray-600 dark:text-gray-400 truncate">
+                        {chat.lastMessagePreview || 'Aucun message'}
+                    </p>
+                </div>
+            </div>
+        );
+    };
+
+    const Message = ({ message }) => {
+        const isSent = message.sender?.id === 'current-user'; // TODO: Utiliser l'ID utilisateur réel
+        
+        return (
+            <div className={`flex items-end gap-2 my-2 ${isSent ? 'justify-end' : 'justify-start'}`}>
+                {!isSent && (
+                    <div className="w-8 h-8 rounded-full bg-gray-300 dark:bg-gray-600 flex items-center justify-center flex-shrink-0">
+                        {message.sender?.avatar ? (
+                            <Image 
+                                src={message.sender.avatar} 
+                                alt={message.sender.name} 
+                                width={32} 
+                                height={32} 
+                                className="w-8 h-8 rounded-full object-cover" 
+                            />
+                        ) : (
+                            <span className="text-xs font-bold text-gray-600 dark:text-gray-300">
+                                {message.sender?.name?.charAt(0) || 'U'}
+                            </span>
+                        )}
+                    </div>
+                )}
+                <div className={`max-w-xs md:max-w-md px-4 py-3 rounded-2xl ${
+                    isSent 
+                        ? 'bg-blue-600 text-white rounded-br-lg' 
+                        : 'bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-bl-lg'
+                }`}>
+                    {!isSent && (
+                        <p className="text-xs font-semibold text-blue-500 dark:text-blue-400 mb-1">
+                            {message.sender?.name || 'Utilisateur'}
+                        </p>
+                    )}
+                    <p className="whitespace-pre-wrap">{message.content}</p>
+                    <div className={`text-xs mt-1 text-right ${
+                        isSent ? 'text-blue-200' : 'text-gray-500 dark:text-gray-400'
+                    }`}>
+                        {formatMessageTime(message.sentAt)}
+                    </div>
+                </div>
+            </div>
+        );
+    };
+
+    return (
+        <div className="h-full flex bg-white dark:bg-gray-900 rounded-2xl shadow-xl overflow-hidden">
+            {/* Liste des chats */}
+            <div className="w-1/3 border-r border-gray-200 dark:border-gray-700 flex flex-col">
+                {/* Header avec recherche */}
+                <div className="p-4 border-b border-gray-200 dark:border-gray-700">
+                    <div className="flex items-center justify-between mb-4">
+                        <h2 className="text-xl font-bold text-gray-800 dark:text-white">
+                            {t('chat.title')}
+                        </h2>
+                        <button
+                            onClick={handleCreateRoom}
+                            className="p-2 text-blue-600 hover:bg-blue-100 dark:hover:bg-blue-900/50 rounded-lg transition-colors"
+                            title="Créer une nouvelle salle"
+                        >
+                            <Plus className="w-5 h-5" />
+                        </button>
+                    </div>
+                    <div className="relative">
+                        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                        <input
+                            type="text"
+                            placeholder={t('chat.search_placeholder')}
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                            className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        />
+                    </div>
+                </div>
+
+                {/* Liste des conversations */}
+                <div className="flex-1 overflow-y-auto p-2">
+                    {chats.length === 0 ? (
+                        <div className="text-center py-8 text-gray-500 dark:text-gray-400">
+                            <MessageCircle className="w-12 h-12 mx-auto mb-4 opacity-50" />
+                            <p>Aucune conversation</p>
+                            <button
+                                onClick={handleCreateRoom}
+                                className="mt-2 text-blue-600 hover:text-blue-700 text-sm font-medium"
+                            >
+                                Créer une salle
+                            </button>
+                        </div>
+                    ) : (
+                        chats
+                            .filter(chat => 
+                                chat.name.toLowerCase().includes(searchTerm.toLowerCase())
+                            )
+                            .map((chat) => (
+                                <ChatListItem
+                                    key={chat.id}
+                                    chat={chat}
+                                    onClick={() => setSelectedChat(chat)}
+                                    isActive={selectedChat?.id === chat.id}
+                                />
+                            ))
+                    )}
+                </div>
+            </div>
+
+            {/* Zone de conversation */}
+            <div className="flex-1 flex flex-col">
+                {selectedChat ? (
+                    <>
+                        {/* Header de la conversation */}
+                        <div className="p-4 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800">
+                            <div className="flex items-center justify-between">
+                                <div className="flex items-center">
+                                    <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center mr-3">
+                                        <Users className="text-white w-5 h-5" />
+                                    </div>
+                                    <div>
+                                        <h3 className="font-semibold text-gray-800 dark:text-white">
+                                            {selectedChat.name}
+                                        </h3>
+                                        <p className="text-sm text-gray-600 dark:text-gray-400">
+                                            {selectedChat.memberCount} membre(s)
+                                        </p>
+                                    </div>
+                                </div>
+                                <div className="flex items-center space-x-2">
+                                    <button
+                                        onClick={() => setShowMembersList(!showMembersList)}
+                                        className="p-2 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                                        title="Voir les membres"
+                                    >
+                                        <Users className="w-5 h-5" />
+                                    </button>
+                                    <button className="p-2 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-lg transition-colors">
+                                        <MoreVertical className="w-5 h-5" />
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Zone d'erreur */}
+                        {error && (
+                            <div className="p-3 bg-red-100 dark:bg-red-900/50 border-b border-red-200 dark:border-red-800">
+                                <div className="flex items-center text-red-800 dark:text-red-200">
+                                    <AlertCircle className="w-4 h-4 mr-2" />
+                                    <span className="text-sm">{error}</span>
+                                    <button
+                                        onClick={() => setError(null)}
+                                        className="ml-auto text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-200"
+                                    >
+                                        ×
+                                    </button>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Messages */}
+                        <div className="flex-1 overflow-y-auto p-4 space-y-2">
+                            {isLoading ? (
+                                <div className="text-center py-8">
+                                    <div className="animate-spin w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full mx-auto mb-4"></div>
+                                    <p className="text-gray-500 dark:text-gray-400">Chargement des messages...</p>
+                                </div>
+                            ) : messages.length === 0 ? (
+                                <div className="text-center py-8 text-gray-500 dark:text-gray-400">
+                                    <MessageCircle className="w-12 h-12 mx-auto mb-4 opacity-50" />
+                                    <p>Aucun message dans cette conversation</p>
+                                    <p className="text-sm mt-2">Soyez le premier à écrire !</p>
+                                </div>
+                            ) : (
+                                messages.map((message) => (
+                                    <Message key={message.id} message={message} />
+                                ))
+                            )}
+                            
+                            {/* Indicateur de saisie */}
+                            {typingUsers.length > 0 && (
+                                <div className="flex items-center text-gray-500 dark:text-gray-400 text-sm">
+                                    <div className="flex space-x-1 mr-2">
+                                        <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
+                                        <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
+                                        <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+                                    </div>
+                                    {typingUsers.join(', ')} {typingUsers.length === 1 ? 'est en train d\'écrire...' : 'sont en train d\'écrire...'}
+                                </div>
+                            )}
+                            <div ref={messagesEndRef} />
+                        </div>
+
+                        {/* Zone de saisie */}
+                        <div className="p-4 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800">
+                            <div className="flex items-end space-x-2">
+                                <button className="p-2 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-lg transition-colors">
+                                    <Paperclip className="w-5 h-5" />
+                                </button>
+                                <div className="flex-1 relative">
+                                    <textarea
+                                        value={messageInput}
+                                        onChange={(e) => setMessageInput(e.target.value)}
+                                        onKeyPress={handleKeyPress}
+                                        placeholder={t('chat.message_placeholder')}
+                                        className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-900 text-gray-700 dark:text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none max-h-32"
+                                        rows="1"
+                                        disabled={isLoading}
+                                    />
+                                </div>
+                                <button
+                                    onClick={handleSendMessage}
+                                    disabled={!messageInput.trim() || isLoading}
+                                    className="p-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                                >
+                                    <Send className="w-5 h-5" />
+                                </button>
+                            </div>
+                        </div>
+                    </>
+                ) : (
+                    /* État vide */
+                    <div className="flex-1 flex items-center justify-center">
+                        <div className="text-center text-gray-500 dark:text-gray-400">
+                            <MessageCircle className="w-16 h-16 mx-auto mb-4 opacity-50" />
+                            <h3 className="text-lg font-medium mb-2">Sélectionnez une conversation</h3>
+                            <p>Choisissez une conversation dans la liste pour commencer à discuter</p>
+                        </div>
+                    </div>
+                )}
+            </div>
+        </div>
+    );
+};
+
+export default ChatClientV2;
 ```
 
 ### CreateEventModal
@@ -8563,7 +11372,7 @@ export default function CreateEventModal({ isOpen, onClose, onCreateEvent }) {
                 <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={onClose}>
                     <motion.div initial={{ scale: 0.9 }} animate={{ scale: 1 }} exit={{ scale: 0.9 }} className="bg-white dark:bg-gray-800 rounded-2xl w-full max-w-2xl max-h-[90vh] flex flex-col shadow-2xl" onClick={(e) => e.stopPropagation()}>
                         <div className="p-6 border-b dark:border-gray-700 flex justify-between items-center">
-                            <h2 className="text-xl font-bold text-gray-900 dark:text-white">{t('event_form.modal_title')}</h2>
+                            <h2 className="text-xl font-bold text-gray-900 dark:text-white">{t('modal_title')}</h2>
                             <button onClick={onClose} className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full"><X/></button>
                         </div>
                         <div className="flex-grow overflow-y-auto">
@@ -8580,71 +11389,146 @@ export default function CreateEventModal({ isOpen, onClose, onCreateEvent }) {
 ### EventCard
 
 - **Fichier**: `src\components\syndicate-space\section-evenements\EventCard.jsx`
-- **Props**: `event, onShowParticipants, onUpdateEvent`
-- **Hooks**: useState, useTranslations
+- **Props**: `event, onUpdateEvent, onShowParticipants`
+- **Hooks**: useTranslations
 ```jsx
 // src/components/syndicate-space/section-evenements/EventCard.jsx
 "use client";
 
-import { useState } from 'react';
 import { motion } from 'framer-motion';
 import Image from 'next/image';
-import { useTranslations } from "next-intl";
-import { Calendar, MapPin, Clock, User, Users, Heart, Share2 } from 'lucide-react';
+import { Clock, Calendar, MapPin, Users } from 'lucide-react';
+import { useTranslations } from 'next-intl';
+import { STATIC_FILES_URL } from '@/lib/constants';
+import { SyndicatDefaultAvatar } from '@/components/shared/SyndicatDefaultAvatar';
 
-export default function EventCard({ event, onShowParticipants, onUpdateEvent }) {
+export default function EventCard({ event, onUpdateEvent, onShowParticipants }) {
     const t = useTranslations('common');
-    const [isExpanded, setIsExpanded] = useState(false);
-    const [isParticipating, setIsParticipating] = useState(false);
-    const [isLiked, setIsLiked] = useState(false);
-
-    const handleParticipate = () => {
-        const newParticipationState = !isParticipating;
-        setIsParticipating(newParticipationState);
-        // On met à jour l'événement parent pour refléter le changement de participants
-        const updatedParticipants = newParticipationState
-            ? [...event.participants, { name: "Vous" }]
-            : event.participants.filter(p => p.name !== "Vous");
-        
-        onUpdateEvent({ ...event, participants: updatedParticipants });
-    };
-
-    const cardVariants = {
-        hidden: { opacity: 0, y: 20 },
-        visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: 'easeOut' } },
-    };
+    
+    // Gestion de l'image avec STATIC_FILES_URL
+    const imageUrl = event.imageUrl && event.imageUrl.startsWith('/') 
+        ? `${STATIC_FILES_URL}${event.imageUrl}` 
+        : event.imageUrl || (event.imageUrls && event.imageUrls[0]);
+    
+    // S'assurer que la date est valide
+    const dateToUse = event.createdAt || event.startDate;
+    const startDate = dateToUse ? new Date(dateToUse) : new Date();
+    
+    const participantsCount = Array.isArray(event.participants) ? event.participants.length : 0;
+    
+    // Formatage de la date
+    const formattedDate = startDate.toLocaleDateString('fr-FR', { 
+        day: 'numeric', 
+        month: 'long', 
+        year: 'numeric' 
+    });
+    
+    // Formatage de l'heure
+    const formattedTime = startDate.toLocaleTimeString('fr-FR', { 
+        hour: '2-digit', 
+        minute: '2-digit' 
+    });
 
     return (
-        <motion.div layout variants={cardVariants} initial="hidden" animate="visible"
-            className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl overflow-hidden mb-8 w-full mx-auto transform transition-all duration-300 hover:shadow-2xl dark:shadow-black/20">
-            {event.isUpcoming && <div className="absolute top-4 right-4 z-10"><span className="bg-gradient-to-r from-red-500 to-pink-500 text-white px-3 py-1 rounded-full text-xs font-semibold shadow-lg">{t("events_page.upcoming")}</span></div>}
-            
-            <div className="p-6 sm:p-8">
-                {/* ... (Header avec auteur, titre, date) ... */}
-                 <div className="flex items-start mb-6">
-                    <Image src={event.author.profileImage} alt={event.author.name} width={56} height={56} className="w-14 h-14 rounded-full object-cover ring-4 ring-blue-100 dark:ring-blue-900/50" />
-                    <div className="ml-4 flex-grow"><h3 className="font-bold text-2xl text-gray-800 dark:text-white mb-1">{event.title}</h3>
-                        <div className="flex items-center text-sm text-gray-600 dark:text-gray-400"><User className="w-4 h-4 mr-1.5 text-blue-500"/><span className="font-medium">{event.author.name}</span><span className="mx-2">•</span><Calendar className="w-4 h-4 mr-1.5 text-blue-500"/><span>{event.startDate.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long' })}</span></div>
+        <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5 }}
+            className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300 mb-6 max-w-xl mx-auto"
+        >
+            {/* Header avec auteur et badge événement */}
+            <div className="p-6 border-b border-slate-100 dark:border-gray-700">
+                <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-3">
+                        <div className="relative">
+                            {event.author?.profileImage ? (
+                                <Image
+                                    src={event.author.profileImage}
+                                    alt={event.author.name}
+                                    width={48}
+                                    height={48}
+                                    className="rounded-full"
+                                />
+                            ) : (
+                                <SyndicatDefaultAvatar 
+                                    name={event.author?.name || "User"}
+                                    size={48}
+                                />
+                            )}
+                        </div>
+                        <div>
+                            <div className="flex items-center space-x-2">
+                                <h3 className="font-semibold text-slate-900 dark:text-white text-base">
+                                    {event.author?.name || 'Organisateur'}
+                                </h3>
+                                <span className="text-slate-500 dark:text-gray-400 text-sm">•</span>
+                                <span className="text-slate-600 dark:text-gray-400 text-sm">Organisateur</span>
+                            </div>
+                            <div className="flex items-center space-x-2 text-slate-500 dark:text-gray-400 text-sm">
+                                <Clock className="h-4 w-4" />
+                                <span>Événement créé</span>
+                            </div>
+                        </div>
                     </div>
-                 </div>
-
-                {/* Description extensible */}
-                <p className="text-gray-700 dark:text-gray-300 leading-relaxed mb-6">{isExpanded ? event.description : `${event.description.slice(0, 150)}...`}
-                    <button onClick={() => setIsExpanded(!isExpanded)} className="ml-2 text-blue-500 hover:underline font-medium">{isExpanded ? t("events_page.see_less") : t("events_page.see_more")}</button>
-                </p>
-
-                {/* ... (Infos: Heure, Lieu) ... */}
-                
-                {event.images && event.images[0] && <div className="relative rounded-xl overflow-hidden mb-6 h-64"><Image src={event.images[0]} alt="Event" fill style={{ objectFit: 'cover' }} /></div>}
-
-                {/* Barre d'actions */}
-                <div className="flex items-center justify-between mb-6">
-                    <button onClick={() => onShowParticipants(event)} className="flex items-center text-gray-600 dark:text-gray-400 hover:text-blue-600"><Users className="w-5 h-5 mr-2"/> <span className="font-medium">{event.participants.length} {t("participants")}</span></button>
-                    <div className="flex items-center gap-2"><motion.button onClick={() => setIsLiked(!isLiked)} className={`p-2 rounded-full ${isLiked ? 'text-red-500 bg-red-100' : 'text-gray-400 hover:text-red-500 hover:bg-red-100'}`}><Heart fill={isLiked ? "currentColor" : "none"} /></motion.button><motion.button className="p-2 rounded-full text-gray-400 hover:text-blue-500 hover:bg-blue-100"><Share2 /></motion.button></div>
+                    <div className="bg-gradient-to-r from-indigo-100 to-purple-100 dark:from-indigo-900/40 dark:to-purple-900/40 text-indigo-700 dark:text-indigo-300 px-3 py-1 rounded-full text-sm font-medium">
+                        Événement
+                    </div>
                 </div>
+            </div>
 
-                {/* Bouton Participer */}
-                <motion.button onClick={handleParticipate} className={`w-full py-3 rounded-xl font-semibold text-lg shadow-lg flex items-center justify-center gap-2 ${isParticipating ? 'bg-green-600' : 'bg-blue-600'}`} whileHover={{ scale: 1.02 }}><Calendar/>{isParticipating ? t("events_page.participating") : t("events_page.participate_button")}</motion.button>
+            {/* Contenu principal */}
+            <div className="p-6">
+                {/* Encadré spécial pour les infos événement */}
+                <div className="mb-4 bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-900/40 dark:to-purple-900/40 rounded-xl p-4 border border-indigo-100 dark:border-indigo-800">
+                    <h4 className="font-semibold text-indigo-900 dark:text-indigo-200 mb-2">{event.title}</h4>
+                    <div className="flex flex-wrap items-center text-indigo-700 dark:text-indigo-300 text-sm gap-4">
+                        <div className="flex items-center">
+                            <Calendar className="h-4 w-4 mr-1" />
+                            {formattedDate} à {formattedTime}
+                        </div>
+                        <div className="flex items-center">
+                            <MapPin className="h-4 w-4 mr-1" />
+                            {event.location || 'Lieu à définir'}
+                        </div>
+                        <div className="flex items-center">
+                            <Users className="h-4 w-4 mr-1" />
+                            {participantsCount} participants
+                        </div>
+                    </div>
+                </div>
+                
+                {/* Description */}
+                <p className="text-slate-700 dark:text-gray-300 mb-4 leading-relaxed text-base">
+                    {event.description}
+                </p>
+                
+                {/* Image de l'événement */}
+                {imageUrl && (
+                    <div className="-mx-6 mb-4">
+                        <Image
+                            src={imageUrl}
+                            alt={event.title}
+                            width={800}
+                            height={400}
+                            className="w-full h-[32rem] object-cover hover:scale-105 transition-transform duration-300"
+                        />
+                    </div>
+                )}
+            </div>
+
+            {/* Footer avec bouton participer uniquement */}
+            <div className="px-6 py-4 bg-slate-50 dark:bg-gray-700/50 border-t border-slate-100 dark:border-gray-700">
+                <div className="flex items-center justify-end">
+                    <motion.button 
+                        className="bg-gradient-to-r from-indigo-500 to-purple-600 text-white px-6 py-2 rounded-lg text-sm font-medium hover:from-indigo-600 hover:to-purple-700 transition-all duration-300"
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                        onClick={() => onShowParticipants && onShowParticipants(event)}
+                    >
+                        Participer
+                    </motion.button>
+                </div>
             </div>
         </motion.div>
     );
@@ -8654,8 +11538,8 @@ export default function EventCard({ event, onShowParticipants, onUpdateEvent }) 
 ### EventForm
 
 - **Fichier**: `src\components\syndicate-space\section-evenements\EventForm.jsx`
-- **Props**: `onSubmit, initialData =`
-- **Hooks**: useForm, useTranslations
+- **Props**: `date`
+- **Hooks**: useForm, useTranslations, useState
 ```jsx
 // src/components/syndicate-space/section-evenements/EventForm.jsx
 "use client";
@@ -8664,24 +11548,91 @@ import { useForm } from 'react-hook-form';
 import { useTranslations } from 'next-intl';
 import { Calendar, Clock, MapPin, Type, FileText, Image as ImageIcon, Send } from 'lucide-react';
 import { FileUploader } from '@/components/forms/adhesion/file-uploader';
+import { useState } from 'react';
+
+// Utilitaire pour formater les dates pour les inputs datetime-local
+const formatDateForInput = (date) => {
+    if (!date) return '';
+    try {
+        const d = new Date(date);
+        if (isNaN(d.getTime())) return '';
+        
+        // Ajuster pour le timezone local
+        const offset = d.getTimezoneOffset() * 60000;
+        const localDate = new Date(d.getTime() - offset);
+        return localDate.toISOString().slice(0, 16);
+    } catch (error) {
+        console.warn('Erreur lors du formatage de la date:', error);
+        return '';
+    }
+};
+
+// Validation personnalisée des dates
+const validateDates = (startDate, endDate) => {
+    const errors = {};
+    const now = new Date();
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+    
+    if (start < now) {
+        errors.startDate = "La date de début ne peut pas être dans le passé";
+    }
+    
+    if (end <= start) {
+        errors.endDate = "La date de fin doit être postérieure à la date de début";
+    }
+    
+    return errors;
+};
 
 export default function EventForm({ onSubmit, initialData = {}, isLoading }) {
     const t = useTranslations('event_form');
-    const { register, handleSubmit, formState: { errors } } = useForm({
+    const [selectedImage, setSelectedImage] = useState(null);
+    const [dateErrors, setDateErrors] = useState({});
+    
+    const { register, handleSubmit, formState: { errors }, watch, setValue } = useForm({
         defaultValues: {
             title: initialData.title || '',
             description: initialData.description || '',
             location: initialData.location || '',
-            // Les dates doivent être au format YYYY-MM-DDTHH:mm pour les inputs datetime-local
-            startDate: initialData.startDate ? new Date(initialData.startDate).toISOString().slice(0, 16) : '',
-            endDate: initialData.endDate ? new Date(initialData.endDate).toISOString().slice(0, 16) : '',
+            startDate: formatDateForInput(initialData.startDate),
+            endDate: formatDateForInput(initialData.endDate),
         }
     });
+    
+    // Observer les changements de dates
+    const watchedStartDate = watch('startDate');
+    const watchedEndDate = watch('endDate');
 
     const inputClasses = "w-full p-3 border rounded-lg bg-white text-gray-900 border-gray-300 dark:bg-gray-800 dark:text-gray-200 dark:border-gray-600 placeholder-gray-400 dark:placeholder-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition";
+    
+    // Gestionnaire de soumission avec validation des dates
+    const handleFormSubmit = (data) => {
+        const dateValidationErrors = validateDates(data.startDate, data.endDate);
+        
+        if (Object.keys(dateValidationErrors).length > 0) {
+            setDateErrors(dateValidationErrors);
+            return;
+        }
+        
+        setDateErrors({});
+        
+        // Ajouter l'image sélectionnée aux données
+        const formData = {
+            ...data,
+            imageFile: selectedImage
+        };
+        
+        onSubmit(formData);
+    };
+    
+    // Gestionnaire de sélection d'image
+    const handleImageSelect = (file) => {
+        setSelectedImage(file);
+    };
 
     return (
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 p-4 sm:p-6">
+        <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-6 p-4 sm:p-6">
             <div>
                 <label className="flex items-center text-sm font-semibold mb-1"><Type className="mr-2"/>{t('event_form.title')} *</label>
                 <input {...register("title", { required: t('errors.required_field') })} placeholder={t('event_form.title_placeholder')} className={inputClasses} />
@@ -8697,13 +11648,27 @@ export default function EventForm({ onSubmit, initialData = {}, isLoading }) {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                     <label className="flex items-center text-sm font-semibold mb-1"><Calendar className="mr-2"/>{t('event_form.start_date')} *</label>
-                    <input type="datetime-local" {...register("startDate", { required: t('errors.required_field') })} className={inputClasses} />
-                    {errors.startDate && <p className="text-red-500 text-xs mt-1">{errors.startDate.message}</p>}
+                    <input 
+                        type="datetime-local" 
+                        {...register("startDate", { required: t('errors.required_field') })} 
+                        className={`${inputClasses} ${(errors.startDate || dateErrors.startDate) ? 'border-red-500' : ''}`}
+                        min={new Date().toISOString().slice(0, 16)}
+                    />
+                    {(errors.startDate || dateErrors.startDate) && 
+                        <p className="text-red-500 text-xs mt-1">{errors.startDate?.message || dateErrors.startDate}</p>
+                    }
                 </div>
                 <div>
                     <label className="flex items-center text-sm font-semibold mb-1"><Clock className="mr-2"/>{t('event_form.end_date')} *</label>
-                    <input type="datetime-local" {...register("endDate", { required: t('errors.required_field') })} className={inputClasses} />
-                    {errors.endDate && <p className="text-red-500 text-xs mt-1">{errors.endDate.message}</p>}
+                    <input 
+                        type="datetime-local" 
+                        {...register("endDate", { required: t('errors.required_field') })} 
+                        className={`${inputClasses} ${(errors.endDate || dateErrors.endDate) ? 'border-red-500' : ''}`}
+                        min={watchedStartDate || new Date().toISOString().slice(0, 16)}
+                    />
+                    {(errors.endDate || dateErrors.endDate) && 
+                        <p className="text-red-500 text-xs mt-1">{errors.endDate?.message || dateErrors.endDate}</p>
+                    }
                 </div>
             </div>
 
@@ -8714,7 +11679,18 @@ export default function EventForm({ onSubmit, initialData = {}, isLoading }) {
             </div>
 
             <div>
-                <FileUploader label={t('event_form.image')} icon={<ImageIcon />} onFileSelect={(file) => console.log(file)} />
+                <FileUploader 
+                    label={t('event_form.image')} 
+                    icon={<ImageIcon />} 
+                    onFileSelect={handleImageSelect}
+                    acceptedFileTypes="image/*"
+                    maxSizeInMB={5}
+                />
+                {selectedImage && (
+                    <p className="text-sm text-green-600 mt-2">
+                        Image sélectionnée: {selectedImage.name}
+                    </p>
+                )}
             </div>
 
             <div className="pt-4 flex justify-end">
@@ -8731,70 +11707,270 @@ export default function EventForm({ onSubmit, initialData = {}, isLoading }) {
 ### EventsFeed
 
 - **Fichier**: `src\components\syndicate-space\section-evenements\EventsFeed.jsx`
-- **Props**: `initialEvents`
-- **Hooks**: useState, useTranslations
+- **Props**: `initialEvents = [], syndicatId`
+- **Hooks**: useState, useEffect, useMemo, useTranslations, useErrorHandler, useApiWithRetry
 ```jsx
 // src/components/syndicate-space/section-evenements/EventsFeed.jsx
 "use client";
 
-import { useState } from 'react';
-import { AnimatePresence } from 'framer-motion';
+import { useState, useEffect, useMemo } from 'react';
+import { AnimatePresence, motion } from 'framer-motion';
 import { toast } from 'react-hot-toast';
 import { useTranslations } from "next-intl";
-import { Plus } from 'lucide-react';
+import { Plus, RefreshCw, Calendar, Search } from 'lucide-react';
 import EventCard from './EventCard';
 import ParticipantsModal from './ParticipantsModal';
 import CreateEventModal from './CreateEventModal';
+import { CardSkeleton } from '../SyndicateSpaceLoader';
+import { useErrorHandler, useApiWithRetry } from '@/hooks/useErrorHandler';
+import { ErrorState, EmptyState, InlineError } from '../ErrorStates';
+import ErrorBoundary from '../ErrorBoundary';
+import { getEventsAPI } from '@/lib/api/event';
 
-export default function EventsFeed({ initialEvents }) {
+function EventsFeedInner({ initialEvents = [], syndicatId }) {
     const t = useTranslations('common');
-    const [events, setEvents] = useState(initialEvents);
+    const { handleError, clearError, hasError, getError } = useErrorHandler();
+    const { executeWithRetry, loading: apiLoading } = useApiWithRetry();
+    
+    const [events, setEvents] = useState(initialEvents || []);
     const [selectedEventForParticipants, setSelectedEventForParticipants] = useState(null);
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+    const [isLoadingEvents, setIsLoadingEvents] = useState(false);
+    const [isCreatingEvent, setIsCreatingEvent] = useState(false);
+    const [searchTerm, setSearchTerm] = useState('');
+    const [lastRefresh, setLastRefresh] = useState(Date.now());
+    
+    const filteredEvents = useMemo(() => 
+        (events || []).filter(event => 
+            event?.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            event?.description?.toLowerCase().includes(searchTerm.toLowerCase())
+        ), [events, searchTerm]);
+
+    // Fonction pour recharger les événements avec pagination correcte
+    const refreshEvents = async (force = false, page = 0, size = 20) => {
+        try {
+            await executeWithRetry(async () => {
+                const eventsData = await getEventsAPI(syndicatId, page, size, 'startDate', 'DESC');
+                
+                // Gérer la structure de réponse paginée et convertir les dates
+                let events = [];
+                if (eventsData && eventsData.content) {
+                    events = eventsData.content;
+                } else if (Array.isArray(eventsData)) {
+                    events = eventsData;
+                }
+                
+                // Convertir les dates string en objets Date
+                const eventsWithDates = events.map(event => ({
+                    ...event,
+                    startDate: new Date(event.startDate),
+                    endDate: new Date(event.endDate),
+                    createdAt: new Date(event.createdAt)
+                }));
+                
+                setEvents(eventsWithDates);
+                
+                setLastRefresh(Date.now());
+                clearError('events');
+            }, 'refresh-events', {
+                maxRetries: 2,
+                onSuccess: () => {
+                    if (force) {
+                        toast.success("Événements mis à jour !");
+                    }
+                }
+            });
+        } catch (error) {
+            // L'erreur est déjà gérée par executeWithRetry
+        }
+    };
+
+    // Charger les événements au montage si pas de données initiales
+    useEffect(() => {
+        if ((!initialEvents || initialEvents.length === 0) && syndicatId) {
+            refreshEvents(false);
+        }
+    }, [syndicatId]);
 
     const handleUpdateEvent = (updatedEvent) => {
         setEvents(events.map(e => e.id === updatedEvent.id ? updatedEvent : e));
     };
 
-    const handleCreateEvent = (newEventData) => {
-        const newEvent = {
-            id: Date.now(),
-            ...newEventData,
-            author: { name: "Vous", profileImage: "https://i.pravatar.cc/150?img=1" },
-            isUpcoming: new Date(newEventData.startDate) > new Date(),
-            participants: [{ name: "Vous" }],
-            images: newEventData.image ? [newEventData.image] : [],
-        };
-        setEvents([newEvent, ...events]);
-        setIsCreateModalOpen(false);
-        toast.success(t('event_form.success_toast'));
+    const handleCreateEvent = async (newEventData) => {
+        setIsCreatingEvent(true);
+        
+        try {
+            await executeWithRetry(async () => {
+                // Appel de l'API réelle de création d'événement
+                const { createEventAPI } = await import('@/lib/api/event');
+                const createdEvent = await createEventAPI(syndicatId, newEventData, newEventData.imageFile);
+                
+                // Convertir les dates de l'événement créé et l'ajouter à la liste
+                const eventWithDates = {
+                    ...createdEvent,
+                    startDate: new Date(createdEvent.startDate),
+                    endDate: new Date(createdEvent.endDate),
+                    createdAt: new Date(createdEvent.createdAt)
+                };
+                
+                setEvents(prevEvents => [eventWithDates, ...prevEvents]);
+                setIsCreateModalOpen(false);
+                clearError('create-event');
+            }, 'create-event', {
+                maxRetries: 2,
+                onSuccess: () => {
+                    toast.success(t('event_form.success_toast') || 'Événement créé avec succès !');
+                }
+            });
+        } catch (error) {
+            // L'erreur est déjà gérée par executeWithRetry
+        } finally {
+            setIsCreatingEvent(false);
+        }
+    };
+
+    const EventsList = ({ data }) => {
+        // Gestion des erreurs
+        if (hasError('events')) {
+            return (
+                <ErrorState 
+                    error={getError('events')}
+                    onRetry={() => refreshEvents(true)}
+                    onDismiss={() => clearError('events')}
+                />
+            );
+        }
+
+        // État vide amélioré
+        if (!data || data.length === 0) {
+            return (
+                <EmptyState
+                    icon={Calendar}
+                    title={searchTerm ? "Aucun événement trouvé" : "Aucun événement"}
+                    description={searchTerm ? "Aucun événement ne correspond à votre recherche." : "Aucun événement n'a été créé pour le moment."}
+                    action={!searchTerm && (
+                        <div className="flex gap-3">
+                            <motion.button
+                                whileHover={{ scale: 1.02 }}
+                                whileTap={{ scale: 0.98 }}
+                                onClick={() => setIsCreateModalOpen(true)}
+                                className="px-4 py-2 bg-blue-700 hover:bg-blue-800 text-white rounded-xl font-medium transition-all duration-200 flex items-center gap-2"
+                            >
+                                <Plus className="w-4 h-4" />
+                                Créer un événement
+                            </motion.button>
+                            <motion.button
+                                whileHover={{ scale: 1.02 }}
+                                whileTap={{ scale: 0.98 }}
+                                onClick={() => refreshEvents(true)}
+                                className="px-4 py-2 bg-white dark:bg-neutral-800 hover:bg-neutral-50 dark:hover:bg-neutral-700 border border-neutral-200 dark:border-neutral-700 text-neutral-700 dark:text-neutral-300 rounded-xl font-medium transition-all duration-200 flex items-center gap-2"
+                            >
+                                <RefreshCw className="w-4 h-4" />
+                                Actualiser
+                            </motion.button>
+                        </div>
+                    )}
+                    className="bg-white dark:bg-neutral-800 rounded-2xl shadow-soft border border-neutral-200 dark:border-neutral-700 p-12"
+                />
+            );
+        }
+
+        return (
+            <div className="space-y-6">
+                {isLoadingEvents ? (
+                    Array.from({ length: 3 }).map((_, index) => (
+                        <CardSkeleton key={`event-skeleton-${index}`} />
+                    ))
+                ) : (
+                    <AnimatePresence>
+                        {data.map((event) => (
+                            <EventCard 
+                                key={event.id} 
+                                event={event} 
+                                onShowParticipants={setSelectedEventForParticipants}
+                                onUpdateEvent={handleUpdateEvent}
+                            />
+                        ))}
+                    </AnimatePresence>
+                )}
+            </div>
+        );
     };
 
     return (
-        <div>
-            {/* === LE BOUTON EST MAINTENANT ICI === */}
-            <div className="mb-8 flex justify-end">
-                <button 
-                    onClick={() => setIsCreateModalOpen(true)} 
-                    className="px-6 py-3 bg-blue-600 text-white font-semibold rounded-xl shadow-lg hover:bg-blue-700 flex items-center gap-2 transition-transform transform hover:scale-105"
-                >
-                    <Plus size={20} />
-                    {t('events_page.create_button')}
-                </button>
-            </div>
-            {/* === FIN DU BOUTON === */}
+        <div className="space-y-8">
+            {/* Header avec actions */}
+            <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }}>
+                <div className="flex items-start justify-between mb-6">
+                    <div>
+                        <h1 className="text-3xl font-bold text-neutral-800 dark:text-white mb-2">
+                            Événements
+                        </h1>
+                        <p className="text-neutral-600 dark:text-neutral-400">
+                            Gérez et participez aux événements du syndicat
+                        </p>
+                    </div>
+                    
+                    <div className="flex gap-3">
+                        <motion.button
+                            whileHover={{ scale: 1.02 }}
+                            whileTap={{ scale: 0.98 }}
+                            onClick={() => refreshEvents(true)}
+                            disabled={apiLoading}
+                            className="px-4 py-2 bg-white dark:bg-neutral-800 hover:bg-neutral-50 dark:hover:bg-neutral-700 border border-neutral-200 dark:border-neutral-700 text-neutral-700 dark:text-neutral-300 rounded-xl font-medium transition-all duration-200 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed shadow-soft"
+                        >
+                            <RefreshCw className={`w-4 h-4 ${apiLoading ? 'animate-spin' : ''}`} />
+                            Actualiser
+                        </motion.button>
+                    </div>
+                </div>
+            </motion.div>
 
+            {/* Affichage des erreurs globales */}
             <AnimatePresence>
-                {events.map((event) => (
-                    <EventCard 
-                        key={event.id} 
-                        event={event} 
-                        onShowParticipants={setSelectedEventForParticipants}
-                        onUpdateEvent={handleUpdateEvent}
+                {hasError('refresh-events') && (
+                    <InlineError 
+                        error={getError('refresh-events')}
+                        className="mb-6"
                     />
-                ))}
+                )}
+                {hasError('create-event') && (
+                    <InlineError 
+                        error={getError('create-event')}
+                        className="mb-6"
+                    />
+                )}
             </AnimatePresence>
 
+            {/* Barre de recherche */}
+            <div className="bg-white dark:bg-neutral-800 rounded-2xl shadow-soft border border-neutral-200 dark:border-neutral-700 p-6">
+                <div className="relative max-w-md">
+                    <input 
+                        type="text" 
+                        placeholder="Rechercher des événements..." 
+                        className="w-full pl-10 pr-4 py-2.5 bg-white dark:bg-neutral-700 rounded-xl border border-neutral-200 dark:border-neutral-600 focus:border-primary-500 dark:focus:border-primary-400 focus:ring-2 focus:ring-primary-500/20 transition-all duration-200 text-sm" 
+                        value={searchTerm} 
+                        onChange={(e) => setSearchTerm(e.target.value)} 
+                    />
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400 w-4 h-4" />
+                </div>
+            </div>
+
+            {/* Liste des événements */}
+            <EventsList data={filteredEvents} />
+
+            {/* Bouton flottant pour créer un événement */}
+            <motion.button
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.9 }}
+                onClick={() => setIsCreateModalOpen(true)}
+                className="fixed bottom-6 right-6 w-14 h-14 bg-blue-700 hover:bg-blue-800 text-white rounded-full shadow-xl hover:shadow-2xl flex items-center justify-center z-50 transition-all duration-200"
+                title="Créer un événement"
+            >
+                <Plus className="w-6 h-6" />
+            </motion.button>
+
+            {/* Modals */}
             <ParticipantsModal 
                 event={selectedEventForParticipants} 
                 onClose={() => setSelectedEventForParticipants(null)} 
@@ -8804,8 +11980,21 @@ export default function EventsFeed({ initialEvents }) {
                 isOpen={isCreateModalOpen}
                 onClose={() => setIsCreateModalOpen(false)}
                 onCreateEvent={handleCreateEvent}
+                isLoading={isCreatingEvent}
             />
         </div>
+    );
+}
+
+// Wrapper avec ErrorBoundary
+export default function EventsFeed(props) {
+    return (
+        <ErrorBoundary
+            title="Erreur dans la section Événements"
+            subtitle="Une erreur s'est produite lors du chargement des événements."
+        >
+            <EventsFeedInner {...props} />
+        </ErrorBoundary>
     );
 }
 ```
@@ -8832,8 +12021,8 @@ export default function ParticipantsModal({ event, onClose }) {
                 <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={onClose}>
                     <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.9, opacity: 0 }} className="bg-white dark:bg-gray-800 rounded-2xl p-6 max-w-md w-full shadow-2xl" onClick={e => e.stopPropagation()}>
                         <div className="flex justify-between items-center mb-6">
-                            <h3 className="text-2xl font-bold text-gray-800 dark:text-white flex items-center gap-2"><Users />{t("events_page.participants_title")}</h3>
-                            <button onClick={onClose} className="p-2 text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full"><X/></button>
+                            <h3 className="text-2xl font-bold text-gray-800 dark:text-white flex items-center gap-2"><Users />{t("participants_title")}</h3>
+                            <button onClick={onClose} className="p-2 text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full"><X /></button>
                         </div>
                         <div className="max-h-80 overflow-y-auto space-y-3 pr-2">
                             {event.participants.map((participant, index) => (
@@ -9178,28 +12367,54 @@ export default function Reply({ reply }) {
 ### NewPostModal
 
 - **Fichier**: `src\components\syndicate-space\section-exprimer\NewPostModal.jsx`
-- **Props**: `isOpen, onClose, onNewPost`
-- **Hooks**: useState, useRef, useTranslations
+- **Props**: `isOpen, onClose, onNewPost, isLoading = false`
+- **Hooks**: useState, useRef, useEffect, useTranslations
 ```jsx
 "use client";
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Image as ImageIcon, Send, X, Camera } from 'lucide-react';
 import { useTranslations } from "next-intl";
 import Image from 'next/image';
 
-export default function NewPostModal({ isOpen, onClose, onNewPost }) {
+export default function NewPostModal({ isOpen, onClose, onNewPost, isLoading = false }) {
     const t = useTranslations('express_page');
     const [content, setContent] = useState('');
     const [imagePreview, setImagePreview] = useState(null);
     const [imageFile, setImageFile] = useState(null);
     const fileInputRef = useRef(null);
 
+    // Réinitialiser le formulaire quand le modal se ferme
+    useEffect(() => {
+        if (!isOpen) {
+            setContent('');
+            setImagePreview(null);
+            setImageFile(null);
+        }
+    }, [isOpen]);
+
     const handlePublish = () => {
         if (content.trim() || imageFile) {
-            onNewPost({ content, imageFile });
-            resetAndClose();
+            // Créer un FormData pour l'API selon le format attendu par le backend
+            const formData = new FormData();
+            
+            // Le backend attend un objet JSON dans la partie 'postData'
+            const postData = {
+                content: content.trim()
+            };
+            const postDataBlob = new Blob([JSON.stringify(postData)], {
+                type: 'application/json'
+            });
+            formData.append('postData', postDataBlob);
+            
+            // Ajouter le fichier image si présent
+            if (imageFile) {
+                formData.append('imageFile', imageFile);
+            }
+            
+            onNewPost(formData);
+            // Ne pas fermer immédiatement - laissons PublicationsFeed gérer la fermeture
         }
     };
 
@@ -9225,12 +12440,49 @@ export default function NewPostModal({ isOpen, onClose, onNewPost }) {
             {isOpen && (
                 <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={resetAndClose}>
                     <motion.div initial={{ scale: 0.9, y: 20 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.9, y: 20 }} className="bg-white dark:bg-gray-800 rounded-2xl p-6 w-full max-w-xl shadow-2xl" onClick={(e) => e.stopPropagation()}>
-                        <div className="flex justify-between items-center mb-4"><h2 className="text-2xl font-bold text-gray-800 dark:text-white">{t('express_page.new_post_modal_title')}</h2><button onClick={resetAndClose} className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full"><X /></button></div>
-                        <textarea value={content} onChange={(e) => setContent(e.target.value)} placeholder={t('express_page.post_placeholder')} className="w-full h-32 p-3 border-2 border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-700/50 rounded-xl focus:outline-none resize-none transition-all"></textarea>
+                        <div className="flex justify-between items-center mb-4">
+                            <h2 className="text-2xl font-bold text-gray-800 dark:text-white">{t('new_post_modal_title')}</h2>
+                            <button onClick={resetAndClose} className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full">
+                                <X />
+                            </button>
+                        </div>
+                        <textarea 
+                            value={content} 
+                            onChange={(e) => setContent(e.target.value)} 
+                            placeholder={t('post_placeholder')} 
+                            className="w-full h-32 p-3 border-2 border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700/50 rounded-xl focus:outline-none focus:border-blue-800 resize-none transition-all"
+                        ></textarea>
                         {imagePreview && (<div className="mt-4 relative rounded-xl overflow-hidden"><Image src={imagePreview} alt="Aperçu" width={500} height={300} className="w-full h-auto object-cover" /><button onClick={() => setImagePreview(null)} className="absolute top-2 right-2 bg-black/50 text-white p-1 rounded-full"><X size={16} /></button></div>)}
                         <div className="flex justify-between items-center mt-4">
-                            <div className="flex space-x-1"><button onClick={() => fileInputRef.current?.click()} className="p-2 text-green-500 hover:bg-green-100 dark:hover:bg-green-900/50 rounded-full"><ImageIcon /></button><input type="file" ref={fileInputRef} onChange={handleImageUpload} className="hidden" accept="image/*" /></div>
-                            <div className="flex space-x-3"><button onClick={resetAndClose} className="px-5 py-2 rounded-lg font-semibold text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700">{t('express_page.cancel_button')}</button><button onClick={handlePublish} disabled={!content.trim() && !imageFile} className="px-5 py-2 rounded-lg font-semibold text-white bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 flex items-center gap-2"><Send size={16} /> {t('express_page.publish_button')}</button></div>
+                            <div className="flex space-x-1">
+                                <button 
+                                    onClick={() => fileInputRef.current?.click()} 
+                                    className="p-2 text-blue-800 hover:bg-blue-100 dark:hover:bg-blue-900/50 rounded-full"
+                                >
+                                    <ImageIcon />
+                                </button>
+                                <input type="file" ref={fileInputRef} onChange={handleImageUpload} className="hidden" accept="image/*" />
+                            </div>
+                            <div className="flex space-x-3">
+                                <button 
+                                    onClick={resetAndClose} 
+                                    className="px-5 py-2 rounded-lg font-semibold text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-600"
+                                >
+                                    {t('cancel_button')}
+                                </button>
+                                <button 
+                                    onClick={handlePublish} 
+                                    disabled={(!content.trim() && !imageFile) || isLoading} 
+                                    className="px-5 py-2 rounded-lg font-semibold text-white bg-blue-800 hover:bg-blue-900 disabled:bg-gray-400 flex items-center gap-2"
+                                >
+                                    {isLoading ? (
+                                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                                    ) : (
+                                        <Send size={16} />
+                                    )}
+                                    {isLoading ? 'Publication...' : t('publish_button')}
+                                </button>
+                            </div>
                         </div>
                     </motion.div>
                 </motion.div>
@@ -9243,215 +12495,475 @@ export default function NewPostModal({ isOpen, onClose, onNewPost }) {
 ### Post
 
 - **Fichier**: `src\components\syndicate-space\section-exprimer\Post.jsx`
-- **Props**: `post, onUpdatePost`
-- **Hooks**: useEffect, useState, useTranslations
+- **Props**: `post, onUpdatePost, syndicatId`
+- **Hooks**: useState, useErrorHandler, useApiWithRetry
 ```jsx
 // src/components/syndicate-space/section-exprimer/Post.jsx
 "use client";
 
-import { useEffect, useState } from "react";
-import { motion } from "framer-motion";
-import Image from 'next/image';
-import { Bookmark, Clock, Flag, Heart, MessageCircle } from "lucide-react";
-import { useTranslations } from "next-intl";
+import { useState } from "react";
+import { toast } from 'react-hot-toast';
 import CommentModal from "./CommentModal";
-import timeAgo from "@/lib/utils/timeAgo"; // On supposera un utilitaire pour le temps
+import { likePostAPI, addCommentAPI } from "@/lib/api/posts";
+import { useErrorHandler, useApiWithRetry } from '@/hooks/useErrorHandler';
+import UnifiedPostCard from "@/components/shared/UnifiedPostCard";
 
 /**
  * Affiche une publication complète avec ses actions et gère sa modale de commentaires.
  * @param {object} post - L'objet de la publication.
  * @param {function} onUpdatePost - Callback pour mettre à jour le post dans la liste parente.
  */
-export default function Post({ post, onUpdatePost }) {
-    const t = useTranslations('express_page');
-    const [liked, setLiked] = useState(false);
-    const [bookmarked, setBookmarked] = useState(false);
+export default function Post({ post, onUpdatePost, syndicatId }) {
+    const { handleError, clearError } = useErrorHandler();
+    const { executeWithRetry } = useApiWithRetry();
     const [isCommentModalOpen, setIsCommentModalOpen] = useState(false);
-    
-    // Pour que le timestamp se mette à jour sans re-render de toute la page
-    const [displayTimestamp, setDisplayTimestamp] = useState(() => timeAgo(post.createdAt));
-    useEffect(() => {
-        const interval = setInterval(() => {
-            setDisplayTimestamp(timeAgo(post.createdAt));
-        }, 60000); // Met à jour chaque minute
-        return () => clearInterval(interval);
-    }, [post.createdAt]);
 
-    const handleLike = () => {
-        setLiked(!liked);
-        // Simule la mise à jour des données
-        onUpdatePost({
-            ...post,
-            likes: post.likes + (liked ? -1 : 1),
-        });
+    const handleLike = async (post, newLikedState) => {
+        const originalLikes = post.likes;
+        
+        // Mise à jour optimiste
+        onUpdatePost({ ...post, likes: post.likes + (newLikedState ? 1 : -1) });
+        
+        try {
+            await executeWithRetry(async () => {
+                await likePostAPI(syndicatId, post.postId, newLikedState);
+            }, `like-post-${post.postId}`, {
+                maxRetries: 2,
+                onError: () => {
+                    // Reverser les changements optimistes
+                    onUpdatePost({ ...post, likes: originalLikes });
+                }
+            });
+        } catch (error) {
+            // L'erreur est déjà gérée par executeWithRetry
+        }
     };
 
-    const handleAddComment = (newComment) => {
-        onUpdatePost({
-            ...post,
-            comments: [...post.comments, newComment],
-        });
+    const handleComment = (post) => {
+        setIsCommentModalOpen(true);
+    };
+
+    const handleAddComment = async (commentData) => {
+        try {
+            await executeWithRetry(async () => {
+                await addCommentAPI(syndicatId, post.postId, commentData.content);
+                // Mise à jour optimiste
+                onUpdatePost({ ...post, comments: [...post.comments, commentData] });
+            }, `add-comment-${post.postId}`, {
+                maxRetries: 2,
+                onSuccess: () => {
+                    toast.success("Commentaire ajouté !");
+                }
+            });
+        } catch (error) {
+            // L'erreur est déjà gérée par executeWithRetry
+        }
     };
 
     return (
         <>
-            <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, ease: "easeOut" }}
-                className="bg-white dark:bg-gray-800/50 rounded-2xl shadow-xl overflow-hidden mb-8 hover:shadow-2xl dark:shadow-black/20 transition-all duration-300 transform hover:scale-[1.01]"
-            >
-                <div className="p-6">
-                    {/* --- Header du Post --- */}
-                    <div className="flex items-center mb-6">
-                        <Image
-                            src={post.author.avatar}
-                            alt={post.author.name}
-                            width={48} height={48}
-                            className="w-12 h-12 rounded-full object-cover ring-4 ring-blue-100 dark:ring-blue-900/50"
-                        />
-                        <div className="ml-4 flex-grow">
-                            <h3 className="font-bold text-lg text-gray-800 dark:text-gray-100">{post.author.name}</h3>
-                            <div className="flex items-center text-sm text-gray-500 dark:text-gray-400">
-                                <Clock className="w-4 h-4 mr-1.5 text-blue-500" />
-                                <span>{displayTimestamp}</span>
-                            </div>
-                        </div>
-                        <motion.button whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }} onClick={() => setBookmarked(!bookmarked)} className={`p-2 rounded-full transition-colors duration-200 ${bookmarked ? 'text-blue-500 bg-blue-100 dark:bg-blue-900' : 'text-gray-400 hover:text-blue-500 hover:bg-blue-50 dark:hover:bg-gray-700'}`}>
-                            <Bookmark className="w-6 h-6" fill={bookmarked ? "currentColor" : "none"} />
-                        </motion.button>
-                    </div>
+            <UnifiedPostCard 
+                item={post}
+                type="publication"
+                variant="syndicate"
+                onLike={handleLike}
+                onComment={handleComment}
+                onBookmark={(post, bookmarked) => {
+                    // Gérer le bookmark si nécessaire
+                }}
+                syndicatId={syndicatId}
+            />
 
-                    {/* --- Contenu du Post --- */}
-                    <p className="text-gray-700 dark:text-gray-300 leading-relaxed mb-6 whitespace-pre-wrap">{post.content}</p>
-
-                    {post.image && (
-                        <div className="rounded-xl overflow-hidden mb-6 shadow-lg">
-                            <Image src={post.image} alt="Contenu de la publication" width={800} height={600} className="w-full h-auto object-cover" />
-                        </div>
-                    )}
-
-                    {/* --- Stats (Likes/Commentaires) --- */}
-                    <div className="flex items-center justify-between text-sm text-gray-500 dark:text-gray-400 mb-4">
-                        <div className="flex items-center space-x-2"><Heart className="w-4 h-4 text-red-500" /><span>{post.likes} {t('common.like', {count: post.likes})}</span></div>
-                        <span>{post.comments.length} {t('common.comment', {count: post.comments.length})}</span>
-                    </div>
-
-                    {/* --- Barre d'actions --- */}
-                    <div className="flex items-center justify-around border-t border-gray-100 dark:border-gray-700 pt-4">
-                        <motion.button whileHover={{ scale: 1.05 }} onClick={handleLike} className={`flex items-center px-4 py-2 rounded-xl w-full justify-center ${liked ? 'bg-blue-500 text-white' : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'} transition-all`}>
-                            <Heart className="w-5 h-5 mr-2" fill={liked ? "currentColor" : "none"} />{t('common.like')}
-                        </motion.button>
-                        <motion.button whileHover={{ scale: 1.05 }} onClick={() => setIsCommentModalOpen(true)} className="flex items-center px-4 py-2 rounded-xl w-full justify-center text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-all">
-                            <MessageCircle className="w-5 h-5 mr-2" />{t('common.comment')}
-                        </motion.button>
-                        <motion.button whileHover={{ scale: 1.05 }} className="flex items-center px-4 py-2 rounded-xl w-full justify-center text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-all">
-                            <Flag className="w-5 h-5 mr-2" />{t('common.report')}
-                        </motion.button>
-                    </div>
-                </div>
-            </motion.div>
-
-            <CommentModal
-                post={post}
-                isOpen={isCommentModalOpen}
-                onClose={() => setIsCommentModalOpen(false)}
-                onAddComment={handleAddComment}
+            <CommentModal 
+                post={post} 
+                isOpen={isCommentModalOpen} 
+                onClose={() => setIsCommentModalOpen(false)} 
+                onAddComment={handleAddComment} 
             />
         </>
     );
 }
 ```
 
-### Post
+### PublicationsFeed
 
 - **Fichier**: `src\components\syndicate-space\section-exprimer\PublicationsFeed.jsx`
-- **Props**: `post, onUpdatePost, syndicatId`
-- **Hooks**: useEffect, useState, useTranslations
+- **Props**: `initialPosts = [], syndicatId`
+- **Hooks**: useState, useEffect, useMemo, useTranslations, useErrorHandler, useApiWithRetry
 ```jsx
 "use client";
 
-import { useEffect, useState } from "react";
-import { motion } from "framer-motion";
-import Image from 'next/image';
-import { Bookmark, Clock, Flag, Heart, MessageCircle } from "lucide-react";
-import { useTranslations } from "next-intl";
+import { useState, useEffect, useMemo } from 'react';
+import { AnimatePresence, motion } from 'framer-motion';
 import { toast } from 'react-hot-toast';
-import CommentModal from "./CommentModal";
-import timeAgo from "@/lib/utils/timeAgo";
-import { likePostAPI, addCommentAPI } from "@/lib/api/posts";
-import { STATIC_FILES_URL } from '@/lib/constants';
+import { useTranslations } from "next-intl";
+import { Plus, RefreshCw, MessageSquare, Search } from 'lucide-react';
+import Post from './Post';
+import NewPostModal from './NewPostModal';
+import { CardSkeleton } from '../SyndicateSpaceLoader';
+import { useErrorHandler, useApiWithRetry } from '@/hooks/useErrorHandler';
+import { ErrorState, EmptyState, InlineError } from '../ErrorStates';
+import ErrorBoundary from '../ErrorBoundary';
+import { getPostsAPI, createPostAPI } from '@/lib/api/posts';
 
-export default function Post({ post, onUpdatePost, syndicatId }) {
+function PublicationsFeedInner({ initialPosts = [], syndicatId }) {
     const t = useTranslations('express_page');
-    const [liked, setLiked] = useState(false); // A améliorer avec l'état réel de l'utilisateur
-    const [bookmarked, setBookmarked] = useState(false);
-    const [isCommentModalOpen, setIsCommentModalOpen] = useState(false);
-    const [displayTimestamp, setDisplayTimestamp] = useState(() => timeAgo(post.createdAt));
-
-    useEffect(() => {
-        const interval = setInterval(() => setDisplayTimestamp(timeAgo(post.createdAt)), 60000);
-        return () => clearInterval(interval);
-    }, [post.createdAt]);
-
-    const handleLike = async () => {
-        const newLikedState = !liked;
-        setLiked(newLikedState);
-        onUpdatePost({ ...post, likes: post.likes + (newLikedState ? 1 : -1) });
-        try {
-            await likePostAPI(syndicatId, post.postId, newLikedState);
-        } catch (error) {
-            toast.error("L'action a échoué.");
-            setLiked(!newLikedState);
-            onUpdatePost({ ...post, likes: post.likes });
-        }
-    };
-
-    const handleAddComment = async (commentData) => {
-        try {
-            await addCommentAPI(syndicatId, post.postId, commentData.content);
-            // Idéalement, l'API devrait renvoyer le nouveau post mis à jour.
-            // Pour l'instant, on met à jour l'UI de manière optimiste.
-            onUpdatePost({ ...post, comments: [...post.comments, commentData] });
-            toast.success("Commentaire ajouté !");
-        } catch (error) {
-            toast.error("Impossible d'ajouter le commentaire.");
-        }
-    };
+    const { handleError, clearError, hasError, getError } = useErrorHandler();
+    const { executeWithRetry, loading: apiLoading } = useApiWithRetry();
     
-    const imageUrl = post.imageUrl ? `${STATIC_FILES_URL}${post.imageUrl}` : null;
-    const authorAvatarUrl = post.authorAvatarUrl ? `${STATIC_FILES_URL}${post.authorAvatarUrl}` : "https://i.pravatar.cc/150";
+    const [posts, setPosts] = useState(initialPosts || []);
+    const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+    const [isLoadingPosts, setIsLoadingPosts] = useState(false);
+    const [isCreatingPost, setIsCreatingPost] = useState(false);
+    const [searchTerm, setSearchTerm] = useState('');
+    const [lastRefresh, setLastRefresh] = useState(Date.now());
+    
+    const filteredPosts = useMemo(() => 
+        (posts || []).filter(post => 
+            post?.content?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            post?.authorName?.toLowerCase().includes(searchTerm.toLowerCase())
+        ), [posts, searchTerm]);
+
+    // Fonction pour recharger les posts
+    const refreshPosts = async (force = false) => {
+        try {
+            await executeWithRetry(async () => {
+                const postsData = await getPostsAPI(syndicatId);
+                // Extraire le tableau de posts de la réponse paginée
+                const postsArray = Array.isArray(postsData) ? postsData : (postsData?.content || []);
+                setPosts(postsArray);
+                setLastRefresh(Date.now());
+                clearError('posts');
+            }, 'refresh-posts', {
+                maxRetries: 2,
+                onSuccess: () => {
+                    if (force) {
+                        toast.success("Publications mises à jour !");
+                    }
+                }
+            });
+        } catch (error) {
+            // L'erreur est déjà gérée par executeWithRetry
+        }
+    };
+
+    // Charger les posts au montage si pas de données initiales
+    useEffect(() => {
+        if ((!initialPosts || initialPosts.length === 0) && syndicatId) {
+            refreshPosts(false);
+        }
+    }, [syndicatId]);
+
+    const handleUpdatePost = (updatedPost) => {
+        setPosts(posts.map(p => p.postId === updatedPost.postId ? updatedPost : p));
+    };
+
+    const handleCreatePost = async (newPostData) => {
+        setIsCreatingPost(true);
+        
+        try {
+            await executeWithRetry(async () => {
+                const newPost = await createPostAPI(syndicatId, newPostData);
+                setPosts([newPost, ...posts]);
+                setIsCreateModalOpen(false);
+                clearError('create-post');
+            }, 'create-post', {
+                maxRetries: 2,
+                onSuccess: () => {
+                    toast.success("Publication créée avec succès !");
+                }
+            });
+        } catch (error) {
+            // L'erreur est déjà gérée par executeWithRetry
+        } finally {
+            setIsCreatingPost(false);
+        }
+    };
+
+    const PostsList = ({ data }) => {
+        // Gestion des erreurs
+        if (hasError('posts')) {
+            return (
+                <ErrorState 
+                    error={getError('posts')}
+                    onRetry={() => refreshPosts(true)}
+                    onDismiss={() => clearError('posts')}
+                />
+            );
+        }
+
+        // État vide amélioré
+        if (!data || data.length === 0) {
+            return (
+                <EmptyState
+                    icon={MessageSquare}
+                    title={searchTerm ? "Aucune publication trouvée" : "Aucune publication"}
+                    description={searchTerm ? "Aucune publication ne correspond à votre recherche." : "Aucune publication n'a été créée pour le moment."}
+                    action={!searchTerm && (
+                        <div className="flex gap-3">
+                            <motion.button
+                                whileHover={{ scale: 1.02 }}
+                                whileTap={{ scale: 0.98 }}
+                                onClick={() => setIsCreateModalOpen(true)}
+                                className="px-4 py-2 bg-blue-700 hover:bg-blue-800 text-white rounded-xl font-medium transition-all duration-200 flex items-center gap-2"
+                            >
+                                <Plus className="w-4 h-4" />
+                                Créer une publication
+                            </motion.button>
+                            <motion.button
+                                whileHover={{ scale: 1.02 }}
+                                whileTap={{ scale: 0.98 }}
+                                onClick={() => refreshPosts(true)}
+                                className="px-4 py-2 bg-white dark:bg-neutral-800 hover:bg-neutral-50 dark:hover:bg-neutral-700 border border-neutral-200 dark:border-neutral-700 text-neutral-700 dark:text-neutral-300 rounded-xl font-medium transition-all duration-200 flex items-center gap-2"
+                            >
+                                <RefreshCw className="w-4 h-4" />
+                                Actualiser
+                            </motion.button>
+                        </div>
+                    )}
+                    className="bg-white dark:bg-neutral-800 rounded-2xl shadow-soft border border-neutral-200 dark:border-neutral-700 p-12"
+                />
+            );
+        }
+
+        return (
+            <div className="space-y-6">
+                {isLoadingPosts ? (
+                    Array.from({ length: 3 }).map((_, index) => (
+                        <CardSkeleton key={`post-skeleton-${index}`} />
+                    ))
+                ) : (
+                    <AnimatePresence>
+                        {data.map((post) => (
+                            <Post 
+                                key={post.postId} 
+                                post={post} 
+                                onUpdatePost={handleUpdatePost}
+                                syndicatId={syndicatId}
+                            />
+                        ))}
+                    </AnimatePresence>
+                )}
+            </div>
+        );
+    };
 
     return (
-        <>
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="bg-white dark:bg-gray-800/50 rounded-2xl shadow-xl overflow-hidden mb-8 hover:shadow-2xl dark:shadow-black/20">
-                <div className="p-6">
-                    <div className="flex items-center mb-6">
-                        <Image src={authorAvatarUrl} alt={post.authorName} width={48} height={48} className="w-12 h-12 rounded-full object-cover ring-4 ring-blue-100 dark:ring-blue-900/50" />
-                        <div className="ml-4 flex-grow">
-                            <h3 className="font-bold text-lg text-gray-800 dark:text-gray-100">{post.authorName}</h3>
-                            <div className="flex items-center text-sm text-gray-500 dark:text-gray-400">
-                                <Clock className="w-4 h-4 mr-1.5 text-blue-500" />
-                                <span>{displayTimestamp}</span>
-                            </div>
-                        </div>
-                        <motion.button onClick={() => setBookmarked(!bookmarked)} className={`p-2 rounded-full transition-colors ${bookmarked ? 'text-blue-500 bg-blue-100 dark:bg-blue-900' : 'text-gray-400 hover:bg-blue-50'}`}><Bookmark fill={bookmarked ? "currentColor" : "none"} /></motion.button>
+        <div className="space-y-8">
+            {/* Header avec actions */}
+            <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }}>
+                <div className="flex items-start justify-between mb-6">
+                    <div>
+                        <h1 className="text-3xl font-bold text-neutral-800 dark:text-white mb-2">
+                            Publications
+                        </h1>
+                        <p className="text-neutral-600 dark:text-neutral-400">
+                            Partagez vos idées et exprimez-vous dans la communauté
+                        </p>
                     </div>
-                    <p className="text-gray-700 dark:text-gray-300 leading-relaxed mb-6 whitespace-pre-wrap">{post.content}</p>
-                    {imageUrl && <div className="rounded-xl overflow-hidden mb-6 shadow-lg"><Image src={imageUrl} alt="Contenu" width={800} height={600} className="w-full h-auto object-cover" /></div>}
-                    <div className="flex items-center justify-between text-sm text-gray-500 dark:text-gray-400 mb-4">
-                        <span>{post.likes} {t('common.like', {count: post.likes})}</span>
-                        <span>{post.comments.length} {t('common.comment', {count: post.comments.length})}</span>
-                    </div>
-                    <div className="flex items-center justify-around border-t border-gray-100 dark:border-gray-700 pt-4">
-                        <button onClick={handleLike} className={`flex items-center px-4 py-2 rounded-xl w-full justify-center ${liked ? 'bg-blue-500 text-white' : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100'}`}><Heart className="w-5 h-5 mr-2" fill={liked ? "currentColor" : "none"} />{t('common.like')}</button>
-                        <button onClick={() => setIsCommentModalOpen(true)} className="flex items-center px-4 py-2 rounded-xl w-full justify-center text-gray-600 dark:text-gray-300 hover:bg-gray-100"><MessageCircle className="w-5 h-5 mr-2" />{t('common.comment')}</button>
-                        <button className="flex items-center px-4 py-2 rounded-xl w-full justify-center text-gray-600 dark:text-gray-300 hover:bg-gray-100"><Flag className="w-5 h-5 mr-2" />{t('common.report')}</button>
+                    
+                    <div className="flex gap-3">
+                        <motion.button
+                            whileHover={{ scale: 1.02 }}
+                            whileTap={{ scale: 0.98 }}
+                            onClick={() => refreshPosts(true)}
+                            disabled={apiLoading}
+                            className="px-4 py-2 bg-white dark:bg-neutral-800 hover:bg-neutral-50 dark:hover:bg-neutral-700 border border-neutral-200 dark:border-neutral-700 text-neutral-700 dark:text-neutral-300 rounded-xl font-medium transition-all duration-200 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed shadow-soft"
+                        >
+                            <RefreshCw className={`w-4 h-4 ${apiLoading ? 'animate-spin' : ''}`} />
+                            Actualiser
+                        </motion.button>
+                        
                     </div>
                 </div>
             </motion.div>
-            <CommentModal post={post} isOpen={isCommentModalOpen} onClose={() => setIsCommentModalOpen(false)} onAddComment={handleAddComment} />
-        </>
+
+            {/* Affichage des erreurs globales */}
+            <AnimatePresence>
+                {hasError('refresh-posts') && (
+                    <InlineError 
+                        error={getError('refresh-posts')}
+                        className="mb-6"
+                    />
+                )}
+                {hasError('create-post') && (
+                    <InlineError 
+                        error={getError('create-post')}
+                        className="mb-6"
+                    />
+                )}
+            </AnimatePresence>
+
+            {/* Barre de recherche */}
+            <div className="bg-white dark:bg-neutral-800 rounded-2xl shadow-soft border border-neutral-200 dark:border-neutral-700 p-6">
+                <div className="relative max-w-md">
+                    <input 
+                        type="text" 
+                        placeholder="Rechercher des publications..." 
+                        className="w-full pl-10 pr-4 py-2.5 bg-white dark:bg-neutral-700 rounded-xl border border-neutral-200 dark:border-neutral-600 focus:border-primary-500 dark:focus:border-primary-400 focus:ring-2 focus:ring-primary-500/20 transition-all duration-200 text-sm" 
+                        value={searchTerm} 
+                        onChange={(e) => setSearchTerm(e.target.value)} 
+                    />
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400 w-4 h-4" />
+                </div>
+            </div>
+
+            {/* Liste des publications */}
+            <PostsList data={filteredPosts} />
+
+            {/* Bouton flottant pour créer une publication */}
+            <motion.button
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.9 }}
+                onClick={() => setIsCreateModalOpen(true)}
+                className="fixed bottom-6 right-6 w-14 h-14 bg-blue-700 hover:bg-blue-800 text-white rounded-full shadow-xl hover:shadow-2xl flex items-center justify-center z-50 transition-all duration-200"
+                title="Créer une publication"
+            >
+                <Plus className="w-6 h-6" />
+            </motion.button>
+
+            {/* Modal de création */}
+            <NewPostModal 
+                isOpen={isCreateModalOpen}
+                onClose={() => setIsCreateModalOpen(false)}
+                onNewPost={handleCreatePost}
+                isLoading={isCreatingPost}
+            />
+        </div>
+    );
+}
+
+// Wrapper avec ErrorBoundary
+export default function PublicationsFeed(props) {
+    return (
+        <ErrorBoundary
+            title="Erreur dans la section Publications"
+            subtitle="Une erreur s'est produite lors du chargement des publications."
+        >
+            <PublicationsFeedInner {...props} />
+        </ErrorBoundary>
+    );
+}
+```
+
+### FinancesClient
+
+- **Fichier**: `src\components\syndicate-space\section-finances\FinancesClient.jsx`
+- **Props**: `N/A`
+- **Hooks**: useState, useTranslations
+```jsx
+"use client";
+
+import { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { useTranslations } from 'next-intl';
+import {
+    PieChart, TrendingUp, DollarSign, FileText,
+    Download, Upload, Eye, EyeOff, Plus
+} from 'lucide-react';
+
+export default function FinancesClient() {
+    const t = useTranslations('finances_page');
+    const [activeTab, setActiveTab] = useState('overview');
+    const [showBalance, setShowBalance] = useState(false);
+
+    const tabs = [
+        { id: 'overview', label: t('tabs.overview'), icon: PieChart },
+        { id: 'income', label: t('tabs.income'), icon: TrendingUp },
+        { id: 'expenses', label: t('tabs.expenses'), icon: DollarSign },
+        { id: 'reports', label: t('tabs.reports'), icon: FileText },
+    ];
+
+    const financialData = {
+        balance: 150000,
+        income: 50000,
+        expenses: 30000
+    };
+
+    return (
+        <div className="space-y-6">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+                <h1 className="text-3xl font-bold text-gray-900 dark:text-white">{t('title')}</h1>
+                <div className="flex gap-2">
+                    <button className="flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors text-sm font-medium">
+                        <Upload size={16} /> {t('import')}
+                    </button>
+                    <button className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg transition-colors text-sm font-medium">
+                        <Download size={16} /> {t('export')}
+                    </button>
+                </div>
+            </div>
+
+            {/* Cartes Résumé */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700">
+                    <div className="flex justify-between items-start mb-4">
+                        <h3 className="text-gray-500 dark:text-gray-400 text-sm font-medium">{t('current_balance')}</h3>
+                        <button onClick={() => setShowBalance(!showBalance)} className="text-blue-600 dark:text-blue-400">
+                            {showBalance ? <EyeOff size={18} /> : <Eye size={18} />}
+                        </button>
+                    </div>
+                    <p className="text-3xl font-bold text-gray-900 dark:text-white">
+                        {showBalance ? `${financialData.balance.toLocaleString()} FCFA` : '•••••••'}
+                    </p>
+                </div>
+
+                <div className="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700">
+                    <h3 className="text-gray-500 dark:text-gray-400 text-sm font-medium mb-4">{t('monthly_income')}</h3>
+                    <div className="flex items-center gap-2">
+                        <TrendingUp className="text-green-500" size={24} />
+                        <p className="text-2xl font-bold text-green-600 dark:text-green-400">
+                            +{financialData.income.toLocaleString()} FCFA
+                        </p>
+                    </div>
+                </div>
+
+                <div className="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700">
+                    <h3 className="text-gray-500 dark:text-gray-400 text-sm font-medium mb-4">{t('monthly_expenses')}</h3>
+                    <div className="flex items-center gap-2">
+                        <DollarSign className="text-red-500" size={24} />
+                        <p className="text-2xl font-bold text-red-600 dark:text-red-400">
+                            -{financialData.expenses.toLocaleString()} FCFA
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            {/* Navigation des onglets */}
+            <div className="flex space-x-1 bg-gray-100 dark:bg-gray-800/50 p-1 rounded-xl overflow-x-auto">
+                {tabs.map(tab => (
+                    <button
+                        key={tab.id}
+                        onClick={() => setActiveTab(tab.id)}
+                        className={`flex items-center px-4 py-2.5 rounded-lg text-sm font-medium transition-all whitespace-nowrap ${activeTab === tab.id
+                                ? 'bg-white dark:bg-gray-800 text-blue-600 dark:text-blue-400 shadow-sm'
+                                : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'
+                            }`}
+                    >
+                        <tab.icon size={16} className="mr-2" />
+                        {tab.label}
+                    </button>
+                ))}
+            </div>
+
+            {/* Contenu dynamique */}
+            <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 min-h-[400px] p-6">
+                <AnimatePresence mode="wait">
+                    <motion.div
+                        key={activeTab}
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -10 }}
+                        transition={{ duration: 0.2 }}
+                    >
+                        {/* Ici vous intégrerez les composants spécifiques : TransactionTable, ExpenseForm, etc. */}
+                        <div className="text-center text-gray-500 py-12">
+                            Contenu pour {activeTab} (À implémenter)
+                        </div>
+                    </motion.div>
+                </AnimatePresence>
+            </div>
+        </div>
     );
 }
 ```
@@ -9459,134 +12971,382 @@ export default function Post({ post, onUpdatePost, syndicatId }) {
 ### MembersClient
 
 - **Fichier**: `src\components\syndicate-space\section-membres\MembersClient.jsx`
-- **Props**: `initialMembers, initialRequests, branches, stats, syndicatId`
-- **Hooks**: useState, useMemo, useTranslations
+- **Props**: `url`
+- **Hooks**: useState, useMemo, useEffect, useTranslations, useErrorHandler, useApiWithRetry
 ```jsx
+// src/components/syndicate-space/section-membres/MembersClient.jsx
 "use client";
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslations } from 'next-intl';
 import Swal from 'sweetalert2';
 import { toast } from 'react-hot-toast';
-import { Users, UserPlus, Search, Filter, Check, X, AlertTriangle, UserX, Shield, UserCheck } from 'lucide-react';
-import StatCard from './StatCard';
-import TabButton from './TabButton';
-import { respondToAdhesionAPI } from '@/lib/api/membership';
-import { STATIC_FILES_URL } from '@/lib/constants';
-import { SyndicatDefaultAvatar } from '@/components/shared/SyndicatDefaultAvatar';
+import { Users, UserPlus, Search, Check, X, UserX, RefreshCw, UserCheck } from 'lucide-react';
 import Image from 'next/image';
 
-export default function MembersClient({ initialMembers, initialRequests, branches, stats, syndicatId }) {
+// Composants internes
+import StatCard from './StatCard';
+import TabButton from './TabButton';
+import { SyndicatDefaultAvatar } from '@/components/shared/SyndicatDefaultAvatar';
+import { MemberRowSkeleton, CardSkeleton } from '../SyndicateSpaceLoader';
+import { ErrorState, EmptyState, InlineError } from '../ErrorStates';
+import ErrorBoundary from '../ErrorBoundary';
+
+// API et Hooks
+import { respondToAdhesionAPI, getBranchMembersAPI, getAdhesionRequestsAPI } from '@/lib/api/membership';
+import { STATIC_FILES_URL } from '@/lib/constants';
+import { useErrorHandler, useApiWithRetry } from '@/hooks/useErrorHandler';
+
+/**
+ * Fonction utilitaire pour gérer intelligemment les URLs d'images.
+ * Évite le crash "Invalid URL" en ne concaténant pas STATIC_FILES_URL si l'URL est déjà absolue.
+ */
+const getAvatarUrl = (url) => {
+    if (!url) return null;
+    if (url.startsWith('http') || url.startsWith('https')) return url;
+    return `${STATIC_FILES_URL}${url}`;
+};
+
+function MembersClientInner({ initialMembers = [], initialRequests = [], branches = [], stats = {}, syndicatId }) {
     const t = useTranslations('members_page');
+    const { clearError, hasError, getError } = useErrorHandler();
+    const { executeWithRetry, loading: apiLoading } = useApiWithRetry();
+
     const [activeTab, setActiveTab] = useState('members');
     const [searchTerm, setSearchTerm] = useState('');
-    const [members, setMembers] = useState(initialMembers);
-    const [requests, setRequests] = useState(initialRequests);
-    
-    const filteredMembers = useMemo(() => members.filter(member => member.userName.toLowerCase().includes(searchTerm.toLowerCase())), [members, searchTerm]);
-    const filteredRequests = useMemo(() => requests.filter(req => req.userName.toLowerCase().includes(searchTerm.toLowerCase())), [requests, searchTerm]);
+    const [members, setMembers] = useState(initialMembers || []);
+    const [requests, setRequests] = useState(initialRequests || []);
+    // eslint-disable-next-line no-unused-vars
+    const [lastRefresh, setLastRefresh] = useState(Date.now());
 
+    // Filtrage dynamique
+    const filteredMembers = useMemo(() =>
+        (members || []).filter(member =>
+            member?.userName?.toLowerCase().includes(searchTerm.toLowerCase())
+        ), [members, searchTerm]);
+
+    const filteredRequests = useMemo(() =>
+        (requests || []).filter(req =>
+            req?.userName?.toLowerCase().includes(searchTerm.toLowerCase())
+        ), [requests, searchTerm]);
+
+    // Fonction de rafraîchissement des données
+    const refreshData = async (force = false) => {
+        // Protection pour le mode test : ne pas appeler l'API
+        if (syndicatId === 'test-id') {
+            if (force) toast.success("Données de test rechargées (simulation)");
+            return;
+        }
+
+        if (!branches || branches.length === 0) return;
+        const mainBranchId = branches[0].id;
+
+        try {
+            await executeWithRetry(async () => {
+                const [membersData, requestsData] = await Promise.all([
+                    getBranchMembersAPI(mainBranchId),
+                    getAdhesionRequestsAPI(syndicatId, mainBranchId)
+                ]);
+
+                setMembers(membersData || []);
+                setRequests(requestsData || []);
+                setLastRefresh(Date.now());
+
+                clearError('members');
+                clearError('requests');
+            }, 'refresh-data', {
+                maxRetries: 2,
+                onSuccess: () => {
+                    if (force) {
+                        toast.success(t('data_refreshed'));
+                    }
+                }
+            });
+        } catch (error) {
+            // L'erreur est gérée par le hook useErrorHandler
+        }
+    };
+
+    // Chargement initial si nécessaire (sauf pour le mock qui est injecté via props)
+    useEffect(() => {
+        if (syndicatId !== 'test-id' &&
+            (!initialMembers || initialMembers.length === 0) &&
+            branches && branches.length > 0) {
+            refreshData(false);
+        }
+    }, [branches, syndicatId]);
+
+    // Gestion de l'approbation/rejet
     const handleResponse = async (userId, branchId, isApproved) => {
-        const action = isApproved ? "d'approuver" : "de rejeter";
+        // En mode test, on simule l'action
+        if (syndicatId === 'test-id') {
+            setRequests(prev => prev.filter(req => req.userId !== userId));
+            if (isApproved) {
+                // Simuler l'ajout aux membres
+                const req = requests.find(r => r.userId === userId);
+                if (req) {
+                    setMembers(prev => [...prev, { ...req, role: 'ROLE_MEMBER', status: 'ACTIVE' }]);
+                }
+            }
+            toast.success(t(isApproved ? 'request_approved' : 'request_rejected'));
+            return;
+        }
+
         const result = await Swal.fire({
-            title: `Êtes-vous sûr de vouloir ${action} cette demande ?`,
+            title: t(isApproved ? 'approve_confirmation' : 'reject_confirmation'),
             icon: 'warning',
             showCancelButton: true,
-            confirmButtonColor: '#3085d6',
-            cancelButtonColor: '#d33',
-            confirmButtonText: 'Oui, continuer !',
-            cancelButtonText: 'Annuler'
+            confirmButtonColor: '#2563eb',
+            cancelButtonColor: '#6b7280',
+            confirmButtonText: t('yes_continue'),
+            cancelButtonText: t('cancel'),
+            customClass: {
+                popup: 'dark:bg-neutral-800 dark:text-white',
+            }
         });
 
         if (result.isConfirmed) {
-            const toastId = toast.loading("Traitement en cours...");
             try {
-                await respondToAdhesionAPI(syndicatId, branchId, userId, isApproved);
-                setRequests(prev => prev.filter(req => req.userId !== userId));
-                toast.success("La demande a été traitée.", { id: toastId });
-                // Idéalement, on rechargerait la liste des membres pour voir le nouveau membre
-            } catch (error) {
-                toast.error("Une erreur est survenue.", { id: toastId });
-            }
+                await executeWithRetry(async () => {
+                    await respondToAdhesionAPI(syndicatId, branchId, userId, isApproved);
+                }, `respond-adhesion-${userId}`, {
+                    maxRetries: 2,
+                    onSuccess: () => {
+                        setRequests(prev => prev.filter(req => req.userId !== userId));
+                        toast.success(t(isApproved ? 'request_approved' : 'request_rejected'));
+                        if (isApproved) {
+                            setTimeout(() => refreshData(false), 1000);
+                        }
+                    }
+                });
+            } catch (error) { }
         }
     };
-    
-    const MembersList = ({ data }) => (
-        <div className="bg-white dark:bg-gray-800/50 rounded-2xl shadow-lg overflow-hidden border border-gray-200 dark:border-gray-700">
-            <div className="overflow-x-auto">
-                <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-                    <thead className="bg-gray-50 dark:bg-gray-900/50">
-                        <tr>
-                            <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">Membre</th>
-                            <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">Rôle</th>
-                            <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">Statut</th>
-                            <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
-                        <AnimatePresence>
-                            {data.map(member => (
-                                <motion.tr key={member.userId} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="hover:bg-gray-50 dark:hover:bg-gray-700/50">
-                                    <td className="px-6 py-4 whitespace-nowrap"><div className="flex items-center">
-                                        {member.userAvatarUrl ? <Image src={`${STATIC_FILES_URL}${member.userAvatarUrl}`} alt={member.userName} width={44} height={44} className="w-11 h-11 rounded-full object-cover"/> : <SyndicatDefaultAvatar name={member.userName} size={44}/>}
-                                        <div className="ml-4"><div className="text-sm font-medium text-gray-900 dark:text-white">{member.userName}</div></div>
-                                    </div></td>
-                                    <td className="px-6 py-4"><span className={`px-3 py-1 text-xs font-medium rounded-full ${member.role === 'ROLE_PRESIDENT' ? 'bg-indigo-100 text-indigo-800' : 'bg-gray-100 text-gray-800'}`}>{member.role.replace('ROLE_', '')}</span></td>
-                                    <td className="px-6 py-4"><span className={`px-3 py-1 inline-flex text-xs font-semibold rounded-full ${member.status === 'ACTIVE' ? 'bg-green-100 dark:bg-green-900/50 text-green-800 dark:text-green-300' : 'bg-yellow-100 text-yellow-800'}`}>{member.status}</span></td>
-                                    <td className="px-6 py-4"><button className="p-2 text-red-500 hover:bg-red-100 rounded-full transition-colors"><UserX size={16}/></button></td>
-                                </motion.tr>
-                            ))}
-                        </AnimatePresence>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    );
 
-    const MembershipRequestsList = ({ data }) => (
-        <div className="space-y-6">
-            <AnimatePresence>
-                {data.map(req => (
-                    <motion.div key={req.userId} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, x: -30 }} className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6">
-                        <div className="flex flex-col sm:flex-row items-start justify-between gap-4">
-                            <div className="flex items-center"><div className="w-16 h-16 flex-shrink-0">{req.userAvatarUrl ? <Image src={`${STATIC_FILES_URL}${req.userAvatarUrl}`} alt={req.userName} width={64} height={64} className="rounded-xl object-cover"/> : <SyndicatDefaultAvatar name={req.userName} size={64} className="rounded-xl"/>}</div><div className="ml-4"><h3 className="text-xl font-semibold text-gray-800 dark:text-white">{req.userName}</h3><p className="text-sm text-gray-500 dark:text-gray-400">Demande le {new Date(req.requestTimestamp).toLocaleDateString('fr-FR')}</p></div></div>
-                            <div className="flex space-x-3 self-start sm:self-center flex-shrink-0">
-                                <motion.button onClick={() => handleResponse(req.userId, branches[0].id, true)} className="p-3 bg-green-500 text-white rounded-full shadow-lg hover:bg-green-600"><Check className="w-5 h-5"/></motion.button>
-                                <motion.button onClick={() => handleResponse(req.userId, branches[0].id, false)} className="p-3 bg-red-500 text-white rounded-full shadow-lg hover:bg-red-600"><X className="w-5 h-5"/></motion.button>
-                            </div>
-                        </div>
-                        <div className="mt-4 p-4 bg-gray-50 dark:bg-gray-700/50 rounded-xl border-l-4 border-blue-400"><p className="text-gray-600 dark:text-gray-300 italic">"{req.motivation}"</p></div>
-                    </motion.div>
-                ))}
-            </AnimatePresence>
-        </div>
-    );
+    // Sous-composant : Liste des membres
+    const MembersList = ({ data }) => {
+        if (hasError('members')) return <ErrorState error={getError('members')} onRetry={() => refreshData(true)} />;
+
+        if (!data || data.length === 0) {
+            return (
+                <EmptyState
+                    icon={Users}
+                    title={t('no_members_found')}
+                    description={searchTerm ? t('no_members_description_search') : t('no_members_description')}
+                    action={!searchTerm && (
+                        <motion.button
+                            whileHover={{ scale: 1.02 }}
+                            whileTap={{ scale: 0.98 }}
+                            onClick={() => refreshData(true)}
+                            className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-medium transition-all duration-200 flex items-center gap-2"
+                        >
+                            <RefreshCw className="w-4 h-4" />
+                            {t('refresh')}
+                        </motion.button>
+                    )}
+                    className="bg-white dark:bg-neutral-800/50 rounded-2xl border border-neutral-200 dark:border-neutral-700/80 p-8"
+                />
+            );
+        }
+
+        return (
+            <div className="bg-white dark:bg-neutral-800/50 rounded-2xl shadow-soft overflow-hidden border border-neutral-200 dark:border-neutral-700/80">
+                <div className="overflow-x-auto">
+                    <table className="min-w-full divide-y divide-neutral-200 dark:divide-neutral-700">
+                        <thead className="bg-neutral-50 dark:bg-neutral-900/50">
+                            <tr>
+                                <th className="px-6 py-4 text-left text-xs font-semibold text-neutral-500 uppercase">{t('member')}</th>
+                                <th className="px-6 py-4 text-left text-xs font-semibold text-neutral-500 uppercase">{t('role')}</th>
+                                <th className="px-6 py-4 text-left text-xs font-semibold text-neutral-500 uppercase">{t('status')}</th>
+                                <th className="px-6 py-4 text-left text-xs font-semibold text-neutral-500 uppercase">{t('actions')}</th>
+                            </tr>
+                        </thead>
+                        <tbody className="divide-y divide-neutral-200 dark:divide-neutral-700">
+                            {apiLoading && data.length === 0 ? (
+                                Array.from({ length: 5 }).map((_, index) => <MemberRowSkeleton key={`skeleton-${index}`} />)
+                            ) : (
+                                data.map(member => (
+                                    <motion.tr key={member.userId} initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="hover:bg-neutral-50 dark:hover:bg-neutral-700/30 transition-colors">
+                                        <td className="px-6 py-4 whitespace-nowrap">
+                                            <div className="flex items-center">
+                                                {member.userAvatarUrl ? (
+                                                    <Image
+                                                        src={getAvatarUrl(member.userAvatarUrl)}
+                                                        alt={member.userName}
+                                                        width={44} height={44}
+                                                        className="w-11 h-11 rounded-xl object-cover shadow-soft"
+                                                    />
+                                                ) : (
+                                                    <SyndicatDefaultAvatar name={member.userName} size={44} className="rounded-xl" />
+                                                )}
+                                                <div className="ml-4">
+                                                    <div className="text-sm font-medium text-neutral-800 dark:text-white">{member.userName}</div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td className="px-6 py-4"><span className="px-3 py-1 text-xs font-medium rounded-full bg-neutral-100 text-neutral-700 dark:bg-neutral-700 dark:text-neutral-300">{member.role.replace('ROLE_', '')}</span></td>
+                                        <td className="px-6 py-4"><span className="px-3 py-1 text-xs font-semibold rounded-full bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-300">{member.status}</span></td>
+                                        <td className="px-6 py-4"><button className="p-2 text-neutral-500 hover:bg-red-100 hover:text-red-600 dark:hover:bg-red-900/30 rounded-xl transition-colors"><UserX size={16} /></button></td>
+                                    </motion.tr>
+                                ))
+                            )}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        );
+    };
+
+    // Sous-composant : Liste des demandes
+    const MembershipRequestsList = ({ data }) => {
+        if (hasError('requests')) return <ErrorState error={getError('requests')} onRetry={() => refreshData(true)} />;
+
+        if (!data || data.length === 0) {
+            return (
+                <EmptyState
+                    icon={UserPlus}
+                    title={t('no_requests_found')}
+                    description={searchTerm ? t('no_requests_description_search') : t('no_requests_description')}
+                    action={!searchTerm && (
+                        <motion.button
+                            whileHover={{ scale: 1.02 }}
+                            whileTap={{ scale: 0.98 }}
+                            onClick={() => refreshData(true)}
+                            className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-medium transition-all duration-200 flex items-center gap-2"
+                        >
+                            <RefreshCw className="w-4 h-4" />
+                            {t('refresh')}
+                        </motion.button>
+                    )}
+                    className="bg-white dark:bg-neutral-800/50 rounded-2xl border border-neutral-200 dark:border-neutral-700/80 p-8"
+                />
+            );
+        }
+
+        return (
+            <div className="space-y-5">
+                {apiLoading && data.length === 0 ? (
+                    Array.from({ length: 3 }).map((_, index) => <CardSkeleton key={`request-skeleton-${index}`} />)
+                ) : (
+                    <AnimatePresence>
+                        {data.map(req => (
+                            <motion.div key={req.userId} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, x: -30 }} className="bg-white dark:bg-neutral-800/50 rounded-2xl shadow-soft p-5 border border-neutral-200 dark:border-neutral-700/80">
+                                <div className="flex flex-col sm:flex-row items-start justify-between gap-4">
+                                    <div className="flex items-center flex-grow">
+                                        <div className="w-16 h-16 flex-shrink-0">
+                                            {req.userAvatarUrl ? (
+                                                <Image
+                                                    src={getAvatarUrl(req.userAvatarUrl)}
+                                                    alt={req.userName}
+                                                    width={64} height={64}
+                                                    className="rounded-xl object-cover"
+                                                />
+                                            ) : (
+                                                <SyndicatDefaultAvatar name={req.userName} size={64} className="rounded-xl" />
+                                            )}
+                                        </div>
+                                        <div className="ml-4">
+                                            <h3 className="text-lg font-semibold text-neutral-800 dark:text-white">{req.userName}</h3>
+                                            <p className="text-sm text-neutral-500 dark:text-neutral-400">{t('request_date', { date: new Date(req.requestTimestamp).toLocaleDateString('fr-FR') })}</p>
+                                        </div>
+                                    </div>
+                                    <div className="flex space-x-3 self-start sm:self-center flex-shrink-0 pt-2 sm:pt-0">
+                                        {(branches && branches.length > 0) || syndicatId === 'test-id' ? (
+                                            <>
+                                                <motion.button whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.95 }} onClick={() => handleResponse(req.userId, branches[0]?.id || 'mock-branch', true)} className="p-2.5 bg-blue-600 text-white rounded-full shadow-lg hover:bg-blue-700 transition-colors"><Check className="w-5 h-5" /></motion.button>
+                                                <motion.button whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.95 }} onClick={() => handleResponse(req.userId, branches[0]?.id || 'mock-branch', false)} className="p-2.5 bg-red-500 text-white rounded-full shadow-lg hover:bg-red-600 transition-colors"><X className="w-5 h-5" /></motion.button>
+                                            </>
+                                        ) : (
+                                            <div className="text-sm text-neutral-500 dark:text-neutral-400">{t('actions_unavailable')}</div>
+                                        )}
+                                    </div>
+                                </div>
+                                <div className="mt-4 p-4 bg-neutral-50 dark:bg-neutral-700/50 rounded-xl border-l-4 border-blue-500">
+                                    <p className="text-neutral-600 dark:text-neutral-300 italic">"{req.motivation}"</p>
+                                </div>
+                            </motion.div>
+                        ))}
+                    </AnimatePresence>
+                )}
+            </div>
+        );
+    };
 
     return (
-        <div className="space-y-8">
+        <div className="space-y-6">
+            {/* En-tête de page */}
             <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }}>
-                <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent mb-2">{t('members_page.title')}</h1>
-                <p className="text-gray-600 dark:text-gray-400 text-lg">{t('members_page.subtitle')}</p>
+                <div className="flex items-start justify-between mb-4 flex-wrap gap-4">
+                    <div>
+                        <h1 className="text-3xl font-bold text-neutral-800 dark:text-white mb-1">{t('title')}</h1>
+                        <p className="text-neutral-600 dark:text-neutral-400 max-w-2xl">{t('subtitle')}</p>
+                    </div>
+                    <motion.button
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                        onClick={() => refreshData(true)}
+                        disabled={apiLoading}
+                        className="px-4 py-2 bg-white dark:bg-neutral-800 hover:bg-neutral-50 dark:hover:bg-neutral-700 border border-neutral-200 dark:border-neutral-700 text-neutral-700 dark:text-neutral-300 rounded-xl font-medium transition-all duration-200 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed shadow-soft"
+                    >
+                        <RefreshCw className={`w-4 h-4 ${apiLoading ? 'animate-spin' : ''}`} />
+                        {t('refresh')}
+                    </motion.button>
+                </div>
             </motion.div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                <StatCard icon={Users} value={stats.total.toLocaleString()} label="Membres au total" color="border-blue-500"/>
-                <StatCard icon={UserCheck} value={stats.active.toLocaleString()} label="Membres actifs" color="border-green-500"/>
-                <StatCard icon={UserPlus} value={stats.pending.toLocaleString()} label="Demandes en attente" color="border-yellow-500"/>
+            <AnimatePresence>
+                {hasError('refresh-data') && <InlineError error={getError('refresh-data')} className="mb-6" />}
+            </AnimatePresence>
+
+            {/* Cartes de statistiques */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+                <StatCard icon={Users} value={(stats?.total || members.length + requests.length).toLocaleString()} label={t('total_members')} />
+                <StatCard icon={UserCheck} value={(stats?.active || members.length).toLocaleString()} label={t('active_members')} />
+                <StatCard icon={UserPlus} value={(stats?.pending || requests.length).toLocaleString()} label={t('pending_requests')} />
             </div>
 
-            <div>
-                <div className="flex items-center justify-between mb-6 flex-wrap gap-4">
-                    <div className="flex space-x-2 border border-gray-200 dark:border-gray-700 rounded-xl p-1 bg-gray-50 dark:bg-gray-800">
-                        <TabButton active={activeTab === 'members'} icon={Users} label={t('members_page.tab_members')} onClick={() => setActiveTab('members')}/>
-                        <TabButton active={activeTab === 'requests'} icon={UserPlus} label={`${t('members_page.tab_requests')} (${requests.length})`} onClick={() => setActiveTab('requests')}/>
+            {/* Zone principale (Onglets + Recherche + Liste) */}
+            <div className="bg-white dark:bg-neutral-800/50 rounded-2xl shadow-soft border border-neutral-200 dark:border-neutral-700/80">
+                <div className="p-4 sm:p-5 border-b border-neutral-200 dark:border-neutral-700">
+                    <div className="flex items-center justify-between flex-wrap gap-4">
+                        <div className="flex space-x-1 bg-neutral-100 dark:bg-neutral-900/50 rounded-xl p-1">
+                            <TabButton active={activeTab === 'members'} icon={Users} label={`${t('tab_members')} (${filteredMembers.length})`} onClick={() => setActiveTab('members')} />
+                            <TabButton active={activeTab === 'requests'} icon={UserPlus} label={`${t('tab_requests')} (${filteredRequests.length})`} onClick={() => setActiveTab('requests')} />
+                        </div>
+                        <div className="relative flex-1 min-w-[200px] max-w-xs">
+                            <input
+                                type="text"
+                                placeholder={t("search_placeholder")}
+                                className="w-full pl-10 pr-4 py-2.5 bg-white dark:bg-neutral-700 rounded-xl border border-neutral-300 dark:border-neutral-600 focus:border-blue-500 dark:focus:border-blue-400 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200 text-sm"
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                            />
+                            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-neutral-400 w-4 h-4" />
+                        </div>
                     </div>
-                    <div className="relative flex-1 min-w-[250px]"><input type="text" placeholder={t("members_page.search_placeholder")} className="w-full pl-12 pr-4 py-3 bg-white dark:bg-gray-800 rounded-xl border-2 border-gray-200 dark:border-gray-700" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} /><Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" /></div>
                 </div>
-                <AnimatePresence mode="wait"><motion.div key={activeTab} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }}>{activeTab === 'members' ? <MembersList data={filteredMembers} /> : <MembershipRequestsList data={filteredRequests} />}</motion.div></AnimatePresence>
+                <div className="p-2 sm:p-4">
+                    <AnimatePresence mode="wait">
+                        <motion.div key={activeTab} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.2 }}>
+                            {activeTab === 'members' ? <MembersList data={filteredMembers} /> : <MembershipRequestsList data={filteredRequests} />}
+                        </motion.div>
+                    </AnimatePresence>
+                </div>
             </div>
         </div>
+    );
+}
+
+// Wrapper avec ErrorBoundary
+export default function MembersClient(props) {
+    return (
+        <ErrorBoundary
+            title="Erreur dans la section Membres"
+            subtitle="Une erreur s'est produite lors du chargement de la gestion des membres."
+        >
+            <MembersClientInner {...props} />
+        </ErrorBoundary>
     );
 }
 ```
@@ -9602,20 +13362,21 @@ export default function MembersClient({ initialMembers, initialRequests, branche
 import { motion } from 'framer-motion';
 
 export default function StatCard({ icon: Icon, value, label, color }) {
+    // We'll use a more consistent and professional color scheme based on blue.
+    const blueColor = "blue";
+
     return (
         <motion.div
-            className={`bg-white dark:bg-gray-800/50 p-6 rounded-2xl shadow-lg border-l-4 ${color}`}
-            whileHover={{ y: -5, scale: 1.02 }}
-            transition={{ type: "spring", stiffness: 300 }}
+            className={`bg-white dark:bg-neutral-800 p-5 rounded-xl shadow-soft border border-neutral-200/80 dark:border-neutral-700/60 flex items-center gap-5`}
+            whileHover={{ y: -4, scale: 1.02 }}
+            transition={{ type: "spring", stiffness: 300, damping: 15 }}
         >
-            <div className="flex items-center">
-                <div className={`p-3 rounded-xl ${color.replace('border-', 'bg-').replace('-500', '-100')} dark:bg-opacity-20`}>
-                    <Icon className={`w-6 h-6 ${color.replace('border-', 'text-')}`} />
-                </div>
-                <div className="ml-4">
-                    <div className="text-2xl font-bold text-gray-800 dark:text-white">{value}</div>
-                    <div className="text-sm text-gray-600 dark:text-gray-400">{label}</div>
-                </div>
+            <div className={`p-3 rounded-lg bg-${blueColor}-100 dark:bg-${blueColor}-900/20`}>
+                <Icon className={`w-6 h-6 text-${blueColor}-600 dark:text-${blueColor}-400`} />
+            </div>
+            <div>
+                <div className="text-2xl font-bold text-neutral-800 dark:text-white">{value}</div>
+                <div className="text-sm text-neutral-500 dark:text-neutral-400">{label}</div>
             </div>
         </motion.div>
     );
@@ -9636,12 +13397,12 @@ export default function TabButton({ active, icon: Icon, label, onClick }) {
     return (
         <motion.button
             onClick={onClick}
-            className={`relative flex items-center px-4 sm:px-6 py-3 rounded-lg font-semibold transition-colors duration-200 text-sm ${
+            className={`relative flex items-center px-4 sm:px-5 py-2.5 rounded-lg font-semibold transition-colors duration-200 text-sm outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-neutral-800 ${
                 active 
                     ? 'text-white' 
-                    : 'text-gray-600 dark:text-gray-300 hover:bg-white/60 dark:hover:bg-gray-900/60'
+                    : 'text-neutral-600 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-700/50'
             }`}
-            whileHover={{ scale: 1.03 }}
+            whileHover={{ scale: active ? 1 : 1.03 }}
             whileTap={{ scale: 0.98 }}
         >
             {active && (
@@ -9660,56 +13421,462 @@ export default function TabButton({ active, icon: Icon, label, onClick }) {
 }
 ```
 
-### SyndicateHeader
+### PartnersClient
 
-- **Fichier**: `src\components\syndicate-space\SyndicateHeader.jsx`
-- **Props**: `syndicateData, onSidebarToggle, onNotificationToggle`
-- **Hooks**: 
+- **Fichier**: `src\components\syndicate-space\section-partenaires\PartnersClient.jsx`
+- **Props**: `partner`
+- **Hooks**: useState, useTranslations
 ```jsx
 "use client";
 
-import { Bell, LogOut, Menu } from 'lucide-react';
-import { Link } from '@/navigation';
-import { STATIC_FILES_URL } from '@/lib/constants';
-import { SyndicatDefaultAvatar } from '../shared/SyndicatDefaultAvatar';
+import { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { useTranslations } from 'next-intl';
+import {
+    Handshake, Plus, ChevronDown, ChevronUp, MapPin,
+    Phone, Mail, Globe, Gift, Star, X
+} from 'lucide-react';
 import Image from 'next/image';
 
-export default function SyndicateHeader({ syndicateData, onSidebarToggle, onNotificationToggle }) {
-    
-    const imageUrl = syndicateData.bannerUrl ? `${STATIC_FILES_URL}${syndicateData.bannerUrl}` : null;
+const PartnerCard = ({ partner }) => {
+    const [expanded, setExpanded] = useState(false);
 
     return (
-        <header className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm z-30 sticky top-0 border-b border-gray-200/80 dark:border-white/10">
-            <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-                <div className="flex justify-between items-center py-3">
-                    <div className="flex items-center space-x-4">
-                        <button onClick={onSidebarToggle} className="text-gray-600 dark:text-gray-300 lg:hidden">
-                            <Menu size={24} />
-                        </button>
-                        <div className="flex items-center">
-                            {imageUrl ? (
-                                <Image src={imageUrl} alt={`${syndicateData.name} logo`} width={32} height={32} className="h-8 w-8 rounded-md object-cover" />
-                            ) : (
-                                <SyndicatDefaultAvatar name={syndicateData.name} size={32} className="rounded-md"/>
-                            )}
-                            
-                            <h1 className="ml-3 text-xl font-bold text-gray-800 dark:text-white truncate">
-                                {syndicateData.name}
-                            </h1>
-                        </div>
+        <motion.div
+            layout
+            className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden hover:shadow-md transition-shadow"
+        >
+            <div className="p-5 flex items-center justify-between cursor-pointer" onClick={() => setExpanded(!expanded)}>
+                <div className="flex items-center gap-4">
+                    <div className="w-16 h-16 bg-gray-50 dark:bg-gray-700 rounded-xl flex items-center justify-center p-2">
+                        {partner.logo ? (
+                            <Image src={partner.logo} alt={partner.name} width={64} height={64} className="object-contain" />
+                        ) : (
+                            <Handshake className="text-blue-500 w-8 h-8" />
+                        )}
                     </div>
-                    <div className="flex items-center space-x-4">
-                        <button onClick={onNotificationToggle} className="relative p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700/50">
-                            <Bell size={22} className="text-gray-600 dark:text-gray-300" />
-                            <span className="absolute top-0 right-0 block h-2 w-2 rounded-full bg-red-500 ring-2 ring-white dark:ring-gray-800" />
-                        </button>
-                        <Link href="/home" className="p-2 rounded-full text-red-500 bg-red-100/60 dark:bg-red-900/50 hover:bg-red-100 dark:hover:bg-red-900" aria-label="Quitter l'espace syndicat">
-                            <LogOut size={20} />
-                        </Link>
+                    <div>
+                        <h3 className="text-lg font-bold text-gray-900 dark:text-white">{partner.name}</h3>
+                        <span className="inline-block px-2 py-1 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 text-xs rounded-md font-medium mt-1">
+                            {partner.category}
+                        </span>
                     </div>
                 </div>
+                <button className="p-2 text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full">
+                    {expanded ? <ChevronUp /> : <ChevronDown />}
+                </button>
             </div>
-        </header>
+
+            <AnimatePresence>
+                {expanded && (
+                    <motion.div
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: "auto", opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        className="border-t border-gray-100 dark:border-gray-700"
+                    >
+                        <div className="p-5 space-y-4 bg-gray-50/50 dark:bg-gray-800/50">
+                            {/* Avantages */}
+                            <div className="bg-green-50 dark:bg-green-900/20 p-4 rounded-xl border border-green-100 dark:border-green-800/30">
+                                <h4 className="flex items-center font-semibold text-green-800 dark:text-green-300 mb-2">
+                                    <Gift className="w-4 h-4 mr-2" /> Avantages membres
+                                </h4>
+                                <ul className="space-y-2">
+                                    {partner.benefits.map((benefit, i) => (
+                                        <li key={i} className="flex items-start text-sm text-green-700 dark:text-green-400">
+                                            <Star className="w-4 h-4 mr-2 flex-shrink-0 mt-0.5 fill-current" />
+                                            {benefit}
+                                        </li>
+                                    ))}
+                                </ul>
+                            </div>
+
+                            {/* Contact Info Grid */}
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                                <div className="flex items-center text-gray-600 dark:text-gray-400">
+                                    <MapPin className="w-4 h-4 mr-3 text-blue-500" />
+                                    {partner.address}
+                                </div>
+                                <div className="flex items-center text-gray-600 dark:text-gray-400">
+                                    <Phone className="w-4 h-4 mr-3 text-blue-500" />
+                                    {partner.phone}
+                                </div>
+                                <div className="flex items-center text-gray-600 dark:text-gray-400">
+                                    <Mail className="w-4 h-4 mr-3 text-blue-500" />
+                                    {partner.email}
+                                </div>
+                                <a href={partner.website} target="_blank" className="flex items-center text-blue-600 hover:underline">
+                                    <Globe className="w-4 h-4 mr-3" />
+                                    Site web
+                                </a>
+                            </div>
+                        </div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+        </motion.div>
+    );
+};
+
+export default function PartnersClient() {
+    const t = useTranslations('partners_page');
+    // Données fictives
+    const [partners] = useState([
+        {
+            id: 1,
+            name: "MegaGym",
+            category: "Santé et Bien-être",
+            address: "123 Rue du Sport, Paris",
+            phone: "+33 1 23 45 67 89",
+            email: "contact@megagym.com",
+            website: "https://www.megagym.com",
+            benefits: ["20% de réduction annuelle", "1 séance coach offerte"]
+        }
+    ]);
+
+    return (
+        <div className="space-y-8">
+            <div className="flex justify-between items-center">
+                <div>
+                    <h1 className="text-3xl font-bold text-gray-900 dark:text-white flex items-center gap-3">
+                        <Handshake className="text-blue-600" />
+                        {t('title')}
+                    </h1>
+                    <p className="text-gray-500 mt-2">{t('subtitle')}</p>
+                </div>
+                <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    className="bg-blue-600 text-white px-5 py-2.5 rounded-xl font-medium shadow-lg hover:bg-blue-700 flex items-center gap-2"
+                >
+                    <Plus size={20} />
+                    {t('add_partner')}
+                </motion.button>
+            </div>
+
+            <div className="grid gap-6">
+                {partners.map(partner => (
+                    <PartnerCard key={partner.id} partner={partner} />
+                ))}
+            </div>
+        </div>
+    );
+}
+```
+
+### VotesClient
+
+- **Fichier**: `src\components\syndicate-space\section-votes\VotesClient.jsx`
+- **Props**: `vote`
+- **Hooks**: useState, useTranslations
+```jsx
+"use client";
+
+import { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { useTranslations } from 'next-intl';
+import { Plus, BarChart, Users, TrendingUp, Calendar, CheckCircle } from 'lucide-react';
+
+// Composant Carte de Vote interne (pour éviter les erreurs d'import)
+const VoteCard = ({ vote }) => {
+    const t = useTranslations('votes_page');
+    const isClosed = new Date(vote.closingDate) < new Date();
+
+    return (
+        <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700"
+        >
+            <div className="flex justify-between items-start mb-4">
+                <div>
+                    <div className="flex items-center gap-2 mb-2">
+                        <span className={`px-2.5 py-0.5 rounded-full text-xs font-bold ${isClosed ? 'bg-gray-100 text-gray-600' : 'bg-green-100 text-green-700'
+                            }`}>
+                            {isClosed ? 'CLÔTURÉ' : 'EN COURS'}
+                        </span>
+                        <span className="text-xs text-gray-500">{vote.type}</span>
+                    </div>
+                    <h3 className="text-xl font-bold text-gray-900 dark:text-white">{vote.title}</h3>
+                </div>
+                <div className="text-right text-sm text-gray-500 flex items-center gap-1">
+                    <Calendar size={14} />
+                    {new Date(vote.closingDate).toLocaleDateString()}
+                </div>
+            </div>
+
+            <p className="text-gray-600 dark:text-gray-300 mb-6">{vote.description}</p>
+
+            <div className="w-full bg-gray-100 dark:bg-gray-700 rounded-full h-2.5 mb-4">
+                <div
+                    className="bg-blue-600 h-2.5 rounded-full"
+                    style={{ width: `${vote.totalVotes > 0 ? (vote.votesFor / vote.totalVotes) * 100 : 0}%` }}
+                ></div>
+            </div>
+
+            <div className="flex justify-between items-center mt-4">
+                <div className="flex -space-x-2">
+                    {[1, 2, 3].map(i => (
+                        <div key={i} className="w-8 h-8 rounded-full bg-gray-200 border-2 border-white dark:border-gray-800 flex items-center justify-center text-xs">U{i}</div>
+                    ))}
+                    <div className="w-8 h-8 rounded-full bg-gray-100 border-2 border-white flex items-center justify-center text-xs">+{vote.totalVotes}</div>
+                </div>
+                <button className="px-4 py-2 bg-blue-50 text-blue-600 rounded-lg text-sm font-semibold hover:bg-blue-100 transition-colors">
+                    Voir les détails
+                </button>
+            </div>
+        </motion.div>
+    );
+};
+
+// Composant Statistique
+const StatBox = ({ icon: Icon, label, value, color }) => (
+    <div className="bg-white dark:bg-gray-800 p-4 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 flex items-center gap-4">
+        <div className={`p-3 rounded-xl bg-${color}-50 dark:bg-${color}-900/20 text-${color}-600 dark:text-${color}-400`}>
+            <Icon size={24} />
+        </div>
+        <div>
+            <p className="text-sm text-gray-500 dark:text-gray-400">{label}</p>
+            <p className="text-xl font-bold text-gray-900 dark:text-white">{value}</p>
+        </div>
+    </div>
+);
+
+export default function VotesClient({ initialVotes = [] }) {
+    const t = useTranslations('votes_page');
+    // Utiliser les données passées en props
+    const [votes, setVotes] = useState(initialVotes);
+
+    const activeVotesCount = votes.filter(v => new Date(v.closingDate) > new Date()).length;
+    const totalVotesCount = votes.reduce((acc, v) => acc + (v.totalVotes || 0), 0);
+
+    return (
+        <div className="space-y-8">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                <div>
+                    <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
+                        Tableau de bord
+                    </h2>
+                </div>
+                <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-xl font-medium shadow-lg flex items-center gap-2"
+                >
+                    <Plus size={20} />
+                    {t('new_vote')}
+                </motion.button>
+            </div>
+
+            {/* Statistiques rapides */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <StatBox icon={BarChart} label={t('active_votes')} value={activeVotesCount} color="blue" />
+                <StatBox icon={Users} label={t('total_participants')} value={totalVotesCount} color="green" />
+                <StatBox icon={TrendingUp} label={t('participation_rate')} value="78%" color="purple" />
+            </div>
+
+            <div className="grid gap-6">
+                <AnimatePresence>
+                    {votes.map((vote) => (
+                        <VoteCard key={vote.id} vote={vote} />
+                    ))}
+                </AnimatePresence>
+                {votes.length === 0 && (
+                    <div className="text-center py-12 text-gray-500">
+                        Aucun vote en cours.
+                    </div>
+                )}
+            </div>
+        </div>
+    );
+}
+```
+
+### SyndicateHeader
+
+- **Fichier**: `src\components\syndicate-space\SyndicateHeader.jsx`
+- **Props**: `syndicateData, onSidebarToggle, onNotificationToggle, isCollapsed = false`
+- **Hooks**: useTranslations, useState, useEffect
+```jsx
+"use client";
+
+import { Bell, LogOut, Menu, Users, MapPin } from 'lucide-react';
+import { Link } from '@/navigation';
+import { STATIC_FILES_URL } from '@/lib/constants';
+import { useTranslations } from 'next-intl';
+import Image from 'next/image';
+import { motion, AnimatePresence } from 'framer-motion';
+import { useState, useEffect } from 'react';
+
+export default function SyndicateHeader({ syndicateData, onSidebarToggle, onNotificationToggle, isCollapsed = false }) {
+    const t = useTranslations();
+
+    // CORRECTION : Vérifier si l'URL est déjà absolue (http) avant d'ajouter le préfixe
+    const getFullUrl = (url) => {
+        if (!url) return null;
+        if (url.startsWith('http') || url.startsWith('https')) return url;
+        return `${STATIC_FILES_URL}${url}`;
+    };
+
+    const bannerUrl = getFullUrl(syndicateData.bannerUrl);
+
+    return (
+        <>
+            {/* Header principal avec animation */}
+            <motion.div
+                className="bg-white shadow-lg overflow-hidden"
+                style={{
+                    position: 'sticky',
+                    top: 0,
+                    zIndex: 50
+                }}
+            >
+                {/* Bannière Header - Se transforme au lieu de changer de hauteur */}
+                <motion.div
+                    className="relative bg-gradient-to-r from-blue-600 to-blue-700 overflow-hidden"
+                    initial={false}
+                    animate={{
+                        height: isCollapsed ? 0 : 192,
+                        opacity: isCollapsed ? 0 : 1
+                    }}
+                    transition={{ duration: 0.3, ease: 'easeInOut' }}
+                >
+                    {bannerUrl && (
+                        <Image
+                            src={bannerUrl}
+                            alt={`Bannière ${syndicateData.name}`}
+                            fill
+                            className="object-cover"
+                            priority
+                        />
+                    )}
+                    <div className="absolute inset-0 bg-gradient-to-r from-blue-800/70 to-blue-700/70"></div>
+
+                    {/* Contenu de la bannière */}
+                    <div className="relative z-10 h-full flex flex-col justify-between p-6">
+                        {/* Top bar avec contrôles */}
+                        <div className="flex justify-between items-start">
+                            <button
+                                onClick={onSidebarToggle}
+                                className="text-white lg:hidden p-2 rounded-xl hover:bg-white/20 transition-all duration-200"
+                            >
+                                <Menu size={22} />
+                            </button>
+
+                            <div className="flex items-center space-x-2">
+                                <button
+                                    onClick={onNotificationToggle}
+                                    className="relative p-2.5 rounded-xl hover:bg-white/20 transition-all duration-200 group"
+                                >
+                                    <Bell size={20} className="text-white group-hover:text-blue-200 transition-colors duration-200" />
+                                    <span className="absolute -top-0.5 -right-0.5 block h-3 w-3 rounded-full bg-red-500 border-2 border-white" />
+                                </button>
+                                <Link
+                                    href="/home"
+                                    className="p-2.5 rounded-xl bg-white/20 hover:bg-white/30 transition-all duration-200 group"
+                                    aria-label="Quitter l'espace syndicat"
+                                >
+                                    <LogOut size={20} className="text-white group-hover:text-blue-200 transition-colors duration-200" />
+                                </Link>
+                            </div>
+                        </div>
+
+                        {/* Info syndicat */}
+                        <motion.div
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            className="text-white"
+                        >
+                            <h1 className="text-3xl font-bold mb-2">
+                                {syndicateData.name}
+                            </h1>
+                            <div className="flex items-center space-x-6 text-blue-100">
+                                <div className="flex items-center space-x-2">
+                                    <Users className="w-4 h-4" />
+                                    <span className="text-sm font-medium">
+                                        {syndicateData.memberCount || 0} membres
+                                    </span>
+                                </div>
+                                {syndicateData.address && (
+                                    <div className="flex items-center space-x-2">
+                                        <MapPin className="w-4 h-4" />
+                                        <span className="text-sm font-medium">
+                                            {syndicateData.address}
+                                        </span>
+                                    </div>
+                                )}
+                            </div>
+                        </motion.div>
+                    </div>
+                </motion.div>
+
+                {/* Barre de navigation compacte - Toujours visible */}
+                <motion.div
+                    className="bg-white border-b border-gray-200 px-6 flex items-center justify-between"
+                    animate={{
+                        height: isCollapsed ? 60 : 48,
+                        paddingTop: isCollapsed ? 12 : 0,
+                        paddingBottom: isCollapsed ? 12 : 0
+                    }}
+                    transition={{ duration: 0.3 }}
+                >
+                    <div className="flex items-center space-x-4">
+                        {isCollapsed && (
+                            <motion.button
+                                onClick={onSidebarToggle}
+                                className="text-blue-700 lg:hidden p-2 rounded-xl hover:bg-blue-50 transition-all duration-200"
+                                initial={{ opacity: 0, scale: 0.8 }}
+                                animate={{ opacity: 1, scale: 1 }}
+                                transition={{ delay: 0.1 }}
+                            >
+                                <Menu size={20} />
+                            </motion.button>
+                        )}
+
+                        <div className="flex items-center space-x-2">
+                            <div className="w-3 h-3 rounded-full bg-blue-700"></div>
+                            <span className="text-sm font-semibold text-blue-700">
+                                {t('syndicate_space.member_space')}
+                            </span>
+                            {isCollapsed && (
+                                <motion.span
+                                    className="text-sm text-gray-500 ml-2"
+                                    initial={{ opacity: 0, x: -10 }}
+                                    animate={{ opacity: 1, x: 0 }}
+                                    transition={{ delay: 0.2 }}
+                                >
+                                    - {syndicateData.name}
+                                </motion.span>
+                            )}
+                        </div>
+                    </div>
+
+                    {isCollapsed && (
+                        <motion.div
+                            className="flex items-center space-x-2"
+                            initial={{ opacity: 0, scale: 0.8 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            transition={{ delay: 0.1 }}
+                        >
+                            <button
+                                onClick={onNotificationToggle}
+                                className="relative p-2 rounded-xl hover:bg-blue-50 transition-all duration-200 group"
+                            >
+                                <Bell size={16} className="text-blue-700 group-hover:text-blue-800 transition-colors duration-200" />
+                                <span className="absolute -top-0.5 -right-0.5 block h-2 w-2 rounded-full bg-red-500 border border-white" />
+                            </button>
+                            <Link
+                                href="/home"
+                                className="p-2 rounded-xl bg-blue-50 hover:bg-blue-100 transition-all duration-200 group"
+                                aria-label="Quitter l'espace syndicat"
+                            >
+                                <LogOut size={16} className="text-blue-700 group-hover:text-blue-800 transition-colors duration-200" />
+                            </Link>
+                        </motion.div>
+                    )}
+                </motion.div>
+            </motion.div>
+        </>
     );
 }
 ```
@@ -9753,34 +13920,49 @@ export default function SyndicateNotificationsPanel({ isOpen, onClose }) {
                         animate={{ x: 0 }}
                         exit={{ x: '100%' }}
                         transition={{ type: "tween", ease: "easeInOut", duration: 0.3 }}
-                        className="fixed right-0 top-0 h-full w-full max-w-sm bg-white dark:bg-gray-800 shadow-2xl z-40 border-l dark:border-gray-700 flex flex-col"
+                        className="fixed right-0 top-0 h-full w-full max-w-sm bg-white dark:bg-neutral-900 shadow-strong z-40 border-l border-neutral-200 dark:border-neutral-700 flex flex-col transition-colors duration-300"
                         aria-modal="true" role="dialog" aria-labelledby="notification-panel-title"
                     >
-                        <div className="p-4 sm:p-6 border-b dark:border-gray-700 flex justify-between items-center flex-shrink-0">
-                            <h3 id="notification-panel-title" className="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
-                                <Bell /> {t('notifications.title')}
+                        <div className="p-6 border-b border-neutral-200 dark:border-neutral-700 flex justify-between items-center flex-shrink-0">
+                            <h3 id="notification-panel-title" className="text-lg font-bold text-neutral-800 dark:text-white flex items-center gap-3">
+                                <div className="p-2 bg-primary-50 dark:bg-primary-900/20 rounded-xl">
+                                    <Bell size={18} className="text-primary-600 dark:text-primary-400" />
+                                </div>
+                                {t('notifications.title')}
                             </h3>
-                            <motion.button onClick={onClose} className="p-2 text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full" whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.95 }} aria-label="Fermer">
-                                <X size={20} />
+                            <motion.button 
+                                onClick={onClose} 
+                                className="p-2 text-neutral-500 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-800 rounded-xl transition-all duration-200" 
+                                whileHover={{ scale: 1.05 }} 
+                                whileTap={{ scale: 0.95 }} 
+                                aria-label="Fermer"
+                            >
+                                <X size={18} />
                             </motion.button>
                         </div>
 
                         {notifications.length > 0 ? (
-                            <div className="flex-grow p-4 sm:p-6 space-y-4 overflow-y-auto">
+                            <div className="flex-grow p-6 space-y-3 overflow-y-auto">
                                 {notifications.map((notification, index) => (
                                     <NotificationCard key={index} {...notification} />
                                 ))}
                             </div>
                         ) : (
                             <div className="flex-grow flex flex-col items-center justify-center text-center p-6">
-                                <Bell className="w-16 h-16 text-gray-300 dark:text-gray-600 mb-4" />
-                                <h4 className="font-semibold text-gray-700 dark:text-gray-300">Aucune notification</h4>
-                                <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Vous êtes à jour.</p>
+                                <div className="p-4 bg-neutral-100 dark:bg-neutral-800 rounded-2xl mb-4">
+                                    <Bell className="w-12 h-12 text-neutral-400 dark:text-neutral-500" />
+                                </div>
+                                <h4 className="font-semibold text-neutral-700 dark:text-neutral-300">Aucune notification</h4>
+                                <p className="text-sm text-neutral-500 dark:text-neutral-400 mt-1">Vous êtes à jour.</p>
                             </div>
                         )}
                         
-                        <div className="p-4 sm:p-6 border-t dark:border-gray-700 flex-shrink-0">
-                            <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} className="w-full py-3 bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-xl font-medium shadow-lg hover:shadow-xl transition-all">
+                        <div className="p-6 border-t border-neutral-200 dark:border-neutral-700 flex-shrink-0">
+                            <motion.button 
+                                whileHover={{ scale: 1.02 }} 
+                                whileTap={{ scale: 0.98 }} 
+                                className="w-full py-3 bg-primary-600 hover:bg-primary-700 text-white rounded-xl font-medium shadow-soft hover:shadow-blue transition-all duration-200"
+                            >
                                 {t('notifications.see_all')}
                             </motion.button>
                         </div>
@@ -9796,116 +13978,259 @@ export default function SyndicateNotificationsPanel({ isOpen, onClose }) {
 
 - **Fichier**: `src\components\syndicate-space\SyndicateSidebar.jsx`
 - **Props**: `isCollapsed, onToggle, syndicateData`
-- **Hooks**: useTranslations, usePathname, useParams
+- **Hooks**: usePathname, useRouter, useTranslations, useParams
 ```jsx
 "use client";
 
 import { motion } from 'framer-motion';
-import { Link } from '@/navigation';
+import { usePathname, useRouter } from '@/navigation';
 import { useTranslations } from 'next-intl';
-import { 
+import {
     Users, Calendar, MessageCircle, Vote,
-    Home, ChevronLeft, ChevronRight, MessageSquare 
+    CreditCard, Handshake, ChevronLeft, ChevronRight, MessageSquare
 } from 'lucide-react';
-import { SyndicatDefaultAvatar } from '@/components/shared/SyndicatDefaultAvatar.jsx';
-import { usePathname, useParams } from 'next/navigation';
-import { STATIC_FILES_URL } from '@/lib/constants';
-import Image from 'next/image';
+import { useParams } from 'next/navigation';
 
 export default function SyndicateSidebar({ isCollapsed, onToggle, syndicateData }) {
-    const t = useTranslations('syndicate_space');
+    const t = useTranslations('syndicate_space.sidebar');
     const pathname = usePathname();
-    const params = useParams();
-    const { syndicatId } = params;
-
-    if (!syndicateData) {
-        return (
-            <motion.nav
-                animate={{ width: isCollapsed ? 80 : 280 }}
-                className="hidden lg:flex bg-white/80 dark:bg-gray-800/50 flex-col z-10 border-r"
-            >
-                <div className="p-4 border-b animate-pulse">
-                    <div className="w-full h-10 bg-gray-200 dark:bg-gray-700 rounded-md"></div>
-                </div>
-                <div className="flex-grow p-4 space-y-2">
-                    {[...Array(5)].map((_, i) => (
-                        <div key={i} className="w-full h-12 bg-gray-200 dark:bg-gray-700 rounded-xl animate-pulse"></div>
-                    ))}
-                </div>
-            </motion.nav>
-        );
-    }
-    
-    const imageUrl = syndicateData.bannerUrl ? `${STATIC_FILES_URL}${syndicateData.bannerUrl}` : null;
+    const router = useRouter();
+    const { syndicatId } = useParams();
 
     const navItems = [
-        { id: 'accueil', icon: Home, label: t('syndicate_space.sidebar.home'), route: '' },
-        { id: 'membres', icon: Users, label: t('syndicate_space.sidebar.members'), route: 'membres' },
-        { id: 'evenements', icon: Calendar, label: t('syndicate_space.sidebar.events'), route: 'evenements' },
-        { id: 'exprimer', icon: MessageCircle, label: t('syndicate_space.sidebar.express'), route: 'exprimer' },
-        { id: 'chat', icon: MessageSquare, label: t('syndicate_space.sidebar.chat'), route: 'chat' },
-        { id: 'votes', icon: Vote, label: t('syndicate_space.sidebar.votes'), route: 'votes' },
+        { id: 'membres', icon: Users, label: t('members'), route: 'membres' },
+        { id: 'evenements', icon: Calendar, label: t('events'), route: 'evenements' },
+        { id: 'exprimer', icon: MessageCircle, label: t('express'), route: 'exprimer' },
+        { id: 'chat', icon: MessageSquare, label: t('chat'), route: 'chat' },
+        { id: 'votes', icon: Vote, label: t('votes'), route: 'votes' },
+        { id: 'finances', icon: CreditCard, label: t('finances'), route: 'finances' },
+        { id: 'partenaires', icon: Handshake, label: t('partners'), route: 'partenaires' },
     ];
 
-    const buildLink = (route) => `/syndicat-space/${syndicatId}${route ? `/${route}` : ''}`;
+    const handleNavigation = (route) => {
+        router.push(`/syndicat-space/${syndicatId}/${route}`);
+    };
 
     return (
         <motion.nav
-            animate={{ width: isCollapsed ? 80 : 280 }}
+            animate={{ width: isCollapsed ? 80 : 260 }}
             transition={{ duration: 0.3, ease: 'easeInOut' }}
-            className="hidden lg:flex bg-white/80 dark:bg-gray-800/50 backdrop-blur-sm flex-col z-10 border-r border-gray-200/80 dark:border-white/10"
+            className="hidden lg:flex flex-col bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 z-20 shadow-xl"
         >
-            <div className={`p-4 flex items-center gap-4 border-b border-gray-200/80 dark:border-white/10 transition-all duration-300 ${isCollapsed ? 'justify-center' : 'justify-between'}`}>
+            {/* En-tête Sidebar */}
+            <div className="h-16 flex items-center justify-between px-4 border-b border-gray-200 dark:border-gray-700">
                 {!isCollapsed && (
-                    <div className="flex items-center gap-2 overflow-hidden">
-                        {imageUrl ? (
-                             <Image src={imageUrl} alt={`${syndicateData.name} logo`} width={40} height={40} className="w-10 h-10 rounded-full object-cover" />
-                        ) : (
-                            <SyndicatDefaultAvatar name={syndicateData.name} size={40} />
-                        )}
-                        <span className="font-bold text-lg text-gray-800 dark:text-white truncate">Espace Membre</span>
-                    </div>
+                    <span className="font-bold text-lg text-blue-600 dark:text-blue-400 truncate">
+                        Menu
+                    </span>
                 )}
-                <motion.button onClick={onToggle} className="p-2 text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg" aria-label={isCollapsed ? "Déplier" : "Replier"}>
+                <button
+                    onClick={onToggle}
+                    className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500 transition-colors mx-auto"
+                >
                     {isCollapsed ? <ChevronRight size={20} /> : <ChevronLeft size={20} />}
-                </motion.button>
+                </button>
             </div>
 
-            <div className="flex-grow overflow-y-auto p-4 space-y-2">
+            {/* Liste de navigation */}
+            <div className="flex-1 overflow-y-auto py-4 px-3 space-y-1">
                 {navItems.map((item) => {
-                    const fullPath = buildLink(item.route);
-                    const isActive = pathname === fullPath || (item.route !== '' && pathname.startsWith(fullPath));
-                    
+                    const isActive = pathname.includes(`/${item.route}`);
+
                     return (
-                        <Link href={fullPath} key={item.id} passHref>
-                            <motion.div
-                                className={`relative group flex items-center w-full px-4 py-3 rounded-xl cursor-pointer transition-colors duration-200 ${
-                                    isCollapsed ? 'justify-center' : ''
-                                } ${
-                                    isActive 
-                                        ? 'text-blue-600 dark:text-blue-300' 
-                                        : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-white'
-                                }`}
-                                title={isCollapsed ? item.label : ''}
-                            >
-                                {isActive && (
-                                    <motion.div layoutId="active-sidebar-indicator" className="absolute inset-0 bg-blue-50 dark:bg-blue-900/50 rounded-xl" transition={{ type: 'spring', stiffness: 300, damping: 25 }} />
-                                )}
-                                
-                                <div className="relative z-10 flex items-center">
-                                    <item.icon className="h-5 w-5 flex-shrink-0" />
-                                    {!isCollapsed && (
-                                        <span className="font-semibold truncate ml-3">{item.label}</span>
-                                    )}
-                                </div>
-                            </motion.div>
-                        </Link>
+                        <motion.button
+                            key={item.id}
+                            onClick={() => handleNavigation(item.route)}
+                            whileHover={{ scale: 1.02 }}
+                            whileTap={{ scale: 0.98 }}
+                            className={`w-full flex items-center p-3 rounded-xl transition-all duration-200 ${isActive
+                                    ? 'bg-blue-600 text-white shadow-md'
+                                    : 'text-gray-600 dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-gray-700/50 hover:text-blue-600'
+                                } ${isCollapsed ? 'justify-center' : ''}`}
+                            title={isCollapsed ? item.label : ''}
+                        >
+                            <item.icon size={20} className={isActive ? 'text-white' : 'text-current'} />
+
+                            {!isCollapsed && (
+                                <span className="ml-3 font-medium text-sm truncate">
+                                    {item.label}
+                                </span>
+                            )}
+
+                            {/* Indicateur actif (point) si collapsé */}
+                            {isCollapsed && isActive && (
+                                <div className="absolute right-2 w-1.5 h-1.5 bg-white rounded-full" />
+                            )}
+                        </motion.button>
                     );
                 })}
             </div>
         </motion.nav>
     );
 }
+```
+
+### SectionLoader
+
+- **Fichier**: `src\components\syndicate-space\SyndicateSpaceLoader.jsx`
+- **Props**: `N/A`
+- **Hooks**: 
+```jsx
+"use client";
+
+import { motion } from 'framer-motion';
+
+const SyndicateSpaceLoader = ({ 
+    variant = 'full', 
+    text = 'Chargement...',
+    size = 'medium' 
+}) => {
+    const sizeClasses = {
+        small: 'w-4 h-4',
+        medium: 'w-6 h-6', 
+        large: 'w-8 h-8'
+    };
+
+    const containerClasses = {
+        full: 'fixed inset-0 bg-white dark:bg-neutral-900 flex items-center justify-center z-50',
+        inline: 'flex items-center justify-center py-12',
+        compact: 'flex items-center justify-center py-6'
+    };
+
+    const SpinnerDots = () => (
+        <div className="flex space-x-1">
+            {[0, 1, 2].map((i) => (
+                <motion.div
+                    key={i}
+                    className={`${sizeClasses[size]} bg-primary-600 rounded-full`}
+                    initial={{ opacity: 0.3, scale: 0.8 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{
+                        duration: 0.6,
+                        repeat: Infinity,
+                        repeatType: "reverse",
+                        delay: i * 0.2,
+                        ease: "easeInOut"
+                    }}
+                />
+            ))}
+        </div>
+    );
+
+    const SpinnerCircle = () => (
+        <motion.div
+            className={`${sizeClasses[size]} border-3 border-neutral-200 dark:border-neutral-700 border-t-primary-600 rounded-full`}
+            animate={{ rotate: 360 }}
+            transition={{
+                duration: 1,
+                repeat: Infinity,
+                ease: "linear"
+            }}
+        />
+    );
+
+    const PulseLoader = () => (
+        <motion.div
+            className={`${sizeClasses[size]} bg-primary-600 rounded-full`}
+            initial={{ scale: 0.8, opacity: 0.5 }}
+            animate={{ scale: 1.2, opacity: 1 }}
+            transition={{
+                duration: 1,
+                repeat: Infinity,
+                repeatType: "reverse",
+                ease: "easeInOut"
+            }}
+        />
+    );
+
+    return (
+        <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className={containerClasses[variant]}
+        >
+            <div className="flex flex-col items-center space-y-4">
+                {variant === 'full' && (
+                    <div className="p-4 bg-white dark:bg-neutral-800 rounded-2xl shadow-soft border border-neutral-200 dark:border-neutral-700">
+                        <SpinnerDots />
+                    </div>
+                )}
+                {variant === 'inline' && <SpinnerCircle />}
+                {variant === 'compact' && <PulseLoader />}
+                
+                {text && (
+                    <motion.p
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.1 }}
+                        className="text-sm font-medium text-neutral-600 dark:text-neutral-400"
+                    >
+                        {text}
+                    </motion.p>
+                )}
+            </div>
+        </motion.div>
+    );
+};
+
+export default SyndicateSpaceLoader;
+
+// Variations spécifiques pour différents contextes
+export const SectionLoader = ({ text }) => (
+    <SyndicateSpaceLoader variant="inline" text={text} size="medium" />
+);
+
+export const CompactLoader = ({ text }) => (
+    <SyndicateSpaceLoader variant="compact" text={text} size="small" />
+);
+
+export const FullPageLoader = ({ text }) => (
+    <SyndicateSpaceLoader variant="full" text={text} size="large" />
+);
+
+// Loader spécifique pour les cartes
+export const CardSkeleton = ({ className = "" }) => (
+    <div className={`bg-white dark:bg-neutral-800 rounded-2xl shadow-soft border border-neutral-200 dark:border-neutral-700 p-6 ${className}`}>
+        <div className="animate-pulse">
+            <div className="flex items-start space-x-4">
+                <div className="w-12 h-12 bg-neutral-200 dark:bg-neutral-700 rounded-xl"></div>
+                <div className="flex-1 space-y-3">
+                    <div className="h-4 bg-neutral-200 dark:bg-neutral-700 rounded w-3/4"></div>
+                    <div className="h-3 bg-neutral-200 dark:bg-neutral-700 rounded w-1/2"></div>
+                    <div className="space-y-2">
+                        <div className="h-3 bg-neutral-200 dark:bg-neutral-700 rounded"></div>
+                        <div className="h-3 bg-neutral-200 dark:bg-neutral-700 rounded w-5/6"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+);
+
+// Loader pour les listes de membres
+export const MemberRowSkeleton = () => (
+    <tr className="animate-pulse">
+        <td className="px-6 py-4">
+            <div className="flex items-center">
+                <div className="w-11 h-11 bg-neutral-200 dark:bg-neutral-700 rounded-xl"></div>
+                <div className="ml-4">
+                    <div className="h-4 bg-neutral-200 dark:bg-neutral-700 rounded w-24"></div>
+                </div>
+            </div>
+        </td>
+        <td className="px-6 py-4">
+            <div className="h-6 bg-neutral-200 dark:bg-neutral-700 rounded-full w-16"></div>
+        </td>
+        <td className="px-6 py-4">
+            <div className="h-6 bg-neutral-200 dark:bg-neutral-700 rounded-full w-20"></div>
+        </td>
+        <td className="px-6 py-4">
+            <div className="h-8 bg-neutral-200 dark:bg-neutral-700 rounded-xl w-8"></div>
+        </td>
+    </tr>
+);
 ```
 
 ### CreateSyndicateModal
@@ -9994,7 +14319,7 @@ export default function MySyndicatesPage({ initialSyndicates }) {
                 <div className="relative group">
                     <input
                         type="text"
-                        placeholder={t("syndicats.search_placeholder")}
+                        placeholder={t("search_placeholder")}
                         className="w-full pl-16 pr-6 py-4 rounded-2xl border-2 border-gray-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all text-lg"
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
@@ -10011,11 +14336,11 @@ export default function MySyndicatesPage({ initialSyndicates }) {
                 <div className="text-center py-20">
                     <div className="max-w-md mx-auto">
                         <AlertCircle className="h-12 w-12 text-blue-600 mx-auto mb-4" />
-                        <h3 className="text-2xl font-semibold text-gray-900 mb-2">{t("syndicats.empty_title")}</h3>
-                        <p className="text-gray-600 mb-6">{t("syndicats.empty_description")}</p>
+                        <h3 className="text-2xl font-semibold text-gray-900 mb-2">{t("empty_list_title")}</h3>
+                        <p className="text-gray-600 mb-6">{t("empty_list_desc")}</p>
                         <button onClick={() => setIsModalOpen(true)} className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center mx-auto">
                             <PlusCircle className="h-5 w-5 mr-2" />
-                            {t("syndicats.create_button")}
+                            {t("create_button")}
                         </button>
                     </div>
                 </div>
@@ -10038,8 +14363,8 @@ export default function MySyndicatesPage({ initialSyndicates }) {
 
 import { motion } from "framer-motion";
 import Image from "next/image";
-import { useRouter } from 'next/navigation';
-import { ArrowRightCircle, Users, BarChart2 } from "lucide-react";
+import { useRouter } from '@/navigation'; // Utilisation du router typé de next-intl
+import { ArrowRightCircle, Users, BarChart2, Bell, Calendar, TrendingUp } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { STATIC_FILES_URL } from "@/lib/constants";
 import { SyndicatDefaultAvatar } from "../shared/SyndicatDefaultAvatar";
@@ -10053,47 +14378,131 @@ export default function SyndicateCard({ syndicat }) {
     const router = useRouter();
     const t = useTranslations('syndicats_page');
 
-    const handleAccessSpace = (syndicatId) => {
-        router.push(`/syndicat-space/${syndicatId}`);
+    const handleAccessSpace = () => {
+        // Redirection vers l'espace syndicat
+        router.push(`/syndicat-space/${syndicat.id}/membres`);
     };
 
-    const bannerUrl = syndicat.bannerUrl && syndicat.bannerUrl.startsWith('/') ? `${STATIC_FILES_URL}${syndicat.bannerUrl}` : "/placeholder-cover.jpg";
-    const logoUrl = syndicat.logoUrl && syndicat.logoUrl.startsWith('/') ? `${STATIC_FILES_URL}${syndicat.logoUrl}` : null;
+    // Gestion des URLs d'images
+    const bannerUrl = syndicat.bannerUrl
+        ? (syndicat.bannerUrl.startsWith('http') ? syndicat.bannerUrl : `${STATIC_FILES_URL}${syndicat.bannerUrl}`)
+        : "/placeholder-cover.jpg"; // Assurez-vous d'avoir cette image dans public/
+
+    const logoUrl = syndicat.logoUrl
+        ? (syndicat.logoUrl.startsWith('http') ? syndicat.logoUrl : `${STATIC_FILES_URL}${syndicat.logoUrl}`)
+        : null;
+
+    // Simulation de données pour le design (à remplacer par de vraies données API si disponibles)
+    const nextEventDate = new Date(); // Date du jour pour l'exemple
+    const notificationsCount = Math.floor(Math.random() * 5); // Nombre aléatoire
+    const trend = "up"; // "up", "down", "stable"
 
     return (
         <motion.div
-            className="group bg-white dark:bg-gray-800/50 rounded-2xl shadow-xl hover:shadow-2xl dark:shadow-black/20 transition-all duration-300 border border-gray-100 dark:border-gray-700 overflow-hidden flex flex-col"
+            className="group bg-white dark:bg-gray-800 rounded-2xl shadow-xl hover:shadow-2xl dark:shadow-black/40 transition-all duration-300 border border-gray-100 dark:border-gray-700 overflow-hidden flex flex-col h-full"
             variants={itemVariants}
             whileHover={{ y: -8 }}
         >
-            <div className="relative aspect-video">
-                <Image src={bannerUrl} alt={syndicat.name} fill sizes="(max-width: 768px) 100vw, 50vw" style={{ objectFit: 'cover' }} className="transition-transform duration-500 group-hover:scale-105" onError={(e) => { e.currentTarget.src = "/placeholder-cover.jpg"; }}/>
-                <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent"></div>
-                <div className="absolute -bottom-10 left-6">
-                    <div className="w-20 h-20 bg-white dark:bg-gray-800 rounded-full p-1 shadow-lg border-4 border-white dark:border-gray-800">
-                        {logoUrl ? <Image src={logoUrl} alt={`${syndicat.name} logo`} width={80} height={80} className="rounded-full object-cover w-full h-full" /> : <SyndicatDefaultAvatar name={syndicat.name} size={72} />}
-                    </div>
+            {/* Zone Image Header */}
+            <div className="relative aspect-video w-full overflow-hidden">
+                <Image
+                    src={bannerUrl}
+                    alt={syndicat.name}
+                    fill
+                    className="object-cover transition-transform duration-500 group-hover:scale-105"
+                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                />
+
+                {/* Overlay Gradient */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
+
+                {/* Badges sur l'image */}
+                <div className="absolute bottom-4 right-4 flex items-center space-x-2">
+                    <span className="text-xs font-medium text-white bg-black/40 backdrop-blur-md px-2 py-1 rounded-lg border border-white/20">
+                        {syndicat.address || 'Localisation N/A'}
+                    </span>
+                </div>
+
+                {/* Type de syndicat (Haut gauche) */}
+                <div className="absolute top-4 left-4">
+                    <span className="text-xs font-bold text-white bg-blue-600/90 backdrop-blur-md px-3 py-1.5 rounded-lg shadow-sm">
+                        {syndicat.type || 'Organisation'}
+                    </span>
                 </div>
             </div>
 
-            <div className="p-6 pt-12 flex flex-col flex-grow">
-                <h2 className="text-xl font-bold text-gray-900 dark:text-white line-clamp-2 leading-snug h-14">
+            {/* Corps de la carte */}
+            <div className="p-6 pt-12 relative flex flex-col flex-grow">
+                {/* Logo Flottant */}
+                <div className="absolute -top-10 left-6">
+                    <div className="w-20 h-20 bg-white dark:bg-gray-800 rounded-2xl p-1 shadow-lg border-4 border-white dark:border-gray-800 overflow-hidden">
+                        {logoUrl ? (
+                            <Image src={logoUrl} alt="Logo" width={80} height={80} className="w-full h-full object-cover rounded-xl" />
+                        ) : (
+                            <SyndicatDefaultAvatar name={syndicat.name} size={72} className="w-full h-full rounded-xl" />
+                        )}
+                    </div>
+                </div>
+
+                {/* Titre */}
+                <h2 className="text-xl font-bold text-gray-900 dark:text-white line-clamp-2 leading-snug mb-4 min-h-[3.5rem]">
                     {syndicat.name}
                 </h2>
-                <div className="flex items-center justify-between text-gray-600 dark:text-gray-400 my-4">
+
+                {/* Statistiques principales */}
+                <div className="flex items-center justify-between mb-6 pb-4 border-b border-gray-100 dark:border-gray-700">
                     <div className="flex items-center space-x-2">
-                        <Users className="h-5 w-5 text-blue-500" />
-                        <span className="text-sm font-medium">{(syndicat.memberCount || 0).toLocaleString()} membres</span>
+                        <div className="p-1.5 bg-blue-50 dark:bg-blue-900/30 rounded-lg">
+                            <Users className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                        </div>
+                        <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                            {(syndicat.memberCount || 0).toLocaleString()} <span className="text-gray-500 dark:text-gray-500 font-normal">membres</span>
+                        </span>
                     </div>
-                    <BarChart2 className="h-5 w-5 text-gray-400 dark:text-gray-500" title="Tendance stable" />
+
+                    {/* Indicateur de tendance (simulé) */}
+                    <div className="flex items-center space-x-1">
+                        {trend === "up" && <TrendingUp className="h-4 w-4 text-green-500" />}
+                        {trend === "stable" && <BarChart2 className="h-4 w-4 text-gray-400" />}
+                    </div>
                 </div>
-                <div className="mt-auto pt-4 border-t border-gray-100 dark:border-gray-700">
+
+                {/* Informations contextuelles */}
+                <div className="space-y-3 text-sm mb-6 flex-grow">
+                    <div className="flex items-center justify-between text-gray-600 dark:text-gray-400">
+                        <div className="flex items-center space-x-2">
+                            <Calendar className="h-4 w-4" />
+                            <span>Prochain événement</span>
+                        </div>
+                        <span className="font-medium text-gray-900 dark:text-gray-200">
+                            {nextEventDate.toLocaleDateString("fr-FR", { day: 'numeric', month: 'short' })}
+                        </span>
+                    </div>
+
+                    <div className="flex items-center justify-between text-gray-600 dark:text-gray-400">
+                        <div className="flex items-center space-x-2">
+                            <Bell className="h-4 w-4" />
+                            <span>Notifications</span>
+                        </div>
+                        {notificationsCount > 0 ? (
+                            <span className="font-bold text-xs bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300 px-2 py-0.5 rounded-full">
+                                {notificationsCount} nouveaux
+                            </span>
+                        ) : (
+                            <span className="text-gray-400">Rien à signaler</span>
+                        )}
+                    </div>
+                </div>
+
+                {/* Bouton d'action */}
+                <div className="mt-auto">
                     <motion.button
-                        className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-3 rounded-xl hover:shadow-lg transition-all flex items-center justify-center font-semibold group-hover:from-blue-700 group-hover:to-indigo-700"
-                        whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.98 }}
-                        onClick={() => handleAccessSpace(syndicat.id)}
+                        className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white py-3.5 rounded-xl shadow-lg hover:shadow-blue-500/25 transition-all flex items-center justify-center font-semibold group"
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                        onClick={handleAccessSpace}
                     >
-                        <span>{t("syndicats_page.access_space")}</span>
+                        <span>{t('access_space', 'Accéder à l\'espace')}</span>
                         <ArrowRightCircle className="h-5 w-5 ml-2 transition-transform duration-300 group-hover:translate-x-1" />
                     </motion.button>
                 </div>
@@ -10181,7 +14590,7 @@ export default function SyndicateList({ initialSyndicates = [] }) {
                 <div className="relative group">
                     <input
                         type="text"
-                        placeholder={t("syndicats_page.search_placeholder")}
+                        placeholder={t("search_placeholder")}
                         className="w-full pl-14 pr-6 py-4 rounded-2xl border-2 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-100 dark:focus:ring-blue-900/50 transition-all text-lg"
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
@@ -10212,10 +14621,10 @@ export default function SyndicateList({ initialSyndicates = [] }) {
                         <div className="max-w-md mx-auto">
                             <AlertCircle className="h-12 w-12 text-blue-500 dark:text-blue-400 mx-auto mb-4" />
                             <h3 className="text-2xl font-semibold text-gray-900 dark:text-white mb-2">
-                                {searchTerm ? t("syndicats_page.empty_search_title") : t("syndicats_page.empty_list_title")}
+                                {searchTerm ? t("empty_search_title") : t("empty_list_title")}
                             </h3>
                             <p className="text-gray-600 dark:text-gray-400 mb-6">
-                                {searchTerm ? t("syndicats_page.empty_search_desc") : t("syndicats_page.empty_list_desc")}
+                                {searchTerm ? t("empty_search_desc") : t("empty_list_desc")}
                             </p>
                             <motion.button
                                 onClick={() => setIsModalOpen(true)}
@@ -10223,7 +14632,7 @@ export default function SyndicateList({ initialSyndicates = [] }) {
                                 whileHover={{ scale: 1.05 }}
                             >
                                 <PlusCircle className="h-5 w-5 mr-2" />
-                                {t("syndicats_page.create_button")}
+                                {t("create_button")}
                             </motion.button>
                         </div>
                     </motion.div>
@@ -10233,5 +14642,369 @@ export default function SyndicateList({ initialSyndicates = [] }) {
         </>
     );
 }
+```
+
+## Hooks personnalisés
+
+### useErrorHandler
+
+- **Fichier**: `src\hooks\useErrorHandler.js`
+```javascript
+"use client";
+
+import { useState, useCallback } from 'react';
+import { toast } from 'react-hot-toast';
+
+export const ERROR_TYPES = {
+    NETWORK: 'NETWORK',
+    AUTH: 'AUTH', 
+    VALIDATION: 'VALIDATION',
+    SERVER: 'SERVER',
+    NOT_FOUND: 'NOT_FOUND',
+    PERMISSION: 'PERMISSION',
+    RATE_LIMIT: 'RATE_LIMIT',
+    UNKNOWN: 'UNKNOWN'
+};
+
+export const ERROR_MESSAGES = {
+    [ERROR_TYPES.NETWORK]: {
+        title: 'Problème de connexion',
+        message: 'Vérifiez votre connexion internet et réessayez.',
+        action: 'Réessayer'
+    },
+    [ERROR_TYPES.AUTH]: {
+        title: 'Session expirée',
+        message: 'Votre session a expiré. Veuillez vous reconnecter.',
+        action: 'Se reconnecter'
+    },
+    [ERROR_TYPES.VALIDATION]: {
+        title: 'Données invalides',
+        message: 'Certaines informations sont incorrectes. Vérifiez vos données.',
+        action: 'Corriger'
+    },
+    [ERROR_TYPES.SERVER]: {
+        title: 'Erreur serveur',
+        message: 'Une erreur temporaire est survenue. Réessayez dans quelques instants.',
+        action: 'Réessayer'
+    },
+    [ERROR_TYPES.NOT_FOUND]: {
+        title: 'Ressource introuvable',
+        message: 'La ressource demandée n\'existe pas ou a été supprimée.',
+        action: 'Retour'
+    },
+    [ERROR_TYPES.PERMISSION]: {
+        title: 'Accès refusé',
+        message: 'Vous n\'avez pas les permissions nécessaires pour cette action.',
+        action: 'Comprendre'
+    },
+    [ERROR_TYPES.RATE_LIMIT]: {
+        title: 'Trop de requêtes',
+        message: 'Vous faites trop de requêtes. Attendez un moment avant de réessayer.',
+        action: 'Attendre'
+    },
+    [ERROR_TYPES.UNKNOWN]: {
+        title: 'Erreur inattendue',
+        message: 'Une erreur inattendue s\'est produite. Contactez le support si le problème persiste.',
+        action: 'Signaler'
+    }
+};
+
+const getErrorType = (error) => {
+    if (!error?.response) {
+        return ERROR_TYPES.NETWORK;
+    }
+
+    const status = error.response.status;
+    
+    switch (status) {
+        case 400:
+            return ERROR_TYPES.VALIDATION;
+        case 401:
+            return ERROR_TYPES.AUTH;
+        case 403:
+            return ERROR_TYPES.PERMISSION;
+        case 404:
+            return ERROR_TYPES.NOT_FOUND;
+        case 429:
+            return ERROR_TYPES.RATE_LIMIT;
+        case 500:
+        case 502:
+        case 503:
+        case 504:
+            return ERROR_TYPES.SERVER;
+        default:
+            return ERROR_TYPES.UNKNOWN;
+    }
+};
+
+const getErrorMessage = (error) => {
+    const errorType = getErrorType(error);
+    const baseMessage = ERROR_MESSAGES[errorType];
+    
+    // Essayer d'extraire un message plus spécifique du backend
+    let specificMessage = baseMessage.message;
+    
+    if (error?.response?.data) {
+        const data = error.response.data;
+        if (typeof data === 'string') {
+            specificMessage = data;
+        } else if (data.message) {
+            specificMessage = data.message;
+        } else if (data.error) {
+            specificMessage = data.error;
+        } else if (data.details) {
+            specificMessage = data.details;
+        }
+    }
+
+    return {
+        ...baseMessage,
+        message: specificMessage,
+        type: errorType,
+        originalError: error
+    };
+};
+
+export const useErrorHandler = () => {
+    const [errors, setErrors] = useState({});
+    const [retryCount, setRetryCount] = useState({});
+
+    const handleError = useCallback((error, context = 'general', options = {}) => {
+        const {
+            showToast = true,
+            showError = true,
+            maxRetries = 3,
+            onRetry = null,
+            silent = false
+        } = options;
+
+        const errorInfo = getErrorMessage(error);
+        
+        // Enregistrer l'erreur dans l'état
+        if (showError) {
+            setErrors(prev => ({
+                ...prev,
+                [context]: errorInfo
+            }));
+        }
+
+        // Afficher un toast si demandé
+        if (showToast && !silent) {
+            const toastMessage = `${errorInfo.title}: ${errorInfo.message}`;
+            
+            if (errorInfo.type === ERROR_TYPES.AUTH) {
+                toast.error(toastMessage, { duration: 6000 });
+                // Rediriger vers la page de login
+                if (typeof window !== 'undefined') {
+                    setTimeout(() => {
+                        window.location.href = '/login';
+                    }, 2000);
+                }
+            } else if (errorInfo.type === ERROR_TYPES.NETWORK && onRetry) {
+                // Pour les erreurs réseau, proposer un retry
+                const currentRetries = retryCount[context] || 0;
+                if (currentRetries < maxRetries) {
+                    toast.error(`${toastMessage}\nTentative ${currentRetries + 1}/${maxRetries}`, {
+                        duration: 4000,
+                        action: {
+                            label: 'Réessayer',
+                            onClick: () => {
+                                setRetryCount(prev => ({
+                                    ...prev,
+                                    [context]: currentRetries + 1
+                                }));
+                                onRetry();
+                            }
+                        }
+                    });
+                } else {
+                    toast.error(`${toastMessage}\nNombre maximum de tentatives atteint.`, { 
+                        duration: 6000 
+                    });
+                }
+            } else {
+                toast.error(toastMessage, { duration: 4000 });
+            }
+        }
+
+        // Logger l'erreur pour le debugging
+        console.error(`[${context.toUpperCase()}] Error:`, {
+            type: errorInfo.type,
+            message: errorInfo.message,
+            originalError: error,
+            context
+        });
+
+        return errorInfo;
+    }, [retryCount]);
+
+    const clearError = useCallback((context) => {
+        setErrors(prev => {
+            const newErrors = { ...prev };
+            delete newErrors[context];
+            return newErrors;
+        });
+        setRetryCount(prev => {
+            const newRetries = { ...prev };
+            delete newRetries[context];
+            return newRetries;
+        });
+    }, []);
+
+    const clearAllErrors = useCallback(() => {
+        setErrors({});
+        setRetryCount({});
+    }, []);
+
+    const hasError = useCallback((context) => {
+        return !!errors[context];
+    }, [errors]);
+
+    const getError = useCallback((context) => {
+        return errors[context] || null;
+    }, [errors]);
+
+    return {
+        handleError,
+        clearError,
+        clearAllErrors,
+        hasError,
+        getError,
+        errors
+    };
+};
+
+// Hook pour les requêtes avec retry automatique
+export const useApiWithRetry = () => {
+    const { handleError } = useErrorHandler();
+    const [loading, setLoading] = useState(false);
+
+    const executeWithRetry = useCallback(async (apiCall, context, options = {}) => {
+        const {
+            maxRetries = 3,
+            retryDelay = 1000,
+            backoffMultiplier = 2,
+            onSuccess = null,
+            onError = null
+        } = options;
+
+        setLoading(true);
+        let lastError = null;
+
+        for (let attempt = 0; attempt <= maxRetries; attempt++) {
+            try {
+                const result = await apiCall();
+                
+                if (onSuccess) {
+                    onSuccess(result);
+                }
+                
+                setLoading(false);
+                return result;
+            } catch (error) {
+                lastError = error;
+                
+                // Ne pas retry pour certains types d'erreurs
+                const shouldRetry = attempt < maxRetries && 
+                    error?.response?.status !== 401 && 
+                    error?.response?.status !== 403 && 
+                    error?.response?.status !== 404 && 
+                    error?.response?.status !== 422;
+
+                if (!shouldRetry) {
+                    break;
+                }
+
+                // Attendre avant le prochain essai
+                const delay = retryDelay * Math.pow(backoffMultiplier, attempt);
+                await new Promise(resolve => setTimeout(resolve, delay));
+            }
+        }
+
+        // Gérer l'erreur finale
+        const errorInfo = handleError(lastError, context, {
+            showToast: true,
+            showError: false // On gère l'affichage nous-mêmes
+        });
+
+        if (onError) {
+            onError(errorInfo);
+        }
+
+        setLoading(false);
+        throw lastError;
+    }, [handleError]);
+
+    return {
+        executeWithRetry,
+        loading
+    };
+};
+```
+
+### usePermissions
+
+- **Fichier**: `src\hooks\usePermissions.js`
+```javascript
+import { useContext } from 'react';
+import { UserContext } from '@/context/UserContext';
+
+export const usePermissions = () => {
+    const { user, loading } = useContext(UserContext);
+
+    const hasPermission = (permissionName) => {
+        if (loading || !user || !user.permissions) {
+            return false;
+        }
+        // Allows for wildcard permissions like 'syndicat:*'
+        const userPermissions = user.permissions;
+        if (userPermissions.includes(permissionName)) {
+            return true;
+        }
+        const parts = permissionName.split(':');
+        if (parts.length === 3) {
+            const [service, object] = parts;
+            if (userPermissions.includes(`${service}:${object}:*`) || userPermissions.includes(`${service}:*:*`)) {
+                return true;
+            }
+        }
+        return false;
+    };
+
+    const hasRole = (roleName) => {
+        if (loading || !user || !user.roles) {
+            return false;
+        }
+        return user.roles.includes(roleName);
+    };
+
+    return { user, loading, hasPermission, hasRole };
+};
+
+```
+
+### useRouteLoading
+
+- **Fichier**: `src\hooks\useRouteLoading.js`
+```javascript
+"use client";
+
+import { useEffect, useState } from 'react';
+import { usePathname } from 'next/navigation';
+
+export const useRouteLoading = () => {
+    const [isLoading, setIsLoading] = useState(false);
+    const pathname = usePathname();
+
+    useEffect(() => {
+        setIsLoading(false);
+    }, [pathname]);
+
+    const startLoading = () => {
+        setIsLoading(true);
+    };
+
+    return { isLoading, startLoading };
+};
 ```
 

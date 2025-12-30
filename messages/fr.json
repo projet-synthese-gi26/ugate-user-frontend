@@ -13,8 +13,6 @@
   "description_collaboration_simplifiee": "Facilitez la communication et le partage de documents entre les membres et les bureaux.",
   "transparence_accrue": "Transparence Accrue",
   "description_transparence_accrue": "Offrez une visibilité complète sur les finances, les décisions et les activités du syndicat.",
-
-
   "common": {
     "loading": "Chargement...",
     "loading_dots": "Chargement...",
@@ -28,10 +26,13 @@
     "comments_one": "{count} commentaire",
     "comments_other": "{count} commentaires",
     "share": "Partager",
-    "report": "Signaler",
     "unknown_date": "Date inconnue",
     "participants": "Participants",
-    "see_and_join": "Voir et rejoindre"
+    "see_and_join": "Voir et rejoindre",
+    "back": "Retour",
+    "report": "Signaler",
+    "comment_action": "Commenter",
+    "participate_button": "Participer"
   },
   "errors": {
     "required_field": "Ce champ est obligatoire.",
@@ -150,8 +151,6 @@
         "description": "Configuration du compte"
       }
     }
-
-
   },
   "landing_page": {
     "features_section_title": "Une plateforme complète pour votre syndicat",
@@ -266,24 +265,6 @@
     "services_title": "Services proposés",
     "team_title": "L'équipe dirigeante"
   },
-  "profile_page": {
-    "back_to_explorer": "Retour à l'exploration",
-    "join_button": "Adhérer",
-    "key_info_title": "Informations clés",
-    "members": "Membres",
-    "founded": "Fondé en",
-    "type": "Type",
-    "contact_title": "Contact",
-    "mission_title": "Notre Mission",
-    "no_description": "Ce syndicat n'a pas encore fourni de description.",
-    "activities_title": "Activités récentes",
-    "shop_title": "Boutique",
-    "no_products": "Aucun produit n'est actuellement disponible.",
-    "order_button": "Commander",
-    "locations_title": "Nos antennes",
-    "services_title": "Services proposés",
-    "team_title": "L'équipe dirigeante"
-  },
   "adhesion_modal": {
     "title": "Adhérer à {syndicatName}",
     "subtitle": "Suivez les étapes pour finaliser votre demande d'adhésion."
@@ -372,7 +353,9 @@
       "events": "Événements",
       "express": "S'exprimer",
       "chat": "Messagerie",
-      "votes": "Votes & Sondages"
+      "votes": "Votes & Sondages",
+      "finances": "Finances",
+      "partners": "Partenaires"
     }
   },
   "members_page": {
@@ -404,7 +387,6 @@
     "actions_unavailable": "Actions indisponibles",
     "motivation_title": "Motivation",
     "request_date": "Demande le {date}",
-    "refresh": "Actualiser",
     "data_refreshed": "Données actualisées !",
     "no_members_description_search": "Aucun membre ne correspond à votre recherche.",
     "no_requests_description_search": "Aucune demande ne correspond à votre recherche."
@@ -416,7 +398,9 @@
     "new_post_modal_title": "Créer une publication",
     "publish_button": "Publier",
     "cancel_button": "Annuler",
-    "create_post_button": "Écrire une publication"
+    "create_post_button": "Écrire une publication",
+    "event_label": "Événement",
+    "participants": "participants"
   },
   "comments": {
     "title": "Commentaires",
@@ -454,9 +438,10 @@
     "search_placeholder": "Rechercher une conversation...",
     "new_discussion": "Nouvelle discussion",
     "message_placeholder": "Écrire un message...",
-    "select_conversation": "Sélectionnez une conversation pour commencer à discuter."
+    "select_conversation": "Sélectionnez une conversation pour commencer à discuter.",
+    "title": "Messagerie"
   },
-   "heroComponent": {
+  "heroComponent": {
     "title_part1": "Révolutionnez la",
     "title_highlighted": "gestion syndicale",
     "subtitle": "Plateforme moderne pour optimiser la communication, la transparence et l'efficacité de votre organisation syndicale.",
@@ -467,10 +452,52 @@
   "feed": {
     "empty_feed": "Le fil d'actualité est vide pour le moment.",
     "come_back_later": "Revenez plus tard pour voir les dernières publications et événements."
+  },
+  "votes_page": {
+    "title": "Votes & Sondages",
+    "subtitle": "Participez aux décisions importantes de votre syndicat",
+    "active_votes": "Votes actifs",
+    "total_participants": "Votes totaux",
+    "participation_rate": "Participation",
+    "new_vote": "Nouveau vote"
+  },
+  "finances_page": {
+    "title": "Finances",
+    "import": "Importer",
+    "export": "Exporter",
+    "current_balance": "Solde actuel",
+    "monthly_income": "Revenus du mois",
+    "monthly_expenses": "Dépenses du mois",
+    "tabs": {
+      "overview": "Vue d'ensemble",
+      "income": "Revenus",
+      "expenses": "Dépenses",
+      "reports": "Rapports"
+    }
+  },
+  "partners_page": {
+    "title": "Partenaires",
+    "subtitle": "Gérez les partenariats et avantages pour vos membres",
+    "add_partner": "Ajouter un partenaire"
+  },
+  "create_syndicate": {
+    "create_your_syndicate": "Créez votre syndicat",
+    "choose_syndicate_type": "Choisissez le type de structure",
+    "step_1_of_3": "Étape 1 sur 3",
+    "anonymous_syndicate": "Syndicat Anonyme",
+    "anonymous_description": "Idéal pour démarrer rapidement sans formalités complexes.",
+    "immediate_creation": "Création immédiate",
+    "no_verification_required": "Pas de vérification requise",
+    "basic_features": "Fonctionnalités de base",
+    "perfect_to_start": "Parfait pour débuter",
+    "accredited_syndicate": "Syndicat Accrédité",
+    "accredited_description": "Pour les organisations officielles nécessitant une vérification.",
+    "complete_verification": "Vérification complète",
+    "official_status": "Statut officiel",
+    "advanced_features": "Fonctionnalités avancées",
+    "official_recognition": "Reconnaissance officielle",
+    "upcoming_feature": "Bientôt disponible",
+    "accredited_syndicate_development": "La création de syndicats accrédités est en cours de développement.",
+    "back": "Retour"
   }
-
-
-
-
-
 }
