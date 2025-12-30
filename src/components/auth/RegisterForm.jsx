@@ -26,13 +26,11 @@ const Input = React.forwardRef(({ icon: Icon, error, ...props }, ref) => (
             <input
                 {...props}
                 ref={ref}
-                className={`w-full px-4 py-3 text-gray-700 bg-white border rounded-lg focus:border-blue-800 focus:outline-none focus:ring focus:ring-blue-700 focus:ring-opacity-40 pl-12 transition-colors ${
-                    error ? 'border-red-500' : 'border-gray-300'
-                }`}
+                className={`w-full px-4 py-3 text-gray-700 bg-white border rounded-lg focus:border-blue-800 focus:outline-none focus:ring focus:ring-blue-700 focus:ring-opacity-40 pl-12 transition-colors ${error ? 'border-red-500' : 'border-gray-300'
+                    }`}
             />
-            <Icon className={`absolute left-3 top-1/2 transform -translate-y-1/2 ${
-                error ? 'text-red-500' : 'text-blue-800'
-            }`} size={20} />
+            <Icon className={`absolute left-3 top-1/2 transform -translate-y-1/2 ${error ? 'text-red-500' : 'text-blue-800'
+                }`} size={20} />
         </div>
         {error && <Alert>{error.message}</Alert>}
     </div>
@@ -80,7 +78,13 @@ export default function RegisterForm() {
             console.log("2. Début du bloc try : Appel de registerWithEmail...");
             // Le backend attend "dateOfBirth" au format YYYY-MM-DD,
             // ce qui est le format par défaut des inputs type="date".
-            await registerWithEmail(data);
+            // Ajout du champ service requis
+            const registrationData = {
+                ...data,
+                service: 'SYNDICAT' // ou 'RIDE_AND_GO' selon votre besoin
+            };
+
+            await registerWithEmail(registrationData);
             console.log("3. Appel API réussi.");
 
             await Swal.fire({
@@ -103,7 +107,7 @@ export default function RegisterForm() {
                     errorMessage = t('validation_error');
                 }
             }
-            
+
             Swal.fire({
                 icon: 'error',
                 title: t('error_title'),
@@ -114,7 +118,7 @@ export default function RegisterForm() {
             setIsLoading(false);
         }
     };
-    
+
     console.log("Erreurs de validation du formulaire :", errors);
 
     return (
