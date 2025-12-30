@@ -107,7 +107,13 @@
     "error_title": "Erreur d'inscription",
     "generic_error": "Une erreur est survenue. Veuillez vérifier vos informations.",
     "validation_error": "Les données fournies sont invalides.",
-    "email_already_used": "Cet e-mail est déjà utilisé."
+    "email_already_used": "Cet e-mail est déjà utilisé.",
+    "username_placeholder": "Nom d'utilisateur",
+    "username_required": "Le nom d'utilisateur est obligatoire.",
+    "username_min_length": "Le nom d'utilisateur doit contenir au moins 3 caractères.",
+    "phone_placeholder": "Numéro de téléphone",
+    "phone_required": "Le numéro de téléphone est obligatoire.",
+    "phone_invalid": "Le format du numéro de téléphone est invalide."
   },
   "dashboard": {
     "welcome": "Bienvenue, {name} !",

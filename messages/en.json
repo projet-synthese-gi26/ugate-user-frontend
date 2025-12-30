@@ -106,7 +106,13 @@
     "error_title": "Registration error",
     "generic_error": "An error occurred. Please check your information.",
     "validation_error": "The provided data is invalid.",
-    "email_already_used": "This email is already in use."
+    "email_already_used": "This email is already in use.",
+    "username_placeholder": "Username",
+    "username_required": "Username is required.",
+    "username_min_length": "Username must be at least 3 characters.",
+    "phone_placeholder": "Phone number",
+    "phone_required": "Phone number is required.",
+    "phone_invalid": "Invalid phone number format."
   },
   "dashboard": {
     "welcome": "Welcome, {name}!",

@@ -106,7 +106,13 @@
     "error_title": "Registrierungsfehler",
     "generic_error": "Ein Fehler ist aufgetreten. Bitte überprüfen Sie Ihre Angaben.",
     "validation_error": "Die bereitgestellten Daten sind ungültig.",
-    "email_already_used": "Diese E-Mail wird bereits verwendet."
+    "email_already_used": "Diese E-Mail wird bereits verwendet.",
+    "username_placeholder": "Benutzername",
+    "username_required": "Benutzername ist erforderlich.",
+    "username_min_length": "Benutzername muss mindestens 3 Zeichen haben.",
+    "phone_placeholder": "Telefonnummer",
+    "phone_required": "Telefonnummer ist erforderlich.",
+    "phone_invalid": "Ungültiges Telefonnummernformat."
   },
   "dashboard": {
     "welcome": "Willkommen, {name}!",
