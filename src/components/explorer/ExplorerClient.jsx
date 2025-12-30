@@ -34,13 +34,17 @@ export default function ExplorerClient({ initialSyndicates, initialHasNextPage }
     const [isLoadingMore, setIsLoadingMore] = useState(false);
     
     const filteredAndSortedSyndicates = useMemo(() => {
-        let filtered = syndicates.filter(s => s.name.toLowerCase().includes(searchTerm.toLowerCase()));
+        let filtered = syndicates.filter(s =>
+            s.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            s.description?.toLowerCase().includes(searchTerm.toLowerCase())
+        );
         if (filterType !== "all") {
-            filtered = filtered.filter(s => s.type === filterType);
+            filtered = filtered.filter(s => s.domain === filterType);
         }
         return filtered.sort((a, b) => {
             switch (sortBy) {
-                case "name": return a.name.localeCompare(b.name);
+                case "name": return (a.name || '').localeCompare(b.name || '');
+                case "date": return new Date(b.createdAt || 0) - new Date(a.createdAt || 0);
                 case "members": default: return (b.memberCount || 0) - (a.memberCount || 0);
             }
         });
@@ -51,8 +55,10 @@ export default function ExplorerClient({ initialSyndicates, initialHasNextPage }
         setIsLoadingMore(true);
         try {
             const data = await getAllSyndicatesAPI(page, 12);
-            setSyndicates(prev => [...prev, ...data.content]);
-            setHasNextPage(data.hasNext);
+            setSyndicates(prev => [...prev, ...(data.content || [])]);
+            // Vérifie s'il y a une page suivante basé sur totalPages
+            const hasMore = (page + 1) < (data.totalPages || 0);
+            setHasNextPage(hasMore);
             setPage(prev => prev + 1);
         } catch (error) {
             toast.error("Impossible de charger plus de syndicats.");
@@ -74,7 +80,7 @@ export default function ExplorerClient({ initialSyndicates, initialHasNextPage }
         <>
             <motion.div className="mb-12 max-w-4xl mx-auto" initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.2 }}>
                 <div className="relative mb-4">
-                    <input type="text" placeholder={t("explorer_page.search_placeholder")} className="w-full pl-14 pr-6 py-4 rounded-xl border-2 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-100 dark:focus:ring-blue-900/50 transition-all text-lg" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
+                    <input type="text" placeholder={t("search_placeholder")} className="w-full pl-14 pr-6 py-4 rounded-xl border-2 border-gray-200 bg-white text-gray-900 focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all text-lg shadow-sm" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
                     <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-400 h-6 w-6"/>
                 </div>
                 <div className="flex flex-wrap gap-4 items-center justify-between">
@@ -90,9 +96,9 @@ export default function ExplorerClient({ initialSyndicates, initialHasNextPage }
                     </motion.div>
                 ) : (
                     <motion.div key="empty-state" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-center py-16">
-                        <div className="w-24 h-24 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-6"><Search className="w-12 h-12 text-gray-400 dark:text-gray-500" /></div>
-                        <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">{t("explorer_page.no_results_title")}</h3>
-                        <p className="text-gray-600 dark:text-gray-400 mb-6">{t("explorer_page.no_results_description")}</p>
+                        <div className="w-24 h-24 bg-blue-50 rounded-full flex items-center justify-center mx-auto mb-6"><Search className="w-12 h-12 text-blue-400" /></div>
+                        <h3 className="text-xl font-semibold text-gray-900 mb-2">{t("no_results_title")}</h3>
+                        <p className="text-gray-600 mb-6">{t("no_results_description")}</p>
                     </motion.div>
                 )}
             </AnimatePresence>

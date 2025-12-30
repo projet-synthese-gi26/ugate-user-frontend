@@ -38,7 +38,7 @@ export default async function HomePage({ params }) {
             <WelcomeSection />
 
             <div className="max-w-3xl mx-auto mt-12">
-                <h2 className="text-2xl font-bold mb-6 text-gray-800 dark:text-gray-200">
+                <h2 className="text-2xl font-bold mb-6 text-gray-800">
                     {t("dashboard.news_and_events")}
                 </h2>
                 {/* Le composant Feed utilise maintenant UnifiedPostCard pour la cohérence avec la landing page */}

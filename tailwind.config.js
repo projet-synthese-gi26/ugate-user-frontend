@@ -2,8 +2,6 @@
 
 /** @type {import('tailwindcss').Config} */
 const config = {
-    // Active le mode sombre basé sur une classe
-    darkMode: 'class',
 
     // Indique à Tailwind où trouver les classes qu'il doit générer
     content: [

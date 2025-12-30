@@ -1,4 +1,4 @@
-import axios from './instance';
+import axios from './syndicatesInstance';
 
 export const createSyndicateAPI = async (formData) => {
     try {
@@ -42,6 +42,24 @@ export const getAllSyndicatesAPI = async (page = 0, size = 12) => {
     }
 };
 
+
+/**
+ * Récupère la liste des syndicats d'un utilisateur par son userId
+ * @param {string} userId - UUID de l'utilisateur
+ * @returns {Promise<Array>} Liste des syndicats
+ */
+export const getUserSyndicatesAPI = async (userId) => {
+    if (!userId) {
+        return Promise.reject(new Error("L'ID de l'utilisateur est requis."));
+    }
+    try {
+        const response = await axios.get(`/syndicates/user/${userId}`);
+        return response.data;
+    } catch (error) {
+        console.error(`Erreur lors de la récupération des syndicats de l'utilisateur ${userId}:`, error);
+        throw error;
+    }
+};
 
 export const getSyndicateDetailsAPI = async (syndicateId) => {
     if (!syndicateId) {

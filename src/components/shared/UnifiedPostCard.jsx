@@ -137,10 +137,10 @@ export default function UnifiedPostCard({
             initial={{ opacity: 0, y: 20 }} 
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3, ease: "easeOut" }}
-            className="bg-white dark:bg-neutral-800 rounded-2xl shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300"
+            className="bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300 border border-gray-100"
         >
             {/* Header */}
-            <div className="p-6 border-b border-slate-100 dark:border-neutral-700">
+            <div className="p-6 border-b border-slate-100">
                 <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-3">
                         <div className="relative">
@@ -159,15 +159,15 @@ export default function UnifiedPostCard({
                         </div>
                         <div>
                             <div className="flex items-center space-x-2">
-                                <h3 className="font-semibold text-slate-900 dark:text-white text-base">{authorInfo.name}</h3>
+                                <h3 className="font-semibold text-slate-900 text-base">{authorInfo.name}</h3>
                                 {authorInfo.role && (
                                     <>
                                         <span className="text-slate-500 text-sm">•</span>
-                                        <span className="text-slate-600 dark:text-neutral-400 text-sm">{authorInfo.role}</span>
+                                        <span className="text-slate-600 text-sm">{authorInfo.role}</span>
                                     </>
                                 )}
                             </div>
-                            <div className="flex items-center space-x-2 text-slate-500 dark:text-neutral-400 text-sm">
+                            <div className="flex items-center space-x-2 text-slate-500 text-sm">
                                 {syndicateInfo.name && (
                                     <>
                                         <span>{syndicateInfo.name}</span>
@@ -191,9 +191,9 @@ export default function UnifiedPostCard({
                                 whileTap={{ scale: 0.9 }}
                                 onClick={handleBookmark}
                                 className={`p-2 rounded-xl transition-colors ${
-                                    bookmarked 
-                                        ? 'text-primary-600 bg-primary-100 dark:bg-primary-900/20 dark:text-primary-400' 
-                                        : 'text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-700'
+                                    bookmarked
+                                        ? 'text-blue-600 bg-blue-100'
+                                        : 'text-gray-400 hover:bg-gray-100'
                                 }`}
                             >
                                 <Bookmark fill={bookmarked ? "currentColor" : "none"} className="w-5 h-5" />
@@ -207,9 +207,9 @@ export default function UnifiedPostCard({
             <div className="p-6">
                 {/* Informations événement */}
                 {isEvent && item.event && (
-                    <div className="mb-4 bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-900/20 rounded-xl p-4 border border-indigo-100 dark:border-indigo-800">
-                        <h4 className="font-semibold text-indigo-900 dark:text-indigo-300 mb-2">{item.event.title || item.title}</h4>
-                        <div className="flex flex-wrap items-center text-indigo-700 dark:text-indigo-400 text-sm gap-4">
+                    <div className="mb-4 bg-gradient-to-r from-indigo-50 to-purple-50 rounded-xl p-4 border border-indigo-100">
+                        <h4 className="font-semibold text-indigo-900 mb-2">{item.event.title || item.title}</h4>
+                        <div className="flex flex-wrap items-center text-indigo-700 text-sm gap-4">
                             <div className="flex items-center">
                                 <Calendar className="h-4 w-4 mr-1" />
                                 {item.event.date || item.startDate}
@@ -229,7 +229,7 @@ export default function UnifiedPostCard({
                 )}
                 
                 {/* Contenu texte */}
-                <p className="text-slate-700 dark:text-neutral-300 mb-4 leading-relaxed text-base whitespace-pre-wrap">
+                <p className="text-slate-700 mb-4 leading-relaxed text-base whitespace-pre-wrap">
                     {item.content || item.description}
                 </p>
                 
@@ -249,7 +249,7 @@ export default function UnifiedPostCard({
 
             {/* Actions */}
             {showActions && (
-                <div className="px-6 py-4 bg-slate-50 dark:bg-neutral-700/50 border-t border-slate-100 dark:border-neutral-700">
+                <div className="px-6 py-4 bg-slate-50 border-t border-slate-100">
                     <div className="flex items-center justify-between">
                         <div className="flex items-center space-x-6">
                             <motion.button 
@@ -257,9 +257,9 @@ export default function UnifiedPostCard({
                                 whileTap={{ scale: 0.98 }}
                                 onClick={handleLike}
                                 className={`flex items-center space-x-2 transition-colors ${
-                                    liked 
-                                        ? 'text-red-500' 
-                                        : 'text-slate-600 dark:text-neutral-300 hover:text-red-500'
+                                    liked
+                                        ? 'text-red-500'
+                                        : 'text-slate-600 hover:text-red-500'
                                 }`}
                             >
                                 <Heart className={`h-5 w-5 ${liked ? 'fill-current' : ''}`} />
@@ -270,7 +270,7 @@ export default function UnifiedPostCard({
                                 whileHover={{ scale: 1.02 }}
                                 whileTap={{ scale: 0.98 }}
                                 onClick={handleComment}
-                                className="flex items-center space-x-2 text-slate-600 dark:text-neutral-300 hover:text-blue-500 transition-colors"
+                                className="flex items-center space-x-2 text-slate-600 hover:text-blue-500 transition-colors"
                             >
                                 <MessageCircle className="h-5 w-5" />
                                 <span className="text-base font-medium">{stats.comments}</span>
@@ -280,7 +280,7 @@ export default function UnifiedPostCard({
                                 whileHover={{ scale: 1.02 }}
                                 whileTap={{ scale: 0.98 }}
                                 onClick={handleShare}
-                                className="flex items-center space-x-2 text-slate-600 dark:text-neutral-300 hover:text-green-500 transition-colors"
+                                className="flex items-center space-x-2 text-slate-600 hover:text-green-500 transition-colors"
                             >
                                 <Share2 className="h-5 w-5" />
                                 <span className="text-base font-medium">{stats.shares}</span>
@@ -290,7 +290,7 @@ export default function UnifiedPostCard({
                                 <motion.button 
                                     whileHover={{ scale: 1.02 }}
                                     whileTap={{ scale: 0.98 }}
-                                    className="flex items-center space-x-2 text-slate-600 dark:text-neutral-300 hover:text-orange-500 transition-colors"
+                                    className="flex items-center space-x-2 text-slate-600 hover:text-orange-500 transition-colors"
                                 >
                                     <Flag className="h-5 w-5" />
                                     <span className="text-base font-medium">{t('common.report')}</span>

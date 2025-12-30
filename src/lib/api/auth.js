@@ -1,4 +1,5 @@
 import axios from './instance';
+import { getUserSyndicatesAPI } from './syndicates';
 
 export const loginWithIdentifier = async (identifier, password) => {
     const response = await axios.post('/auth/login', { identifier, password });
@@ -6,6 +7,22 @@ export const loginWithIdentifier = async (identifier, password) => {
         localStorage.setItem('accessToken', response.data.accessToken);
         localStorage.setItem('refreshToken', response.data.refreshToken);
         localStorage.setItem('user', JSON.stringify(response.data.user));
+
+        // Récupérer les syndicats de l'utilisateur
+        const userId = response.data.user?.id;
+        if (userId) {
+            try {
+                const syndicates = await getUserSyndicatesAPI(userId);
+                if (syndicates && syndicates.length > 0) {
+                    // Stocker le premier syndicat comme syndicat actif
+                    localStorage.setItem('syndicatId', syndicates[0].id);
+                    response.data.syndicatId = syndicates[0].id;
+                    response.data.syndicates = syndicates;
+                }
+            } catch (error) {
+                console.warn("Impossible de récupérer les syndicats de l'utilisateur:", error);
+            }
+        }
     }
     return response.data;
 };
@@ -54,6 +71,7 @@ export const logout = () => {
     localStorage.removeItem('accessToken');
     localStorage.removeItem('refreshToken');
     localStorage.removeItem('user');
+    localStorage.removeItem('syndicatId');
     localStorage.removeItem('email'); // Nettoyage de l'ancienne clé
     
     // Rediriger l'utilisateur en préservant la langue

@@ -1,47 +1,67 @@
-import { notFound } from 'next/navigation';
+"use client";
+
+import { useEffect, useState } from 'react';
 import { Link } from '@/navigation';
-import { ChevronLeft } from 'lucide-react';
-import {getTranslations} from 'next-intl/server'; // L'import correct pour la traduction côté serveur
-import { getSyndicateDetailsAPI } from '@/lib/api/syndicates'; // L'appel API réel
+import { ChevronLeft, Loader2 } from 'lucide-react';
+import { useTranslations } from 'next-intl';
+import { getSyndicateDetailsAPI } from '@/lib/api/syndicates';
 import SyndicateProfileClient from '@/components/syndicate-profile/SyndicateProfileClient';
+import { useParams } from 'next/navigation';
 
-// Fonction pour récupérer les données d'un seul syndicat via l'API
-async function getSyndicateDetails(id) {
-    try {
-        const syndicate = await getSyndicateDetailsAPI(id);
-        return syndicate;
-    } catch (error) {
-        if (error.response?.status === 404) {
-            return null; // Le syndicat n'a pas été trouvé, on gèrera le notFound() plus bas
-        }
-        // Pour les autres erreurs, on peut logger et renvoyer null aussi
-        console.error(`Erreur lors de la récupération du syndicat ${id}`, error.message);
-        return null;
+export default function SyndicateProfilePage() {
+    const params = useParams();
+    const syndicatId = params.syndicatId;
+    const t = useTranslations('profile_page');
+
+    const [syndicate, setSyndicate] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+
+    useEffect(() => {
+        const fetchSyndicate = async () => {
+            if (!syndicatId) return;
+
+            try {
+                setLoading(true);
+                const data = await getSyndicateDetailsAPI(syndicatId);
+                setSyndicate(data);
+            } catch (err) {
+                console.error("Erreur lors de la récupération du syndicat:", err);
+                setError("Impossible de charger les détails du syndicat.");
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchSyndicate();
+    }, [syndicatId]);
+
+    if (loading) {
+        return (
+            <div className="bg-gray-50 dark:bg-gray-900 min-h-screen flex items-center justify-center">
+                <div className="text-center">
+                    <Loader2 className="h-12 w-12 animate-spin text-blue-600 mx-auto mb-4" />
+                    <p className="text-gray-600 dark:text-gray-400">Chargement...</p>
+                </div>
+            </div>
+        );
     }
-}
 
-// Génération des métadonnées dynamiques pour le SEO
-export async function generateMetadata({ params }) {
-    const { syndicatId } = await params;
-    const syndicate = await getSyndicateDetails(syndicatId);
-    if (!syndicate) {
-        return { title: 'Syndicat non trouvé' };
-    }
-    return {
-        title: `${syndicate.name} | U-Gate`,
-        description: syndicate.description,
-    };
-}
-
-export default async function SyndicateProfilePage({ params }) {
-    const { syndicatId, locale } = await params;
-    const t = await getTranslations();
-
-    const syndicateData = await getSyndicateDetails(syndicatId);
-
-    // Si aucune donnée n'est retournée, on affiche la page 404 de Next.js
-    if (!syndicateData) {
-        notFound();
+    if (error || !syndicate) {
+        return (
+            <div className="bg-gray-50 dark:bg-gray-900 min-h-screen">
+                <div className="container mx-auto px-4 py-8">
+                    <Link href="/explorer" className="inline-flex items-center space-x-2 text-blue-600 dark:text-blue-400 hover:underline mb-6 group">
+                        <ChevronLeft className="h-5 w-5 transition-transform group-hover:-translate-x-1" />
+                        <span className="font-semibold">{t('back_to_explorer')}</span>
+                    </Link>
+                    <div className="text-center py-16">
+                        <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">Syndicat non trouvé</h2>
+                        <p className="text-gray-600 dark:text-gray-400">{error || "Ce syndicat n'existe pas ou a été supprimé."}</p>
+                    </div>
+                </div>
+            </div>
+        );
     }
 
     return (
@@ -49,11 +69,10 @@ export default async function SyndicateProfilePage({ params }) {
             <div className="container mx-auto px-4 py-8">
                 <Link href="/explorer" className="inline-flex items-center space-x-2 text-blue-600 dark:text-blue-400 hover:underline mb-6 group">
                     <ChevronLeft className="h-5 w-5 transition-transform group-hover:-translate-x-1" />
-                    <span className="font-semibold">{t('profile_page.back_to_explorer', 'Retour à l\'exploration')}</span>
+                    <span className="font-semibold">{t('back_to_explorer')}</span>
                 </Link>
 
-                {/* On délègue tout l'affichage au composant client en lui passant les vraies données */}
-                <SyndicateProfileClient syndicate={syndicateData} />
+                <SyndicateProfileClient syndicate={syndicate} />
             </div>
         </div>
     );

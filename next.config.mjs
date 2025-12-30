@@ -29,6 +29,12 @@ const nextConfig = {
                 port: '7014',
                 pathname: '/**',
             },
+            {
+                protocol: 'https',
+                hostname: 'media-service.pynfi.com',
+                port: '',
+                pathname: '/**',
+            },
         ],
     },
     

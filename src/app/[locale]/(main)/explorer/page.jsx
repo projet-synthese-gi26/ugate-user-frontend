@@ -33,11 +33,13 @@ export default function ExplorerPage() {
         try {
             const data = await getAllSyndicatesAPI(pageNum, 12);
             if (pageNum === 0) {
-                setSyndicates(data.content);
+                setSyndicates(data.content || []);
             } else {
-                setSyndicates(prev => [...prev, ...data.content]);
+                setSyndicates(prev => [...prev, ...(data.content || [])]);
             }
-            setHasNextPage(data.hasNext);
+            // Vérifie s'il y a une page suivante basé sur totalPages et page actuelle
+            const hasMore = (pageNum + 1) < (data.totalPages || 0);
+            setHasNextPage(hasMore);
             setTotalElements(data.totalElements || 0);
             setPage(pageNum + 1);
         } catch (error) {
@@ -63,7 +65,7 @@ export default function ExplorerPage() {
     }
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-indigo-50 dark:from-gray-900 dark:via-blue-900/20 dark:to-indigo-900/10 py-12">
+        <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 py-12">
             <div className="container mx-auto px-4 sm:px-6 lg:px-8">
                 
                 <ExploreHeader syndicatesCount={totalElements} t={t} />

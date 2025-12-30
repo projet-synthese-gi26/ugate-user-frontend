@@ -47,7 +47,7 @@ export default function DashboardLayout({ children }) {
 
     return (
         <UserContext.Provider value={{ user: userData, isLoading: loadingUser, setUser: setUserData }}>
-            <div className="flex flex-col h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-gray-900 dark:via-blue-900/10 dark:to-indigo-900/5">
+            <div className="flex flex-col h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
                 <AppHeader
                     isSidebarOpen={isSidebarOpen}
                     onSidebarToggle={() => setIsSidebarOpen(!isSidebarOpen)}

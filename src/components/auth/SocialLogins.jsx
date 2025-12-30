@@ -33,10 +33,16 @@ export default function SocialLogins() {
             toast.loading(tCommon('loading'));
             try {
                 // On envoie le code au backend via notre fonction API
-                await loginWithGoogle(codeResponse.code);
+                const response = await loginWithGoogle(codeResponse.code);
                 toast.dismiss();
                 toast.success(t('success_title'));
-                router.push('/home');
+                // Rediriger vers l'espace syndicat si syndicatId présent
+                const syndicatId = response?.syndicatId || localStorage.getItem('syndicatId');
+                if (syndicatId) {
+                    router.push(`/syndicat-space/${syndicatId}/membres`);
+                } else {
+                    router.push('/explorer');
+                }
             } catch (error) {
                 toast.dismiss();
                 toast.error(error.response?.data?.message || t('generic_error'));
@@ -74,10 +80,16 @@ export default function SocialLogins() {
         try {
             const data = await window.AppleID.auth.signIn();
             toast.loading(tCommon('loading'));
-            await loginWithApple(data.authorization.code);
+            const response = await loginWithApple(data.authorization.code);
             toast.dismiss();
             toast.success(t('success_title'));
-            router.push('/dashboard');
+            // Rediriger vers l'espace syndicat si syndicatId présent
+            const syndicatId = response?.syndicatId || localStorage.getItem('syndicatId');
+            if (syndicatId) {
+                router.push(`/syndicat-space/${syndicatId}/membres`);
+            } else {
+                router.push('/explorer');
+            }
         } catch (error) {
             toast.dismiss();
             // Ne pas montrer d'erreur si l'utilisateur annule manuellement

@@ -8,9 +8,15 @@ import {
 import FileUploader from './FileUploader';
 
 const activityDomains = [
-    { id: "3fa85f64-5717-4562-b3fc-2c963f66afa6", name: "Technologie" },
-    { id: "4fa85f64-5717-4562-b3fc-2c963f66afa7", name: "Santé" },
-    { id: "5fa85f64-5717-4562-b3fc-2c963f66afa8", name: "Éducation" }
+    { value: "Transport", label: "Transport" },
+    { value: "Commerce", label: "Commerce" },
+    { value: "Technologie", label: "Technologie" },
+    { value: "Santé", label: "Santé" },
+    { value: "Éducation", label: "Éducation" },
+    { value: "Agriculture", label: "Agriculture" },
+    { value: "Industrie", label: "Industrie" },
+    { value: "Services", label: "Services" },
+    { value: "Autre", label: "Autre" }
 ];
 const syndicatTypes = [
     { value: "SOLE_PROPRIETORSHIP", label: "Entreprise individuelle" },
@@ -69,10 +75,20 @@ export default function Step2_AnonymousForm({ onNext, onBack, initialData, setFo
                         </select>
                     </div>
                 </div>
-                <div className="mt-6">
-                    <label className="flex items-center text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2"><History className="w-4 h-4 mr-2 text-blue-800" />Date de fondation *</label>
-                    <input type="date" {...register("foundedDate", { required: "La date de fondation est requise" })} className={inputClasses} />
-                    {errors.foundedDate && <p className="text-red-500 text-xs mt-1">{errors.foundedDate.message}</p>}
+                <div className="grid gap-6 md:grid-cols-2 mt-6">
+                    <div>
+                        <label className="flex items-center text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2"><LayoutGrid className="w-4 h-4 mr-2 text-blue-800" />Domaine d'activité *</label>
+                        <select {...register("domain", { required: "Le domaine d'activité est requis" })} className={selectClasses}>
+                            <option value="">Sélectionner un domaine</option>
+                            {activityDomains.map((domain) => (<option key={domain.value} value={domain.value}>{domain.label}</option>))}
+                        </select>
+                        {errors.domain && <p className="text-red-500 text-xs mt-1">{errors.domain.message}</p>}
+                    </div>
+                    <div>
+                        <label className="flex items-center text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2"><History className="w-4 h-4 mr-2 text-blue-800" />Date de fondation *</label>
+                        <input type="date" {...register("foundedDate", { required: "La date de fondation est requise" })} className={inputClasses} />
+                        {errors.foundedDate && <p className="text-red-500 text-xs mt-1">{errors.foundedDate.message}</p>}
+                    </div>
                 </div>
                 <div className="mt-6">
                     <label className="flex items-center text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2"><Palette className="w-4 h-4 mr-2 text-blue-800" />Description *</label>
@@ -92,12 +108,34 @@ export default function Step2_AnonymousForm({ onNext, onBack, initialData, setFo
                             <FileUploader
                                 label="Télécharger le logo"
                                 onFileSelect={onChange}
+                                accept="image/png,image/jpeg,image/jpg"
                             />
                             {error && <p className="text-red-500 text-xs mt-1">{error.message}</p>}
                         </>
                     )}
                 />
                 <p className="mt-3 text-sm text-gray-500 dark:text-gray-400">Format recommandé : carré, 512x512 pixels minimum, JPG ou PNG (max 5 Mo).</p>
+            </div>
+
+            <div className="bg-white dark:bg-gray-900/50 rounded-3xl p-8 shadow-lg border border-gray-100 dark:border-gray-800">
+                <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-200 mb-6 flex items-center"><Globe className="w-6 h-6 mr-3 text-blue-800" />Document des statuts</h2>
+                <Controller
+                    name="documentFile"
+                    control={control}
+                    rules={{ required: "Le document des statuts est obligatoire" }}
+                    render={({ field: { onChange }, fieldState: { error } }) => (
+                        <>
+                            <FileUploader
+                                label="Télécharger les statuts (PDF)"
+                                onFileSelect={onChange}
+                                accept="application/pdf"
+                                maxSize={10}
+                            />
+                            {error && <p className="text-red-500 text-xs mt-1">{error.message}</p>}
+                        </>
+                    )}
+                />
+                <p className="mt-3 text-sm text-gray-500 dark:text-gray-400">Document officiel des statuts du syndicat au format PDF (max 10 Mo).</p>
             </div>
 
             <div className="text-center mt-8">

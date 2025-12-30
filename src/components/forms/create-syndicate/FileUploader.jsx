@@ -5,7 +5,7 @@ import { useState, useRef } from "react";
 import { motion } from "framer-motion";
 import { Upload, CheckCircle, AlertCircle } from "lucide-react";
 
-export default function FileUploader({ label, onFileSelect }) {
+export default function FileUploader({ label, onFileSelect, accept = "image/*", maxSize = 5 }) {
     const [file, setFile] = useState(null);
     const [error, setError] = useState(null);
     const fileInputRef = useRef(null);
@@ -13,8 +13,8 @@ export default function FileUploader({ label, onFileSelect }) {
     const handleFileChange = (e) => {
         const selectedFile = e.target.files?.[0];
         if (selectedFile) {
-            if (selectedFile.size > 5 * 1024 * 1024) { // 5MB
-                setError("Le fichier est trop volumineux (max 5 Mo).");
+            if (selectedFile.size > maxSize * 1024 * 1024) {
+                setError(`Le fichier est trop volumineux (max ${maxSize} Mo).`);
                 setFile(null); onFileSelect(null);
             } else {
                 setFile(selectedFile); setError(null); onFileSelect(selectedFile);
@@ -30,7 +30,7 @@ export default function FileUploader({ label, onFileSelect }) {
                 className="bg-gray-50 border-gray-200 cursor-pointer rounded-lg border-2 border-dashed p-8 text-center"
                 onClick={() => fileInputRef.current?.click()}
             >
-                <input type="file" ref={fileInputRef} onChange={handleFileChange} accept="image/*" className="hidden" />
+                <input type="file" ref={fileInputRef} onChange={handleFileChange} accept={accept} className="hidden" />
                 {file ? (
                     <div className="flex items-center justify-center text-blue-800">
                         <CheckCircle className="mr-2" /><span>{file.name}</span>

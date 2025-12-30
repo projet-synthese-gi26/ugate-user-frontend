@@ -31,8 +31,10 @@ export function CreateSyndicateWizard({ onSuccess }) {
         email: "",
         description: "",
         type: "SOLE_PROPRIETORSHIP",
+        domain: "",
         foundedDate: new Date().toISOString().split('T')[0],
         logoFile: null,
+        documentFile: null,
     });
 
     const [antennes, setAntennes] = useState([]);
@@ -55,31 +57,23 @@ export function CreateSyndicateWizard({ onSuccess }) {
         try {
             const submissionFormData = new FormData();
 
-            const syndicateData = {
-                name: formData.name,
-                shortName: formData.shortName,
-                email: formData.email,
-                description: formData.description,
-                type: formData.type,
-                foundedDate: formData.foundedDate,
-                creatorEmail: user.email,
-                branches: antennes.map(antenne => ({
-                    name: antenne.name,
-                    locationText: antenne.name,
-                    latitude: antenne.latitude,
-                    longitude: antenne.longitude
-                }))
-            };
+            // Champs requis par l'API Swagger
+            submissionFormData.append('name', formData.name);
+            submissionFormData.append('description', formData.description);
+            submissionFormData.append('domain', formData.domain);
 
-            submissionFormData.append(
-                'syndicateData', 
-                new Blob([JSON.stringify(syndicateData)], { type: 'application/json' })
-            );
-
+            // Logo (fichier image obligatoire)
             if (formData.logoFile) {
-                submissionFormData.append('logoFile', formData.logoFile);
+                submissionFormData.append('logo', formData.logoFile);
             } else {
                 throw new Error("Le logo est obligatoire.");
+            }
+
+            // Document des statuts (PDF obligatoire)
+            if (formData.documentFile) {
+                submissionFormData.append('document', formData.documentFile);
+            } else {
+                throw new Error("Le document des statuts est obligatoire.");
             }
 
             const result = await createSyndicateAPI(submissionFormData);

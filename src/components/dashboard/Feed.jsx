@@ -11,7 +11,7 @@ export default function Feed({ initialFeed }) {
 
     if (!initialFeed || initialFeed.length === 0) {
         return (
-            <div className="text-center py-16 text-gray-500 dark:text-gray-400">
+            <div className="text-center py-16 text-gray-500">
                 <p>{t('empty_feed')}</p>
                 <p>{t('come_back_later')}</p>
             </div>

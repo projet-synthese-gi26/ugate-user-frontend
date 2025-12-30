@@ -57,7 +57,7 @@ export default function LoginForm() {
     const onSubmit = async (data) => {
         setIsLoading(true);
         try {
-            await loginWithIdentifier(data.email, data.password);
+            const response = await loginWithIdentifier(data.email, data.password);
             await Swal.fire({
                 icon: 'success',
                 title: t("success_title"),
@@ -65,7 +65,13 @@ export default function LoginForm() {
                 timer: 1500,
                 showConfirmButton: false,
             });
-            router.push('/home'); // Redirige vers la page d'accueil de l'utilisateur connecté
+            // Rediriger vers l'espace syndicat si syndicatId présent, sinon vers explorer
+            const syndicatId = response.syndicatId || localStorage.getItem('syndicatId');
+            if (syndicatId) {
+                router.push(`/syndicat-space/${syndicatId}/membres`);
+            } else {
+                router.push('/explorer');
+            }
         } catch (error) {
             console.error("Erreur de connexion:", error);
             let errorMessage = t('generic_error');
