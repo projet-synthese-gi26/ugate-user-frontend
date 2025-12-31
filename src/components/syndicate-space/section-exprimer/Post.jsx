@@ -1,4 +1,3 @@
-// src/components/syndicate-space/section-exprimer/Post.jsx
 "use client";
 
 import { useState } from "react";
@@ -8,77 +7,77 @@ import { likePostAPI, addCommentAPI } from "@/lib/api/posts";
 import { useErrorHandler, useApiWithRetry } from '@/hooks/useErrorHandler';
 import UnifiedPostCard from "@/components/shared/UnifiedPostCard";
 
-/**
- * Affiche une publication complète avec ses actions et gère sa modale de commentaires.
- * @param {object} post - L'objet de la publication.
- * @param {function} onUpdatePost - Callback pour mettre à jour le post dans la liste parente.
- */
 export default function Post({ post, onUpdatePost, syndicatId }) {
-    const { handleError, clearError } = useErrorHandler();
     const { executeWithRetry } = useApiWithRetry();
     const [isCommentModalOpen, setIsCommentModalOpen] = useState(false);
 
-    const handleLike = async (post, newLikedState) => {
-        const originalLikes = post.likes;
-        
-        // Mise à jour optimiste
-        onUpdatePost({ ...post, likes: post.likes + (newLikedState ? 1 : -1) });
-        
+    // On utilise une copie locale pour l'affichage immédiat
+    // Cela permet de modifier le nombre de commentaires/likes sans attendre l'API
+    const [localPost, setLocalPost] = useState(post);
+
+    const handleLike = async (item, newLikedState) => {
+        // Mise à jour Optimiste
+        const updatedPost = {
+            ...localPost,
+            likes: localPost.likes + (newLikedState ? 1 : -1)
+        };
+        setLocalPost(updatedPost);
+
+        if (syndicatId === 'test-id') return; // Stop ici pour la simulation
+
+        // Appel API réel
         try {
             await executeWithRetry(async () => {
                 await likePostAPI(syndicatId, post.postId, newLikedState);
             }, `like-post-${post.postId}`, {
-                maxRetries: 2,
-                onError: () => {
-                    // Reverser les changements optimistes
-                    onUpdatePost({ ...post, likes: originalLikes });
-                }
+                onError: () => setLocalPost(post) // Rollback
             });
-        } catch (error) {
-            // L'erreur est déjà gérée par executeWithRetry
-        }
-    };
-
-    const handleComment = (post) => {
-        setIsCommentModalOpen(true);
+        } catch (error) { }
     };
 
     const handleAddComment = async (commentData) => {
+        // Mise à jour Optimiste : on ajoute le commentaire à la liste locale
+        // Note: UnifiedPostCard utilise post.comments.length pour le compteur
+        const updatedComments = [...(localPost.comments || []), commentData];
+        const updatedPost = { ...localPost, comments: updatedComments };
+
+        setLocalPost(updatedPost);
+        // On remonte l'info au parent pour que le feed garde l'état si on scroll
+        if (onUpdatePost) onUpdatePost(updatedPost);
+
+        if (syndicatId === 'test-id') {
+            toast.success("Commentaire ajouté !");
+            return;
+        }
+
+        // Appel API réel
         try {
             await executeWithRetry(async () => {
                 await addCommentAPI(syndicatId, post.postId, commentData.content);
-                // Mise à jour optimiste
-                onUpdatePost({ ...post, comments: [...post.comments, commentData] });
             }, `add-comment-${post.postId}`, {
-                maxRetries: 2,
-                onSuccess: () => {
-                    toast.success("Commentaire ajouté !");
-                }
+                onSuccess: () => toast.success("Commentaire ajouté !")
             });
-        } catch (error) {
-            // L'erreur est déjà gérée par executeWithRetry
-        }
+        } catch (error) { }
     };
 
     return (
         <>
-            <UnifiedPostCard 
-                item={post}
+            <UnifiedPostCard
+                item={localPost} // On passe la version locale qui contient les updates
                 type="publication"
                 variant="syndicate"
                 onLike={handleLike}
-                onComment={handleComment}
-                onBookmark={(post, bookmarked) => {
-                    // Gérer le bookmark si nécessaire
-                }}
+                onComment={() => setIsCommentModalOpen(true)}
+                onBookmark={() => toast('Sauvegardé', { icon: '🔖' })}
+                onShare={() => toast('Lien copié', { icon: '🔗' })}
                 syndicatId={syndicatId}
             />
 
-            <CommentModal 
-                post={post} 
-                isOpen={isCommentModalOpen} 
-                onClose={() => setIsCommentModalOpen(false)} 
-                onAddComment={handleAddComment} 
+            <CommentModal
+                post={localPost} // La modale reçoit aussi les données à jour
+                isOpen={isCommentModalOpen}
+                onClose={() => setIsCommentModalOpen(false)}
+                onAddComment={handleAddComment}
             />
         </>
     );

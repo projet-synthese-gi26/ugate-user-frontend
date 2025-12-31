@@ -118,6 +118,8 @@ export default function UnifiedPostCard({
      */
     const getSafeUrl = (url) => {
         if (!url) return null;
+        // CORRECTION : On laisse passer les URLs locales (blob:) sans modification
+        if (url.startsWith('blob:')) return url;
         if (url.startsWith('http') || url.startsWith('https')) return url;
         return `${STATIC_FILES_URL}${url}`;
     };
