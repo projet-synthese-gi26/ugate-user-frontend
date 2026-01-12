@@ -7,8 +7,12 @@ export const createSyndicateAPI = async (formData) => {
     return response.data;
 };
 
+/**
+ * Récupère les syndicats de l'utilisateur connecté
+ * @returns {Promise<Array>} Liste des syndicats de l'utilisateur
+ */
 export const getMySyndicatesAPI = async () => {
-    const response = await axios.get('/syndicates/my-syndicates');
+    const response = await axios.get('/syndicates/mine');
     return response.data;
 };
 

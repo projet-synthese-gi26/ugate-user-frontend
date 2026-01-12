@@ -1,54 +1,115 @@
 import axios from './instance';
 
 /**
- * Récupère les publications d'un syndicat avec pagination
- * @param {string} syndicateId - ID du syndicat
+ * Récupère les publications d'une branche avec pagination
+ * @param {string} branchId - ID de la branche (syndicat)
  * @param {number} page - Numéro de page (0-based)
  * @param {number} size - Taille de la page
  * @param {string} sortBy - Champ de tri
  * @param {string} sortDirection - Direction du tri (ASC/DESC)
  * @returns {Promise<Object>} Résultats paginés avec publications
  */
-export const getPostsAPI = async (syndicateId, page = 0, size = 20, sortBy = 'createdAt', sortDirection = 'DESC') => {
-    const response = await axios.get(`/syndicates/${syndicateId}/posts`, {
-        params: { page, size, sortBy, sortDirection }
-    });
-    return response.data;
+export const getPostsAPI = async (branchId, page = 0, size = 20, sortBy = 'createdAt', sortDirection = 'DESC') => {
+    try {
+        const response = await axios.get(`/publications/branch/${branchId}`, {
+            params: { page, size, sortBy, sortDirection }
+        });
+        return response.data;
+    } catch (error) {
+        if (error.response?.status === 404) {
+            return { content: [], totalElements: 0, totalPages: 0 };
+        }
+        throw error;
+    }
 };
 
-export const createPostAPI = async (syndicateId, formData) => {
-    const response = await axios.post(`/syndicates/${syndicateId}/posts`, formData);
-    return response.data;
-};
+/**
+ * Crée une nouvelle publication
+ * @param {string} branchId - ID de la branche
+ * @param {object|FormData} postData - Données de la publication
+ * @returns {Promise<Object>} La publication créée
+ */
+export const createPostAPI = async (branchId, postData) => {
+    // Récupérer l'utilisateur connecté pour l'authorId
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
 
-export const likePostAPI = async (syndicateId, postId, liked) => {
-    await axios.post(`/syndicates/${syndicateId}/posts/${postId}/like?liked=${liked}`);
-};
+    // Préparer les données selon le format Swagger
+    const requestData = {
+        content: postData.content || postData.get?.('content') || '',
+        authorId: user.id,
+        branchId: branchId,
+        images: [],
+        videos: [],
+        files: []
+    };
 
-export const addCommentAPI = async (syndicateId, postId, content) => {
-    const response = await axios.post(`/syndicates/${syndicateId}/posts/${postId}/comments`, content, {
-         headers: { 'Content-Type': 'text/plain' },
+    const response = await axios.post('/publications', requestData, {
+        params: { request: JSON.stringify(requestData) }
     });
     return response.data;
 };
 
 /**
- * Récupère les commentaires d'une publication avec pagination
- * @param {string} syndicateId - ID du syndicat
+ * Like/Unlike une publication
+ * @param {string} branchId - ID de la branche (pour compatibilité)
  * @param {string} postId - ID de la publication
+ * @param {boolean} liked - État du like
+ */
+export const likePostAPI = async (branchId, postId, liked) => {
+    await axios.post(`/publications/${postId}/like?liked=${liked}`);
+};
+
+/**
+ * Ajoute un commentaire à une publication
+ * @param {string} branchId - ID de la branche (pour compatibilité)
+ * @param {string} publicationId - ID de la publication
+ * @param {string} content - Contenu du commentaire
+ * @param {string} imageUrl - URL de l'image (optionnel)
+ * @param {string} parentId - ID du commentaire parent pour les réponses (optionnel)
+ * @returns {Promise<Object>} Le commentaire créé
+ */
+export const addCommentAPI = async (branchId, publicationId, content, imageUrl = null, parentId = null) => {
+    const commentData = {
+        content: content,
+        imageUrl: imageUrl,
+        parentId: parentId
+    };
+
+    const response = await axios.post(`/publications/${publicationId}/comments`, commentData);
+    return response.data;
+};
+
+/**
+ * Récupère les commentaires d'une publication
+ * @param {string} branchId - ID de la branche (pour compatibilité)
+ * @param {string} publicationId - ID de la publication
  * @param {number} page - Numéro de page (0-based)
  * @param {number} size - Taille de la page
  * @returns {Promise<Array>} Liste des commentaires
  */
-export const getCommentsAPI = async (syndicateId, postId, page = 0, size = 20) => {
-    const response = await axios.get(`/syndicates/${syndicateId}/posts/${postId}/comments`, {
-        params: { page, size }
-    });
-    return response.data;
+export const getCommentsAPI = async (branchId, publicationId, page = 0, size = 20) => {
+    try {
+        const response = await axios.get(`/publications/${publicationId}/comments`, {
+            params: { page, size }
+        });
+        return response.data;
+    } catch (error) {
+        if (error.response?.status === 404) {
+            return [];
+        }
+        throw error;
+    }
 };
 
-export const likeCommentAPI = async (syndicateId, postId, commentId, liked) => {
-    await axios.post(`/syndicates/${syndicateId}/posts/${postId}/comments/${commentId}/like?liked=${liked}`);
+/**
+ * Like/Unlike un commentaire
+ * @param {string} branchId - ID de la branche (pour compatibilité)
+ * @param {string} publicationId - ID de la publication
+ * @param {string} commentId - ID du commentaire
+ * @param {boolean} liked - État du like
+ */
+export const likeCommentAPI = async (branchId, publicationId, commentId, liked) => {
+    await axios.post(`/publications/${publicationId}/comments/${commentId}/like?liked=${liked}`);
 };
 
 /**

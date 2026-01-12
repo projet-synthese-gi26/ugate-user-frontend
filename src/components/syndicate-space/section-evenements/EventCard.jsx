@@ -1,14 +1,19 @@
 // src/components/syndicate-space/section-evenements/EventCard.jsx
 "use client";
 
+import { useState } from 'react';
 import { motion } from 'framer-motion';
 import Image from 'next/image';
-import { Clock, Calendar, MapPin, Users } from 'lucide-react';
+import { Clock, Calendar, MapPin, Users, UserPlus, UserMinus } from 'lucide-react';
 import { useTranslations } from 'next-intl';
+import { toast } from 'react-hot-toast';
 import { STATIC_FILES_URL } from '@/lib/constants';
 import { SyndicatDefaultAvatar } from '@/components/shared/SyndicatDefaultAvatar';
+import { joinEventAPI, leaveEventAPI } from '@/lib/api/event';
 
 export default function EventCard({ event, onUpdateEvent, onShowParticipants }) {
+    const [isJoining, setIsJoining] = useState(false);
+    const [hasJoined, setHasJoined] = useState(event.hasJoined || false);
     const t = useTranslations('common');
     
     // Gestion de l'image avec STATIC_FILES_URL
@@ -30,10 +35,37 @@ export default function EventCard({ event, onUpdateEvent, onShowParticipants }) 
     });
     
     // Formatage de l'heure
-    const formattedTime = startDate.toLocaleTimeString('fr-FR', { 
-        hour: '2-digit', 
-        minute: '2-digit' 
+    const formattedTime = startDate.toLocaleTimeString('fr-FR', {
+        hour: '2-digit',
+        minute: '2-digit'
     });
+
+    // Gérer la participation à un événement
+    const handleToggleParticipation = async () => {
+        setIsJoining(true);
+        try {
+            if (hasJoined) {
+                await leaveEventAPI(event.id);
+                setHasJoined(false);
+                toast.success('Vous avez quitté l\'événement');
+                if (onUpdateEvent) {
+                    onUpdateEvent({ ...event, participantCount: (event.participantCount || 0) - 1 });
+                }
+            } else {
+                await joinEventAPI(event.id);
+                setHasJoined(true);
+                toast.success('Vous participez à l\'événement !');
+                if (onUpdateEvent) {
+                    onUpdateEvent({ ...event, participantCount: (event.participantCount || 0) + 1 });
+                }
+            }
+        } catch (error) {
+            toast.error('Une erreur est survenue');
+            console.error('Erreur participation:', error);
+        } finally {
+            setIsJoining(false);
+        }
+    };
 
     return (
         <motion.div
@@ -123,19 +155,48 @@ export default function EventCard({ event, onUpdateEvent, onShowParticipants }) 
                 )}
             </div>
 
-            {/* Footer avec bouton participer uniquement */}
+            {/* Footer avec boutons */}
             <div className="px-6 py-4 bg-slate-50 dark:bg-gray-700/50 border-t border-slate-100 dark:border-gray-700">
-                <div className="flex items-center justify-end">
-                    <motion.button 
-                        className="bg-gradient-to-r from-indigo-500 to-purple-600 text-white px-6 py-2 rounded-lg text-sm font-medium hover:from-indigo-600 hover:to-purple-700 transition-all duration-300"
+                <div className="flex items-center justify-between">
+                    {/* Bouton voir participants */}
+                    <motion.button
+                        className="text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 text-sm font-medium flex items-center gap-1"
                         whileHover={{ scale: 1.02 }}
                         whileTap={{ scale: 0.98 }}
                         onClick={() => onShowParticipants && onShowParticipants(event)}
                     >
-                        Participer
+                        <Users className="w-4 h-4" />
+                        Voir les participants
+                    </motion.button>
+
+                    {/* Bouton participer/quitter */}
+                    <motion.button
+                        className={`px-6 py-2 rounded-lg text-sm font-medium transition-all duration-300 flex items-center gap-2 ${
+                            hasJoined
+                                ? 'bg-red-100 text-red-600 hover:bg-red-200 dark:bg-red-900/30 dark:text-red-400'
+                                : 'bg-gradient-to-r from-indigo-500 to-purple-600 text-white hover:from-indigo-600 hover:to-purple-700'
+                        }`}
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                        onClick={handleToggleParticipation}
+                        disabled={isJoining}
+                    >
+                        {isJoining ? (
+                            <span className="animate-spin">...</span>
+                        ) : hasJoined ? (
+                            <>
+                                <UserMinus className="w-4 h-4" />
+                                Quitter
+                            </>
+                        ) : (
+                            <>
+                                <UserPlus className="w-4 h-4" />
+                                Participer
+                            </>
+                        )}
                     </motion.button>
                 </div>
             </div>
         </motion.div>
     );
-};
+}

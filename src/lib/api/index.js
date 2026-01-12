@@ -15,8 +15,8 @@ export * from './posts';
 // Événements
 export * from './event';
 
-// Membres
-export * from './member';
+// Adhésions/Membres
+export * from './membership';
 
 // Utilisateur
 export * from './user';

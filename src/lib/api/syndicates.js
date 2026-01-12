@@ -14,18 +14,16 @@ export const createSyndicateAPI = async (formData) => {
     }
 };
 
+/**
+ * Récupère les syndicats de l'utilisateur connecté
+ * @returns {Promise<Array>} Liste des syndicats de l'utilisateur
+ */
 export const getMySyndicatesAPI = async () => {
-    const userEmail = localStorage.getItem('email');
-    if (!userEmail) {
-        return Promise.reject(new Error("Utilisateur non connecté."));
-    }
     try {
-        const response = await axios.get('/syndicates/my-syndicates', {
-            params: { userEmail }
-        });
+        const response = await axios.get('/syndicates/mine');
         return response.data;
     } catch (error) {
-        console.error("Erreur lors de l'appel Axios:", error);
+        console.error("Erreur lors de la récupération de mes syndicats:", error);
         throw error;
     }
 };
