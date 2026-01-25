@@ -4,7 +4,16 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import Image from 'next/image';
-import { Clock, Calendar, MapPin, Users, UserPlus, UserMinus } from 'lucide-react';
+import { 
+    Heart, 
+    MessageCircle, 
+    Share2, 
+    Bookmark, 
+    MoreHorizontal, 
+    Calendar, 
+    MapPin,
+    Users
+} from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { toast } from 'react-hot-toast';
 import { STATIC_FILES_URL } from '@/lib/constants';
@@ -16,52 +25,29 @@ export default function EventCard({ event, onUpdateEvent, onShowParticipants }) 
     const [hasJoined, setHasJoined] = useState(event.hasJoined || false);
     const t = useTranslations('common');
     
-    // Gestion de l'image avec STATIC_FILES_URL
+    // Logique Image & Date
     const imageUrl = event.imageUrl && event.imageUrl.startsWith('/') 
         ? `${STATIC_FILES_URL}${event.imageUrl}` 
         : event.imageUrl || (event.imageUrls && event.imageUrls[0]);
     
-    // S'assurer que la date est valide
-    const dateToUse = event.createdAt || event.startDate;
-    const startDate = dateToUse ? new Date(dateToUse) : new Date();
-    
-    const participantsCount = Array.isArray(event.participants) ? event.participants.length : 0;
-    
-    // Formatage de la date
-    const formattedDate = startDate.toLocaleDateString('fr-FR', { 
-        day: 'numeric', 
-        month: 'long', 
-        year: 'numeric' 
-    });
-    
-    // Formatage de l'heure
-    const formattedTime = startDate.toLocaleTimeString('fr-FR', {
-        hour: '2-digit',
-        minute: '2-digit'
-    });
+    const startDate = event.startDate ? new Date(event.startDate) : new Date();
+    const formattedDate = startDate.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long' });
 
-    // Gérer la participation à un événement
-    const handleToggleParticipation = async () => {
+    // Fonction de participation liée au bouton "J'aime" (ou à adapter selon ton besoin)
+    const handleLikeClick = async () => {
         setIsJoining(true);
         try {
             if (hasJoined) {
                 await leaveEventAPI(event.id);
                 setHasJoined(false);
-                toast.success('Vous avez quitté l\'événement');
-                if (onUpdateEvent) {
-                    onUpdateEvent({ ...event, participantCount: (event.participantCount || 0) - 1 });
-                }
             } else {
                 await joinEventAPI(event.id);
                 setHasJoined(true);
-                toast.success('Vous participez à l\'événement !');
-                if (onUpdateEvent) {
-                    onUpdateEvent({ ...event, participantCount: (event.participantCount || 0) + 1 });
-                }
+                toast.success('Inscrit à l\'événement !');
             }
+            if (onUpdateEvent) onUpdateEvent({ ...event, hasJoined: !hasJoined });
         } catch (error) {
-            toast.error('Une erreur est survenue');
-            console.error('Erreur participation:', error);
+            toast.error('Erreur de connexion');
         } finally {
             setIsJoining(false);
         }
@@ -69,133 +55,103 @@ export default function EventCard({ event, onUpdateEvent, onShowParticipants }) 
 
     return (
         <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5 }}
-            className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300 mb-6 max-w-xl mx-auto"
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden mb-2 w-full mx-auto"
         >
-            {/* Header avec auteur et badge événement */}
-            <div className="p-6 border-b border-slate-100 dark:border-gray-700">
-                <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-3">
-                        <div className="relative">
-                            {event.author?.profileImage ? (
-                                <Image
-                                    src={event.author.profileImage}
-                                    alt={event.author.name}
-                                    width={48}
-                                    height={48}
-                                    className="rounded-full"
-                                />
-                            ) : (
-                                <SyndicatDefaultAvatar 
-                                    name={event.author?.name || "User"}
-                                    size={48}
-                                />
-                            )}
-                        </div>
-                        <div>
-                            <div className="flex items-center space-x-2">
-                                <h3 className="font-semibold text-slate-900 dark:text-white text-base">
-                                    {event.author?.name || 'Organisateur'}
-                                </h3>
-                                <span className="text-slate-500 dark:text-gray-400 text-sm">•</span>
-                                <span className="text-slate-600 dark:text-gray-400 text-sm">Organisateur</span>
-                            </div>
-                            <div className="flex items-center space-x-2 text-slate-500 dark:text-gray-400 text-sm">
-                                <Clock className="h-4 w-4" />
-                                <span>Événement créé</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div className="bg-gradient-to-r from-indigo-100 to-purple-100 dark:from-indigo-900/40 dark:to-purple-900/40 text-indigo-700 dark:text-indigo-300 px-3 py-1 rounded-full text-sm font-medium">
-                        Événement
-                    </div>
+            {/* 1. BANDEAU SYNDICAT (Gradient Mauve/Bleu) */}
+            <div className="bg-gradient-to-r from-[#8E54E9] to-[#4776E6] px-4 py-2 flex items-center gap-2">
+                <div className="w-7 h-7 rounded-full border border-white/50 overflow-hidden bg-white/20 flex items-center justify-center">
+                    <Users size={14} className="text-white" />
                 </div>
+                <span className="text-xs font-bold text-white tracking-tight">
+                    {event.branchName || "Syndicat National"}
+                </span>
             </div>
 
-            {/* Contenu principal */}
-            <div className="p-6">
-                {/* Encadré spécial pour les infos événement */}
-                <div className="mb-4 bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-900/40 dark:to-purple-900/40 rounded-xl p-4 border border-indigo-100 dark:border-indigo-800">
-                    <h4 className="font-semibold text-indigo-900 dark:text-indigo-200 mb-2">{event.title}</h4>
-                    <div className="flex flex-wrap items-center text-indigo-700 dark:text-indigo-300 text-sm gap-4">
-                        <div className="flex items-center">
-                            <Calendar className="h-4 w-4 mr-1" />
-                            {formattedDate} à {formattedTime}
-                        </div>
-                        <div className="flex items-center">
-                            <MapPin className="h-4 w-4 mr-1" />
-                            {event.location || 'Lieu à définir'}
-                        </div>
-                        <div className="flex items-center">
-                            <Users className="h-4 w-4 mr-1" />
-                            {participantsCount} participants
-                        </div>
+            {/* 2. INFOS AUTEUR / ORGANISATEUR */}
+            <div className="p-4 flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                    <div className="relative">
+                        {event.author?.profileImage ? (
+                            <Image src={event.author.profileImage} alt="" width={40} height={40} className="rounded-full object-cover" />
+                        ) : (
+                            <SyndicatDefaultAvatar name={event.author?.name || "U"} size={40} />
+                        )}
+                        <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-white rounded-full"></div>
+                    </div>
+                    <div>
+                        <h4 className="font-bold text-gray-900 text-sm leading-tight">{event.author?.name || "Marie Dubois"}</h4>
+                        <p className="text-[11px] text-gray-500 flex items-center gap-1">
+                            <span className="text-blue-500">🕒</span> Il y a 6 heures
+                        </p>
                     </div>
                 </div>
-                
-                {/* Description */}
-                <p className="text-slate-700 dark:text-gray-300 mb-4 leading-relaxed text-base">
+                <button className="text-gray-400 hover:text-gray-600"><Bookmark size={20} /></button>
+            </div>
+
+            {/* 3. TEXTE DE L'ÉVÉNEMENT */}
+            <div className="px-4 pb-3">
+                <p className="text-[14px] text-gray-800 leading-relaxed">
+                    <span className="font-bold block mb-1 text-indigo-700">{event.title}</span>
                     {event.description}
                 </p>
-                
-                {/* Image de l'événement */}
-                {imageUrl && (
-                    <div className="-mx-6 mb-4">
-                        <Image
-                            src={imageUrl}
-                            alt={event.title}
-                            width={800}
-                            height={400}
-                            className="w-full h-[32rem] object-cover hover:scale-105 transition-transform duration-300"
-                        />
-                    </div>
-                )}
             </div>
 
-            {/* Footer avec boutons */}
-            <div className="px-6 py-4 bg-slate-50 dark:bg-gray-700/50 border-t border-slate-100 dark:border-gray-700">
-                <div className="flex items-center justify-between">
-                    {/* Bouton voir participants */}
-                    <motion.button
-                        className="text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 text-sm font-medium flex items-center gap-1"
-                        whileHover={{ scale: 1.02 }}
-                        whileTap={{ scale: 0.98 }}
-                        onClick={() => onShowParticipants && onShowParticipants(event)}
-                    >
-                        <Users className="w-4 h-4" />
-                        Voir les participants
-                    </motion.button>
+            {/* 4. IMAGE PRINCIPALE (Bords arrondis) */}
+              {imageUrl && (
+        <div className="px-4 mb-3">
+            {/* aspect-[16/9] rend l'image plus large et moins "carrée" */}
+            <div className="relative aspect-[16/9] w-full rounded-xl overflow-hidden border border-gray-100">
+                <Image src={imageUrl} alt={event.title} fill className="object-cover" unoptimized />
+            </div>
+        </div>
+    )}
 
-                    {/* Bouton participer/quitter */}
-                    <motion.button
-                        className={`px-6 py-2 rounded-lg text-sm font-medium transition-all duration-300 flex items-center gap-2 ${
-                            hasJoined
-                                ? 'bg-red-100 text-red-600 hover:bg-red-200 dark:bg-red-900/30 dark:text-red-400'
-                                : 'bg-gradient-to-r from-indigo-500 to-purple-600 text-white hover:from-indigo-600 hover:to-purple-700'
-                        }`}
-                        whileHover={{ scale: 1.02 }}
-                        whileTap={{ scale: 0.98 }}
-                        onClick={handleToggleParticipation}
-                        disabled={isJoining}
-                    >
-                        {isJoining ? (
-                            <span className="animate-spin">...</span>
-                        ) : hasJoined ? (
-                            <>
-                                <UserMinus className="w-4 h-4" />
-                                Quitter
-                            </>
-                        ) : (
-                            <>
-                                <UserPlus className="w-4 h-4" />
-                                Participer
-                            </>
-                        )}
-                    </motion.button>
+            {/* 5. COMPTEURS RÉACTIONS & COMMENTAIRES */}
+            <div className="px-4 py-2 flex items-center justify-between border-b border-gray-50">
+                <div className="flex items-center gap-1">
+                    <div className="flex -space-x-1">
+                        <div className="w-5 h-5 rounded-full bg-blue-500 flex items-center justify-center border border-white">
+                            <Heart size={10} className="text-white fill-current" />
+                        </div>
+                        <div className="w-5 h-5 rounded-full bg-pink-500 flex items-center justify-center border border-white">
+                            <Heart size={10} className="text-white fill-current" />
+                        </div>
+                    </div>
+                    <span className="text-xs text-gray-500 ml-1">42 réactions</span>
                 </div>
+                <div className="text-xs text-gray-500 hover:underline cursor-pointer">
+                    {event.commentsCount || 1} commentaires
+                </div>
+            </div>
+
+            {/* 6. BARRE D'ACTIONS SOCIALES (J'aime, Commenter, Partager) */}
+            <div className="px-2 py-1 flex items-center justify-between">
+                <button 
+                    onClick={handleLikeClick}
+                    disabled={isJoining}
+                    className={`flex-1 py-2 flex items-center justify-center gap-2 rounded-lg transition-colors ${hasJoined ? 'text-blue-600 font-bold' : 'text-gray-600 hover:bg-gray-50'}`}
+                >
+                    <Heart size={18} className={hasJoined ? "fill-current" : ""} />
+                    <span className="text-sm font-medium">J'aime</span>
+                </button>
+
+                <button className="flex-1 py-2 flex items-center justify-center gap-2 text-gray-600 hover:bg-gray-50 rounded-lg transition-colors">
+                    <MessageCircle size={18} />
+                    <span className="text-sm font-medium">Commenter</span>
+                </button>
+
+                <button className="flex-1 py-2 flex items-center justify-center gap-2 text-gray-600 hover:bg-gray-50 rounded-lg transition-colors">
+                    <Share2 size={18} />
+                    <span className="text-sm font-medium">Partager</span>
+                </button>
+            </div>
+
+            {/* BLOC INFOS COMPLÉMENTAIRES (Date/Lieu - Très discret) */}
+            <div className="px-4 py-2 bg-gray-50/50 flex gap-4 text-[10px] text-gray-400 font-semibold uppercase">
+                <div className="flex items-center gap-1"><Calendar size={12}/> {formattedDate}</div>
+                <div className="flex items-center gap-1"><MapPin size={12}/> {event.location || "Yaoundé"}</div>
             </div>
         </motion.div>
     );

@@ -1,51 +1,47 @@
 import axios from 'axios';
 
-const axiosInstance = axios.create({
-    baseURL: process.env.NEXT_PUBLIC_API_BASE_URL || 'https://auth-service.pynfi.com/api',
-    timeout: 10000,
-    headers: {
-        'Content-Type': 'application/json',
-    },
+const UGATE_URL = 'https://ugate.pynfi.com';
+const AUTH_URL = 'https://auth-service.pynfi.com/api';
+
+export const ugateInstance = axios.create({
+    baseURL: UGATE_URL,
+    timeout: 15000,
 });
 
-// Intercepteur pour injecter le token dans chaque requête
-axiosInstance.interceptors.request.use(
-    (config) => {
-        if (typeof window !== 'undefined') {
-            const token = localStorage.getItem('accessToken');
-            if (token) {
-                config.headers.Authorization = `Bearer ${token}`;
-            }
+export const getAuthToken = async () => {
+    if (typeof window === 'undefined') {
+        try {
+            const { cookies } = await import('next/headers');
+            const cookieStore = await cookies();
+            // On essaie de récupérer 'accessToken'
+            const token = cookieStore.get('accessToken')?.value;
+            return token || null;
+        } catch (e) {
+            return null;
         }
-        return config;
-    },
-    (error) => {
+    }
+    return typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null;
+};
+
+// Intercepteur pour les appels navigateurs
+ugateInstance.interceptors.request.use(async (config) => {
+    const token = await getAuthToken();
+    if (token) config.headers.Authorization = `Bearer ${token}`;
+    return config;
+});
+
+export const serverFetch = async (method, url, data = null, config = {}) => {
+    try {
+        const token = await getAuthToken();
+        const headers = {
+            ...config.headers,
+            ...(token ? { Authorization: `Bearer ${token}` } : {})
+        };
+        return await ugateInstance.request({ method, url, data, ...config, headers });
+    } catch (error) {
+        // IMPORTANT : On rejette l'erreur pour qu'elle soit attrapée par le try/catch du composant
         return Promise.reject(error);
     }
-);
+};
 
-
-axiosInstance.interceptors.response.use(
-    (response) => response,
-    (error) => {
-        if (error.response && (error.response.status === 401 || error.response.status === 403)) {
-            if (typeof window !== 'undefined' && !window.location.pathname.endsWith('/login')) {
-                // Nettoyage complet du localStorage
-                localStorage.removeItem('accessToken');
-                localStorage.removeItem('refreshToken');
-                localStorage.removeItem('user');
-                localStorage.removeItem('email'); // Au cas où l'ancien est toujours là
-                localStorage.removeItem('userId'); // Nettoyer aussi l'ancien userId
-
-                // Redirection vers la page de connexion en gardant la locale
-                const path = window.location.pathname;
-                const locale = path.split('/')[1] || 'fr';
-                window.location.href = `/${locale}/login`;
-            }
-        }
-        return Promise.reject(error);
-    }
-);
-
-
-export default axiosInstance;
+export default axios.create({ baseURL: AUTH_URL, timeout: 15000 });

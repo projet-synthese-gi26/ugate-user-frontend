@@ -34,7 +34,7 @@ export default function MySyndicatesPage() {
             <div className="flex justify-center items-center min-h-[calc(100vh-200px)]">
                 <div className="text-center">
                     <Loader2 className="w-12 h-12 mx-auto animate-spin text-blue-500" />
-                    <p className="mt-4 text-lg font-semibold text-gray-600 dark:text-gray-300">
+                    <p className="mt-4 text-lg font-semibold text-gray-600 text-gray-300">
                         {t('syndicats_page.loading_text') || "Chargement de vos syndicats..."}
                     </p>
                 </div>
@@ -43,7 +43,7 @@ export default function MySyndicatesPage() {
     }
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-indigo-50 dark:from-gray-900 dark:via-blue-900/20 dark:to-indigo-900/10 py-12">
+        <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-indigo-50 from-gray-900 via-blue-900/20 to-indigo-900/10 py-12">
             <div className="container mx-auto px-4 sm:px-6 lg:px-8">
                 <MySyndicatesHeader />
                 <SyndicateList initialSyndicates={syndicates} />

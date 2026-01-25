@@ -3,12 +3,13 @@
 
 import { GoogleOAuthProvider } from '@react-oauth/google';
 import ToastProvider from '@/components/shared/ToastProvider';
-
+import { UserProvider } from '@/context/UserProvider';
 
 export function Providers({ children }) {
   const GOOGLE_CLIENT_ID = "137734019377-nnq12325retn9n23nfnis326j008u2pm.apps.googleusercontent.com";
 
   return (
+    <UserProvider>
     <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
       <ToastProvider />
 
@@ -18,5 +19,6 @@ export function Providers({ children }) {
       </div>
 
     </GoogleOAuthProvider>
+     </UserProvider>
   );
 }

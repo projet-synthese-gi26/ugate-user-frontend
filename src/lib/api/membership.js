@@ -1,4 +1,4 @@
-import axios from './instance';
+import axios, { serverFetch } from './instance';
 
 export const requestAdhesionAPI = async (adhesionData) => {
     const response = await axios.post('/memberships/request', adhesionData);
@@ -6,7 +6,8 @@ export const requestAdhesionAPI = async (adhesionData) => {
 };
 
 export const getAdhesionRequestsAPI = async (syndicateId, branchId) => {
-    const response = await axios.get(`/memberships/requests/${syndicateId}/${branchId}`);
+    // Utiliser serverFetch pour supporter les appels côté serveur (Server Components)
+    const response = await serverFetch('get', `/memberships/requests/${syndicateId}/${branchId}`);
     return response.data;
 };
 
@@ -16,6 +17,7 @@ export const respondToAdhesionAPI = async (syndicateId, branchId, userId, approv
 };
 
 export const getBranchMembersAPI = async (branchId) => {
-    const response = await axios.get(`/memberships/members/${branchId}`);
+    // Utiliser serverFetch pour supporter les appels côté serveur (Server Components)
+    const response = await serverFetch('get', `/memberships/members/${branchId}`);
     return response.data;
 };

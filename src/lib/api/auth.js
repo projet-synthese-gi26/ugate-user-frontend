@@ -1,12 +1,21 @@
 import axios from './instance';
 import { getUserSyndicatesAPI } from './syndicates';
+import { setCookie, deleteCookie } from '../utils/cookies';
 
 export const loginWithIdentifier = async (identifier, password) => {
-    const response = await axios.post('/auth/login', { identifier, password });
+   // const response = await axios.post('/auth/login', { identifier, password });
+   const response = await axios.post('https://auth-service.pynfi.com/api/auth/login', { 
+    identifier, 
+    password 
+});
+
     if (response.data?.accessToken) {
         localStorage.setItem('accessToken', response.data.accessToken);
         localStorage.setItem('refreshToken', response.data.refreshToken);
         localStorage.setItem('user', JSON.stringify(response.data.user));
+        // Stocker aussi dans les cookies pour l'accès côté serveur
+        setCookie('accessToken', response.data.accessToken, 7);
+        setCookie('refreshToken', response.data.refreshToken, 30);
 
         // Récupérer les syndicats de l'utilisateur
         const userId = response.data.user?.id;
@@ -34,6 +43,9 @@ export const registerWithEmail = async (userData) => {
         localStorage.setItem('accessToken', response.data.accessToken);
         localStorage.setItem('refreshToken', response.data.refreshToken);
         localStorage.setItem('user', JSON.stringify(response.data.user));
+        // Stocker aussi dans les cookies pour l'accès côté serveur
+        setCookie('accessToken', response.data.accessToken, 7);
+        setCookie('refreshToken', response.data.refreshToken, 30);
     }
     return response.data;
 };
@@ -73,7 +85,10 @@ export const logout = () => {
     localStorage.removeItem('user');
     localStorage.removeItem('syndicatId');
     localStorage.removeItem('email'); // Nettoyage de l'ancienne clé
-    
+    // Supprimer aussi les cookies
+    deleteCookie('accessToken');
+    deleteCookie('refreshToken');
+
     // Rediriger l'utilisateur en préservant la langue
     if (typeof window !== 'undefined') {
         const locale = getCurrentLocale();

@@ -43,7 +43,7 @@ const validateDates = (startDate, endDate) => {
 };
 
 export default function EventForm({ onSubmit, initialData = {}, isLoading }) {
-    const t = useTranslations('event_form');
+    const t = useTranslations();
     const [selectedImage, setSelectedImage] = useState(null);
     const [dateErrors, setDateErrors] = useState({});
     
@@ -61,7 +61,7 @@ export default function EventForm({ onSubmit, initialData = {}, isLoading }) {
     const watchedStartDate = watch('startDate');
     const watchedEndDate = watch('endDate');
 
-    const inputClasses = "w-full p-3 border rounded-lg bg-white text-gray-900 border-gray-300 dark:bg-gray-800 dark:text-gray-200 dark:border-gray-600 placeholder-gray-400 dark:placeholder-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition";
+    const inputClasses = "w-full p-3 border rounded-lg bg-white text-gray-900 border-gray-300 bg-gray-800 text-gray-200 border-gray-600 placeholder-gray-400 placeholder-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition";
     
     // Gestionnaire de soumission avec validation des dates
     const handleFormSubmit = (data) => {

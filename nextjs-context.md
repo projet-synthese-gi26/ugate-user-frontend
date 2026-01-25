@@ -573,7 +573,7 @@ export default function ExplorerPage() {
     }
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-indigo-50 dark:from-gray-900 dark:via-blue-900/20 dark:to-indigo-900/10 py-12">
+        <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-indigo-50 from-gray-900 via-blue-900/20 to-indigo-900/10 py-12">
             <div className="container mx-auto px-4 sm:px-6 lg:px-8">
                 
                 <ExploreHeader syndicatesCount={totalElements} t={t} />
@@ -660,9 +660,9 @@ export default async function SyndicateProfilePage({ params }) {
     }
 
     return (
-        <div className="bg-gray-50 dark:bg-gray-900 min-h-screen">
+        <div className="bg-gray-50 bg-gray-900 min-h-screen">
             <div className="container mx-auto px-4 py-8">
-                <Link href="/explorer" className="inline-flex items-center space-x-2 text-blue-600 dark:text-blue-400 hover:underline mb-6 group">
+                <Link href="/explorer" className="inline-flex items-center space-x-2 text-blue-600 text-blue-400 hover:underline mb-6 group">
                     <ChevronLeft className="h-5 w-5 transition-transform group-hover:-translate-x-1" />
                     <span className="font-semibold">{t('profile_page.back_to_explorer', 'Retour à l\'exploration')}</span>
                 </Link>
@@ -705,7 +705,7 @@ export default async function HomePage({ params }) {
             <WelcomeSection />
 
             <div className="max-w-3xl mx-auto mt-12">
-                <h2 className="text-2xl font-bold mb-6 text-gray-800 dark:text-gray-200">
+                <h2 className="text-2xl font-bold mb-6 text-gray-800 text-gray-200">
                     {t("dashboard.news_and_events")}
                 </h2>
                 {/* Le composant Feed existant fonctionnera parfaitement avec le FeedCard amélioré */}
@@ -762,7 +762,7 @@ export default function DashboardLayout({ children }) {
 
     return (
         <UserContext.Provider value={{ user: userData, isLoading: loadingUser, setUser: setUserData }}>
-            <div className="flex flex-col h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-gray-900 dark:via-blue-900/10 dark:to-indigo-900/5">
+            <div className="flex flex-col h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 from-gray-900 via-blue-900/10 to-indigo-900/5">
                 <AppHeader
                     isSidebarOpen={isSidebarOpen}
                     onSidebarToggle={() => setIsSidebarOpen(!isSidebarOpen)}
@@ -832,13 +832,13 @@ export default async function SettingsPage({ params }) {
     const userData = await getAuthenticatedUserData();
 
     return (
-        <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-8">
+        <div className="min-h-screen bg-gray-50 bg-gray-900 py-8">
             <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-5xl">
                 <div className="text-center mb-10">
                     <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
                         {t('settings_page.title')}
                     </h1>
-                    <p className="mt-2 text-lg text-gray-600 dark:text-gray-400">
+                    <p className="mt-2 text-lg text-gray-600 text-gray-400">
                         {t('settings_page.subtitle')}
                     </p>
                 </div>
@@ -893,7 +893,7 @@ export default function MySyndicatesPage() {
             <div className="flex justify-center items-center min-h-[calc(100vh-200px)]">
                 <div className="text-center">
                     <Loader2 className="w-12 h-12 mx-auto animate-spin text-blue-500" />
-                    <p className="mt-4 text-lg font-semibold text-gray-600 dark:text-gray-300">
+                    <p className="mt-4 text-lg font-semibold text-gray-600 text-gray-300">
                         {t('syndicats_page.loading_text') || "Chargement de vos syndicats..."}
                     </p>
                 </div>
@@ -902,7 +902,7 @@ export default function MySyndicatesPage() {
     }
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-indigo-50 dark:from-gray-900 dark:via-blue-900/20 dark:to-indigo-900/10 py-12">
+        <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-indigo-50 from-gray-900 via-blue-900/20 to-indigo-900/10 py-12">
             <div className="container mx-auto px-4 sm:px-6 lg:px-8">
                 <MySyndicatesHeader />
                 <SyndicateList initialSyndicates={syndicates} />
@@ -1041,7 +1041,7 @@ export default async function EventsPage({ params }) {
                 <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
                     {t('events_page.title')}
                 </h1>
-                <p className="mt-2 text-gray-600 dark:text-gray-400">{t('events_page.subtitle')}</p>
+                <p className="mt-2 text-gray-600 text-gray-400">{t('events_page.subtitle')}</p>
             </div>
             
             <EventsFeed initialEvents={initialEvents} />
@@ -1082,7 +1082,7 @@ export default async function ExprimerPage({ params }) {
                 <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent mb-4">
                     {t("express_page.title")}
                 </h1>
-                <p className="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
+                <p className="text-lg text-gray-600 text-gray-400 max-w-2xl mx-auto">
                     {t("express_page.subtitle")}
                 </p>
             </div>
@@ -2847,36 +2847,36 @@ export default function AppHeader({ isSidebarOpen, onSidebarToggle, onNotificati
     const displayUserName = isLoading ? "..." : user?.firstName || "Invité";
 
     return (
-        <header className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm z-30 sticky top-0 border-b border-gray-200/80 dark:border-white/10">
+        <header className="bg-white/80 bg-gray-900/80 backdrop-blur-sm z-30 sticky top-0 border-b border-gray-200/80 border-white/10">
             <div className="flex justify-between items-center py-3 px-4 sm:px-6 lg:px-8">
                 <div className="flex items-center space-x-4">
-                    <button onClick={onSidebarToggle} className="text-gray-600 dark:text-gray-300 hover:text-blue-600">
+                    <button onClick={onSidebarToggle} className="text-gray-600 text-gray-300 hover:text-blue-600">
                         {isSidebarOpen ? <ChevronLeft size={24} /> : <ChevronRight size={24} />}
                     </button>
                     <div className="hidden md:flex items-center">
                         <Building className="h-8 w-8 text-blue-600" />
-                        <h1 className="ml-2 text-xl font-bold text-gray-800 dark:text-gray-200">SyndicManager</h1>
+                        <h1 className="ml-2 text-xl font-bold text-gray-800 text-gray-200">SyndicManager</h1>
                     </div>
                 </div>
                 <div className="flex items-center space-x-2 md:space-x-4">
                     <div className="relative hidden sm:block">
-                        <input type="text" placeholder={t("rechercherPlaceholder1")} className="w-40 md:w-64 pl-10 pr-4 py-2 rounded-full border bg-gray-100 dark:bg-gray-800 dark:border-gray-700" />
+                        <input type="text" placeholder={t("rechercherPlaceholder1")} className="w-40 md:w-64 pl-10 pr-4 py-2 rounded-full border bg-gray-100 bg-gray-800 border-gray-700" />
                         <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
                     </div>
                     <ThemeSwitcher />
                     <LanguageSwitcher />
-                    <button onClick={onNotificationToggle} className="relative p-2 rounded-full text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
+                    <button onClick={onNotificationToggle} className="relative p-2 rounded-full text-gray-600 text-gray-300 hover:bg-gray-100 hover:bg-gray-800 transition-colors">
                         <Bell size={22} />
-                        <span className="absolute top-0 right-0 block h-2 w-2 rounded-full bg-red-500 ring-2 ring-white dark:ring-gray-900" />
+                        <span className="absolute top-0 right-0 block h-2 w-2 rounded-full bg-red-500 ring-2 ring-white ring-gray-900" />
                     </button>
                     <Link href="/parametres" passHref>
-                        <div className="flex items-center space-x-2 cursor-pointer p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800">
+                        <div className="flex items-center space-x-2 cursor-pointer p-1 rounded-full hover:bg-gray-100 hover:bg-gray-800">
                             {profileImageSrc ? (
                                 <img src={profileImageSrc} alt="Profil" className="w-9 h-9 rounded-full object-cover" />
                             ) : (
                                 <SyndicatDefaultAvatar name={displayUserName} size={36} className="w-9 h-9" />
                             )}
-                            <span className="hidden lg:inline font-semibold text-gray-700 dark:text-gray-300">{displayUserName}</span>
+                            <span className="hidden lg:inline font-semibold text-gray-700 text-gray-300">{displayUserName}</span>
                         </div>
                     </Link>
                 </div>
@@ -2981,7 +2981,7 @@ import FeedCard from './FeedCard';
 export default function Feed({ initialFeed }) {
     if (!initialFeed || initialFeed.length === 0) {
         return (
-            <div className="text-center py-16 text-gray-500 dark:text-gray-400">
+            <div className="text-center py-16 text-gray-500 text-gray-400">
                 <p>Le fil d'actualité est vide pour le moment.</p>
                 <p>Revenez plus tard pour voir les dernières publications et événements.</p>
             </div>
@@ -3018,7 +3018,7 @@ import { SyndicatDefaultAvatar } from '../shared/SyndicatDefaultAvatar';
 import { STATIC_FILES_URL } from '@/lib/constants';
 
 const ActionButton = ({ icon: Icon, text, onClick, active, activeColor = 'text-red-500' }) => (
-    <motion.button onClick={onClick} className={`flex items-center justify-center w-full gap-2 py-2.5 rounded-lg transition-all duration-200 ${ active ? `${activeColor.replace('text-', 'bg-').replace('-500', '-100')} dark:${activeColor.replace('text-', 'bg-').replace('-500', '-900/50')} ${activeColor}` : 'text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700' }`} whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+    <motion.button onClick={onClick} className={`flex items-center justify-center w-full gap-2 py-2.5 rounded-lg transition-all duration-200 ${ active ? `${activeColor.replace('text-', 'bg-').replace('-500', '-100')} ${activeColor.replace('text-', 'bg-').replace('-500', '-900/50')} ${activeColor}` : 'text-gray-500 text-gray-400 hover:bg-gray-100 hover:bg-gray-700' }`} whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
         <Icon size={18} fill={active ? 'currentColor' : 'none'} />
         <span className="font-medium text-sm">{text}</span>
     </motion.button>
@@ -3036,23 +3036,23 @@ export default function FeedCard({ item }) {
         const authorAvatarUrl = item.author.avatar && item.author.avatar.startsWith('/') ? `${STATIC_FILES_URL}${item.author.avatar}` : item.author.avatar;
 
         return (
-            <div className="bg-white dark:bg-gray-800/60 rounded-2xl shadow-xl border border-gray-200/50 dark:border-white/10 overflow-hidden">
+            <div className="bg-white bg-gray-800/60 rounded-2xl shadow-xl border border-gray-200/50 border-white/10 overflow-hidden">
                 <FeedItemHeader syndicat={item.syndicat} branch={item.branch} />
                 <div className="p-5 sm:p-6">
                     <div className="flex items-start gap-4 mb-4">
-                        {authorAvatarUrl ? <Image src={authorAvatarUrl} alt={item.author.name} width={48} height={48} className="w-12 h-12 rounded-full object-cover ring-2 ring-white/50 dark:ring-white/10" /> : <SyndicatDefaultAvatar name={item.author.name} size={48} />}
+                        {authorAvatarUrl ? <Image src={authorAvatarUrl} alt={item.author.name} width={48} height={48} className="w-12 h-12 rounded-full object-cover ring-2 ring-white/50 ring-white/10" /> : <SyndicatDefaultAvatar name={item.author.name} size={48} />}
                         <div>
-                            <p className="font-bold text-gray-900 dark:text-white">{item.author.name}</p>
-                            <p className="text-xs text-gray-500 dark:text-gray-400 flex items-center gap-1.5"><Clock size={12}/> {timeAgo}</p>
+                            <p className="font-bold text-gray-900 text-white">{item.author.name}</p>
+                            <p className="text-xs text-gray-500 text-gray-400 flex items-center gap-1.5"><Clock size={12}/> {timeAgo}</p>
                         </div>
                     </div>
-                    <p className="text-gray-700 dark:text-gray-300 mb-5 whitespace-pre-wrap text-base leading-relaxed">{item.content}</p>
+                    <p className="text-gray-700 text-gray-300 mb-5 whitespace-pre-wrap text-base leading-relaxed">{item.content}</p>
                     {imageUrl && <div className="rounded-xl overflow-hidden shadow-lg"><Image src={imageUrl} alt="Contenu" width={800} height={500} className="w-full h-auto"/></div>}
-                    <div className="flex justify-between items-center text-sm text-gray-500 dark:text-gray-400 my-4">
+                    <div className="flex justify-between items-center text-sm text-gray-500 text-gray-400 my-4">
                         <span>{item.likes} {t('common.like', {count: item.likes})}</span>
                         <span>{item.comments?.length || 0} {t('common.comment', {count: item.comments?.length || 0})}</span>
                     </div>
-                    <div className="flex items-center justify-around border-t border-gray-100 dark:border-gray-700/50 pt-3 gap-2">
+                    <div className="flex items-center justify-around border-t border-gray-100 border-gray-700/50 pt-3 gap-2">
                         <ActionButton icon={Heart} text={t('common.like')} onClick={() => setLiked(!liked)} active={liked} activeColor="text-red-500" />
                         <ActionButton icon={MessageCircle} text={t('common.comment')} activeColor="text-blue-500" />
                         <ActionButton icon={Share2} text={t('common.share')} activeColor="text-green-500" />
@@ -3065,7 +3065,7 @@ export default function FeedCard({ item }) {
     if (item.type === 'event') {
         const startDate = new Date(dateToUse);
         return (
-             <div className="bg-white dark:bg-gray-800/60 rounded-2xl shadow-xl border border-gray-200/50 dark:border-white/10 overflow-hidden">
+             <div className="bg-white bg-gray-800/60 rounded-2xl shadow-xl border border-gray-200/50 border-white/10 overflow-hidden">
                 <FeedItemHeader syndicat={item.syndicat} branch={item.branch} />
                 {imageUrl && <div className="relative h-52 group">
                     <Image src={imageUrl} alt={item.title} fill style={{ objectFit: 'cover' }} className="transition-transform duration-300 group-hover:scale-105" />
@@ -3077,16 +3077,16 @@ export default function FeedCard({ item }) {
                 </div>}
                 <div className="p-5 sm:p-6">
                     <div className="grid grid-cols-3 gap-4 text-center mb-5">
-                        <div className="p-3 bg-blue-50 dark:bg-blue-900/40 rounded-lg">
-                            <p className="text-xl font-bold text-blue-600 dark:text-blue-300">{format(startDate, 'dd')}</p>
-                            <p className="text-xs font-semibold text-blue-500 dark:text-blue-400 uppercase">{format(startDate, 'MMM', { locale: fr })}</p>
+                        <div className="p-3 bg-blue-50 bg-blue-900/40 rounded-lg">
+                            <p className="text-xl font-bold text-blue-600 text-blue-300">{format(startDate, 'dd')}</p>
+                            <p className="text-xs font-semibold text-blue-500 text-blue-400 uppercase">{format(startDate, 'MMM', { locale: fr })}</p>
                         </div>
-                        <div className="p-3 bg-green-50 dark:bg-green-900/40 rounded-lg col-span-2">
-                            <p className="font-semibold text-green-700 dark:text-green-300">{format(startDate, 'EEEE', { locale: fr })}</p>
-                            <p className="text-xs text-green-600 dark:text-green-400">{format(startDate, 'HH:mm')}</p>
+                        <div className="p-3 bg-green-50 bg-green-900/40 rounded-lg col-span-2">
+                            <p className="font-semibold text-green-700 text-green-300">{format(startDate, 'EEEE', { locale: fr })}</p>
+                            <p className="text-xs text-green-600 text-green-400">{format(startDate, 'HH:mm')}</p>
                         </div>
                     </div>
-                    <div className="text-sm text-gray-600 dark:text-gray-400 space-y-2 mb-6">
+                    <div className="text-sm text-gray-600 text-gray-400 space-y-2 mb-6">
                         <p className="flex items-center gap-2"><MapPin size={16} className="text-purple-500"/> {item.location}</p>
                         <p className="flex items-center gap-2"><User size={16} className="text-purple-500"/> Organisé par <strong>{item.author.name}</strong></p>
                     </div>
@@ -3321,17 +3321,17 @@ export default function FeedItemHeader({ syndicat, branch }) {
     const logoUrl = syndicat.logoUrl ? `${staticFilesUrl}${syndicat.logoUrl}` : null;
 
     return (
-        <div className="flex items-center p-4 bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-800/80 border-b border-gray-200/80 dark:border-white/10">
+        <div className="flex items-center p-4 bg-gradient-to-r from-gray-50 to-gray-100 from-gray-800 to-gray-800/80 border-b border-gray-200/80 border-white/10">
             {logoUrl ? (
                 <Image src={logoUrl} alt={syndicat.name} width={40} height={40} className="w-10 h-10 rounded-lg object-cover shadow-sm" />
             ) : (
                 <SyndicatDefaultAvatar name={syndicat.name} size={40} className="rounded-lg shadow-sm" />
             )}
             <div className="ml-3">
-                <Link href={`/syndicat-space/${syndicat.id}`} className="font-semibold text-gray-800 dark:text-gray-100 hover:text-blue-600 transition-colors">
+                <Link href={`/syndicat-space/${syndicat.id}`} className="font-semibold text-gray-800 text-gray-100 hover:text-blue-600 transition-colors">
                     {syndicat.name}
                 </Link>
-                {branch && <p className="text-xs text-gray-500 dark:text-gray-400">{branch.name}</p>}
+                {branch && <p className="text-xs text-gray-500 text-gray-400">{branch.name}</p>}
             </div>
         </div>
     );
@@ -3548,23 +3548,23 @@ export default function AdhesionModal({ isOpen, onClose, syndicat }) {
                         animate={{ scale: 1, opacity: 1, y: 0 }}
                         exit={{ scale: 0.9, opacity: 0, y: 20 }}
                         transition={{ duration: 0.3, ease: "easeInOut" }}
-                        className="bg-gray-50 dark:bg-gray-900 rounded-2xl w-full max-w-5xl max-h-[90vh] flex flex-col shadow-2xl"
+                        className="bg-gray-50 bg-gray-900 rounded-2xl w-full max-w-5xl max-h-[90vh] flex flex-col shadow-2xl"
                         // Empêche la propagation du clic pour ne pas fermer la modale en cliquant dessus
                         onClick={(e) => e.stopPropagation()}
                     >
                         {/* Header de la Modale */}
-                        <div className="sticky top-0 p-4 sm:p-6 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center bg-gray-50 dark:bg-gray-900 rounded-t-2xl z-10">
+                        <div className="sticky top-0 p-4 sm:p-6 border-b border-gray-200 border-gray-700 flex justify-between items-center bg-gray-50 bg-gray-900 rounded-t-2xl z-10">
                             <div>
-                                <h3 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">
+                                <h3 className="text-xl sm:text-2xl font-bold text-gray-900 text-white">
                                     {t('adhesion_modal.title', { syndicatName: syndicat.name })}
                                 </h3>
-                                <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                                <p className="text-sm text-gray-600 text-gray-400 mt-1">
                                     {t('adhesion_modal.subtitle')}
                                 </p>
                             </div>
                             <button
                                 onClick={onClose}
-                                className="p-2 text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition-colors"
+                                className="p-2 text-gray-500 text-gray-400 hover:bg-gray-100 hover:bg-gray-700 rounded-full transition-colors"
                                 aria-label="Fermer la modale"
                             >
                                 <X size={24} />
@@ -3619,7 +3619,7 @@ export default function ExploreCard({ syndicat, itemVariants, onDetails, onAdher
     
     return (
         <motion.div
-            className="group bg-white dark:bg-gray-800/50 rounded-2xl shadow-lg hover:shadow-xl dark:shadow-black/20 transition-all duration-300 border border-gray-100 dark:border-gray-700 overflow-hidden flex flex-col"
+            className="group bg-white bg-gray-800/50 rounded-2xl shadow-lg hover:shadow-xl shadow-black/20 transition-all duration-300 border border-gray-100 border-gray-700 overflow-hidden flex flex-col"
             variants={itemVariants}
             whileHover={{ y: -8 }}
         >
@@ -3627,27 +3627,27 @@ export default function ExploreCard({ syndicat, itemVariants, onDetails, onAdher
                 <Image src={bannerUrl} alt={syndicat.name} fill sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" style={{ objectFit: 'cover' }} className="transition-transform duration-500 group-hover:scale-105" />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
                 <div className="absolute -bottom-8 left-6">
-                    <div className="w-20 h-20 bg-white dark:bg-gray-800 rounded-full p-1 shadow-lg border-4 border-white dark:border-gray-800">
+                    <div className="w-20 h-20 bg-white bg-gray-800 rounded-full p-1 shadow-lg border-4 border-white border-gray-800">
                         {logoUrl ? <Image src={logoUrl} alt={`${syndicat.name} logo`} width={80} height={80} className="rounded-full object-cover w-full h-full" /> : <SyndicatDefaultAvatar name={syndicat.name} size={72} />}
                     </div>
                 </div>
                 {certified && <div className="absolute top-3 right-3 bg-green-500 text-white p-2 rounded-full shadow-lg" title="Syndicat Certifié"><ShieldCheck className="w-4 h-4" /></div>}
             </div>
             <div className="p-6 pt-10 flex flex-col flex-grow">
-                <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-3 leading-snug line-clamp-2 h-14">
+                <h2 className="text-xl font-semibold text-gray-900 text-white mb-3 leading-snug line-clamp-2 h-14">
                     {syndicat.name}
                 </h2>
-                <div className="flex items-center justify-between text-gray-600 dark:text-gray-400 text-sm mb-4">
+                <div className="flex items-center justify-between text-gray-600 text-gray-400 text-sm mb-4">
                     <div className="flex items-center" title="Nombre de membres"><Users className="h-4 w-4 mr-2 text-blue-500 flex-shrink-0"/><span className="font-medium">{formatMemberCount(syndicat.memberCount)} membres</span></div>
                     <div className="flex items-center" title="Note moyenne"><Star className="h-4 w-4 mr-1 text-yellow-400 fill-current"/><span className="font-medium">{rating}</span></div>
                 </div>
                 <div className="flex flex-wrap gap-1 mb-4">
                     {specialties.slice(0, 3).map((specialty, index) => (
-                        <span key={index} className="px-2 py-1 bg-blue-50 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300 text-xs rounded-full font-medium">{specialty}</span>
+                        <span key={index} className="px-2 py-1 bg-blue-50 bg-blue-900/50 text-blue-700 text-blue-300 text-xs rounded-full font-medium">{specialty}</span>
                     ))}
                 </div>
                 <div className="mt-auto pt-4 flex gap-3">
-                    <motion.button className="flex-1 bg-white dark:bg-gray-700 text-blue-600 dark:text-blue-300 py-2.5 rounded-lg border-2 border-blue-100 dark:border-blue-800 hover:border-blue-200 dark:hover:border-blue-600 hover:bg-blue-50 dark:hover:bg-gray-600 transition-all duration-300 flex items-center justify-center font-semibold" whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.98 }} onClick={() => onDetails(syndicat)}>
+                    <motion.button className="flex-1 bg-white bg-gray-700 text-blue-600 text-blue-300 py-2.5 rounded-lg border-2 border-blue-100 border-blue-800 hover:border-blue-200 hover:border-blue-600 hover:bg-blue-50 hover:bg-gray-600 transition-all duration-300 flex items-center justify-center font-semibold" whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.98 }} onClick={() => onDetails(syndicat)}>
                         <span>Détails</span>
                         <ChevronRight className="ml-1 h-4 w-4"/>
                     </motion.button>
@@ -3682,7 +3682,7 @@ export default function ExploreHeader({ syndicatesCount, t }) {
         <header className="text-center mb-16 relative">
             <div className="max-w-4xl mx-auto relative">
                 {/* Effet de lumière décoratif */}
-                <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 w-24 h-24 bg-blue-100 dark:bg-blue-900/50 rounded-full blur-3xl opacity-30 -z-10"></div>
+                <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 w-24 h-24 bg-blue-100 bg-blue-900/50 rounded-full blur-3xl opacity-30 -z-10"></div>
 
                 {/* Titre principal */}
                 <h1 className="text-4xl sm:text-5xl font-bold mb-6 relative z-10">
@@ -3693,9 +3693,9 @@ export default function ExploreHeader({ syndicatesCount, t }) {
                 </h1>
 
                 {/* Description */}
-                <p className="text-lg text-gray-600 dark:text-gray-400 leading-relaxed max-w-2xl mx-auto">
+                <p className="text-lg text-gray-600 text-gray-400 leading-relaxed max-w-2xl mx-auto">
                     {t('explorer_page.description')}
-                    <span className="block mt-2 text-blue-600 dark:text-blue-400 flex items-center justify-center">
+                    <span className="block mt-2 text-blue-600 text-blue-400 flex items-center justify-center">
                         <Sparkles className="h-5 w-5 mr-2"/>
                         {t('explorer_page.count', { count: syndicatesCount })}
                     </span>
@@ -3788,7 +3788,7 @@ export default function ExplorerClient({ initialSyndicates, initialHasNextPage }
         <>
             <motion.div className="mb-12 max-w-4xl mx-auto" initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.2 }}>
                 <div className="relative mb-4">
-                    <input type="text" placeholder={t("explorer_page.search_placeholder")} className="w-full pl-14 pr-6 py-4 rounded-xl border-2 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-100 dark:focus:ring-blue-900/50 transition-all text-lg" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
+                    <input type="text" placeholder={t("explorer_page.search_placeholder")} className="w-full pl-14 pr-6 py-4 rounded-xl border-2 border-gray-200 border-gray-700 bg-white bg-gray-800 text-gray-900 text-gray-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-100 focus:ring-blue-900/50 transition-all text-lg" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
                     <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-400 h-6 w-6"/>
                 </div>
                 <div className="flex flex-wrap gap-4 items-center justify-between">
@@ -3804,9 +3804,9 @@ export default function ExplorerClient({ initialSyndicates, initialHasNextPage }
                     </motion.div>
                 ) : (
                     <motion.div key="empty-state" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-center py-16">
-                        <div className="w-24 h-24 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-6"><Search className="w-12 h-12 text-gray-400 dark:text-gray-500" /></div>
-                        <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">{t("explorer_page.no_results_title")}</h3>
-                        <p className="text-gray-600 dark:text-gray-400 mb-6">{t("explorer_page.no_results_description")}</p>
+                        <div className="w-24 h-24 bg-gray-100 bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-6"><Search className="w-12 h-12 text-gray-400 text-gray-500" /></div>
+                        <h3 className="text-xl font-semibold text-gray-900 text-white mb-2">{t("explorer_page.no_results_title")}</h3>
+                        <p className="text-gray-600 text-gray-400 mb-6">{t("explorer_page.no_results_description")}</p>
                     </motion.div>
                 )}
             </AnimatePresence>
@@ -3883,17 +3883,17 @@ export const AdhereSyndicatForm = ({ syndicat, onComplete }) => {
                         const step = index + 1;
                         return (
                             <div key={step} className="flex items-center">
-                                <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium transition-all duration-300 ${ currentStep >= step ? 'bg-blue-600 text-white shadow-md' : 'bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-300' }`}>
+                                <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium transition-all duration-300 ${ currentStep >= step ? 'bg-blue-600 text-white shadow-md' : 'bg-gray-200 bg-gray-700 text-gray-600 text-gray-300' }`}>
                                     {currentStep > step ? <CheckCircle className="w-5 h-5" /> : step}
                                 </div>
-                                {step < steps.length && ( <div className={`w-12 sm:w-20 lg:w-32 h-1 mx-2 transition-colors duration-500 ${ currentStep > step ? 'bg-blue-600' : 'bg-gray-200 dark:bg-gray-700' }`} /> )}
+                                {step < steps.length && ( <div className={`w-12 sm:w-20 lg:w-32 h-1 mx-2 transition-colors duration-500 ${ currentStep > step ? 'bg-blue-600' : 'bg-gray-200 bg-gray-700' }`} /> )}
                             </div>
                         );
                     })}
                 </div>
                 <div className="text-center mt-3">
-                    <p className="font-semibold text-gray-800 dark:text-gray-200">{steps[currentStep - 1]}</p>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">{t('adhesion_wizard.step_of', { current: currentStep, total: steps.length })}</p>
+                    <p className="font-semibold text-gray-800 text-gray-200">{steps[currentStep - 1]}</p>
+                    <p className="text-sm text-gray-500 text-gray-400">{t('adhesion_wizard.step_of', { current: currentStep, total: steps.length })}</p>
                 </div>
             </div>
 
@@ -3907,8 +3907,8 @@ export const AdhereSyndicatForm = ({ syndicat, onComplete }) => {
             </AnimatePresence>
 
             {currentStep < 4 && (
-                <div className="flex justify-between mt-8 pt-6 border-t border-gray-200 dark:border-gray-700">
-                    <motion.button onClick={prevStep} disabled={currentStep === 1} className="px-6 py-2 rounded-lg flex items-center font-semibold bg-gray-200 text-gray-700 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed" whileHover={currentStep > 1 ? { scale: 1.05 } : {}}>
+                <div className="flex justify-between mt-8 pt-6 border-t border-gray-200 border-gray-700">
+                    <motion.button onClick={prevStep} disabled={currentStep === 1} className="px-6 py-2 rounded-lg flex items-center font-semibold bg-gray-200 text-gray-700 hover:bg-gray-300 bg-gray-700 text-gray-200 hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed" whileHover={currentStep > 1 ? { scale: 1.05 } : {}}>
                         <ChevronLeft className="w-5 h-5 mr-2" /> {t('adhesion_wizard.previous')}
                     </motion.button>
                     {currentStep < 3 && (
@@ -3940,9 +3940,9 @@ export const AntenneSelection = ({ antennes, onSelect, selectedAntenne }) => {
         <div className="space-y-8">
             <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="text-center">
                 <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl mb-6 shadow-lg"><Building2 className="w-8 h-8 text-white" /></div>
-                <h2 className="text-3xl font-bold bg-gradient-to-r from-gray-900 via-blue-800 to-indigo-800 dark:from-white dark:via-blue-300 dark:to-indigo-300 bg-clip-text text-transparent mb-3">Choisissez votre antenne</h2>
-                <p className="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">Sélectionnez l'antenne la plus proche ou celle qui correspond à votre secteur.</p>
-                <div className="mt-4 inline-flex items-center bg-blue-50 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300 px-4 py-2 rounded-full text-sm font-medium"><Navigation className="w-4 h-4 mr-2" /> {antennes.length} antennes disponibles</div>
+                <h2 className="text-3xl font-bold bg-gradient-to-r from-gray-900 via-blue-800 to-indigo-800 from-white via-blue-300 to-indigo-300 bg-clip-text text-transparent mb-3">Choisissez votre antenne</h2>
+                <p className="text-lg text-gray-600 text-gray-400 max-w-2xl mx-auto">Sélectionnez l'antenne la plus proche ou celle qui correspond à votre secteur.</p>
+                <div className="mt-4 inline-flex items-center bg-blue-50 bg-blue-900/50 text-blue-700 text-blue-300 px-4 py-2 rounded-full text-sm font-medium"><Navigation className="w-4 h-4 mr-2" /> {antennes.length} antennes disponibles</div>
             </motion.div>
 
             <motion.div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3" initial="hidden" animate="visible" variants={{ visible: { transition: { staggerChildren: 0.1 } } }}>
@@ -3950,10 +3950,10 @@ export const AntenneSelection = ({ antennes, onSelect, selectedAntenne }) => {
                     const isSelected = selectedAntenne?.id === antenne.id;
                     return (
                         <motion.div key={antenne.id} variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0 } }} whileHover={{ y: -5 }} onClick={() => onSelect(antenne)}
-                                    className={`group relative cursor-pointer rounded-2xl overflow-hidden bg-white dark:bg-gray-800 transition-all duration-300 ${ isSelected ? 'ring-4 ring-blue-500 shadow-2xl' : 'shadow-lg hover:shadow-xl border border-gray-100 dark:border-gray-700' }`}>
+                                    className={`group relative cursor-pointer rounded-2xl overflow-hidden bg-white bg-gray-800 transition-all duration-300 ${ isSelected ? 'ring-4 ring-blue-500 shadow-2xl' : 'shadow-lg hover:shadow-xl border border-gray-100 border-gray-700' }`}>
                             <div className="p-6">
-                                <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">{antenne.nom}</h3>
-                                <div className="flex items-center text-sm text-gray-500 dark:text-gray-400 mb-4"><MapPin className="w-4 h-4 mr-2 flex-shrink-0" /><span className="truncate">{antenne.localisation}</span></div>
+                                <h3 className="text-xl font-bold text-gray-900 text-white mb-2">{antenne.nom}</h3>
+                                <div className="flex items-center text-sm text-gray-500 text-gray-400 mb-4"><MapPin className="w-4 h-4 mr-2 flex-shrink-0" /><span className="truncate">{antenne.localisation}</span></div>
                                 <div className="space-y-2">
                                     <div className="flex items-center text-sm"><Users className="w-4 h-4 mr-2 text-blue-500" />{antenne.membres} membres</div>
                                     <div className="flex items-center text-sm"><Award className="w-4 h-4 mr-2 text-orange-500" />{antenne.specialites.length} spécialités</div>
@@ -4008,18 +4008,18 @@ export const FileUploader = ({ label, icon, accept = "image/*", onFileSelect, re
 
     return (
         <div className="space-y-2">
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+            <label className="block text-sm font-medium text-gray-700 text-gray-300">
                 {label} {required && <span className="text-red-500 ml-1">*</span>}
             </label>
-            <motion.div onClick={() => fileInputRef.current?.click()} className={`relative cursor-pointer rounded-xl border-2 border-dashed p-6 text-center transition-all duration-300 ${file ? 'border-green-400 bg-green-50 dark:bg-green-900/50' : 'border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800/50 hover:border-blue-400'}`}>
+            <motion.div onClick={() => fileInputRef.current?.click()} className={`relative cursor-pointer rounded-xl border-2 border-dashed p-6 text-center transition-all duration-300 ${file ? 'border-green-400 bg-green-50 bg-green-900/50' : 'border-gray-300 border-gray-600 bg-white bg-gray-800/50 hover:border-blue-400'}`}>
                 <input type="file" ref={fileInputRef} onChange={handleFileChange} accept={accept} className="hidden" />
                 {file ? (
                     <div className="flex items-center justify-between">
-                        <div className="flex items-center space-x-3"><CheckCircle className="w-6 h-6 text-green-500" /><p className="text-sm font-medium text-gray-900 dark:text-gray-200 truncate">{file.name}</p></div>
+                        <div className="flex items-center space-x-3"><CheckCircle className="w-6 h-6 text-green-500" /><p className="text-sm font-medium text-gray-900 text-gray-200 truncate">{file.name}</p></div>
                         <button type="button" onClick={(e) => { e.stopPropagation(); removeFile(); }} className="p-1 text-red-500 hover:bg-red-100 rounded-full"><X className="w-4 h-4" /></button>
                     </div>
                 ) : (
-                    <div className="space-y-1 text-gray-500 dark:text-gray-400"><Upload className="mx-auto h-8 w-8" /><p className="text-sm font-semibold">Cliquer ou glisser un fichier</p><p className="text-xs">PNG, JPG, PDF (max 5Mo)</p></div>
+                    <div className="space-y-1 text-gray-500 text-gray-400"><Upload className="mx-auto h-8 w-8" /><p className="text-sm font-semibold">Cliquer ou glisser un fichier</p><p className="text-xs">PNG, JPG, PDF (max 5Mo)</p></div>
                 )}
             </motion.div>
             <AnimatePresence>{error && <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="text-red-500 text-xs mt-1">{error}</motion.p>}</AnimatePresence>
@@ -4058,7 +4058,7 @@ export const IndividualForm = ({ onSubmit, formData, setFormData }) => {
     };
 
     // Constante pour les classes CSS des champs de formulaire
-    const inputClasses = "w-full px-3 py-2 border rounded-lg bg-white text-gray-900 border-gray-300 dark:bg-gray-800 dark:text-gray-200 dark:border-gray-600 placeholder-gray-400 dark:placeholder-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition";
+    const inputClasses = "w-full px-3 py-2 border rounded-lg bg-white text-gray-900 border-gray-300 bg-gray-800 text-gray-200 border-gray-600 placeholder-gray-400 placeholder-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition";
 
     return (
         <motion.form
@@ -4068,74 +4068,74 @@ export const IndividualForm = ({ onSubmit, formData, setFormData }) => {
             className="space-y-8"
         >
             <div className="text-center">
-                <h2 className="text-3xl font-bold bg-gradient-to-r from-gray-900 via-blue-800 to-indigo-800 dark:from-white dark:via-blue-300 dark:to-indigo-300 bg-clip-text text-transparent mb-3">
+                <h2 className="text-3xl font-bold bg-gradient-to-r from-gray-900 via-blue-800 to-indigo-800 from-white via-blue-300 to-indigo-300 bg-clip-text text-transparent mb-3">
                     {t('adhesion_form.title')}
                 </h2>
-                <p className="text-lg text-gray-600 dark:text-gray-400">
+                <p className="text-lg text-gray-600 text-gray-400">
                     {t('adhesion_form.subtitle')}
                 </p>
             </div>
 
             {/* Section Informations personnelles */}
-            <div className="bg-white dark:bg-gray-800/50 rounded-xl p-6 shadow-sm border border-gray-200 dark:border-gray-700">
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-6 flex items-center">
+            <div className="bg-white bg-gray-800/50 rounded-xl p-6 shadow-sm border border-gray-200 border-gray-700">
+                <h3 className="text-lg font-semibold text-gray-900 text-white mb-6 flex items-center">
                     <FileText className="w-5 h-5 mr-3 text-blue-500" />
                     {t('adhesion_form.personal_info_title')}
                 </h3>
 
                 <div className="grid gap-6 md:grid-cols-2">
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{t('adhesion_form.last_name')} *</label>
+                        <label className="block text-sm font-medium text-gray-700 text-gray-300 mb-1">{t('adhesion_form.last_name')} *</label>
                         <input type="text" {...register("nom", { required: t('errors.required_field') })} className={inputClasses} placeholder={t('adhesion_form.last_name_placeholder')} />
                         {errors.nom && <p className="text-red-500 text-xs mt-1">{errors.nom.message}</p>}
                     </div>
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{t('adhesion_form.first_name')} *</label>
+                        <label className="block text-sm font-medium text-gray-700 text-gray-300 mb-1">{t('adhesion_form.first_name')} *</label>
                         <input type="text" {...register("prenom", { required: t('errors.required_field') })} className={inputClasses} placeholder={t('adhesion_form.first_name_placeholder')} />
                         {errors.prenom && <p className="text-red-500 text-xs mt-1">{errors.prenom.message}</p>}
                     </div>
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{t('adhesion_form.cni_number')} *</label>
+                        <label className="block text-sm font-medium text-gray-700 text-gray-300 mb-1">{t('adhesion_form.cni_number')} *</label>
                         <input type="text" {...register("numeroCNI", { required: t('errors.required_field') })} className={inputClasses} placeholder="Ex: 123456789" />
                         {errors.numeroCNI && <p className="text-red-500 text-xs mt-1">{errors.numeroCNI.message}</p>}
                     </div>
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{t('adhesion_form.dob')} *</label>
+                        <label className="block text-sm font-medium text-gray-700 text-gray-300 mb-1">{t('adhesion_form.dob')} *</label>
                         <input type="date" {...register("dateNaissance", { required: t('errors.required_field') })} className={inputClasses} />
                         {errors.dateNaissance && <p className="text-red-500 text-xs mt-1">{errors.dateNaissance.message}</p>}
                     </div>
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{t('adhesion_form.phone')} *</label>
+                        <label className="block text-sm font-medium text-gray-700 text-gray-300 mb-1">{t('adhesion_form.phone')} *</label>
                         <input type="tel" {...register("telephone", { required: t('errors.required_field') })} className={inputClasses} placeholder="+237 6XX XX XX XX" />
                         {errors.telephone && <p className="text-red-500 text-xs mt-1">{errors.telephone.message}</p>}
                     </div>
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{t('adhesion_form.email')} *</label>
+                        <label className="block text-sm font-medium text-gray-700 text-gray-300 mb-1">{t('adhesion_form.email')} *</label>
                         <input type="email" {...register("email", { required: t('errors.required_field'), pattern: { value: /^\S+@\S+$/i, message: t('errors.invalid_email') } })} className={inputClasses} placeholder="votre.email@exemple.com" />
                         {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email.message}</p>}
                     </div>
                 </div>
 
                 <div className="mt-6">
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{t('adhesion_form.address')} *</label>
+                    <label className="block text-sm font-medium text-gray-700 text-gray-300 mb-1">{t('adhesion_form.address')} *</label>
                     <textarea rows={3} {...register("adresse", { required: t('errors.required_field') })} className={inputClasses} placeholder={t('adhesion_form.address_placeholder')} />
                     {errors.adresse && <p className="text-red-500 text-xs mt-1">{errors.adresse.message}</p>}
                 </div>
                 <div className="mt-6">
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{t('adhesion_form.profession')} *</label>
+                    <label className="block text-sm font-medium text-gray-700 text-gray-300 mb-1">{t('adhesion_form.profession')} *</label>
                     <input type="text" {...register("profession", { required: t('errors.required_field') })} className={inputClasses} placeholder={t('adhesion_form.profession_placeholder')} />
                     {errors.profession && <p className="text-red-500 text-xs mt-1">{errors.profession.message}</p>}
                 </div>
                 <div className="mt-6">
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{t('adhesion_form.motivation')} *</label>
+                    <label className="block text-sm font-medium text-gray-700 text-gray-300 mb-1">{t('adhesion_form.motivation')} *</label>
                     <textarea rows={4} {...register("motivation", { required: t('errors.required_field'), minLength: { value: 20, message: t('errors.min_length', { count: 20 }) } })} className={inputClasses} placeholder={t('adhesion_form.motivation_placeholder')} />
                     {errors.motivation && <p className="text-red-500 text-xs mt-1">{errors.motivation.message}</p>}
                 </div>
             </div>
 
             {/* Section Documents requis */}
-            <div className="bg-white dark:bg-gray-800/50 rounded-xl p-6 shadow-sm border border-gray-200 dark:border-gray-700">
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-6 flex items-center">
+            <div className="bg-white bg-gray-800/50 rounded-xl p-6 shadow-sm border border-gray-200 border-gray-700">
+                <h3 className="text-lg font-semibold text-gray-900 text-white mb-6 flex items-center">
                     <Camera className="w-5 h-5 mr-3 text-blue-500" />
                     {t('adhesion_form.documents_title')}
                 </h3>
@@ -4191,18 +4191,18 @@ export const Confirmation = ({ membershipId, antenne, onComplete }) => {
 
     return (
         <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="text-center space-y-6 p-4">
-            <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ delay: 0.2 }} className="w-20 h-20 bg-green-100 dark:bg-green-900/50 rounded-full flex items-center justify-center mx-auto"><CheckCircle className="w-12 h-12 text-green-600 dark:text-green-400" /></motion.div>
+            <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ delay: 0.2 }} className="w-20 h-20 bg-green-100 bg-green-900/50 rounded-full flex items-center justify-center mx-auto"><CheckCircle className="w-12 h-12 text-green-600 text-green-400" /></motion.div>
             <div>
-                <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">{t('confirmation.title')}</h2>
-                <p className="text-gray-600 dark:text-gray-400 text-lg">{t('confirmation.subtitle', { antenneName: antenne.nom })}</p>
+                <h2 className="text-3xl font-bold text-gray-900 text-white mb-4">{t('confirmation.title')}</h2>
+                <p className="text-gray-600 text-gray-400 text-lg">{t('confirmation.subtitle', { antenneName: antenne.nom })}</p>
             </div>
-            <div className="bg-blue-50 dark:bg-gray-800 rounded-xl p-6 border-2 border-blue-200 dark:border-blue-700">
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">{t('confirmation.ref_number')}</h3>
-                <div className="flex items-center justify-center space-x-3 bg-white dark:bg-gray-700 rounded-lg p-4 border border-blue-200 dark:border-blue-600"><code className="text-xl font-mono font-bold text-blue-600 dark:text-blue-300">{membershipId}</code><motion.button onClick={copyToClipboard} className="p-2 text-blue-600 dark:text-blue-300 hover:bg-blue-100 dark:hover:bg-blue-900/50 rounded-lg" whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>{copied ? <CheckCircle className="w-4 h-4 text-green-500" /> : <Copy className="w-4 h-4" />}</motion.button></div>
+            <div className="bg-blue-50 bg-gray-800 rounded-xl p-6 border-2 border-blue-200 border-blue-700">
+                <h3 className="text-lg font-semibold text-gray-900 text-white mb-3">{t('confirmation.ref_number')}</h3>
+                <div className="flex items-center justify-center space-x-3 bg-white bg-gray-700 rounded-lg p-4 border border-blue-200 border-blue-600"><code className="text-xl font-mono font-bold text-blue-600 text-blue-300">{membershipId}</code><motion.button onClick={copyToClipboard} className="p-2 text-blue-600 text-blue-300 hover:bg-blue-100 hover:bg-blue-900/50 rounded-lg" whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>{copied ? <CheckCircle className="w-4 h-4 text-green-500" /> : <Copy className="w-4 h-4" />}</motion.button></div>
             </div>
-            <div className="bg-white dark:bg-gray-800 rounded-xl p-6 border border-gray-200 dark:border-gray-700 text-left">
-                <h4 className="font-semibold text-gray-900 dark:text-white mb-3">{t('confirmation.next_steps_title')}</h4>
-                <ul className="space-y-2 text-gray-600 dark:text-gray-400">{[1, 2, 3].map(step => (<li key={step} className="flex items-start"><span className="w-6 h-6 bg-blue-100 dark:bg-blue-900/50 text-blue-600 dark:text-blue-300 rounded-full flex items-center justify-center text-sm font-semibold mr-3 mt-0.5">{step}</span><span>{t(`confirmation.step_${step}`)}</span></li>))}</ul>
+            <div className="bg-white bg-gray-800 rounded-xl p-6 border border-gray-200 border-gray-700 text-left">
+                <h4 className="font-semibold text-gray-900 text-white mb-3">{t('confirmation.next_steps_title')}</h4>
+                <ul className="space-y-2 text-gray-600 text-gray-400">{[1, 2, 3].map(step => (<li key={step} className="flex items-start"><span className="w-6 h-6 bg-blue-100 bg-blue-900/50 text-blue-600 text-blue-300 rounded-full flex items-center justify-center text-sm font-semibold mr-3 mt-0.5">{step}</span><span>{t(`confirmation.step_${step}`)}</span></li>))}</ul>
             </div>
             <div className="flex gap-3 justify-center">
                 <motion.button onClick={onComplete} className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700" whileHover={{ scale: 1.05 }}>{t('confirmation.back_to_home')}</motion.button>
@@ -4233,17 +4233,17 @@ export const UserTypeSelection = ({ onSelect, selectedType }) => {
     return (
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
             <div className="text-center mb-8">
-                <h2 className="text-3xl font-bold bg-gradient-to-r from-gray-900 via-blue-800 to-indigo-800 dark:from-white dark:via-blue-300 dark:to-indigo-300 bg-clip-text text-transparent mb-3">Type d'adhésion</h2>
-                <p className="text-lg text-gray-600 dark:text-gray-400">Choisissez le type d'adhésion qui vous correspond.</p>
+                <h2 className="text-3xl font-bold bg-gradient-to-r from-gray-900 via-blue-800 to-indigo-800 from-white via-blue-300 to-indigo-300 bg-clip-text text-transparent mb-3">Type d'adhésion</h2>
+                <p className="text-lg text-gray-600 text-gray-400">Choisissez le type d'adhésion qui vous correspond.</p>
             </div>
             <div className="grid gap-6 md:grid-cols-2 max-w-2xl mx-auto">
                 {userTypes.map((type) => (
                     <motion.div key={type.id} onClick={() => type.available && onSelect(type.id)}
-                                className={`relative p-6 rounded-xl border-2 transition-all duration-300 ${!type.available ? 'border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50 cursor-not-allowed opacity-60' : selectedType === type.id ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/50 shadow-lg cursor-pointer' : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:border-blue-300 dark:hover:border-blue-700 hover:shadow-md cursor-pointer'}`}
+                                className={`relative p-6 rounded-xl border-2 transition-all duration-300 ${!type.available ? 'border-gray-200 border-gray-700 bg-gray-50 bg-gray-800/50 cursor-not-allowed opacity-60' : selectedType === type.id ? 'border-blue-500 bg-blue-50 bg-blue-900/50 shadow-lg cursor-pointer' : 'border-gray-200 border-gray-700 bg-white bg-gray-800 hover:border-blue-300 hover:border-blue-700 hover:shadow-md cursor-pointer'}`}
                                 whileHover={type.available ? { y: -5 } : {}} whileTap={type.available ? { scale: 0.98 } : {}}>
                         {!type.available && <div className="absolute top-4 right-4 px-2 py-1 bg-gray-400 text-white text-xs rounded-full">Bientôt disponible</div>}
                         {selectedType === type.id && type.available && <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} className="absolute top-4 right-4 w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center"><CheckCircle className="w-4 h-4 text-white" /></motion.div>}
-                        <div className="text-center"><div className={`w-16 h-16 mx-auto mb-4 rounded-full flex items-center justify-center ${type.available ? 'bg-blue-100 dark:bg-blue-900/50' : 'bg-gray-200 dark:bg-gray-700'}`}><type.icon className={`w-8 h-8 ${type.available ? 'text-blue-600 dark:text-blue-400' : 'text-gray-400 dark:text-gray-500'}`} /></div><h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">{type.title}</h3><p className="text-gray-600 dark:text-gray-400 text-sm">{type.description}</p></div>
+                        <div className="text-center"><div className={`w-16 h-16 mx-auto mb-4 rounded-full flex items-center justify-center ${type.available ? 'bg-blue-100 bg-blue-900/50' : 'bg-gray-200 bg-gray-700'}`}><type.icon className={`w-8 h-8 ${type.available ? 'text-blue-600 text-blue-400' : 'text-gray-400 text-gray-500'}`} /></div><h3 className="text-xl font-semibold text-gray-900 text-white mb-2">{type.title}</h3><p className="text-gray-600 text-gray-400 text-sm">{type.description}</p></div>
                     </motion.div>
                 ))}
             </div>
@@ -4612,7 +4612,7 @@ export default function Step2_AnonymousForm({ onNext, onBack, initialData, setFo
         onNext(data);
     };
 
-    const inputClasses = "w-full p-3 border rounded-xl bg-white text-gray-900 border-gray-300 placeholder-gray-400 dark:bg-gray-800 dark:text-gray-200 dark:border-gray-600 dark:placeholder-gray-500 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition";
+    const inputClasses = "w-full p-3 border rounded-xl bg-white text-gray-900 border-gray-300 placeholder-gray-400 bg-gray-800 text-gray-200 border-gray-600 placeholder-gray-500 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition";
     const selectClasses = `${inputClasses} appearance-none`;
 
     return (
@@ -4623,51 +4623,51 @@ export default function Step2_AnonymousForm({ onNext, onBack, initialData, setFo
                 </button>
                 <div className="text-center">
                     <h1 className="text-4xl font-bold bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent mb-4">Informations du syndicat</h1>
-                    <p className="text-gray-600 dark:text-gray-400 text-lg">Remplissez les informations de base pour créer votre syndicat anonyme.</p>
+                    <p className="text-gray-600 text-gray-400 text-lg">Remplissez les informations de base pour créer votre syndicat anonyme.</p>
                 </div>
             </div>
 
-            <div className="bg-white dark:bg-gray-900/50 rounded-3xl p-8 shadow-lg border border-gray-100 dark:border-gray-800">
-                <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-200 mb-6 flex items-center"><Building2 className="w-6 h-6 mr-3 text-emerald-500" />Informations principales</h2>
+            <div className="bg-white bg-gray-900/50 rounded-3xl p-8 shadow-lg border border-gray-100 border-gray-800">
+                <h2 className="text-2xl font-bold text-gray-800 text-gray-200 mb-6 flex items-center"><Building2 className="w-6 h-6 mr-3 text-emerald-500" />Informations principales</h2>
                 <div className="grid gap-6 md:grid-cols-2">
                     <div>
-                        <label className="flex items-center text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2"><TextCursorInput className="w-4 h-4 mr-2 text-emerald-500" />Nom complet du syndicat *</label>
+                        <label className="flex items-center text-sm font-semibold text-gray-700 text-gray-300 mb-2"><TextCursorInput className="w-4 h-4 mr-2 text-emerald-500" />Nom complet du syndicat *</label>
                         <input {...register("name", { required: "Le nom complet est requis" })} placeholder="Ex: Syndicat National des Développeurs" className={inputClasses} />
                         {errors.name && <p className="text-red-500 text-xs mt-1">{errors.name.message}</p>}
                     </div>
                     <div>
-                        <label className="flex items-center text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2"><Type className="w-4 h-4 mr-2 text-emerald-500" />Nom court / Acronyme *</label>
+                        <label className="flex items-center text-sm font-semibold text-gray-700 text-gray-300 mb-2"><Type className="w-4 h-4 mr-2 text-emerald-500" />Nom court / Acronyme *</label>
                         <input {...register("shortName", { required: "L'acronyme est requis" })} placeholder="Ex: SND" className={inputClasses} />
                         {errors.shortName && <p className="text-red-500 text-xs mt-1">{errors.shortName.message}</p>}
                     </div>
                 </div>
                 <div className="grid gap-6 md:grid-cols-2 mt-6">
                     <div>
-                        <label className="flex items-center text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2"><AtSign className="w-4 h-4 mr-2 text-emerald-500" />Email de contact *</label>
+                        <label className="flex items-center text-sm font-semibold text-gray-700 text-gray-300 mb-2"><AtSign className="w-4 h-4 mr-2 text-emerald-500" />Email de contact *</label>
                         <input type="email" {...register("email", { required: "L'email est requis", pattern: { value: /^\S+@\S+$/i, message: "Email invalide" } })} placeholder="contact@syndicat.com" className={inputClasses} />
                         {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email.message}</p>}
                     </div>
                     <div>
-                        <label className="flex items-center text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2"><Building2 className="w-4 h-4 mr-2 text-emerald-500" />Type d'organisation *</label>
+                        <label className="flex items-center text-sm font-semibold text-gray-700 text-gray-300 mb-2"><Building2 className="w-4 h-4 mr-2 text-emerald-500" />Type d'organisation *</label>
                         <select {...register("type", { required: true })} className={selectClasses}>
                             {syndicatTypes.map((type) => (<option key={type.value} value={type.value}>{type.label}</option>))}
                         </select>
                     </div>
                 </div>
                 <div className="mt-6">
-                    <label className="flex items-center text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2"><History className="w-4 h-4 mr-2 text-emerald-500" />Date de fondation *</label>
+                    <label className="flex items-center text-sm font-semibold text-gray-700 text-gray-300 mb-2"><History className="w-4 h-4 mr-2 text-emerald-500" />Date de fondation *</label>
                     <input type="date" {...register("foundedDate", { required: "La date de fondation est requise" })} className={inputClasses} />
                     {errors.foundedDate && <p className="text-red-500 text-xs mt-1">{errors.foundedDate.message}</p>}
                 </div>
                 <div className="mt-6">
-                    <label className="flex items-center text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2"><Palette className="w-4 h-4 mr-2 text-emerald-500" />Description *</label>
+                    <label className="flex items-center text-sm font-semibold text-gray-700 text-gray-300 mb-2"><Palette className="w-4 h-4 mr-2 text-emerald-500" />Description *</label>
                     <textarea {...register("description", { required: "La description est requise" })} rows={4} placeholder="Décrivez les objectifs et la mission de votre syndicat..." className={inputClasses}></textarea>
                     {errors.description && <p className="text-red-500 text-xs mt-1">{errors.description.message}</p>}
                 </div>
             </div>
 
-            <div className="bg-white dark:bg-gray-900/50 rounded-3xl p-8 shadow-lg border border-gray-100 dark:border-gray-800">
-                <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-200 mb-6 flex items-center"><ImageIcon className="w-6 h-6 mr-3 text-emerald-500" />Logo du syndicat</h2>
+            <div className="bg-white bg-gray-900/50 rounded-3xl p-8 shadow-lg border border-gray-100 border-gray-800">
+                <h2 className="text-2xl font-bold text-gray-800 text-gray-200 mb-6 flex items-center"><ImageIcon className="w-6 h-6 mr-3 text-emerald-500" />Logo du syndicat</h2>
                 <Controller
                     name="logoFile"
                     control={control}
@@ -4682,7 +4682,7 @@ export default function Step2_AnonymousForm({ onNext, onBack, initialData, setFo
                         </>
                     )}
                 />
-                <p className="mt-3 text-sm text-gray-500 dark:text-gray-400">Format recommandé : carré, 512x512 pixels minimum, JPG ou PNG (max 5 Mo).</p>
+                <p className="mt-3 text-sm text-gray-500 text-gray-400">Format recommandé : carré, 512x512 pixels minimum, JPG ou PNG (max 5 Mo).</p>
             </div>
 
             <div className="text-center mt-8">
@@ -6040,10 +6040,10 @@ export default function AppFooter() {
     ];
     
     return (
-        <footer className="bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm border-t border-gray-200/80 dark:border-white/10 mt-auto">
+        <footer className="bg-white/50 bg-gray-800/50 backdrop-blur-sm border-t border-gray-200/80 border-white/10 mt-auto">
             <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6">
                 <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
-                    <p className="text-sm text-gray-600 dark:text-gray-400">
+                    <p className="text-sm text-gray-600 text-gray-400">
                         © {new Date().getFullYear()} SyndicManager. {t('footer.all_rights_reserved')}
                     </p>
                     <div className="flex space-x-4">
@@ -6051,7 +6051,7 @@ export default function AppFooter() {
                             <motion.a
                                 key={link.label}
                                 href={link.href}
-                                className="p-2 text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition-colors"
+                                className="p-2 text-gray-500 text-gray-400 hover:text-blue-600 hover:text-blue-400 hover:bg-gray-100 hover:bg-gray-700 rounded-full transition-colors"
                                 whileHover={{ scale: 1.2, y: -2 }}
                                 whileTap={{ scale: 0.9 }}
                                 aria-label={link.label}
@@ -6244,7 +6244,7 @@ export default function LanguageSwitcher() {
         <div className="relative">
             <button
                 onClick={() => setIsOpen(!isOpen)}
-                className="flex items-center space-x-1 p-2 rounded-full text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                className="flex items-center space-x-1 p-2 rounded-full text-gray-600 text-gray-300 hover:bg-gray-100 hover:bg-gray-800 transition-colors"
             >
                 <Globe size={22} />
                 <span className="font-semibold uppercase">{currentLocale}</span>
@@ -6252,12 +6252,12 @@ export default function LanguageSwitcher() {
             </button>
 
             {isOpen && (
-                <div className="absolute right-0 mt-2 w-40 bg-white dark:bg-gray-800 rounded-lg shadow-lg py-1 z-50 border dark:border-gray-700">
+                <div className="absolute right-0 mt-2 w-40 bg-white bg-gray-800 rounded-lg shadow-lg py-1 z-50 border border-gray-700">
                     {['fr', 'en', 'de'].map((locale) => (
                         <button
                             key={locale}
                             onClick={() => handleChange(locale)}
-                            className="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
+                            className="w-full text-left px-4 py-2 text-sm text-gray-700 text-gray-200 hover:bg-gray-100 hover:bg-gray-700"
                         >
                             {languages[locale]}
                         </button>
@@ -6314,7 +6314,7 @@ export default function ThemeSwitcher() {
   if (!mounted) {
     return (
       <button className="p-2 rounded-full" disabled>
-        <div className="w-[22px] h-[22px] bg-gray-200 dark:bg-gray-700 rounded-full animate-pulse"></div>
+        <div className="w-[22px] h-[22px] bg-gray-200 bg-gray-700 rounded-full animate-pulse"></div>
       </button>
     );
   }
@@ -6328,7 +6328,7 @@ export default function ThemeSwitcher() {
   return (
     <button
       onClick={toggleTheme}
-      className="p-2 rounded-full text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+      className="p-2 rounded-full text-gray-600 text-gray-300 hover:bg-gray-100 hover:bg-gray-700 transition-colors"
       aria-label="Changer de thème"
     >
       {resolvedTheme === 'dark' ? <Sun size={22} /> : <Moon size={22} />}
@@ -6365,7 +6365,7 @@ export function Providers({ children }) {
         <ToastProvider />
         
         
-        <div className="bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-200 min-h-screen transition-colors duration-300">
+        <div className="bg-white bg-gray-900 text-gray-900 text-gray-200 min-h-screen transition-colors duration-300">
           {children}
         </div>
         
@@ -6762,7 +6762,7 @@ export default function DynamicFieldArray({ name, placeholder, t }) {
     });
 
     // Constante pour les styles des inputs pour la cohérence
-    const inputClasses = "flex-grow p-3 border rounded-lg bg-white text-gray-900 border-gray-300 dark:bg-gray-800 dark:text-gray-200 dark:border-gray-600 placeholder-gray-400 dark:placeholder-gray-500 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition";
+    const inputClasses = "flex-grow p-3 border rounded-lg bg-white text-gray-900 border-gray-300 bg-gray-800 text-gray-200 border-gray-600 placeholder-gray-400 placeholder-gray-500 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition";
 
     return (
         <div>
@@ -6795,7 +6795,7 @@ export default function DynamicFieldArray({ name, placeholder, t }) {
                                 <motion.button
                                     type="button"
                                     onClick={() => remove(index)}
-                                    className="p-3 text-red-500 hover:bg-red-100 dark:hover:bg-red-900/50 rounded-lg transition-colors mt-px"
+                                    className="p-3 text-red-500 hover:bg-red-100 hover:bg-red-900/50 rounded-lg transition-colors mt-px"
                                     whileHover={{ scale: 1.1 }}
                                     whileTap={{ scale: 0.95 }}
                                     aria-label={`Supprimer la formation ${index + 1}`}
@@ -6811,7 +6811,7 @@ export default function DynamicFieldArray({ name, placeholder, t }) {
             <motion.button
                 type="button"
                 onClick={() => append({ value: "" })}
-                className="flex items-center text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 font-semibold text-sm mt-4 p-2 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/50 transition-colors"
+                className="flex items-center text-blue-600 text-blue-400 hover:text-blue-800 hover:text-blue-300 font-semibold text-sm mt-4 p-2 rounded-lg hover:bg-blue-50 hover:bg-blue-900/50 transition-colors"
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
             >
@@ -6837,13 +6837,13 @@ import { motion } from 'framer-motion';
 export default function FormSection({ title, icon: Icon, children }) {
     return (
         <motion.div
-            className="bg-white dark:bg-gray-800/50 p-6 rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700"
+            className="bg-white bg-gray-800/50 p-6 rounded-2xl shadow-lg border border-gray-100 border-gray-700"
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, amount: 0.3 }}
             transition={{ duration: 0.5 }}
         >
-            <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-6 flex items-center">
+            <h3 className="text-xl font-bold text-gray-900 text-white mb-6 flex items-center">
                 <Icon className="w-6 h-6 mr-3 text-blue-500" />
                 {title}
             </h3>
@@ -6887,7 +6887,7 @@ export default function ProfileHeader({ onAvatarClick }) {
 
     return (
         <motion.div
-            className="bg-white dark:bg-gray-800/50 p-6 rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700 mb-8"
+            className="bg-white bg-gray-800/50 p-6 rounded-2xl shadow-lg border border-gray-100 border-gray-700 mb-8"
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
         >
@@ -6898,7 +6898,7 @@ export default function ProfileHeader({ onAvatarClick }) {
                         alt="Photo de profil"
                         width={128}
                         height={128}
-                        className="w-32 h-32 rounded-full object-cover border-4 border-blue-200 dark:border-blue-700"
+                        className="w-32 h-32 rounded-full object-cover border-4 border-blue-200 border-blue-700"
                     />
                     <button
                         type="button"
@@ -6910,10 +6910,10 @@ export default function ProfileHeader({ onAvatarClick }) {
                     </button>
                 </div>
                 <div className="flex-grow text-center md:text-left">
-                    <h2 className="text-3xl font-bold text-gray-800 dark:text-white">
+                    <h2 className="text-3xl font-bold text-gray-800 text-white">
                         {firstName} {lastName}
                     </h2>
-                    <div className="mt-2 space-y-1 text-gray-600 dark:text-gray-400">
+                    <div className="mt-2 space-y-1 text-gray-600 text-gray-400">
                         <p className="flex items-center justify-center md:justify-start gap-2">
                             <Mail size={16} className="text-blue-500" />
                             {email}
@@ -6981,19 +6981,19 @@ export default function UserProfileForm({ initialData }) {
                 <FormSection title={t('settings_page.personal_info_title')} icon={User}>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{t('adhesion_form.first_name')}*</label>
+                            <label className="block text-sm font-medium text-gray-700 text-gray-300 mb-1">{t('adhesion_form.first_name')}*</label>
                             <input {...register("firstName", { required: true })} className="w-full ..."/>
                         </div>
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{t('adhesion_form.last_name')}*</label>
+                            <label className="block text-sm font-medium text-gray-700 text-gray-300 mb-1">{t('adhesion_form.last_name')}*</label>
                             <input {...register("lastName", { required: true })} className="w-full ..."/>
                         </div>
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{t('adhesion_form.phone')}*</label>
+                            <label className="block text-sm font-medium text-gray-700 text-gray-300 mb-1">{t('adhesion_form.phone')}*</label>
                             <input type="tel" {...register("phone", { required: true })} className="w-full ..."/>
                         </div>
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{t('adhesion_form.email')}*</label>
+                            <label className="block text-sm font-medium text-gray-700 text-gray-300 mb-1">{t('adhesion_form.email')}*</label>
                             <input type="email" {...register("email", { required: true })} className="w-full ..." disabled />
                             <p className="text-xs text-gray-500 mt-1">{t('settings_page.email_disabled_info')}</p>
                         </div>
@@ -7073,9 +7073,9 @@ import { SyndicatDefaultAvatar } from '@/components/shared/SyndicatDefaultAvatar
 
 // Composant InfoPill (inchangé)
 const InfoPill = ({ icon: Icon, text, colorClass = 'blue' }) => (
-    <div className={`flex items-center px-3 py-1.5 bg-${colorClass}-50 dark:bg-${colorClass}-900/50 rounded-full`}>
-        <Icon className={`w-4 h-4 mr-2 text-${colorClass}-500 dark:text-${colorClass}-400`} />
-        <span className={`text-xs font-semibold text-${colorClass}-800 dark:text-${colorClass}-200`}>{text}</span>
+    <div className={`flex items-center px-3 py-1.5 bg-${colorClass}-50 bg-${colorClass}-900/50 rounded-full`}>
+        <Icon className={`w-4 h-4 mr-2 text-${colorClass}-500 text-${colorClass}-400`} />
+        <span className={`text-xs font-semibold text-${colorClass}-800 text-${colorClass}-200`}>{text}</span>
     </div>
 );
 
@@ -7116,7 +7116,7 @@ export default function EventCard({ event, onUpdateEvent, onShowParticipants }) 
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, ease: "easeOut" }}
-            className="bg-white dark:bg-gray-800/50 rounded-2xl shadow-xl hover:shadow-2xl dark:shadow-black/20 overflow-hidden mb-8 w-full max-w-xl mx-auto border border-gray-200/80 dark:border-white/10"
+            className="bg-white bg-gray-800/50 rounded-2xl shadow-xl hover:shadow-2xl shadow-black/20 overflow-hidden mb-8 w-full max-w-xl mx-auto border border-gray-200/80 border-white/10"
         >
             <div className="relative h-56 group">
                 <Image
@@ -7159,8 +7159,8 @@ export default function EventCard({ event, onUpdateEvent, onShowParticipants }) 
                         />
                     )}
                     <div className="ml-3">
-                        <p className="text-sm font-semibold text-gray-800 dark:text-gray-100">{event.author?.name || "Utilisateur inconnu"}</p>
-                        <p className="text-xs text-gray-500 dark:text-gray-400">Organisateur</p>
+                        <p className="text-sm font-semibold text-gray-800 text-gray-100">{event.author?.name || "Utilisateur inconnu"}</p>
+                        <p className="text-xs text-gray-500 text-gray-400">Organisateur</p>
                     </div>
                 </div>
 
@@ -7169,7 +7169,7 @@ export default function EventCard({ event, onUpdateEvent, onShowParticipants }) 
                     <InfoPill icon={MapPin} text={event.location} colorClass="purple" />
                 </div>
 
-                <motion.p layout className="text-gray-700 dark:text-gray-300 mb-5 leading-relaxed text-sm">
+                <motion.p layout className="text-gray-700 text-gray-300 mb-5 leading-relaxed text-sm">
                     {isExpanded ? event.description : `${(event.description || '').slice(0, 120)}...`}
                     {(event.description || '').length > 120 && (
                         <button onClick={() => setIsExpanded(!isExpanded)} className="ml-1 text-blue-500 hover:underline font-semibold text-sm">
@@ -7178,7 +7178,7 @@ export default function EventCard({ event, onUpdateEvent, onShowParticipants }) 
                     )}
                 </motion.p>
                 
-                <button onClick={() => onShowParticipants(event)} className="flex items-center justify-between w-full text-sm text-gray-600 dark:text-gray-400 mb-6 p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700/50">
+                <button onClick={() => onShowParticipants(event)} className="flex items-center justify-between w-full text-sm text-gray-600 text-gray-400 mb-6 p-2 rounded-lg hover:bg-gray-100 hover:bg-gray-700/50">
                     <div className="flex items-center">
                         <Users className="w-4 h-4 mr-2" />
                         {/* Utilise participantsCount pour la fiabilité */}
@@ -7187,12 +7187,12 @@ export default function EventCard({ event, onUpdateEvent, onShowParticipants }) 
                     <div className="flex -space-x-3">
                         {/* Utilise participantsToDisplay qui est garanti être un tableau */}
                         {participantsToDisplay.slice(0, 4).map((p, i) => (
-                             <div key={i} className="w-7 h-7 bg-gray-300 rounded-full border-2 border-white dark:border-gray-800 flex items-center justify-center text-xs font-bold text-gray-600">
+                             <div key={i} className="w-7 h-7 bg-gray-300 rounded-full border-2 border-white border-gray-800 flex items-center justify-center text-xs font-bold text-gray-600">
                                 {p.name.charAt(0)}
                              </div>
                         ))}
                         {participantsCount > 4 && 
-                            <div className="w-7 h-7 bg-gray-200 text-gray-600 text-xs font-bold rounded-full border-2 border-white dark:border-gray-800 flex items-center justify-center">+{participantsCount - 4}</div>
+                            <div className="w-7 h-7 bg-gray-200 text-gray-600 text-xs font-bold rounded-full border-2 border-white border-gray-800 flex items-center justify-center">+{participantsCount - 4}</div>
                         }
                     </div>
                 </button>
@@ -7268,14 +7268,14 @@ import { Loader2 } from 'lucide-react'; // On utilise une icône de chargement d
 export default function NavigationLoader() {
     return (
         // Conteneur principal qui prend tout l'écran et applique l'effet de flou
-        <div className="fixed inset-0 bg-white/30 dark:bg-black/30 backdrop-blur-sm flex items-center justify-center z-[9999]">
+        <div className="fixed inset-0 bg-white/30 bg-black/30 backdrop-blur-sm flex items-center justify-center z-[9999]">
 
             <motion.div
                 // Animation d'apparition
                 initial={{ opacity: 0, y: -20, scale: 0.95 }}
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 transition={{ duration: 0.3, ease: 'easeOut' }}
-                className="flex items-center space-x-4 p-4 bg-white dark:bg-gray-800 rounded-2xl shadow-2xl border border-gray-200 dark:border-gray-700"
+                className="flex items-center space-x-4 p-4 bg-white bg-gray-800 rounded-2xl shadow-2xl border border-gray-200 border-gray-700"
             >
                 {/* Le spinner qui tourne */}
                 <motion.div
@@ -7290,7 +7290,7 @@ export default function NavigationLoader() {
                 </motion.div>
 
                 {/* Le texte "Loading..." avec une animation de points */}
-                <div className="text-xl font-semibold text-gray-700 dark:text-gray-300">
+                <div className="text-xl font-semibold text-gray-700 text-gray-300">
                     Loading
                     <motion.span
                         animate={{ opacity: [0, 1, 0] }}
@@ -7751,7 +7751,7 @@ import { Calendar } from "lucide-react";
  */
 export default function ProfileActivities({ activities }) {
     if (!activities || activities.length === 0) {
-        return <p className="text-gray-500 dark:text-gray-400">Aucune activité récente à afficher.</p>;
+        return <p className="text-gray-500 text-gray-400">Aucune activité récente à afficher.</p>;
     }
 
     return (
@@ -7814,29 +7814,29 @@ export default function ProfileContactCard({ syndicate, variants }) {
 
     return (
         <motion.div
-            className="bg-white dark:bg-gray-800/50 p-6 rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700"
+            className="bg-white bg-gray-800/50 p-6 rounded-2xl shadow-lg border border-gray-100 border-gray-700"
             variants={variants}
         >
-            <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-4">
+            <h3 className="text-xl font-bold text-gray-900 text-white mb-4">
                 {t('profile_page.contact_title')}
             </h3>
             <div className="space-y-4">
                 {syndicate.email && (
-                    <motion.a href={`mailto:${syndicate.email}`} className="flex items-center p-3 rounded-lg bg-gray-50 dark:bg-gray-700/50 hover:bg-blue-50 dark:hover:bg-gray-700 transition-colors group" whileHover={{ x: 5 }}>
+                    <motion.a href={`mailto:${syndicate.email}`} className="flex items-center p-3 rounded-lg bg-gray-50 bg-gray-700/50 hover:bg-blue-50 hover:bg-gray-700 transition-colors group" whileHover={{ x: 5 }}>
                         <Mail className="h-5 w-5 text-blue-500 mr-4" />
-                        <span className="text-sm font-medium text-gray-700 dark:text-gray-300 truncate">{syndicate.email}</span>
+                        <span className="text-sm font-medium text-gray-700 text-gray-300 truncate">{syndicate.email}</span>
                     </motion.a>
                 )}
                 {syndicate.web_site_url && (
-                    <motion.a href={formatUrl(syndicate.web_site_url)} target="_blank" rel="noopener noreferrer" className="flex items-center p-3 rounded-lg bg-gray-50 dark:bg-gray-700/50 hover:bg-blue-50 dark:hover:bg-gray-700 transition-colors group" whileHover={{ x: 5 }}>
+                    <motion.a href={formatUrl(syndicate.web_site_url)} target="_blank" rel="noopener noreferrer" className="flex items-center p-3 rounded-lg bg-gray-50 bg-gray-700/50 hover:bg-blue-50 hover:bg-gray-700 transition-colors group" whileHover={{ x: 5 }}>
                         <Globe className="h-5 w-5 text-blue-500 mr-4" />
-                        <span className="text-sm font-medium text-gray-700 dark:text-gray-300 truncate">{syndicate.web_site_url}</span>
+                        <span className="text-sm font-medium text-gray-700 text-gray-300 truncate">{syndicate.web_site_url}</span>
                     </motion.a>
                 )}
                 {syndicate.social_network && (
-                    <motion.div className="flex items-center p-3 rounded-lg bg-gray-50 dark:bg-gray-700/50" whileHover={{ x: 5 }}>
+                    <motion.div className="flex items-center p-3 rounded-lg bg-gray-50 bg-gray-700/50" whileHover={{ x: 5 }}>
                         <Share2 className="h-5 w-5 text-blue-500 mr-4" />
-                        <span className="text-sm font-medium text-gray-700 dark:text-gray-300 truncate">{syndicate.social_network}</span>
+                        <span className="text-sm font-medium text-gray-700 text-gray-300 truncate">{syndicate.social_network}</span>
                     </motion.div>
                 )}
             </div>
@@ -7906,16 +7906,16 @@ export default function ProfileKeyInfoCard({ syndicate, variants }) {
     ];
 
     return (
-        <motion.div className="bg-white dark:bg-gray-800/50 p-6 rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700" variants={variants}>
-            <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-4">{t('profile_page.key_info_title')}</h3>
+        <motion.div className="bg-white bg-gray-800/50 p-6 rounded-2xl shadow-lg border border-gray-100 border-gray-700" variants={variants}>
+            <h3 className="text-xl font-bold text-gray-900 text-white mb-4">{t('profile_page.key_info_title')}</h3>
             <div className="space-y-4 text-sm">
                 {keyInfo.map((info) => (
                     <div key={info.label} className="flex justify-between items-center">
-                        <span className="text-gray-500 dark:text-gray-400 flex items-center">
+                        <span className="text-gray-500 text-gray-400 flex items-center">
                             <info.icon size={16} className="mr-2" />
                             {info.label}
                         </span>
-                        <span className="font-semibold text-gray-800 dark:text-gray-200">{info.value}</span>
+                        <span className="font-semibold text-gray-800 text-gray-200">{info.value}</span>
                     </div>
                 ))}
             </div>
@@ -8008,7 +8008,7 @@ export default function ProfileMembers({ members }) {
     const membersPerPage = 4;
 
     if (!members || members.length === 0) {
-        return <p className="text-gray-500 dark:text-gray-400">Aucun membre de l'équipe à afficher.</p>;
+        return <p className="text-gray-500 text-gray-400">Aucun membre de l'équipe à afficher.</p>;
     }
 
     const totalPages = Math.ceil(members.length / membersPerPage);
@@ -8024,7 +8024,7 @@ export default function ProfileMembers({ members }) {
                     return (
                         <motion.div
                             key={member.userId || index}
-                            className="flex items-center p-3 rounded-xl bg-gray-50 dark:bg-gray-700/50 hover:bg-blue-50 dark:hover:bg-gray-700 transition-colors"
+                            className="flex items-center p-3 rounded-xl bg-gray-50 bg-gray-700/50 hover:bg-blue-50 hover:bg-gray-700 transition-colors"
                             initial={{ opacity: 0, scale: 0.95 }}
                             animate={{ opacity: 1, scale: 1 }}
                             transition={{ delay: index * 0.1 }}
@@ -8037,16 +8037,16 @@ export default function ProfileMembers({ members }) {
                                     alt={member.userName || 'Avatar du membre'}
                                     width={56}
                                     height={56}
-                                    className="w-14 h-14 rounded-full object-cover border-2 border-white dark:border-gray-600 shadow-sm"
+                                    className="w-14 h-14 rounded-full object-cover border-2 border-white border-gray-600 shadow-sm"
                                 />
                             ) : (
                                 <SyndicatDefaultAvatar name={member.userName || '?'} size={56} className="w-14 h-14" />
                             )}
                             <div className="ml-4">
                                 {/* CORRECTION : On utilise userName pour le nom. */}
-                                <p className="font-semibold text-gray-900 dark:text-gray-100">{member.userName}</p>
+                                <p className="font-semibold text-gray-900 text-gray-100">{member.userName}</p>
                                 {/* CORRECTION : On nettoie le nom du rôle pour l'affichage. */}
-                                <p className="text-sm text-blue-600 dark:text-blue-400">{member.role.replace('ROLE_', '')}</p>
+                                <p className="text-sm text-blue-600 text-blue-400">{member.role.replace('ROLE_', '')}</p>
                             </div>
                         </motion.div>
                     );
@@ -8057,25 +8057,25 @@ export default function ProfileMembers({ members }) {
             {totalPages > 1 && (
                 <div className="mt-6 flex justify-center items-center space-x-4">
                     <motion.button
-                        className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="p-2 rounded-full hover:bg-gray-100 hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
                         onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
                         disabled={currentPage === 1}
                         whileTap={{ scale: 0.95 }}
                         aria-label="Page précédente"
                     >
-                        <ChevronLeft className="h-5 w-5 text-gray-600 dark:text-gray-400" />
+                        <ChevronLeft className="h-5 w-5 text-gray-600 text-gray-400" />
                     </motion.button>
-                    <span className="text-sm font-medium text-gray-600 dark:text-gray-400">
+                    <span className="text-sm font-medium text-gray-600 text-gray-400">
                         Page {currentPage} / {totalPages}
                     </span>
                     <motion.button
-                        className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="p-2 rounded-full hover:bg-gray-100 hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
                         onClick={() => setCurrentPage((p) => Math.min(p + 1, totalPages))}
                         disabled={currentPage === totalPages}
                         whileTap={{ scale: 0.95 }}
                         aria-label="Page suivante"
                     >
-                        <ChevronRight className="h-5 w-5 text-gray-600 dark:text-gray-400" />
+                        <ChevronRight className="h-5 w-5 text-gray-600 text-gray-400" />
                     </motion.button>
                 </div>
             )}
@@ -8106,10 +8106,10 @@ import { motion } from 'framer-motion';
 export default function ProfileSectionCard({ icon: Icon, title, children, variants }) {
     return (
         <motion.section
-            className="bg-white dark:bg-gray-800/50 p-6 sm:p-8 rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700"
+            className="bg-white bg-gray-800/50 p-6 sm:p-8 rounded-2xl shadow-lg border border-gray-100 border-gray-700"
             variants={variants}
         >
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6 flex items-center">
+            <h2 className="text-2xl font-bold text-gray-900 text-white mb-6 flex items-center">
                 {Icon && <Icon className="text-blue-500 mr-3" size={28} />}
                 {title}
             </h2>
@@ -8137,7 +8137,7 @@ import { Package } from 'lucide-react'; // Utilisation d'une icône pertinente
  */
 export default function ProfileServices({ services }) {
     if (!services || services.length === 0) {
-        return <p className="text-gray-500 dark:text-gray-400">Aucun service n'est actuellement proposé.</p>;
+        return <p className="text-gray-500 text-gray-400">Aucun service n'est actuellement proposé.</p>;
     }
 
     return (
@@ -8150,14 +8150,14 @@ export default function ProfileServices({ services }) {
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: index * 0.1 }}
                 >
-                    <div className="flex-shrink-0 w-6 h-6 bg-blue-100 dark:bg-blue-900/50 rounded-full flex items-center justify-center mr-4 mt-1">
-                        <Package className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+                    <div className="flex-shrink-0 w-6 h-6 bg-blue-100 bg-blue-900/50 rounded-full flex items-center justify-center mr-4 mt-1">
+                        <Package className="w-4 h-4 text-blue-600 text-blue-400" />
                     </div>
                     <div>
-                        <h4 className="font-semibold text-gray-800 dark:text-gray-200">
+                        <h4 className="font-semibold text-gray-800 text-gray-200">
                             {service.name}
                         </h4>
-                        <p className="text-sm text-gray-600 dark:text-gray-400">
+                        <p className="text-sm text-gray-600 text-gray-400">
                             {service.description}
                         </p>
                     </div>
@@ -8198,7 +8198,7 @@ export default function ProfileShop({ products = [] }) {
 
     if (!products || products.length === 0) {
         return (
-            <p className="text-sm text-center text-gray-500 dark:text-gray-400 py-8">
+            <p className="text-sm text-center text-gray-500 text-gray-400 py-8">
                 {t('profile_page.no_products')}
             </p>
         );
@@ -8209,14 +8209,14 @@ export default function ProfileShop({ products = [] }) {
             {products.map((product, index) => (
                 <motion.div
                     key={product.id || index}
-                    className="bg-white dark:bg-gray-800 rounded-xl shadow-md hover:shadow-lg transition-all duration-300 border dark:border-gray-700 overflow-hidden flex flex-col"
+                    className="bg-white bg-gray-800 rounded-xl shadow-md hover:shadow-lg transition-all duration-300 border border-gray-700 overflow-hidden flex flex-col"
                     whileHover={{ y: -5, scale: 1.03 }}
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: index * 0.1 }}
                 >
                     {/* Image du produit */}
-                    <div className="relative w-full h-48 bg-gray-100 dark:bg-gray-700">
+                    <div className="relative w-full h-48 bg-gray-100 bg-gray-700">
                         {product.image ? (
                             <Image
                                 src={product.image}
@@ -8227,28 +8227,28 @@ export default function ProfileShop({ products = [] }) {
                             />
                         ) : (
                             <div className="w-full h-full flex items-center justify-center">
-                                <ShoppingCart className="w-12 h-12 text-gray-300 dark:text-gray-500" />
+                                <ShoppingCart className="w-12 h-12 text-gray-300 text-gray-500" />
                             </div>
                         )}
                     </div>
 
                     {/* Contenu de la carte produit */}
                     <div className="p-4 flex flex-col flex-grow">
-                        <h4 className="font-bold text-base text-gray-900 dark:text-white line-clamp-2">
+                        <h4 className="font-bold text-base text-gray-900 text-white line-clamp-2">
                             {product.name}
                         </h4>
 
-                        <p className="text-xs text-gray-600 dark:text-gray-400 mt-1 mb-4 flex-grow line-clamp-3">
+                        <p className="text-xs text-gray-600 text-gray-400 mt-1 mb-4 flex-grow line-clamp-3">
                             {product.description}
                         </p>
 
                         {/* Pied de carte avec prix et bouton */}
-                        <div className="flex justify-between items-center mt-auto pt-2 border-t border-gray-100 dark:border-gray-700">
-                            <span className="text-lg font-bold text-blue-600 dark:text-blue-400">
+                        <div className="flex justify-between items-center mt-auto pt-2 border-t border-gray-100 border-gray-700">
+                            <span className="text-lg font-bold text-blue-600 text-blue-400">
                                 {product.price ? `${product.price.toFixed(2)} €` : 'Prix sur demande'}
                             </span>
                             <motion.button
-                                className="px-3 py-1.5 bg-blue-100 text-blue-700 dark:bg-blue-900/50 dark:text-blue-300 rounded-full text-xs font-semibold hover:bg-blue-200 dark:hover:bg-blue-900 transition-colors flex items-center gap-1.5"
+                                className="px-3 py-1.5 bg-blue-100 text-blue-700 bg-blue-900/50 text-blue-300 rounded-full text-xs font-semibold hover:bg-blue-200 hover:bg-blue-900 transition-colors flex items-center gap-1.5"
                                 whileHover={{ scale: 1.1 }}
                                 whileTap={{ scale: 0.95 }}
                                 onClick={() => handleOrderClick(product.name)}
@@ -8288,7 +8288,7 @@ import { HeartHandshake, Calendar, Package, Users, ShoppingBag, MapPin } from 'l
 
 const DynamicProfileMap = dynamic(() => import('./ProfileMap'), {
     ssr: false,
-    loading: () => <div className="flex items-center justify-center h-[350px] bg-gray-100 dark:bg-gray-700 rounded-lg"><p>Chargement de la carte...</p></div>
+    loading: () => <div className="flex items-center justify-center h-[350px] bg-gray-100 bg-gray-700 rounded-lg"><p>Chargement de la carte...</p></div>
 });
 
 export default function SyndicateProfileClient({ syndicate }) {
@@ -8317,7 +8317,7 @@ export default function SyndicateProfileClient({ syndicate }) {
             <div className="relative grid grid-cols-1 lg:grid-cols-3 gap-8 pt-28">
                 <div className="lg:col-span-2 space-y-8">
                     <ProfileSectionCard title={t('profile_page.mission_title')} icon={HeartHandshake} variants={itemVariants}>
-                        <p className="text-gray-600 dark:text-gray-400 leading-relaxed">
+                        <p className="text-gray-600 text-gray-400 leading-relaxed">
                             {syndicate.description || t('profile_page.no_description')}
                         </p>
                     </ProfileSectionCard>
@@ -8368,21 +8368,21 @@ import { motion } from 'framer-motion';
  */
 export default function NotificationCard({ icon: Icon, title, message, time, type }) {
     const bgColors = {
-        info: 'bg-blue-50 dark:bg-blue-900/50 border-blue-200 dark:border-blue-800/50',
-        success: 'bg-green-50 dark:bg-green-900/50 border-green-200 dark:border-green-800/50',
-        warning: 'bg-yellow-50 dark:bg-yellow-900/50 border-yellow-200 dark:border-yellow-800/50',
+        info: 'bg-blue-50 bg-blue-900/50 border-blue-200 border-blue-800/50',
+        success: 'bg-green-50 bg-green-900/50 border-green-200 border-green-800/50',
+        warning: 'bg-yellow-50 bg-yellow-900/50 border-yellow-200 border-yellow-800/50',
     };
 
     const iconBgColors = {
-        info: 'bg-blue-100 dark:bg-blue-800/50',
-        success: 'bg-green-100 dark:bg-green-800/50',
-        warning: 'bg-yellow-100 dark:bg-yellow-800/50',
+        info: 'bg-blue-100 bg-blue-800/50',
+        success: 'bg-green-100 bg-green-800/50',
+        warning: 'bg-yellow-100 bg-yellow-800/50',
     };
     
     const iconTextColors = {
-        info: 'text-blue-600 dark:text-blue-300',
-        success: 'text-green-600 dark:text-green-300',
-        warning: 'text-yellow-600 dark:text-yellow-400',
+        info: 'text-blue-600 text-blue-300',
+        success: 'text-green-600 text-green-300',
+        warning: 'text-yellow-600 text-yellow-400',
     };
 
     return (
@@ -8398,9 +8398,9 @@ export default function NotificationCard({ icon: Icon, title, message, time, typ
                     <Icon className={`w-5 h-5 ${iconTextColors[type] || iconTextColors.info}`} />
                 </div>
                 <div className="ml-3 flex-1">
-                    <h4 className="font-semibold text-sm text-gray-800 dark:text-gray-100">{title}</h4>
-                    <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">{message}</p>
-                    <span className="text-xs text-gray-500 dark:text-gray-400 mt-2 block">{time}</span>
+                    <h4 className="font-semibold text-sm text-gray-800 text-gray-100">{title}</h4>
+                    <p className="text-sm text-gray-600 text-gray-300 mt-1">{message}</p>
+                    <span className="text-xs text-gray-500 text-gray-400 mt-2 block">{time}</span>
                 </div>
             </div>
         </motion.div>
@@ -8428,8 +8428,8 @@ import Image from 'next/image';
 const ChatListItem = ({ chat, onClick, isActive }) => {
     // Distinction visuelle pour le chat de groupe
     const isGroup = chat.isGroup;
-    const activeClasses = 'bg-blue-100 dark:bg-blue-900/50';
-    const hoverClasses = 'hover:bg-gray-100 dark:hover:bg-gray-700/50';
+    const activeClasses = 'bg-blue-100 bg-blue-900/50';
+    const hoverClasses = 'hover:bg-gray-100 hover:bg-gray-700/50';
 
     return (
         <div onClick={onClick} className={`flex items-center p-3 cursor-pointer rounded-xl mb-1 transition-colors duration-200 ${isActive ? activeClasses : hoverClasses}`}>
@@ -8441,16 +8441,16 @@ const ChatListItem = ({ chat, onClick, isActive }) => {
                 ) : (
                     <>
                         <Image src={chat.avatar} alt={chat.name} width={48} height={48} className="w-12 h-12 rounded-full object-cover" />
-                        {chat.online && <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-white dark:border-gray-800"></div>}
+                        {chat.online && <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-white border-gray-800"></div>}
                     </>
                 )}
             </div>
             <div className="ml-3 flex-grow overflow-hidden">
                 <div className="flex justify-between items-center">
-                    <h3 className={`font-semibold truncate ${isGroup ? 'text-blue-600 dark:text-blue-400' : 'text-gray-800 dark:text-white'}`}>{chat.name}</h3>
-                    <span className="text-xs text-gray-500 dark:text-gray-400 flex-shrink-0 ml-2">{chat.lastMessageTime}</span>
+                    <h3 className={`font-semibold truncate ${isGroup ? 'text-blue-600 text-blue-400' : 'text-gray-800 text-white'}`}>{chat.name}</h3>
+                    <span className="text-xs text-gray-500 text-gray-400 flex-shrink-0 ml-2">{chat.lastMessageTime}</span>
                 </div>
-                <p className="text-sm text-gray-600 dark:text-gray-400 truncate">{chat.lastMessage}</p>
+                <p className="text-sm text-gray-600 text-gray-400 truncate">{chat.lastMessage}</p>
             </div>
         </div>
     );
@@ -8459,10 +8459,10 @@ const ChatListItem = ({ chat, onClick, isActive }) => {
 const Message = ({ msg, isSent, isGroup }) => (
     <div className={`flex items-end gap-2 my-2 ${isSent ? 'justify-end' : 'justify-start'}`}>
         {!isSent && <Image src={msg.avatar} alt={msg.sender} width={32} height={32} className="w-8 h-8 rounded-full object-cover self-start" />}
-        <div className={`max-w-xs md:max-w-md px-4 py-3 rounded-2xl ${isSent ? 'bg-blue-600 text-white rounded-br-lg' : 'bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-bl-lg'}`}>
-            {!isSent && isGroup && <p className="text-xs font-semibold text-blue-500 dark:text-blue-400 mb-1">{msg.sender}</p>}
+        <div className={`max-w-xs md:max-w-md px-4 py-3 rounded-2xl ${isSent ? 'bg-blue-600 text-white rounded-br-lg' : 'bg-gray-200 bg-gray-700 text-gray-800 text-gray-200 rounded-bl-lg'}`}>
+            {!isSent && isGroup && <p className="text-xs font-semibold text-blue-500 text-blue-400 mb-1">{msg.sender}</p>}
             <p className="whitespace-pre-wrap">{msg.text}</p>
-            <div className={`text-xs mt-1 text-right ${isSent ? 'text-blue-200' : 'text-gray-500 dark:text-gray-400'}`}>{msg.time}</div>
+            <div className={`text-xs mt-1 text-right ${isSent ? 'text-blue-200' : 'text-gray-500 text-gray-400'}`}>{msg.time}</div>
         </div>
     </div>
 );
@@ -8488,14 +8488,14 @@ export default function ChatClient({ initialChats, initialMessages, initialMembe
     const filteredMembers = initialMembers.filter(m => m.name.toLowerCase().includes(searchTerm.toLowerCase()) && !chats.some(c => c.id === m.id));
 
     // Styles pour les bordures subtiles
-    const borderStyle = "border-gray-200/80 dark:border-white/10";
+    const borderStyle = "border-gray-200/80 border-white/10";
 
     return (
-        <div className={`flex h-[calc(100vh-150px)] bg-white dark:bg-gray-800/60 rounded-2xl shadow-2xl border ${borderStyle} overflow-hidden`}>
+        <div className={`flex h-[calc(100vh-150px)] bg-white bg-gray-800/60 rounded-2xl shadow-2xl border ${borderStyle} overflow-hidden`}>
             
             {/* --- COLONNE DE GAUCHE (LISTE DES CHATS) --- */}
             <div className={`w-full md:w-1/3 xl:w-1/4 border-r ${borderStyle} flex-col transition-transform duration-300 ${view === 'chat' && !activeChat ? 'flex' : view === 'list' ? 'flex' : 'hidden md:flex'}`}>
-                <div className={`p-4 border-b ${borderStyle}`}><div className="relative"><input type="text" placeholder={t("chat.search_placeholder")} value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="w-full pl-10 pr-4 py-2 rounded-full bg-gray-100 dark:bg-gray-900/50 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" /><Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} /></div></div>
+                <div className={`p-4 border-b ${borderStyle}`}><div className="relative"><input type="text" placeholder={t("chat.search_placeholder")} value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="w-full pl-10 pr-4 py-2 rounded-full bg-gray-100 bg-gray-900/50 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" /><Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} /></div></div>
                 <div className="flex-grow overflow-y-auto p-2">
                     {/* Chat de Groupe mis en avant */}
                     {filteredChats.filter(c => c.isGroup).map(chat => <ChatListItem key={chat.id} chat={chat} onClick={() => { setActiveChat(chat); setView('chat'); }} isActive={activeChat?.id === chat.id} />)}
@@ -8510,21 +8510,21 @@ export default function ChatClient({ initialChats, initialMessages, initialMembe
             <div className={`w-full md:w-2/3 xl:w-3/4 flex flex-col transition-transform duration-300 ${view === 'list' ? 'hidden md:flex' : 'flex'}`}>
                 <AnimatePresence mode="wait">
                     {view === 'chat' && activeChat ? (
-                        <motion.div key={activeChat.id} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="h-full flex flex-col bg-white dark:bg-gray-800">
+                        <motion.div key={activeChat.id} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="h-full flex flex-col bg-white bg-gray-800">
                             <header className={`flex items-center justify-between p-3 border-b ${borderStyle} flex-shrink-0`}>
-                                <div className="flex items-center gap-3"><button onClick={() => setActiveChat(null)} className="md:hidden p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full"><ArrowLeft /></button>{activeChat.isGroup ? <div className="w-10 h-10 rounded-lg bg-blue-600 flex items-center justify-center"><Users size={20} className="text-white"/></div> : <Image src={activeChat.avatar} alt={activeChat.name} width={40} height={40} className="w-10 h-10 rounded-full" />}<div><h2 className="font-semibold text-lg">{activeChat.name}</h2>{activeChat.online && <p className="text-xs text-green-500">En ligne</p>}</div></div>
-                                <div className="flex items-center gap-1"><button className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full"><Phone size={20}/></button><button className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full"><Video size={20}/></button><button className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full"><MoreVertical size={20}/></button></div>
+                                <div className="flex items-center gap-3"><button onClick={() => setActiveChat(null)} className="md:hidden p-2 hover:bg-gray-100 hover:bg-gray-700 rounded-full"><ArrowLeft /></button>{activeChat.isGroup ? <div className="w-10 h-10 rounded-lg bg-blue-600 flex items-center justify-center"><Users size={20} className="text-white"/></div> : <Image src={activeChat.avatar} alt={activeChat.name} width={40} height={40} className="w-10 h-10 rounded-full" />}<div><h2 className="font-semibold text-lg">{activeChat.name}</h2>{activeChat.online && <p className="text-xs text-green-500">En ligne</p>}</div></div>
+                                <div className="flex items-center gap-1"><button className="p-2 hover:bg-gray-100 hover:bg-gray-700 rounded-full"><Phone size={20}/></button><button className="p-2 hover:bg-gray-100 hover:bg-gray-700 rounded-full"><Video size={20}/></button><button className="p-2 hover:bg-gray-100 hover:bg-gray-700 rounded-full"><MoreVertical size={20}/></button></div>
                             </header>
-                            <div className="flex-grow overflow-y-auto p-4 bg-gray-50 dark:bg-gray-800/50">{messages[activeChat.id]?.map(msg => <Message key={msg.id} msg={msg} isSent={msg.sender === 'Vous'} isGroup={activeChat.isGroup} />)}<div ref={messagesEndRef} /></div>
-                            <footer className={`p-3 border-t ${borderStyle} bg-white dark:bg-gray-800 flex-shrink-0`}><div className="flex items-center gap-2 bg-gray-100 dark:bg-gray-700 rounded-full px-2"><input type="text" placeholder={t("chat.message_placeholder")} value={newMessage} onChange={(e) => setNewMessage(e.target.value)} onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()} className="flex-grow px-2 py-2 bg-transparent focus:outline-none" /><button className="p-2 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-full"><Paperclip size={20}/></button><button onClick={handleSendMessage} className="p-3 bg-blue-600 text-white rounded-full hover:bg-blue-700 disabled:bg-gray-400" disabled={!newMessage.trim()}><Send size={18} /></button></div></footer>
+                            <div className="flex-grow overflow-y-auto p-4 bg-gray-50 bg-gray-800/50">{messages[activeChat.id]?.map(msg => <Message key={msg.id} msg={msg} isSent={msg.sender === 'Vous'} isGroup={activeChat.isGroup} />)}<div ref={messagesEndRef} /></div>
+                            <footer className={`p-3 border-t ${borderStyle} bg-white bg-gray-800 flex-shrink-0`}><div className="flex items-center gap-2 bg-gray-100 bg-gray-700 rounded-full px-2"><input type="text" placeholder={t("chat.message_placeholder")} value={newMessage} onChange={(e) => setNewMessage(e.target.value)} onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()} className="flex-grow px-2 py-2 bg-transparent focus:outline-none" /><button className="p-2 hover:bg-gray-200 hover:bg-gray-600 rounded-full"><Paperclip size={20}/></button><button onClick={handleSendMessage} className="p-3 bg-blue-600 text-white rounded-full hover:bg-blue-700 disabled:bg-gray-400" disabled={!newMessage.trim()}><Send size={18} /></button></div></footer>
                         </motion.div>
                     ) : view === 'search' ? (
-                        <motion.div key="search-view" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="h-full flex flex-col p-4 bg-white dark:bg-gray-800">
+                        <motion.div key="search-view" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="h-full flex flex-col p-4 bg-white bg-gray-800">
                            {/* ... Vue de recherche ... */}
                         </motion.div>
                     ) : (
-                        <motion.div key="placeholder-view" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="h-full flex items-center justify-center text-center text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-gray-800/50">
-                            <div className="flex flex-col items-center gap-2"><MessageCircle size={48} className="text-gray-300 dark:text-gray-600" /><p className="font-medium">{t("chat.select_conversation")}</p></div>
+                        <motion.div key="placeholder-view" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="h-full flex items-center justify-center text-center text-gray-500 text-gray-400 bg-gray-50 bg-gray-800/50">
+                            <div className="flex flex-col items-center gap-2"><MessageCircle size={48} className="text-gray-300 text-gray-600" /><p className="font-medium">{t("chat.select_conversation")}</p></div>
                         </motion.div>
                     )}
                 </AnimatePresence>
@@ -8561,10 +8561,10 @@ export default function CreateEventModal({ isOpen, onClose, onCreateEvent }) {
         <AnimatePresence>
             {isOpen && (
                 <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={onClose}>
-                    <motion.div initial={{ scale: 0.9 }} animate={{ scale: 1 }} exit={{ scale: 0.9 }} className="bg-white dark:bg-gray-800 rounded-2xl w-full max-w-2xl max-h-[90vh] flex flex-col shadow-2xl" onClick={(e) => e.stopPropagation()}>
-                        <div className="p-6 border-b dark:border-gray-700 flex justify-between items-center">
-                            <h2 className="text-xl font-bold text-gray-900 dark:text-white">{t('event_form.modal_title')}</h2>
-                            <button onClick={onClose} className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full"><X/></button>
+                    <motion.div initial={{ scale: 0.9 }} animate={{ scale: 1 }} exit={{ scale: 0.9 }} className="bg-white bg-gray-800 rounded-2xl w-full max-w-2xl max-h-[90vh] flex flex-col shadow-2xl" onClick={(e) => e.stopPropagation()}>
+                        <div className="p-6 border-b border-gray-700 flex justify-between items-center">
+                            <h2 className="text-xl font-bold text-gray-900 text-white">{t('event_form.modal_title')}</h2>
+                            <button onClick={onClose} className="p-2 hover:bg-gray-100 hover:bg-gray-700 rounded-full"><X/></button>
                         </div>
                         <div className="flex-grow overflow-y-auto">
                             <EventForm onSubmit={handleFormSubmit} />
@@ -8616,20 +8616,20 @@ export default function EventCard({ event, onShowParticipants, onUpdateEvent }) 
 
     return (
         <motion.div layout variants={cardVariants} initial="hidden" animate="visible"
-            className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl overflow-hidden mb-8 w-full mx-auto transform transition-all duration-300 hover:shadow-2xl dark:shadow-black/20">
+            className="bg-white bg-gray-800 rounded-2xl shadow-xl overflow-hidden mb-8 w-full mx-auto transform transition-all duration-300 hover:shadow-2xl shadow-black/20">
             {event.isUpcoming && <div className="absolute top-4 right-4 z-10"><span className="bg-gradient-to-r from-red-500 to-pink-500 text-white px-3 py-1 rounded-full text-xs font-semibold shadow-lg">{t("events_page.upcoming")}</span></div>}
             
             <div className="p-6 sm:p-8">
                 {/* ... (Header avec auteur, titre, date) ... */}
                  <div className="flex items-start mb-6">
-                    <Image src={event.author.profileImage} alt={event.author.name} width={56} height={56} className="w-14 h-14 rounded-full object-cover ring-4 ring-blue-100 dark:ring-blue-900/50" />
-                    <div className="ml-4 flex-grow"><h3 className="font-bold text-2xl text-gray-800 dark:text-white mb-1">{event.title}</h3>
-                        <div className="flex items-center text-sm text-gray-600 dark:text-gray-400"><User className="w-4 h-4 mr-1.5 text-blue-500"/><span className="font-medium">{event.author.name}</span><span className="mx-2">•</span><Calendar className="w-4 h-4 mr-1.5 text-blue-500"/><span>{event.startDate.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long' })}</span></div>
+                    <Image src={event.author.profileImage} alt={event.author.name} width={56} height={56} className="w-14 h-14 rounded-full object-cover ring-4 ring-blue-100 ring-blue-900/50" />
+                    <div className="ml-4 flex-grow"><h3 className="font-bold text-2xl text-gray-800 text-white mb-1">{event.title}</h3>
+                        <div className="flex items-center text-sm text-gray-600 text-gray-400"><User className="w-4 h-4 mr-1.5 text-blue-500"/><span className="font-medium">{event.author.name}</span><span className="mx-2">•</span><Calendar className="w-4 h-4 mr-1.5 text-blue-500"/><span>{event.startDate.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long' })}</span></div>
                     </div>
                  </div>
 
                 {/* Description extensible */}
-                <p className="text-gray-700 dark:text-gray-300 leading-relaxed mb-6">{isExpanded ? event.description : `${event.description.slice(0, 150)}...`}
+                <p className="text-gray-700 text-gray-300 leading-relaxed mb-6">{isExpanded ? event.description : `${event.description.slice(0, 150)}...`}
                     <button onClick={() => setIsExpanded(!isExpanded)} className="ml-2 text-blue-500 hover:underline font-medium">{isExpanded ? t("events_page.see_less") : t("events_page.see_more")}</button>
                 </p>
 
@@ -8639,7 +8639,7 @@ export default function EventCard({ event, onShowParticipants, onUpdateEvent }) 
 
                 {/* Barre d'actions */}
                 <div className="flex items-center justify-between mb-6">
-                    <button onClick={() => onShowParticipants(event)} className="flex items-center text-gray-600 dark:text-gray-400 hover:text-blue-600"><Users className="w-5 h-5 mr-2"/> <span className="font-medium">{event.participants.length} {t("participants")}</span></button>
+                    <button onClick={() => onShowParticipants(event)} className="flex items-center text-gray-600 text-gray-400 hover:text-blue-600"><Users className="w-5 h-5 mr-2"/> <span className="font-medium">{event.participants.length} {t("participants")}</span></button>
                     <div className="flex items-center gap-2"><motion.button onClick={() => setIsLiked(!isLiked)} className={`p-2 rounded-full ${isLiked ? 'text-red-500 bg-red-100' : 'text-gray-400 hover:text-red-500 hover:bg-red-100'}`}><Heart fill={isLiked ? "currentColor" : "none"} /></motion.button><motion.button className="p-2 rounded-full text-gray-400 hover:text-blue-500 hover:bg-blue-100"><Share2 /></motion.button></div>
                 </div>
 
@@ -8678,7 +8678,7 @@ export default function EventForm({ onSubmit, initialData = {}, isLoading }) {
         }
     });
 
-    const inputClasses = "w-full p-3 border rounded-lg bg-white text-gray-900 border-gray-300 dark:bg-gray-800 dark:text-gray-200 dark:border-gray-600 placeholder-gray-400 dark:placeholder-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition";
+    const inputClasses = "w-full p-3 border rounded-lg bg-white text-gray-900 border-gray-300 bg-gray-800 text-gray-200 border-gray-600 placeholder-gray-400 placeholder-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition";
 
     return (
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 p-4 sm:p-6">
@@ -8830,16 +8830,16 @@ export default function ParticipantsModal({ event, onClose }) {
         <AnimatePresence>
             {event && (
                 <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={onClose}>
-                    <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.9, opacity: 0 }} className="bg-white dark:bg-gray-800 rounded-2xl p-6 max-w-md w-full shadow-2xl" onClick={e => e.stopPropagation()}>
+                    <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.9, opacity: 0 }} className="bg-white bg-gray-800 rounded-2xl p-6 max-w-md w-full shadow-2xl" onClick={e => e.stopPropagation()}>
                         <div className="flex justify-between items-center mb-6">
-                            <h3 className="text-2xl font-bold text-gray-800 dark:text-white flex items-center gap-2"><Users />{t("events_page.participants_title")}</h3>
-                            <button onClick={onClose} className="p-2 text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full"><X/></button>
+                            <h3 className="text-2xl font-bold text-gray-800 text-white flex items-center gap-2"><Users />{t("events_page.participants_title")}</h3>
+                            <button onClick={onClose} className="p-2 text-gray-500 hover:bg-gray-100 hover:bg-gray-700 rounded-full"><X/></button>
                         </div>
                         <div className="max-h-80 overflow-y-auto space-y-3 pr-2">
                             {event.participants.map((participant, index) => (
-                                <motion.div key={index} initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: index * 0.05 }} className="flex items-center p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+                                <motion.div key={index} initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: index * 0.05 }} className="flex items-center p-3 bg-gray-50 bg-gray-700/50 rounded-lg">
                                     <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-500 rounded-full flex items-center justify-center text-white font-medium">{participant.name.charAt(0)}</div>
-                                    <span className="ml-3 font-medium text-gray-700 dark:text-gray-200">{participant.name}</span>
+                                    <span className="ml-3 font-medium text-gray-700 text-gray-200">{participant.name}</span>
                                 </motion.div>
                             ))}
                         </div>
@@ -8944,29 +8944,29 @@ export default function CommentModal({ post, isOpen, onClose, onAddComment }) {
                         initial={{ scale: 0.9, y: 20 }}
                         animate={{ scale: 1, y: 0 }}
                         exit={{ scale: 0.9, y: 20 }}
-                        className="bg-white dark:bg-gray-800 rounded-2xl w-full max-w-2xl h-[90vh] flex flex-col shadow-2xl"
+                        className="bg-white bg-gray-800 rounded-2xl w-full max-w-2xl h-[90vh] flex flex-col shadow-2xl"
                         onClick={(e) => e.stopPropagation()}
                     >
-                        <div className="p-6 border-b dark:border-gray-700 flex justify-between items-center flex-shrink-0">
-                            <h2 className="text-xl font-bold text-gray-800 dark:text-white">Publication de {post.author.name}</h2>
-                            <button onClick={onClose} className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full"><X/></button>
+                        <div className="p-6 border-b border-gray-700 flex justify-between items-center flex-shrink-0">
+                            <h2 className="text-xl font-bold text-gray-800 text-white">Publication de {post.author.name}</h2>
+                            <button onClick={onClose} className="p-2 hover:bg-gray-100 hover:bg-gray-700 rounded-full"><X/></button>
                         </div>
                         
                         <div className="flex-1 overflow-y-auto p-6 space-y-6">
                             <div>
-                                <p className="text-gray-700 dark:text-gray-300 whitespace-pre-wrap">{post.content}</p>
+                                <p className="text-gray-700 text-gray-300 whitespace-pre-wrap">{post.content}</p>
                                 {post.image && <div className="mt-4 rounded-lg overflow-hidden"><Image src={post.image} alt="Post content" width={600} height={400} className="w-full h-auto" /></div>}
                             </div>
-                            <hr className="dark:border-gray-700"/>
+                            <hr className="border-gray-700"/>
                             <div className="space-y-6">
                                 {comments.map(comment => <Comment key={comment.id} comment={comment} onReply={handleReply} />)}
                             </div>
                         </div>
 
-                        <div className="relative p-4 border-t dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50 rounded-b-2xl flex-shrink-0">
+                        <div className="relative p-4 border-t border-gray-700 bg-gray-50 bg-gray-900/50 rounded-b-2xl flex-shrink-0">
                             {replyTo && (
-                                <div className="mb-2 p-2 bg-blue-100 dark:bg-blue-900/50 rounded-lg flex justify-between items-center text-xs">
-                                    <span className="text-blue-600 dark:text-blue-400">Répondre à <strong>{replyTo.author.name}</strong></span>
+                                <div className="mb-2 p-2 bg-blue-100 bg-blue-900/50 rounded-lg flex justify-between items-center text-xs">
+                                    <span className="text-blue-600 text-blue-400">Répondre à <strong>{replyTo.author.name}</strong></span>
                                     <button onClick={() => setReplyTo(null)} className="font-bold p-1"><X size={14} /></button>
                                 </div>
                             )}
@@ -8979,12 +8979,12 @@ export default function CommentModal({ post, isOpen, onClose, onAddComment }) {
                                         value={newComment}
                                         onChange={(e) => setNewComment(e.target.value)}
                                         placeholder={t('comments.placeholder')}
-                                        className="w-full p-3 pr-28 rounded-full bg-white dark:bg-gray-700 border-2 border-gray-200 dark:border-gray-600 text-gray-900 dark:text-gray-200"
+                                        className="w-full p-3 pr-28 rounded-full bg-white bg-gray-700 border-2 border-gray-200 border-gray-600 text-gray-900 text-gray-200"
                                         onKeyPress={(e) => { if (e.key === 'Enter') handleSubmitComment(); }}
                                     />
                                     <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1">
-                                        <button onClick={() => setIsEmojiPickerVisible(!isEmojiPickerVisible)} className="p-2 hover:bg-gray-100 dark:hover:bg-gray-600 rounded-full"><Smile className="w-5 h-5 text-yellow-500" /></button>
-                                        <button onClick={() => fileInputRef.current?.click()} className="p-2 hover:bg-gray-100 dark:hover:bg-gray-600 rounded-full"><ImageIcon className="w-5 h-5 text-green-500" /></button>
+                                        <button onClick={() => setIsEmojiPickerVisible(!isEmojiPickerVisible)} className="p-2 hover:bg-gray-100 hover:bg-gray-600 rounded-full"><Smile className="w-5 h-5 text-yellow-500" /></button>
+                                        <button onClick={() => fileInputRef.current?.click()} className="p-2 hover:bg-gray-100 hover:bg-gray-600 rounded-full"><ImageIcon className="w-5 h-5 text-green-500" /></button>
                                         <input type="file" ref={fileInputRef} onChange={handleImageUpload} className="hidden" accept="image/*" />
                                         <button onClick={handleSubmitComment} className="p-2 bg-blue-500 text-white rounded-full hover:bg-blue-600 disabled:bg-gray-400" disabled={!newComment.trim()}><Send size={16} /></button>
                                     </div>
@@ -9043,11 +9043,11 @@ export default function Comment({ comment, onReply }) {
                 className="w-10 h-10 rounded-full object-cover flex-shrink-0"
             />
             <div className="flex-1">
-                <div className="bg-gray-100 dark:bg-gray-700 rounded-2xl px-4 py-3">
-                    <p className="font-semibold text-sm text-gray-800 dark:text-gray-100">{comment.author.name}</p>
-                    <p className="text-gray-600 dark:text-gray-300 text-sm mt-1 whitespace-pre-wrap">{comment.content}</p>
+                <div className="bg-gray-100 bg-gray-700 rounded-2xl px-4 py-3">
+                    <p className="font-semibold text-sm text-gray-800 text-gray-100">{comment.author.name}</p>
+                    <p className="text-gray-600 text-gray-300 text-sm mt-1 whitespace-pre-wrap">{comment.content}</p>
                 </div>
-                <div className="flex gap-4 mt-1 text-xs text-gray-500 dark:text-gray-400 px-2">
+                <div className="flex gap-4 mt-1 text-xs text-gray-500 text-gray-400 px-2">
                     <button onClick={handleLike} className={`flex items-center space-x-1 hover:text-blue-500 ${liked ? 'text-blue-500 font-medium' : ''}`}>
                         <Heart size={14} fill={liked ? 'currentColor' : 'none'} />
                         <span>{t('common.like')} {likes > 0 && `(${likes})`}</span>
@@ -9069,7 +9069,7 @@ export default function Comment({ comment, onReply }) {
                             initial={{ opacity: 0, height: 0 }}
                             animate={{ opacity: 1, height: 'auto' }}
                             exit={{ opacity: 0, height: 0 }}
-                            className="ml-4 mt-4 space-y-4 border-l-2 border-gray-200 dark:border-gray-600 pl-4"
+                            className="ml-4 mt-4 space-y-4 border-l-2 border-gray-200 border-gray-600 pl-4"
                         >
                             {comment.replies.map((reply) => (
                                 <Reply key={reply.id} reply={reply} />
@@ -9102,7 +9102,7 @@ export default function EmojiPicker({ onEmojiClick }) {
             initial={{ opacity: 0, y: 10, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 10, scale: 0.95 }}
-            className="absolute bottom-14 left-0 bg-white dark:bg-gray-700 shadow-xl rounded-2xl p-2 grid grid-cols-4 gap-1 border dark:border-gray-600 z-10"
+            className="absolute bottom-14 left-0 bg-white bg-gray-700 shadow-xl rounded-2xl p-2 grid grid-cols-4 gap-1 border border-gray-600 z-10"
         >
             {emojis.map((emoji) => (
                 <motion.button
@@ -9110,7 +9110,7 @@ export default function EmojiPicker({ onEmojiClick }) {
                     whileHover={{ scale: 1.2, rotate: 10 }}
                     whileTap={{ scale: 0.9 }}
                     onClick={() => onEmojiClick(emoji)}
-                    className="text-2xl hover:bg-gray-100 dark:hover:bg-gray-600 p-2 rounded-lg transition-colors"
+                    className="text-2xl hover:bg-gray-100 hover:bg-gray-600 p-2 rounded-lg transition-colors"
                     aria-label={`Insérer l'emoji ${emoji}`}
                 >
                     {emoji}
@@ -9159,11 +9159,11 @@ export default function Reply({ reply }) {
                 className="w-8 h-8 rounded-full object-cover flex-shrink-0"
             />
             <div className="flex-1">
-                <div className="bg-gray-100 dark:bg-gray-700 rounded-2xl px-3 py-2">
-                    <p className="font-semibold text-xs text-gray-800 dark:text-gray-100">{reply.author.name}</p>
-                    <p className="text-gray-600 dark:text-gray-300 text-sm mt-0.5 whitespace-pre-wrap">{reply.content}</p>
+                <div className="bg-gray-100 bg-gray-700 rounded-2xl px-3 py-2">
+                    <p className="font-semibold text-xs text-gray-800 text-gray-100">{reply.author.name}</p>
+                    <p className="text-gray-600 text-gray-300 text-sm mt-0.5 whitespace-pre-wrap">{reply.content}</p>
                 </div>
-                <div className="flex gap-4 mt-1 text-xs text-gray-500 dark:text-gray-400 px-2">
+                <div className="flex gap-4 mt-1 text-xs text-gray-500 text-gray-400 px-2">
                     <button onClick={handleLike} className={`flex items-center space-x-1 hover:text-blue-500 ${liked ? 'text-blue-500 font-medium' : ''}`}>
                         <Heart size={12} fill={liked ? 'currentColor' : 'none'} />
                         <span>{t('common.like')} {likes > 0 && `(${likes})`}</span>
@@ -9224,13 +9224,13 @@ export default function NewPostModal({ isOpen, onClose, onNewPost }) {
         <AnimatePresence>
             {isOpen && (
                 <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={resetAndClose}>
-                    <motion.div initial={{ scale: 0.9, y: 20 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.9, y: 20 }} className="bg-white dark:bg-gray-800 rounded-2xl p-6 w-full max-w-xl shadow-2xl" onClick={(e) => e.stopPropagation()}>
-                        <div className="flex justify-between items-center mb-4"><h2 className="text-2xl font-bold text-gray-800 dark:text-white">{t('express_page.new_post_modal_title')}</h2><button onClick={resetAndClose} className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full"><X /></button></div>
-                        <textarea value={content} onChange={(e) => setContent(e.target.value)} placeholder={t('express_page.post_placeholder')} className="w-full h-32 p-3 border-2 border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-700/50 rounded-xl focus:outline-none resize-none transition-all"></textarea>
+                    <motion.div initial={{ scale: 0.9, y: 20 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.9, y: 20 }} className="bg-white bg-gray-800 rounded-2xl p-6 w-full max-w-xl shadow-2xl" onClick={(e) => e.stopPropagation()}>
+                        <div className="flex justify-between items-center mb-4"><h2 className="text-2xl font-bold text-gray-800 text-white">{t('express_page.new_post_modal_title')}</h2><button onClick={resetAndClose} className="p-2 hover:bg-gray-100 hover:bg-gray-700 rounded-full"><X /></button></div>
+                        <textarea value={content} onChange={(e) => setContent(e.target.value)} placeholder={t('express_page.post_placeholder')} className="w-full h-32 p-3 border-2 border-gray-200 border-gray-600 bg-gray-50 bg-gray-700/50 rounded-xl focus:outline-none resize-none transition-all"></textarea>
                         {imagePreview && (<div className="mt-4 relative rounded-xl overflow-hidden"><Image src={imagePreview} alt="Aperçu" width={500} height={300} className="w-full h-auto object-cover" /><button onClick={() => setImagePreview(null)} className="absolute top-2 right-2 bg-black/50 text-white p-1 rounded-full"><X size={16} /></button></div>)}
                         <div className="flex justify-between items-center mt-4">
-                            <div className="flex space-x-1"><button onClick={() => fileInputRef.current?.click()} className="p-2 text-green-500 hover:bg-green-100 dark:hover:bg-green-900/50 rounded-full"><ImageIcon /></button><input type="file" ref={fileInputRef} onChange={handleImageUpload} className="hidden" accept="image/*" /></div>
-                            <div className="flex space-x-3"><button onClick={resetAndClose} className="px-5 py-2 rounded-lg font-semibold text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700">{t('express_page.cancel_button')}</button><button onClick={handlePublish} disabled={!content.trim() && !imageFile} className="px-5 py-2 rounded-lg font-semibold text-white bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 flex items-center gap-2"><Send size={16} /> {t('express_page.publish_button')}</button></div>
+                            <div className="flex space-x-1"><button onClick={() => fileInputRef.current?.click()} className="p-2 text-green-500 hover:bg-green-100 hover:bg-green-900/50 rounded-full"><ImageIcon /></button><input type="file" ref={fileInputRef} onChange={handleImageUpload} className="hidden" accept="image/*" /></div>
+                            <div className="flex space-x-3"><button onClick={resetAndClose} className="px-5 py-2 rounded-lg font-semibold text-gray-700 text-gray-300 bg-gray-100 bg-gray-700">{t('express_page.cancel_button')}</button><button onClick={handlePublish} disabled={!content.trim() && !imageFile} className="px-5 py-2 rounded-lg font-semibold text-white bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 flex items-center gap-2"><Send size={16} /> {t('express_page.publish_button')}</button></div>
                         </div>
                     </motion.div>
                 </motion.div>
@@ -9299,7 +9299,7 @@ export default function Post({ post, onUpdatePost }) {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, ease: "easeOut" }}
-                className="bg-white dark:bg-gray-800/50 rounded-2xl shadow-xl overflow-hidden mb-8 hover:shadow-2xl dark:shadow-black/20 transition-all duration-300 transform hover:scale-[1.01]"
+                className="bg-white bg-gray-800/50 rounded-2xl shadow-xl overflow-hidden mb-8 hover:shadow-2xl shadow-black/20 transition-all duration-300 transform hover:scale-[1.01]"
             >
                 <div className="p-6">
                     {/* --- Header du Post --- */}
@@ -9308,22 +9308,22 @@ export default function Post({ post, onUpdatePost }) {
                             src={post.author.avatar}
                             alt={post.author.name}
                             width={48} height={48}
-                            className="w-12 h-12 rounded-full object-cover ring-4 ring-blue-100 dark:ring-blue-900/50"
+                            className="w-12 h-12 rounded-full object-cover ring-4 ring-blue-100 ring-blue-900/50"
                         />
                         <div className="ml-4 flex-grow">
-                            <h3 className="font-bold text-lg text-gray-800 dark:text-gray-100">{post.author.name}</h3>
-                            <div className="flex items-center text-sm text-gray-500 dark:text-gray-400">
+                            <h3 className="font-bold text-lg text-gray-800 text-gray-100">{post.author.name}</h3>
+                            <div className="flex items-center text-sm text-gray-500 text-gray-400">
                                 <Clock className="w-4 h-4 mr-1.5 text-blue-500" />
                                 <span>{displayTimestamp}</span>
                             </div>
                         </div>
-                        <motion.button whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }} onClick={() => setBookmarked(!bookmarked)} className={`p-2 rounded-full transition-colors duration-200 ${bookmarked ? 'text-blue-500 bg-blue-100 dark:bg-blue-900' : 'text-gray-400 hover:text-blue-500 hover:bg-blue-50 dark:hover:bg-gray-700'}`}>
+                        <motion.button whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }} onClick={() => setBookmarked(!bookmarked)} className={`p-2 rounded-full transition-colors duration-200 ${bookmarked ? 'text-blue-500 bg-blue-100 bg-blue-900' : 'text-gray-400 hover:text-blue-500 hover:bg-blue-50 hover:bg-gray-700'}`}>
                             <Bookmark className="w-6 h-6" fill={bookmarked ? "currentColor" : "none"} />
                         </motion.button>
                     </div>
 
                     {/* --- Contenu du Post --- */}
-                    <p className="text-gray-700 dark:text-gray-300 leading-relaxed mb-6 whitespace-pre-wrap">{post.content}</p>
+                    <p className="text-gray-700 text-gray-300 leading-relaxed mb-6 whitespace-pre-wrap">{post.content}</p>
 
                     {post.image && (
                         <div className="rounded-xl overflow-hidden mb-6 shadow-lg">
@@ -9332,20 +9332,20 @@ export default function Post({ post, onUpdatePost }) {
                     )}
 
                     {/* --- Stats (Likes/Commentaires) --- */}
-                    <div className="flex items-center justify-between text-sm text-gray-500 dark:text-gray-400 mb-4">
+                    <div className="flex items-center justify-between text-sm text-gray-500 text-gray-400 mb-4">
                         <div className="flex items-center space-x-2"><Heart className="w-4 h-4 text-red-500" /><span>{post.likes} {t('common.like', {count: post.likes})}</span></div>
                         <span>{post.comments.length} {t('common.comment', {count: post.comments.length})}</span>
                     </div>
 
                     {/* --- Barre d'actions --- */}
-                    <div className="flex items-center justify-around border-t border-gray-100 dark:border-gray-700 pt-4">
-                        <motion.button whileHover={{ scale: 1.05 }} onClick={handleLike} className={`flex items-center px-4 py-2 rounded-xl w-full justify-center ${liked ? 'bg-blue-500 text-white' : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'} transition-all`}>
+                    <div className="flex items-center justify-around border-t border-gray-100 border-gray-700 pt-4">
+                        <motion.button whileHover={{ scale: 1.05 }} onClick={handleLike} className={`flex items-center px-4 py-2 rounded-xl w-full justify-center ${liked ? 'bg-blue-500 text-white' : 'text-gray-600 text-gray-300 hover:bg-gray-100 hover:bg-gray-700'} transition-all`}>
                             <Heart className="w-5 h-5 mr-2" fill={liked ? "currentColor" : "none"} />{t('common.like')}
                         </motion.button>
-                        <motion.button whileHover={{ scale: 1.05 }} onClick={() => setIsCommentModalOpen(true)} className="flex items-center px-4 py-2 rounded-xl w-full justify-center text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-all">
+                        <motion.button whileHover={{ scale: 1.05 }} onClick={() => setIsCommentModalOpen(true)} className="flex items-center px-4 py-2 rounded-xl w-full justify-center text-gray-600 text-gray-300 hover:bg-gray-100 hover:bg-gray-700 transition-all">
                             <MessageCircle className="w-5 h-5 mr-2" />{t('common.comment')}
                         </motion.button>
-                        <motion.button whileHover={{ scale: 1.05 }} className="flex items-center px-4 py-2 rounded-xl w-full justify-center text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-all">
+                        <motion.button whileHover={{ scale: 1.05 }} className="flex items-center px-4 py-2 rounded-xl w-full justify-center text-gray-600 text-gray-300 hover:bg-gray-100 hover:bg-gray-700 transition-all">
                             <Flag className="w-5 h-5 mr-2" />{t('common.report')}
                         </motion.button>
                     </div>
@@ -9424,29 +9424,29 @@ export default function Post({ post, onUpdatePost, syndicatId }) {
 
     return (
         <>
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="bg-white dark:bg-gray-800/50 rounded-2xl shadow-xl overflow-hidden mb-8 hover:shadow-2xl dark:shadow-black/20">
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="bg-white bg-gray-800/50 rounded-2xl shadow-xl overflow-hidden mb-8 hover:shadow-2xl shadow-black/20">
                 <div className="p-6">
                     <div className="flex items-center mb-6">
-                        <Image src={authorAvatarUrl} alt={post.authorName} width={48} height={48} className="w-12 h-12 rounded-full object-cover ring-4 ring-blue-100 dark:ring-blue-900/50" />
+                        <Image src={authorAvatarUrl} alt={post.authorName} width={48} height={48} className="w-12 h-12 rounded-full object-cover ring-4 ring-blue-100 ring-blue-900/50" />
                         <div className="ml-4 flex-grow">
-                            <h3 className="font-bold text-lg text-gray-800 dark:text-gray-100">{post.authorName}</h3>
-                            <div className="flex items-center text-sm text-gray-500 dark:text-gray-400">
+                            <h3 className="font-bold text-lg text-gray-800 text-gray-100">{post.authorName}</h3>
+                            <div className="flex items-center text-sm text-gray-500 text-gray-400">
                                 <Clock className="w-4 h-4 mr-1.5 text-blue-500" />
                                 <span>{displayTimestamp}</span>
                             </div>
                         </div>
-                        <motion.button onClick={() => setBookmarked(!bookmarked)} className={`p-2 rounded-full transition-colors ${bookmarked ? 'text-blue-500 bg-blue-100 dark:bg-blue-900' : 'text-gray-400 hover:bg-blue-50'}`}><Bookmark fill={bookmarked ? "currentColor" : "none"} /></motion.button>
+                        <motion.button onClick={() => setBookmarked(!bookmarked)} className={`p-2 rounded-full transition-colors ${bookmarked ? 'text-blue-500 bg-blue-100 bg-blue-900' : 'text-gray-400 hover:bg-blue-50'}`}><Bookmark fill={bookmarked ? "currentColor" : "none"} /></motion.button>
                     </div>
-                    <p className="text-gray-700 dark:text-gray-300 leading-relaxed mb-6 whitespace-pre-wrap">{post.content}</p>
+                    <p className="text-gray-700 text-gray-300 leading-relaxed mb-6 whitespace-pre-wrap">{post.content}</p>
                     {imageUrl && <div className="rounded-xl overflow-hidden mb-6 shadow-lg"><Image src={imageUrl} alt="Contenu" width={800} height={600} className="w-full h-auto object-cover" /></div>}
-                    <div className="flex items-center justify-between text-sm text-gray-500 dark:text-gray-400 mb-4">
+                    <div className="flex items-center justify-between text-sm text-gray-500 text-gray-400 mb-4">
                         <span>{post.likes} {t('common.like', {count: post.likes})}</span>
                         <span>{post.comments.length} {t('common.comment', {count: post.comments.length})}</span>
                     </div>
-                    <div className="flex items-center justify-around border-t border-gray-100 dark:border-gray-700 pt-4">
-                        <button onClick={handleLike} className={`flex items-center px-4 py-2 rounded-xl w-full justify-center ${liked ? 'bg-blue-500 text-white' : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100'}`}><Heart className="w-5 h-5 mr-2" fill={liked ? "currentColor" : "none"} />{t('common.like')}</button>
-                        <button onClick={() => setIsCommentModalOpen(true)} className="flex items-center px-4 py-2 rounded-xl w-full justify-center text-gray-600 dark:text-gray-300 hover:bg-gray-100"><MessageCircle className="w-5 h-5 mr-2" />{t('common.comment')}</button>
-                        <button className="flex items-center px-4 py-2 rounded-xl w-full justify-center text-gray-600 dark:text-gray-300 hover:bg-gray-100"><Flag className="w-5 h-5 mr-2" />{t('common.report')}</button>
+                    <div className="flex items-center justify-around border-t border-gray-100 border-gray-700 pt-4">
+                        <button onClick={handleLike} className={`flex items-center px-4 py-2 rounded-xl w-full justify-center ${liked ? 'bg-blue-500 text-white' : 'text-gray-600 text-gray-300 hover:bg-gray-100'}`}><Heart className="w-5 h-5 mr-2" fill={liked ? "currentColor" : "none"} />{t('common.like')}</button>
+                        <button onClick={() => setIsCommentModalOpen(true)} className="flex items-center px-4 py-2 rounded-xl w-full justify-center text-gray-600 text-gray-300 hover:bg-gray-100"><MessageCircle className="w-5 h-5 mr-2" />{t('common.comment')}</button>
+                        <button className="flex items-center px-4 py-2 rounded-xl w-full justify-center text-gray-600 text-gray-300 hover:bg-gray-100"><Flag className="w-5 h-5 mr-2" />{t('common.report')}</button>
                     </div>
                 </div>
             </motion.div>
@@ -9513,27 +9513,27 @@ export default function MembersClient({ initialMembers, initialRequests, branche
     };
     
     const MembersList = ({ data }) => (
-        <div className="bg-white dark:bg-gray-800/50 rounded-2xl shadow-lg overflow-hidden border border-gray-200 dark:border-gray-700">
+        <div className="bg-white bg-gray-800/50 rounded-2xl shadow-lg overflow-hidden border border-gray-200 border-gray-700">
             <div className="overflow-x-auto">
-                <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-                    <thead className="bg-gray-50 dark:bg-gray-900/50">
+                <table className="min-w-full divide-y divide-gray-200 divide-gray-700">
+                    <thead className="bg-gray-50 bg-gray-900/50">
                         <tr>
-                            <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">Membre</th>
-                            <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">Rôle</th>
-                            <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">Statut</th>
-                            <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">Actions</th>
+                            <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 text-gray-400 uppercase">Membre</th>
+                            <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 text-gray-400 uppercase">Rôle</th>
+                            <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 text-gray-400 uppercase">Statut</th>
+                            <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 text-gray-400 uppercase">Actions</th>
                         </tr>
                     </thead>
-                    <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
+                    <tbody className="divide-y divide-gray-200 divide-gray-700">
                         <AnimatePresence>
                             {data.map(member => (
-                                <motion.tr key={member.userId} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                                <motion.tr key={member.userId} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="hover:bg-gray-50 hover:bg-gray-700/50">
                                     <td className="px-6 py-4 whitespace-nowrap"><div className="flex items-center">
                                         {member.userAvatarUrl ? <Image src={`${STATIC_FILES_URL}${member.userAvatarUrl}`} alt={member.userName} width={44} height={44} className="w-11 h-11 rounded-full object-cover"/> : <SyndicatDefaultAvatar name={member.userName} size={44}/>}
-                                        <div className="ml-4"><div className="text-sm font-medium text-gray-900 dark:text-white">{member.userName}</div></div>
+                                        <div className="ml-4"><div className="text-sm font-medium text-gray-900 text-white">{member.userName}</div></div>
                                     </div></td>
                                     <td className="px-6 py-4"><span className={`px-3 py-1 text-xs font-medium rounded-full ${member.role === 'ROLE_PRESIDENT' ? 'bg-indigo-100 text-indigo-800' : 'bg-gray-100 text-gray-800'}`}>{member.role.replace('ROLE_', '')}</span></td>
-                                    <td className="px-6 py-4"><span className={`px-3 py-1 inline-flex text-xs font-semibold rounded-full ${member.status === 'ACTIVE' ? 'bg-green-100 dark:bg-green-900/50 text-green-800 dark:text-green-300' : 'bg-yellow-100 text-yellow-800'}`}>{member.status}</span></td>
+                                    <td className="px-6 py-4"><span className={`px-3 py-1 inline-flex text-xs font-semibold rounded-full ${member.status === 'ACTIVE' ? 'bg-green-100 bg-green-900/50 text-green-800 text-green-300' : 'bg-yellow-100 text-yellow-800'}`}>{member.status}</span></td>
                                     <td className="px-6 py-4"><button className="p-2 text-red-500 hover:bg-red-100 rounded-full transition-colors"><UserX size={16}/></button></td>
                                 </motion.tr>
                             ))}
@@ -9548,15 +9548,15 @@ export default function MembersClient({ initialMembers, initialRequests, branche
         <div className="space-y-6">
             <AnimatePresence>
                 {data.map(req => (
-                    <motion.div key={req.userId} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, x: -30 }} className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6">
+                    <motion.div key={req.userId} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, x: -30 }} className="bg-white bg-gray-800 rounded-2xl shadow-lg p-6">
                         <div className="flex flex-col sm:flex-row items-start justify-between gap-4">
-                            <div className="flex items-center"><div className="w-16 h-16 flex-shrink-0">{req.userAvatarUrl ? <Image src={`${STATIC_FILES_URL}${req.userAvatarUrl}`} alt={req.userName} width={64} height={64} className="rounded-xl object-cover"/> : <SyndicatDefaultAvatar name={req.userName} size={64} className="rounded-xl"/>}</div><div className="ml-4"><h3 className="text-xl font-semibold text-gray-800 dark:text-white">{req.userName}</h3><p className="text-sm text-gray-500 dark:text-gray-400">Demande le {new Date(req.requestTimestamp).toLocaleDateString('fr-FR')}</p></div></div>
+                            <div className="flex items-center"><div className="w-16 h-16 flex-shrink-0">{req.userAvatarUrl ? <Image src={`${STATIC_FILES_URL}${req.userAvatarUrl}`} alt={req.userName} width={64} height={64} className="rounded-xl object-cover"/> : <SyndicatDefaultAvatar name={req.userName} size={64} className="rounded-xl"/>}</div><div className="ml-4"><h3 className="text-xl font-semibold text-gray-800 text-white">{req.userName}</h3><p className="text-sm text-gray-500 text-gray-400">Demande le {new Date(req.requestTimestamp).toLocaleDateString('fr-FR')}</p></div></div>
                             <div className="flex space-x-3 self-start sm:self-center flex-shrink-0">
                                 <motion.button onClick={() => handleResponse(req.userId, branches[0].id, true)} className="p-3 bg-green-500 text-white rounded-full shadow-lg hover:bg-green-600"><Check className="w-5 h-5"/></motion.button>
                                 <motion.button onClick={() => handleResponse(req.userId, branches[0].id, false)} className="p-3 bg-red-500 text-white rounded-full shadow-lg hover:bg-red-600"><X className="w-5 h-5"/></motion.button>
                             </div>
                         </div>
-                        <div className="mt-4 p-4 bg-gray-50 dark:bg-gray-700/50 rounded-xl border-l-4 border-blue-400"><p className="text-gray-600 dark:text-gray-300 italic">"{req.motivation}"</p></div>
+                        <div className="mt-4 p-4 bg-gray-50 bg-gray-700/50 rounded-xl border-l-4 border-blue-400"><p className="text-gray-600 text-gray-300 italic">"{req.motivation}"</p></div>
                     </motion.div>
                 ))}
             </AnimatePresence>
@@ -9567,7 +9567,7 @@ export default function MembersClient({ initialMembers, initialRequests, branche
         <div className="space-y-8">
             <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }}>
                 <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent mb-2">{t('members_page.title')}</h1>
-                <p className="text-gray-600 dark:text-gray-400 text-lg">{t('members_page.subtitle')}</p>
+                <p className="text-gray-600 text-gray-400 text-lg">{t('members_page.subtitle')}</p>
             </motion.div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -9578,11 +9578,11 @@ export default function MembersClient({ initialMembers, initialRequests, branche
 
             <div>
                 <div className="flex items-center justify-between mb-6 flex-wrap gap-4">
-                    <div className="flex space-x-2 border border-gray-200 dark:border-gray-700 rounded-xl p-1 bg-gray-50 dark:bg-gray-800">
+                    <div className="flex space-x-2 border border-gray-200 border-gray-700 rounded-xl p-1 bg-gray-50 bg-gray-800">
                         <TabButton active={activeTab === 'members'} icon={Users} label={t('members_page.tab_members')} onClick={() => setActiveTab('members')}/>
                         <TabButton active={activeTab === 'requests'} icon={UserPlus} label={`${t('members_page.tab_requests')} (${requests.length})`} onClick={() => setActiveTab('requests')}/>
                     </div>
-                    <div className="relative flex-1 min-w-[250px]"><input type="text" placeholder={t("members_page.search_placeholder")} className="w-full pl-12 pr-4 py-3 bg-white dark:bg-gray-800 rounded-xl border-2 border-gray-200 dark:border-gray-700" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} /><Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" /></div>
+                    <div className="relative flex-1 min-w-[250px]"><input type="text" placeholder={t("members_page.search_placeholder")} className="w-full pl-12 pr-4 py-3 bg-white bg-gray-800 rounded-xl border-2 border-gray-200 border-gray-700" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} /><Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" /></div>
                 </div>
                 <AnimatePresence mode="wait"><motion.div key={activeTab} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }}>{activeTab === 'members' ? <MembersList data={filteredMembers} /> : <MembershipRequestsList data={filteredRequests} />}</motion.div></AnimatePresence>
             </div>
@@ -9604,17 +9604,17 @@ import { motion } from 'framer-motion';
 export default function StatCard({ icon: Icon, value, label, color }) {
     return (
         <motion.div
-            className={`bg-white dark:bg-gray-800/50 p-6 rounded-2xl shadow-lg border-l-4 ${color}`}
+            className={`bg-white bg-gray-800/50 p-6 rounded-2xl shadow-lg border-l-4 ${color}`}
             whileHover={{ y: -5, scale: 1.02 }}
             transition={{ type: "spring", stiffness: 300 }}
         >
             <div className="flex items-center">
-                <div className={`p-3 rounded-xl ${color.replace('border-', 'bg-').replace('-500', '-100')} dark:bg-opacity-20`}>
+                <div className={`p-3 rounded-xl ${color.replace('border-', 'bg-').replace('-500', '-100')} bg-opacity-20`}>
                     <Icon className={`w-6 h-6 ${color.replace('border-', 'text-')}`} />
                 </div>
                 <div className="ml-4">
-                    <div className="text-2xl font-bold text-gray-800 dark:text-white">{value}</div>
-                    <div className="text-sm text-gray-600 dark:text-gray-400">{label}</div>
+                    <div className="text-2xl font-bold text-gray-800 text-white">{value}</div>
+                    <div className="text-sm text-gray-600 text-gray-400">{label}</div>
                 </div>
             </div>
         </motion.div>
@@ -9639,7 +9639,7 @@ export default function TabButton({ active, icon: Icon, label, onClick }) {
             className={`relative flex items-center px-4 sm:px-6 py-3 rounded-lg font-semibold transition-colors duration-200 text-sm ${
                 active 
                     ? 'text-white' 
-                    : 'text-gray-600 dark:text-gray-300 hover:bg-white/60 dark:hover:bg-gray-900/60'
+                    : 'text-gray-600 text-gray-300 hover:bg-white/60 hover:bg-gray-900/60'
             }`}
             whileHover={{ scale: 1.03 }}
             whileTap={{ scale: 0.98 }}
@@ -9679,11 +9679,11 @@ export default function SyndicateHeader({ syndicateData, onSidebarToggle, onNoti
     const imageUrl = syndicateData.bannerUrl ? `${STATIC_FILES_URL}${syndicateData.bannerUrl}` : null;
 
     return (
-        <header className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm z-30 sticky top-0 border-b border-gray-200/80 dark:border-white/10">
+        <header className="bg-white/80 bg-gray-900/80 backdrop-blur-sm z-30 sticky top-0 border-b border-gray-200/80 border-white/10">
             <div className="container mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="flex justify-between items-center py-3">
                     <div className="flex items-center space-x-4">
-                        <button onClick={onSidebarToggle} className="text-gray-600 dark:text-gray-300 lg:hidden">
+                        <button onClick={onSidebarToggle} className="text-gray-600 text-gray-300 lg:hidden">
                             <Menu size={24} />
                         </button>
                         <div className="flex items-center">
@@ -9693,17 +9693,17 @@ export default function SyndicateHeader({ syndicateData, onSidebarToggle, onNoti
                                 <SyndicatDefaultAvatar name={syndicateData.name} size={32} className="rounded-md"/>
                             )}
                             
-                            <h1 className="ml-3 text-xl font-bold text-gray-800 dark:text-white truncate">
+                            <h1 className="ml-3 text-xl font-bold text-gray-800 text-white truncate">
                                 {syndicateData.name}
                             </h1>
                         </div>
                     </div>
                     <div className="flex items-center space-x-4">
-                        <button onClick={onNotificationToggle} className="relative p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700/50">
-                            <Bell size={22} className="text-gray-600 dark:text-gray-300" />
-                            <span className="absolute top-0 right-0 block h-2 w-2 rounded-full bg-red-500 ring-2 ring-white dark:ring-gray-800" />
+                        <button onClick={onNotificationToggle} className="relative p-2 rounded-full hover:bg-gray-100 hover:bg-gray-700/50">
+                            <Bell size={22} className="text-gray-600 text-gray-300" />
+                            <span className="absolute top-0 right-0 block h-2 w-2 rounded-full bg-red-500 ring-2 ring-white ring-gray-800" />
                         </button>
-                        <Link href="/home" className="p-2 rounded-full text-red-500 bg-red-100/60 dark:bg-red-900/50 hover:bg-red-100 dark:hover:bg-red-900" aria-label="Quitter l'espace syndicat">
+                        <Link href="/home" className="p-2 rounded-full text-red-500 bg-red-100/60 bg-red-900/50 hover:bg-red-100 hover:bg-red-900" aria-label="Quitter l'espace syndicat">
                             <LogOut size={20} />
                         </Link>
                     </div>
@@ -9753,14 +9753,14 @@ export default function SyndicateNotificationsPanel({ isOpen, onClose }) {
                         animate={{ x: 0 }}
                         exit={{ x: '100%' }}
                         transition={{ type: "tween", ease: "easeInOut", duration: 0.3 }}
-                        className="fixed right-0 top-0 h-full w-full max-w-sm bg-white dark:bg-gray-800 shadow-2xl z-40 border-l dark:border-gray-700 flex flex-col"
+                        className="fixed right-0 top-0 h-full w-full max-w-sm bg-white bg-gray-800 shadow-2xl z-40 border-l border-gray-700 flex flex-col"
                         aria-modal="true" role="dialog" aria-labelledby="notification-panel-title"
                     >
-                        <div className="p-4 sm:p-6 border-b dark:border-gray-700 flex justify-between items-center flex-shrink-0">
-                            <h3 id="notification-panel-title" className="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                        <div className="p-4 sm:p-6 border-b border-gray-700 flex justify-between items-center flex-shrink-0">
+                            <h3 id="notification-panel-title" className="text-xl font-bold text-gray-900 text-white flex items-center gap-2">
                                 <Bell /> {t('notifications.title')}
                             </h3>
-                            <motion.button onClick={onClose} className="p-2 text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full" whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.95 }} aria-label="Fermer">
+                            <motion.button onClick={onClose} className="p-2 text-gray-500 text-gray-400 hover:bg-gray-100 hover:bg-gray-700 rounded-full" whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.95 }} aria-label="Fermer">
                                 <X size={20} />
                             </motion.button>
                         </div>
@@ -9773,13 +9773,13 @@ export default function SyndicateNotificationsPanel({ isOpen, onClose }) {
                             </div>
                         ) : (
                             <div className="flex-grow flex flex-col items-center justify-center text-center p-6">
-                                <Bell className="w-16 h-16 text-gray-300 dark:text-gray-600 mb-4" />
-                                <h4 className="font-semibold text-gray-700 dark:text-gray-300">Aucune notification</h4>
-                                <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Vous êtes à jour.</p>
+                                <Bell className="w-16 h-16 text-gray-300 text-gray-600 mb-4" />
+                                <h4 className="font-semibold text-gray-700 text-gray-300">Aucune notification</h4>
+                                <p className="text-sm text-gray-500 text-gray-400 mt-1">Vous êtes à jour.</p>
                             </div>
                         )}
                         
-                        <div className="p-4 sm:p-6 border-t dark:border-gray-700 flex-shrink-0">
+                        <div className="p-4 sm:p-6 border-t border-gray-700 flex-shrink-0">
                             <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} className="w-full py-3 bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-xl font-medium shadow-lg hover:shadow-xl transition-all">
                                 {t('notifications.see_all')}
                             </motion.button>
@@ -9822,14 +9822,14 @@ export default function SyndicateSidebar({ isCollapsed, onToggle, syndicateData 
         return (
             <motion.nav
                 animate={{ width: isCollapsed ? 80 : 280 }}
-                className="hidden lg:flex bg-white/80 dark:bg-gray-800/50 flex-col z-10 border-r"
+                className="hidden lg:flex bg-white/80 bg-gray-800/50 flex-col z-10 border-r"
             >
                 <div className="p-4 border-b animate-pulse">
-                    <div className="w-full h-10 bg-gray-200 dark:bg-gray-700 rounded-md"></div>
+                    <div className="w-full h-10 bg-gray-200 bg-gray-700 rounded-md"></div>
                 </div>
                 <div className="flex-grow p-4 space-y-2">
                     {[...Array(5)].map((_, i) => (
-                        <div key={i} className="w-full h-12 bg-gray-200 dark:bg-gray-700 rounded-xl animate-pulse"></div>
+                        <div key={i} className="w-full h-12 bg-gray-200 bg-gray-700 rounded-xl animate-pulse"></div>
                     ))}
                 </div>
             </motion.nav>
@@ -9853,9 +9853,9 @@ export default function SyndicateSidebar({ isCollapsed, onToggle, syndicateData 
         <motion.nav
             animate={{ width: isCollapsed ? 80 : 280 }}
             transition={{ duration: 0.3, ease: 'easeInOut' }}
-            className="hidden lg:flex bg-white/80 dark:bg-gray-800/50 backdrop-blur-sm flex-col z-10 border-r border-gray-200/80 dark:border-white/10"
+            className="hidden lg:flex bg-white/80 bg-gray-800/50 backdrop-blur-sm flex-col z-10 border-r border-gray-200/80 border-white/10"
         >
-            <div className={`p-4 flex items-center gap-4 border-b border-gray-200/80 dark:border-white/10 transition-all duration-300 ${isCollapsed ? 'justify-center' : 'justify-between'}`}>
+            <div className={`p-4 flex items-center gap-4 border-b border-gray-200/80 border-white/10 transition-all duration-300 ${isCollapsed ? 'justify-center' : 'justify-between'}`}>
                 {!isCollapsed && (
                     <div className="flex items-center gap-2 overflow-hidden">
                         {imageUrl ? (
@@ -9863,10 +9863,10 @@ export default function SyndicateSidebar({ isCollapsed, onToggle, syndicateData 
                         ) : (
                             <SyndicatDefaultAvatar name={syndicateData.name} size={40} />
                         )}
-                        <span className="font-bold text-lg text-gray-800 dark:text-white truncate">Espace Membre</span>
+                        <span className="font-bold text-lg text-gray-800 text-white truncate">Espace Membre</span>
                     </div>
                 )}
-                <motion.button onClick={onToggle} className="p-2 text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg" aria-label={isCollapsed ? "Déplier" : "Replier"}>
+                <motion.button onClick={onToggle} className="p-2 text-gray-500 text-gray-400 hover:bg-gray-100 hover:bg-gray-700 rounded-lg" aria-label={isCollapsed ? "Déplier" : "Replier"}>
                     {isCollapsed ? <ChevronRight size={20} /> : <ChevronLeft size={20} />}
                 </motion.button>
             </div>
@@ -9883,13 +9883,13 @@ export default function SyndicateSidebar({ isCollapsed, onToggle, syndicateData 
                                     isCollapsed ? 'justify-center' : ''
                                 } ${
                                     isActive 
-                                        ? 'text-blue-600 dark:text-blue-300' 
-                                        : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-white'
+                                        ? 'text-blue-600 text-blue-300' 
+                                        : 'text-gray-600 text-gray-400 hover:bg-gray-100 hover:bg-gray-700 hover:text-gray-900 hover:text-white'
                                 }`}
                                 title={isCollapsed ? item.label : ''}
                             >
                                 {isActive && (
-                                    <motion.div layoutId="active-sidebar-indicator" className="absolute inset-0 bg-blue-50 dark:bg-blue-900/50 rounded-xl" transition={{ type: 'spring', stiffness: 300, damping: 25 }} />
+                                    <motion.div layoutId="active-sidebar-indicator" className="absolute inset-0 bg-blue-50 bg-blue-900/50 rounded-xl" transition={{ type: 'spring', stiffness: 300, damping: 25 }} />
                                 )}
                                 
                                 <div className="relative z-10 flex items-center">
@@ -10062,7 +10062,7 @@ export default function SyndicateCard({ syndicat }) {
 
     return (
         <motion.div
-            className="group bg-white dark:bg-gray-800/50 rounded-2xl shadow-xl hover:shadow-2xl dark:shadow-black/20 transition-all duration-300 border border-gray-100 dark:border-gray-700 overflow-hidden flex flex-col"
+            className="group bg-white bg-gray-800/50 rounded-2xl shadow-xl hover:shadow-2xl shadow-black/20 transition-all duration-300 border border-gray-100 border-gray-700 overflow-hidden flex flex-col"
             variants={itemVariants}
             whileHover={{ y: -8 }}
         >
@@ -10070,24 +10070,24 @@ export default function SyndicateCard({ syndicat }) {
                 <Image src={bannerUrl} alt={syndicat.name} fill sizes="(max-width: 768px) 100vw, 50vw" style={{ objectFit: 'cover' }} className="transition-transform duration-500 group-hover:scale-105" onError={(e) => { e.currentTarget.src = "/placeholder-cover.jpg"; }}/>
                 <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent"></div>
                 <div className="absolute -bottom-10 left-6">
-                    <div className="w-20 h-20 bg-white dark:bg-gray-800 rounded-full p-1 shadow-lg border-4 border-white dark:border-gray-800">
+                    <div className="w-20 h-20 bg-white bg-gray-800 rounded-full p-1 shadow-lg border-4 border-white border-gray-800">
                         {logoUrl ? <Image src={logoUrl} alt={`${syndicat.name} logo`} width={80} height={80} className="rounded-full object-cover w-full h-full" /> : <SyndicatDefaultAvatar name={syndicat.name} size={72} />}
                     </div>
                 </div>
             </div>
 
             <div className="p-6 pt-12 flex flex-col flex-grow">
-                <h2 className="text-xl font-bold text-gray-900 dark:text-white line-clamp-2 leading-snug h-14">
+                <h2 className="text-xl font-bold text-gray-900 text-white line-clamp-2 leading-snug h-14">
                     {syndicat.name}
                 </h2>
-                <div className="flex items-center justify-between text-gray-600 dark:text-gray-400 my-4">
+                <div className="flex items-center justify-between text-gray-600 text-gray-400 my-4">
                     <div className="flex items-center space-x-2">
                         <Users className="h-5 w-5 text-blue-500" />
                         <span className="text-sm font-medium">{(syndicat.memberCount || 0).toLocaleString()} membres</span>
                     </div>
-                    <BarChart2 className="h-5 w-5 text-gray-400 dark:text-gray-500" title="Tendance stable" />
+                    <BarChart2 className="h-5 w-5 text-gray-400 text-gray-500" title="Tendance stable" />
                 </div>
-                <div className="mt-auto pt-4 border-t border-gray-100 dark:border-gray-700">
+                <div className="mt-auto pt-4 border-t border-gray-100 border-gray-700">
                     <motion.button
                         className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-3 rounded-xl hover:shadow-lg transition-all flex items-center justify-center font-semibold group-hover:from-blue-700 group-hover:to-indigo-700"
                         whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.98 }}
@@ -10182,7 +10182,7 @@ export default function SyndicateList({ initialSyndicates = [] }) {
                     <input
                         type="text"
                         placeholder={t("syndicats_page.search_placeholder")}
-                        className="w-full pl-14 pr-6 py-4 rounded-2xl border-2 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-100 dark:focus:ring-blue-900/50 transition-all text-lg"
+                        className="w-full pl-14 pr-6 py-4 rounded-2xl border-2 border-gray-200 border-gray-700 bg-white bg-gray-800 text-gray-900 text-gray-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-100 focus:ring-blue-900/50 transition-all text-lg"
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                     />
@@ -10210,11 +10210,11 @@ export default function SyndicateList({ initialSyndicates = [] }) {
                         className="text-center py-20"
                     >
                         <div className="max-w-md mx-auto">
-                            <AlertCircle className="h-12 w-12 text-blue-500 dark:text-blue-400 mx-auto mb-4" />
-                            <h3 className="text-2xl font-semibold text-gray-900 dark:text-white mb-2">
+                            <AlertCircle className="h-12 w-12 text-blue-500 text-blue-400 mx-auto mb-4" />
+                            <h3 className="text-2xl font-semibold text-gray-900 text-white mb-2">
                                 {searchTerm ? t("syndicats_page.empty_search_title") : t("syndicats_page.empty_list_title")}
                             </h3>
-                            <p className="text-gray-600 dark:text-gray-400 mb-6">
+                            <p className="text-gray-600 text-gray-400 mb-6">
                                 {searchTerm ? t("syndicats_page.empty_search_desc") : t("syndicats_page.empty_list_desc")}
                             </p>
                             <motion.button

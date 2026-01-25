@@ -50,17 +50,17 @@ export default function ParticipantsModal({ event, onClose }) {
                         initial={{ scale: 0.9, opacity: 0 }}
                         animate={{ scale: 1, opacity: 1 }}
                         exit={{ scale: 0.9, opacity: 0 }}
-                        className="bg-white dark:bg-gray-800 rounded-2xl p-6 max-w-md w-full shadow-2xl"
+                        className="bg-white bg-gray-800 rounded-2xl p-6 max-w-md w-full shadow-2xl"
                         onClick={e => e.stopPropagation()}
                     >
                         <div className="flex justify-between items-center mb-6">
-                            <h3 className="text-2xl font-bold text-gray-800 dark:text-white flex items-center gap-2">
+                            <h3 className="text-2xl font-bold text-gray-800 text-white flex items-center gap-2">
                                 <Users />
                                 Participants ({participants.length})
                             </h3>
                             <button
                                 onClick={onClose}
-                                className="p-2 text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full"
+                                className="p-2 text-gray-500 hover:bg-gray-100 hover:bg-gray-700 rounded-full"
                             >
                                 <X />
                             </button>
@@ -86,12 +86,12 @@ export default function ParticipantsModal({ event, onClose }) {
                                         initial={{ opacity: 0, x: -20 }}
                                         animate={{ opacity: 1, x: 0 }}
                                         transition={{ delay: index * 0.05 }}
-                                        className="flex items-center p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg"
+                                        className="flex items-center p-3 bg-gray-50 bg-gray-700/50 rounded-lg"
                                     >
                                         <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-500 rounded-full flex items-center justify-center text-white font-medium">
                                             {(participant.fullName || participant.name || 'U').charAt(0).toUpperCase()}
                                         </div>
-                                        <span className="ml-3 font-medium text-gray-700 dark:text-gray-200">
+                                        <span className="ml-3 font-medium text-gray-700 text-gray-200">
                                             {participant.fullName || participant.name || 'Utilisateur'}
                                         </span>
                                     </motion.div>

@@ -78,9 +78,15 @@ export default function RegisterForm() {
         setIsLoading(true);
         try {
             console.log("2. Début du bloc try : Appel de registerWithEmail...");
-            // Le backend attend "dateOfBirth" au format YYYY-MM-DD,
-            // ce qui est le format par défaut des inputs type="date".
-            await registerWithEmail(data);
+            // Exclure passwordConfirm qui est uniquement pour la validation frontend
+            const { passwordConfirm, ...userData } = data;
+            // Ajouter les champs requis par le backend
+            const registrationData = {
+                ...userData,
+                service: "SYNDICAT",
+                roles: ["USER"]
+            };
+            await registerWithEmail(registrationData);
             console.log("3. Appel API réussi.");
 
             await Swal.fire({

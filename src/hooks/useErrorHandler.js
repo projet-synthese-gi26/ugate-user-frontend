@@ -180,6 +180,8 @@ export const useErrorHandler = () => {
             type: errorInfo.type,
             message: errorInfo.message,
             originalError: error,
+            status: error?.response?.status, // Ajoute ça
+             detail: error?.message,    
             context
         });
 

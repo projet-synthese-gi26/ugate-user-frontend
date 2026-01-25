@@ -31,19 +31,19 @@ export default function SyndicateNotificationsPanel({ isOpen, onClose }) {
                         animate={{ x: 0 }}
                         exit={{ x: '100%' }}
                         transition={{ type: "tween", ease: "easeInOut", duration: 0.3 }}
-                        className="fixed right-0 top-0 h-full w-full max-w-sm bg-white dark:bg-neutral-900 shadow-strong z-40 border-l border-neutral-200 dark:border-neutral-700 flex flex-col transition-colors duration-300"
+                        className="fixed right-0 top-0 h-full w-full max-w-sm bg-white bg-neutral-900 shadow-strong z-40 border-l border-neutral-200 border-neutral-700 flex flex-col transition-colors duration-300"
                         aria-modal="true" role="dialog" aria-labelledby="notification-panel-title"
                     >
-                        <div className="p-6 border-b border-neutral-200 dark:border-neutral-700 flex justify-between items-center flex-shrink-0">
-                            <h3 id="notification-panel-title" className="text-lg font-bold text-neutral-800 dark:text-white flex items-center gap-3">
-                                <div className="p-2 bg-primary-50 dark:bg-primary-900/20 rounded-xl">
-                                    <Bell size={18} className="text-primary-600 dark:text-primary-400" />
+                        <div className="p-6 border-b border-neutral-200 border-neutral-700 flex justify-between items-center flex-shrink-0">
+                            <h3 id="notification-panel-title" className="text-lg font-bold text-neutral-800 text-white flex items-center gap-3">
+                                <div className="p-2 bg-primary-50 bg-primary-900/20 rounded-xl">
+                                    <Bell size={18} className="text-primary-600 text-primary-400" />
                                 </div>
                                 {t('notifications.title')}
                             </h3>
                             <motion.button 
                                 onClick={onClose} 
-                                className="p-2 text-neutral-500 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-800 rounded-xl transition-all duration-200" 
+                                className="p-2 text-neutral-500 text-neutral-400 hover:bg-neutral-100 hover:bg-neutral-800 rounded-xl transition-all duration-200" 
                                 whileHover={{ scale: 1.05 }} 
                                 whileTap={{ scale: 0.95 }} 
                                 aria-label="Fermer"
@@ -60,15 +60,15 @@ export default function SyndicateNotificationsPanel({ isOpen, onClose }) {
                             </div>
                         ) : (
                             <div className="flex-grow flex flex-col items-center justify-center text-center p-6">
-                                <div className="p-4 bg-neutral-100 dark:bg-neutral-800 rounded-2xl mb-4">
-                                    <Bell className="w-12 h-12 text-neutral-400 dark:text-neutral-500" />
+                                <div className="p-4 bg-neutral-100 bg-neutral-800 rounded-2xl mb-4">
+                                    <Bell className="w-12 h-12 text-neutral-400 text-neutral-500" />
                                 </div>
-                                <h4 className="font-semibold text-neutral-700 dark:text-neutral-300">Aucune notification</h4>
-                                <p className="text-sm text-neutral-500 dark:text-neutral-400 mt-1">Vous êtes à jour.</p>
+                                <h4 className="font-semibold text-neutral-700 text-neutral-300">Aucune notification</h4>
+                                <p className="text-sm text-neutral-500 text-neutral-400 mt-1">Vous êtes à jour.</p>
                             </div>
                         )}
                         
-                        <div className="p-6 border-t border-neutral-200 dark:border-neutral-700 flex-shrink-0">
+                        <div className="p-6 border-t border-neutral-200 border-neutral-700 flex-shrink-0">
                             <motion.button 
                                 whileHover={{ scale: 1.02 }} 
                                 whileTap={{ scale: 0.98 }} 

@@ -20,58 +20,46 @@ export default function SyndicateProfilePage() {
     useEffect(() => {
         const fetchSyndicate = async () => {
             if (!syndicatId) return;
-
             try {
                 setLoading(true);
                 const data = await getSyndicateDetailsAPI(syndicatId);
                 setSyndicate(data);
             } catch (err) {
-                console.error("Erreur lors de la récupération du syndicat:", err);
-                setError("Impossible de charger les détails du syndicat.");
+                console.error("Erreur:", err);
+                setError("Impossible de charger les détails.");
             } finally {
                 setLoading(false);
             }
         };
-
         fetchSyndicate();
     }, [syndicatId]);
 
     if (loading) {
         return (
-            <div className="bg-gray-50 dark:bg-gray-900 min-h-screen flex items-center justify-center">
-                <div className="text-center">
-                    <Loader2 className="h-12 w-12 animate-spin text-blue-600 mx-auto mb-4" />
-                    <p className="text-gray-600 dark:text-gray-400">Chargement...</p>
-                </div>
+            <div className="bg-gray-50 min-h-screen flex items-center justify-center">
+                <Loader2 className="h-12 w-12 animate-spin text-blue-600" />
             </div>
         );
     }
 
     if (error || !syndicate) {
         return (
-            <div className="bg-gray-50 dark:bg-gray-900 min-h-screen">
-                <div className="container mx-auto px-4 py-8">
-                    <Link href="/explorer" className="inline-flex items-center space-x-2 text-blue-600 dark:text-blue-400 hover:underline mb-6 group">
-                        <ChevronLeft className="h-5 w-5 transition-transform group-hover:-translate-x-1" />
-                        <span className="font-semibold">{t('back_to_explorer')}</span>
-                    </Link>
-                    <div className="text-center py-16">
-                        <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">Syndicat non trouvé</h2>
-                        <p className="text-gray-600 dark:text-gray-400">{error || "Ce syndicat n'existe pas ou a été supprimé."}</p>
-                    </div>
-                </div>
+            <div className="bg-gray-50 min-h-screen p-8 text-center">
+                <h2 className="text-2xl font-bold text-gray-900">Syndicat non trouvé</h2>
             </div>
         );
     }
 
     return (
-        <div className="bg-gray-50 dark:bg-gray-900 min-h-screen">
+        // Suppression des classes bg-gray-900
+        <div className="bg-gray-50 min-h-screen">
             <div className="container mx-auto px-4 py-8">
-                <Link href="/explorer" className="inline-flex items-center space-x-2 text-blue-600 dark:text-blue-400 hover:underline mb-6 group">
+                <Link href="/explorer" className="inline-flex items-center space-x-2 text-blue-600 hover:underline mb-6 group font-semibold">
                     <ChevronLeft className="h-5 w-5 transition-transform group-hover:-translate-x-1" />
-                    <span className="font-semibold">{t('back_to_explorer')}</span>
+                    <span>{t('back_to_explorer')}</span>
                 </Link>
 
+                {/* Ici on appelle le client qui contient tout le design */}
                 <SyndicateProfileClient syndicate={syndicate} />
             </div>
         </div>

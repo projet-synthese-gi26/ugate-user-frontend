@@ -50,17 +50,17 @@ export const AdhereSyndicatForm = ({ syndicat, onComplete }) => {
                         const step = index + 1;
                         return (
                             <div key={step} className="flex items-center">
-                                <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium transition-all duration-300 ${ currentStep >= step ? 'bg-blue-600 text-white shadow-md' : 'bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-300' }`}>
+                                <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium transition-all duration-300 ${ currentStep >= step ? 'bg-blue-600 text-white shadow-md' : 'bg-gray-200 bg-gray-700 text-gray-600 text-gray-300' }`}>
                                     {currentStep > step ? <CheckCircle className="w-5 h-5" /> : step}
                                 </div>
-                                {step < steps.length && ( <div className={`w-12 sm:w-20 lg:w-32 h-1 mx-2 transition-colors duration-500 ${ currentStep > step ? 'bg-blue-600' : 'bg-gray-200 dark:bg-gray-700' }`} /> )}
+                                {step < steps.length && ( <div className={`w-12 sm:w-20 lg:w-32 h-1 mx-2 transition-colors duration-500 ${ currentStep > step ? 'bg-blue-600' : 'bg-gray-200 bg-gray-700' }`} /> )}
                             </div>
                         );
                     })}
                 </div>
                 <div className="text-center mt-3">
-                    <p className="font-semibold text-gray-800 dark:text-gray-200">{steps[currentStep - 1]}</p>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">{t('adhesion_wizard.step_of', { current: currentStep, total: steps.length })}</p>
+                    <p className="font-semibold text-gray-800 text-gray-200">{steps[currentStep - 1]}</p>
+                    <p className="text-sm text-gray-500 text-gray-400">{t('adhesion_wizard.step_of', { current: currentStep, total: steps.length })}</p>
                 </div>
             </div>
 
@@ -74,8 +74,8 @@ export const AdhereSyndicatForm = ({ syndicat, onComplete }) => {
             </AnimatePresence>
 
             {currentStep < 4 && (
-                <div className="flex justify-between mt-8 pt-6 border-t border-gray-200 dark:border-gray-700">
-                    <motion.button onClick={prevStep} disabled={currentStep === 1} className="px-6 py-2 rounded-lg flex items-center font-semibold bg-gray-200 text-gray-700 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed" whileHover={currentStep > 1 ? { scale: 1.05 } : {}}>
+                <div className="flex justify-between mt-8 pt-6 border-t border-gray-200 border-gray-700">
+                    <motion.button onClick={prevStep} disabled={currentStep === 1} className="px-6 py-2 rounded-lg flex items-center font-semibold bg-gray-200 text-gray-700 hover:bg-gray-300 bg-gray-700 text-gray-200 hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed" whileHover={currentStep > 1 ? { scale: 1.05 } : {}}>
                         <ChevronLeft className="w-5 h-5 mr-2" /> {t('adhesion_wizard.previous')}
                     </motion.button>
                     {currentStep < 3 && (

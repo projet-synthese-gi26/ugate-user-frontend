@@ -22,7 +22,7 @@ export const IndividualForm = ({ onSubmit, formData, setFormData }) => {
     };
 
     // Constante pour les classes CSS des champs de formulaire
-    const inputClasses = "w-full px-3 py-2 border rounded-lg bg-white text-gray-900 border-gray-300 dark:bg-gray-800 dark:text-gray-200 dark:border-gray-600 placeholder-gray-400 dark:placeholder-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition";
+    const inputClasses = "w-full px-3 py-2 border rounded-lg bg-white text-gray-900 border-gray-300 bg-gray-800 text-gray-200 border-gray-600 placeholder-gray-400 placeholder-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition";
 
     return (
         <motion.form
@@ -32,74 +32,74 @@ export const IndividualForm = ({ onSubmit, formData, setFormData }) => {
             className="space-y-8"
         >
             <div className="text-center">
-                <h2 className="text-3xl font-bold bg-gradient-to-r from-gray-900 via-blue-800 to-indigo-800 dark:from-white dark:via-blue-300 dark:to-indigo-300 bg-clip-text text-transparent mb-3">
+                <h2 className="text-3xl font-bold bg-gradient-to-r from-gray-900 via-blue-800 to-indigo-800 from-white via-blue-300 to-indigo-300 bg-clip-text text-transparent mb-3">
                     {t('adhesion_form.title')}
                 </h2>
-                <p className="text-lg text-gray-600 dark:text-gray-400">
+                <p className="text-lg text-gray-600 text-gray-400">
                     {t('adhesion_form.subtitle')}
                 </p>
             </div>
 
             {/* Section Informations personnelles */}
-            <div className="bg-white dark:bg-gray-800/50 rounded-xl p-6 shadow-sm border border-gray-200 dark:border-gray-700">
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-6 flex items-center">
+            <div className="bg-white bg-gray-800/50 rounded-xl p-6 shadow-sm border border-gray-200 border-gray-700">
+                <h3 className="text-lg font-semibold text-gray-900 text-white mb-6 flex items-center">
                     <FileText className="w-5 h-5 mr-3 text-blue-500" />
                     {t('adhesion_form.personal_info_title')}
                 </h3>
 
                 <div className="grid gap-6 md:grid-cols-2">
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{t('adhesion_form.last_name')} *</label>
+                        <label className="block text-sm font-medium text-gray-700 text-gray-300 mb-1">{t('adhesion_form.last_name')} *</label>
                         <input type="text" {...register("nom", { required: t('errors.required_field') })} className={inputClasses} placeholder={t('adhesion_form.last_name_placeholder')} />
                         {errors.nom && <p className="text-red-500 text-xs mt-1">{errors.nom.message}</p>}
                     </div>
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{t('adhesion_form.first_name')} *</label>
+                        <label className="block text-sm font-medium text-gray-700 text-gray-300 mb-1">{t('adhesion_form.first_name')} *</label>
                         <input type="text" {...register("prenom", { required: t('errors.required_field') })} className={inputClasses} placeholder={t('adhesion_form.first_name_placeholder')} />
                         {errors.prenom && <p className="text-red-500 text-xs mt-1">{errors.prenom.message}</p>}
                     </div>
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{t('adhesion_form.cni_number')} *</label>
+                        <label className="block text-sm font-medium text-gray-700 text-gray-300 mb-1">{t('adhesion_form.cni_number')} *</label>
                         <input type="text" {...register("numeroCNI", { required: t('errors.required_field') })} className={inputClasses} placeholder="Ex: 123456789" />
                         {errors.numeroCNI && <p className="text-red-500 text-xs mt-1">{errors.numeroCNI.message}</p>}
                     </div>
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{t('adhesion_form.dob')} *</label>
+                        <label className="block text-sm font-medium text-gray-700 text-gray-300 mb-1">{t('adhesion_form.dob')} *</label>
                         <input type="date" {...register("dateNaissance", { required: t('errors.required_field') })} className={inputClasses} />
                         {errors.dateNaissance && <p className="text-red-500 text-xs mt-1">{errors.dateNaissance.message}</p>}
                     </div>
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{t('adhesion_form.phone')} *</label>
+                        <label className="block text-sm font-medium text-gray-700 text-gray-300 mb-1">{t('adhesion_form.phone')} *</label>
                         <input type="tel" {...register("telephone", { required: t('errors.required_field') })} className={inputClasses} placeholder="+237 6XX XX XX XX" />
                         {errors.telephone && <p className="text-red-500 text-xs mt-1">{errors.telephone.message}</p>}
                     </div>
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{t('adhesion_form.email')} *</label>
+                        <label className="block text-sm font-medium text-gray-700 text-gray-300 mb-1">{t('adhesion_form.email')} *</label>
                         <input type="email" {...register("email", { required: t('errors.required_field'), pattern: { value: /^\S+@\S+$/i, message: t('errors.invalid_email') } })} className={inputClasses} placeholder="votre.email@exemple.com" />
                         {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email.message}</p>}
                     </div>
                 </div>
 
                 <div className="mt-6">
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{t('adhesion_form.address')} *</label>
+                    <label className="block text-sm font-medium text-gray-700 text-gray-300 mb-1">{t('adhesion_form.address')} *</label>
                     <textarea rows={3} {...register("adresse", { required: t('errors.required_field') })} className={inputClasses} placeholder={t('adhesion_form.address_placeholder')} />
                     {errors.adresse && <p className="text-red-500 text-xs mt-1">{errors.adresse.message}</p>}
                 </div>
                 <div className="mt-6">
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{t('adhesion_form.profession')} *</label>
+                    <label className="block text-sm font-medium text-gray-700 text-gray-300 mb-1">{t('adhesion_form.profession')} *</label>
                     <input type="text" {...register("profession", { required: t('errors.required_field') })} className={inputClasses} placeholder={t('adhesion_form.profession_placeholder')} />
                     {errors.profession && <p className="text-red-500 text-xs mt-1">{errors.profession.message}</p>}
                 </div>
                 <div className="mt-6">
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{t('adhesion_form.motivation')} *</label>
+                    <label className="block text-sm font-medium text-gray-700 text-gray-300 mb-1">{t('adhesion_form.motivation')} *</label>
                     <textarea rows={4} {...register("motivation", { required: t('errors.required_field'), minLength: { value: 20, message: t('errors.min_length', { count: 20 }) } })} className={inputClasses} placeholder={t('adhesion_form.motivation_placeholder')} />
                     {errors.motivation && <p className="text-red-500 text-xs mt-1">{errors.motivation.message}</p>}
                 </div>
             </div>
 
             {/* Section Documents requis */}
-            <div className="bg-white dark:bg-gray-800/50 rounded-xl p-6 shadow-sm border border-gray-200 dark:border-gray-700">
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-6 flex items-center">
+            <div className="bg-white bg-gray-800/50 rounded-xl p-6 shadow-sm border border-gray-200 border-gray-700">
+                <h3 className="text-lg font-semibold text-gray-900 text-white mb-6 flex items-center">
                     <Camera className="w-5 h-5 mr-3 text-blue-500" />
                     {t('adhesion_form.documents_title')}
                 </h3>

@@ -16,11 +16,13 @@ async function getEvents(syndicatId) {
         }
         
         // Convertir les dates string en objets Date si nécessaire
+        // L'API renvoie: date, startTime, endTime (pas startDate/endDate)
         const eventsWithDates = eventsData.content.map(event => ({
             ...event,
-            startDate: new Date(event.startDate),
-            endDate: new Date(event.endDate),
-            createdAt: new Date(event.createdAt)
+            // Mapper 'date' vers 'startDate' et 'endDate' pour compatibilité frontend
+            startDate: event.date ? new Date(event.date) : new Date(),
+            endDate: event.date ? new Date(event.date) : new Date(),
+            createdAt: event.createdAt ? new Date(event.createdAt) : new Date()
         }));
         
         console.log(`${eventsWithDates.length} événements récupérés`);
@@ -56,7 +58,7 @@ export default async function EventsPage({ params }) {
                     <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-700 to-blue-800 bg-clip-text text-transparent mb-4">
                         {t('events_page.title')}
                     </h1>
-                    <p className="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">{t('events_page.subtitle')}</p>
+                    <p className="text-lg text-gray-600 text-gray-400 max-w-2xl mx-auto">{t('events_page.subtitle')}</p>
                 </div>
             </div>
             

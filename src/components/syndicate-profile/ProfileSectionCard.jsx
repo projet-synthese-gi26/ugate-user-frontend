@@ -14,10 +14,10 @@ import { motion } from 'framer-motion';
 export default function ProfileSectionCard({ icon: Icon, title, children, variants }) {
     return (
         <motion.section
-            className="bg-white dark:bg-gray-800/50 p-6 sm:p-8 rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700"
+            className="bg-white bg-gray-800/50 p-6 sm:p-8 rounded-2xl shadow-lg border border-gray-100 border-gray-700"
             variants={variants}
         >
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6 flex items-center">
+            <h2 className="text-2xl font-bold text-gray-900 text-white mb-6 flex items-center">
                 {Icon && <Icon className="text-blue-500 mr-3" size={28} />}
                 {title}
             </h2>

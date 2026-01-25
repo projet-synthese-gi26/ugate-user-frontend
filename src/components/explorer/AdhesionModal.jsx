@@ -33,22 +33,22 @@ export default function AdhesionModal({ isOpen, onClose, syndicat }) {
                         animate={{ scale: 1, opacity: 1, y: 0 }}
                         exit={{ scale: 0.9, opacity: 0, y: 20 }}
                         transition={{ duration: 0.3, ease: "easeInOut" }}
-                        className="bg-gray-50 dark:bg-gray-900 rounded-2xl w-full max-w-5xl max-h-[90vh] flex flex-col shadow-2xl"
+                        className="bg-gray-50 bg-gray-900 rounded-2xl w-full max-w-5xl max-h-[90vh] flex flex-col shadow-2xl"
                         onClick={(e) => e.stopPropagation()}
                     >
                         {/* Header de la Modale */}
-                        <div className="sticky top-0 p-4 sm:p-6 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center bg-gray-50 dark:bg-gray-900 rounded-t-2xl z-10">
+                        <div className="sticky top-0 p-4 sm:p-6 border-b border-gray-200 border-gray-700 flex justify-between items-center bg-gray-50 bg-gray-900 rounded-t-2xl z-10">
                             <div>
-                                <h3 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">
+                                <h3 className="text-xl sm:text-2xl font-bold text-gray-900 text-white">
                                     {t('title', { syndicatName: syndicat.name })}
                                 </h3>
-                                <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                                <p className="text-sm text-gray-600 text-gray-400 mt-1">
                                     {t('subtitle')}
                                 </p>
                             </div>
                             <button
                                 onClick={onClose}
-                                className="p-2 text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition-colors"
+                                className="p-2 text-gray-500 text-gray-400 hover:bg-gray-100 hover:bg-gray-700 rounded-full transition-colors"
                                 aria-label="Fermer la modale"
                             >
                                 <X size={24} />

@@ -10,99 +10,59 @@ import { FullPageLoader } from "@/components/syndicate-space/SyndicateSpaceLoade
 
 export default function SyndicateSpaceClientLayout({ children, syndicateData: initialSyndicateData }) {
     const pathname = usePathname();
-    
-    // État pour savoir si la sidebar est ouverte ou fermée (non "collapsed")
     const [isSidebarOpen, setIsSidebarOpen] = useState(true);
     const [isNotificationOpen, setIsNotificationOpen] = useState(false);
-    
-    // État pour s'assurer que le composant est monté côté client avant de rendre des choses complexes
-    // Cela prévient les problèmes d'hydratation
-    const [isMounted, setIsMounted] = useState(false);
-    const [isPageLoading, setIsPageLoading] = useState(false);
-    const [previousPath, setPreviousPath] = useState(null);
     const [isHeaderCollapsed, setIsHeaderCollapsed] = useState(false);
-    const [lastScrollY, setLastScrollY] = useState(0);
+    const [isMounted, setIsMounted] = useState(false);
 
-    useEffect(() => {
-        setIsMounted(true);
-    }, []);
+    useEffect(() => { setIsMounted(true); }, []);
 
-    // Gérer le loading entre les pages
-    useEffect(() => {
-        if (previousPath && previousPath !== pathname) {
-            setIsPageLoading(true);
-            
-            // Simuler un délai de chargement réaliste
-            const timer = setTimeout(() => {
-                setIsPageLoading(false);
-            }, 500);
-
-            return () => clearTimeout(timer);
-        }
-        setPreviousPath(pathname);
-    }, [pathname, previousPath]);
-
-    // Le handler pour basculer l'état de la sidebar
-    const handleToggleSidebar = () => {
-        setIsSidebarOpen(prev => !prev);
-    };
-
-    // Le handler pour basculer les notifications
-    const handleToggleNotifications = () => {
-        setIsNotificationOpen(prev => !prev);
-    };
-
-    // Tant que le composant n'est pas monté côté client, on peut afficher un loader global
-    // ou une version simplifiée pour éviter les erreurs.
-    if (!isMounted) {
-        // Retourner un loader ici peut être une bonne pratique
-        return <div className="fixed inset-0 bg-white dark:bg-gray-900 flex items-center justify-center">Chargement de l'espace...</div>;
-    }
+    if (!isMounted) return <div className="fixed inset-0 bg-white flex items-center justify-center">Chargement...</div>;
 
     return (
-        <div className="flex h-screen bg-gray-50 dark:bg-neutral-900 transition-colors duration-300">
+        <div className="flex h-screen bg-gray-50 overflow-hidden">
+            {/* Sidebar */}
             <SyndicateSidebar 
                 isCollapsed={!isSidebarOpen} 
-                onToggle={handleToggleSidebar} 
+                onToggle={() => setIsSidebarOpen(!isSidebarOpen)} 
                 syndicateData={initialSyndicateData}
             />
 
-            <div className="flex-1 flex flex-col overflow-hidden">
+            <div className="flex-1 flex flex-col relative min-w-0">
+                {/* 
+                   LE HEADER : 
+                   Il est maintenant en position ABSOLUTE ou FIXED 
+                   pour ne pas pousser le contenu.
+                */}
+                <SyndicateHeader 
+                    syndicateData={initialSyndicateData}
+                    onSidebarToggle={() => setIsSidebarOpen(!isSidebarOpen)}
+                    onNotificationToggle={() => setIsNotificationOpen(!isNotificationOpen)}
+                    isCollapsed={isHeaderCollapsed}
+                    isSidebarOpen={isSidebarOpen}
+                />
+
+                {/* 
+                   ZONE DE SCROLL :
+                   On ajoute un padding-top (pt-[224px]) qui correspond à la hauteur 
+                   MAX du header. Comme ce padding est FIXE, le contenu ne sautera jamais.
+                */}
                 <div 
                     className="flex-1 overflow-y-auto"
                     onScroll={(e) => {
-                        const currentScrollY = e.target.scrollTop;
-                        
-                        // Simple: juste basé sur la position de scroll
-                        if (currentScrollY > 150 && !isHeaderCollapsed) {
-                            setIsHeaderCollapsed(true);
-                            setLastScrollY(currentScrollY);
-                        } else if (currentScrollY <= 100 && isHeaderCollapsed) {
-                            setIsHeaderCollapsed(false);
-                            setLastScrollY(currentScrollY);
-                        }
+                        const scrollTop = e.target.scrollTop;
+                        // Hystérésis : on sépare les seuils pour éviter le scintillement
+                        if (scrollTop > 120) setIsHeaderCollapsed(true);
+                        if (scrollTop < 50) setIsHeaderCollapsed(false);
                     }}
                 >
-                    <SyndicateHeader 
-                        syndicateData={initialSyndicateData}
-                        onSidebarToggle={handleToggleSidebar}
-                        onNotificationToggle={handleToggleNotifications}
-                        isCollapsed={isHeaderCollapsed}
-                    />
-                    <main className="bg-gray-50 dark:bg-neutral-800/50 transition-colors duration-300">
-                        <div className="p-4 sm:p-6 lg:p-8">
-                            <AnimatePresence mode="wait">
-                                {isPageLoading ? (
-                                    <FullPageLoader text="Chargement de la section..." />
-                                ) : (
-                                    <div className="animate-fade-in max-w-7xl mx-auto">
-                                        {children}
-                                    </div>
-                                )}
-                            </AnimatePresence>
+                    <main className="pt-[224px] min-h-screen"> 
+                        <div className="p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto">
+                            {children}
                         </div>
                     </main>
                 </div>
+                
                 <SyndicateNotificationsPanel 
                     isOpen={isNotificationOpen} 
                     onClose={() => setIsNotificationOpen(false)} 

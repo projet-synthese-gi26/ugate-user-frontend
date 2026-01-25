@@ -30,11 +30,11 @@ export default function Reply({ reply }) {
                 className="w-8 h-8 rounded-full object-cover flex-shrink-0"
             />
             <div className="flex-1">
-                <div className="bg-gray-100 dark:bg-gray-700 rounded-2xl px-3 py-2">
-                    <p className="font-semibold text-xs text-gray-800 dark:text-gray-100">{reply.author.name}</p>
-                    <p className="text-gray-600 dark:text-gray-300 text-sm mt-0.5 whitespace-pre-wrap">{reply.content}</p>
+                <div className="bg-gray-100 bg-gray-700 rounded-2xl px-3 py-2">
+                    <p className="font-semibold text-xs text-gray-800 text-gray-100">{reply.author.name}</p>
+                    <p className="text-gray-600 text-gray-300 text-sm mt-0.5 whitespace-pre-wrap">{reply.content}</p>
                 </div>
-                <div className="flex gap-4 mt-1 text-xs text-gray-500 dark:text-gray-400 px-2">
+                <div className="flex gap-4 mt-1 text-xs text-gray-500 text-gray-400 px-2">
                     <button onClick={handleLike} className={`flex items-center space-x-1 hover:text-blue-500 ${liked ? 'text-blue-500 font-medium' : ''}`}>
                         <Heart size={12} fill={liked ? 'currentColor' : 'none'} />
                         <span>{t('common.like')} {likes > 0 && `(${likes})`}</span>

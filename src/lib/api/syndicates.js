@@ -1,18 +1,21 @@
-import axios from './syndicatesInstance';
+import { ugateInstance as axios, serverFetch } from './instance';
 
+/**
+ * Création d'un syndicat
+ */
 export const createSyndicateAPI = async (formData) => {
     try {
+        // Cette fonction utilisera 'ugateInstance' automatiquement grâce à l'alias ci-dessus
         const response = await axios.post('/syndicates', formData, {
-            headers: {
-                'Content-Type': 'multipart/form-data',
-            },
+            headers: { 'Content-Type': 'multipart/form-data' },
         });
         return response.data;
     } catch (error) {
-        console.error("Erreur lors de la création du syndicat :", error.response?.data || error.message);
+        console.error("Erreur création syndicat :", error.message);
         throw error;
     }
 };
+
 
 /**
  * Récupère les syndicats de l'utilisateur connecté
@@ -40,36 +43,60 @@ export const getAllSyndicatesAPI = async (page = 0, size = 12) => {
     }
 };
 
-
 /**
- * Récupère la liste des syndicats d'un utilisateur par son userId
- * @param {string} userId - UUID de l'utilisateur
- * @returns {Promise<Array>} Liste des syndicats
+ * RÉCUPÉRER LES SYNDICATS D'UN UTILISATEUR (Requis par auth.js)
  */
 export const getUserSyndicatesAPI = async (userId) => {
-    if (!userId) {
-        return Promise.reject(new Error("L'ID de l'utilisateur est requis."));
-    }
+    if (!userId) return [];
     try {
         const response = await axios.get(`/syndicates/user/${userId}`);
-        return response.data;
+        return response.data || [];
     } catch (error) {
-        console.error(`Erreur lors de la récupération des syndicats de l'utilisateur ${userId}:`, error);
-        throw error;
+        console.error("Erreur getUserSyndicatesAPI:", error.message);
+        return [];
+    }
+};/**
+ * RÉCUPÉRER LES DÉTAILS D'UN SYNDICAT (Pour le Layout)
+ */
+export const getSyndicateDetailsAPI = async (syndicateId) => {
+    if (!syndicateId) return null;
+    try {
+        // 1. Essayer dans mes syndicats
+        try {
+            const mineResponse = await serverFetch('get', '/syndicates/mine');
+            const syndicate = (mineResponse.data || []).find(s => s.id === syndicateId);
+            if (syndicate) return syndicate;
+        } catch (e) {
+            // On ignore le 401 ici pour tenter la recherche globale
+        }
+
+        // 2. Chercher globalement
+        try {
+            const allResponse = await serverFetch('get', '/syndicates', null, { params: { page: 0, size: 100 } });
+            const allData = allResponse.data?.content || allResponse.data || [];
+            const syndicate = allData.find(s => s.id === syndicateId);
+            if (syndicate) return syndicate;
+        } catch (e) {}
+
+        return null;
+    } catch (error) {
+        // CORRECTION : Utilisation de syndicateId (avec un 'e') pour éviter le crash
+        console.error(`Erreur critique récupération syndicat ${syndicateId}:`, error.message);
+        return null; 
     }
 };
 
-export const getSyndicateDetailsAPI = async (syndicateId) => {
-    if (!syndicateId) {
-        return Promise.reject(new Error("L'ID du syndicat est requis."));
-    }
+/**
+ * Récupère les branches d'un syndicat
+ */
+export const getSyndicateBranchesAPI = async (syndicatId) => {
     try {
-        // Note: L'endpoint exact côté backend devra peut-être être créé.
-        // Je suppose qu'il s'appellera /api/syndicates/{id}
-        const response = await axios.get(`/syndicates/${syndicateId}`);
-        return response.data;
+        const response = await ugateInstance.get(`/syndicates/${syndicatId}/branches`);
+        return response.data; // C'est un tableau d'objets
     } catch (error) {
-        console.error(`Erreur lors de la récupération des détails du syndicat ${syndicateId}:`, error);
-        throw error;
+        console.error("Erreur lors de la récupération des branches:", error);
+        return [];
     }
-};
+
+    
+}

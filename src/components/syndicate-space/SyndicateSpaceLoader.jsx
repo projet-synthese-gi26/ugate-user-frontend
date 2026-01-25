@@ -14,7 +14,7 @@ const SyndicateSpaceLoader = ({
     };
 
     const containerClasses = {
-        full: 'fixed inset-0 bg-white dark:bg-neutral-900 flex items-center justify-center z-50',
+        full: 'fixed inset-0 bg-white bg-neutral-900 flex items-center justify-center z-50',
         inline: 'flex items-center justify-center py-12',
         compact: 'flex items-center justify-center py-6'
     };
@@ -41,7 +41,7 @@ const SyndicateSpaceLoader = ({
 
     const SpinnerCircle = () => (
         <motion.div
-            className={`${sizeClasses[size]} border-3 border-neutral-200 dark:border-neutral-700 border-t-primary-600 rounded-full`}
+            className={`${sizeClasses[size]} border-3 border-neutral-200 border-neutral-700 border-t-primary-600 rounded-full`}
             animate={{ rotate: 360 }}
             transition={{
                 duration: 1,
@@ -75,7 +75,7 @@ const SyndicateSpaceLoader = ({
         >
             <div className="flex flex-col items-center space-y-4">
                 {variant === 'full' && (
-                    <div className="p-4 bg-white dark:bg-neutral-800 rounded-2xl shadow-soft border border-neutral-200 dark:border-neutral-700">
+                    <div className="p-4 bg-white bg-neutral-800 rounded-2xl shadow-soft border border-neutral-200 border-neutral-700">
                         <SpinnerDots />
                     </div>
                 )}
@@ -87,7 +87,7 @@ const SyndicateSpaceLoader = ({
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.1 }}
-                        className="text-sm font-medium text-neutral-600 dark:text-neutral-400"
+                        className="text-sm font-medium text-neutral-600 text-neutral-400"
                     >
                         {text}
                     </motion.p>
@@ -114,16 +114,16 @@ export const FullPageLoader = ({ text }) => (
 
 // Loader spécifique pour les cartes
 export const CardSkeleton = ({ className = "" }) => (
-    <div className={`bg-white dark:bg-neutral-800 rounded-2xl shadow-soft border border-neutral-200 dark:border-neutral-700 p-6 ${className}`}>
+    <div className={`bg-white bg-neutral-800 rounded-2xl shadow-soft border border-neutral-200 border-neutral-700 p-6 ${className}`}>
         <div className="animate-pulse">
             <div className="flex items-start space-x-4">
-                <div className="w-12 h-12 bg-neutral-200 dark:bg-neutral-700 rounded-xl"></div>
+                <div className="w-12 h-12 bg-neutral-200 bg-neutral-700 rounded-xl"></div>
                 <div className="flex-1 space-y-3">
-                    <div className="h-4 bg-neutral-200 dark:bg-neutral-700 rounded w-3/4"></div>
-                    <div className="h-3 bg-neutral-200 dark:bg-neutral-700 rounded w-1/2"></div>
+                    <div className="h-4 bg-neutral-200 bg-neutral-700 rounded w-3/4"></div>
+                    <div className="h-3 bg-neutral-200 bg-neutral-700 rounded w-1/2"></div>
                     <div className="space-y-2">
-                        <div className="h-3 bg-neutral-200 dark:bg-neutral-700 rounded"></div>
-                        <div className="h-3 bg-neutral-200 dark:bg-neutral-700 rounded w-5/6"></div>
+                        <div className="h-3 bg-neutral-200 bg-neutral-700 rounded"></div>
+                        <div className="h-3 bg-neutral-200 bg-neutral-700 rounded w-5/6"></div>
                     </div>
                 </div>
             </div>
@@ -136,20 +136,20 @@ export const MemberRowSkeleton = () => (
     <tr className="animate-pulse">
         <td className="px-6 py-4">
             <div className="flex items-center">
-                <div className="w-11 h-11 bg-neutral-200 dark:bg-neutral-700 rounded-xl"></div>
+                <div className="w-11 h-11 bg-neutral-200 bg-neutral-700 rounded-xl"></div>
                 <div className="ml-4">
-                    <div className="h-4 bg-neutral-200 dark:bg-neutral-700 rounded w-24"></div>
+                    <div className="h-4 bg-neutral-200 bg-neutral-700 rounded w-24"></div>
                 </div>
             </div>
         </td>
         <td className="px-6 py-4">
-            <div className="h-6 bg-neutral-200 dark:bg-neutral-700 rounded-full w-16"></div>
+            <div className="h-6 bg-neutral-200 bg-neutral-700 rounded-full w-16"></div>
         </td>
         <td className="px-6 py-4">
-            <div className="h-6 bg-neutral-200 dark:bg-neutral-700 rounded-full w-20"></div>
+            <div className="h-6 bg-neutral-200 bg-neutral-700 rounded-full w-20"></div>
         </td>
         <td className="px-6 py-4">
-            <div className="h-8 bg-neutral-200 dark:bg-neutral-700 rounded-xl w-8"></div>
+            <div className="h-8 bg-neutral-200 bg-neutral-700 rounded-xl w-8"></div>
         </td>
     </tr>
 );

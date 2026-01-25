@@ -179,8 +179,8 @@ const ChatClientV2 = ({ initialChats = [], initialMembers = [] }) => {
 
     const ChatListItem = ({ chat, onClick, isActive }) => {
         const isGroup = chat.type !== 'PRIVATE';
-        const activeClasses = 'bg-blue-100 dark:bg-blue-900/50';
-        const hoverClasses = 'hover:bg-gray-100 dark:hover:bg-gray-700/50';
+        const activeClasses = 'bg-blue-100 bg-blue-900/50';
+        const hoverClasses = 'hover:bg-gray-100 hover:bg-gray-700/50';
 
         return (
             <div 
@@ -195,8 +195,8 @@ const ChatClientV2 = ({ initialChats = [], initialMembers = [] }) => {
                             <Users className="text-white w-6 h-6" />
                         </div>
                     ) : (
-                        <div className="w-12 h-12 rounded-full bg-gray-300 dark:bg-gray-600 flex items-center justify-center">
-                            <MessageCircle className="text-gray-600 dark:text-gray-300 w-6 h-6" />
+                        <div className="w-12 h-12 rounded-full bg-gray-300 bg-gray-600 flex items-center justify-center">
+                            <MessageCircle className="text-gray-600 text-gray-300 w-6 h-6" />
                         </div>
                     )}
                     {chat.unreadCount > 0 && (
@@ -209,14 +209,14 @@ const ChatClientV2 = ({ initialChats = [], initialMembers = [] }) => {
                 </div>
                 <div className="ml-3 flex-grow overflow-hidden">
                     <div className="flex justify-between items-center">
-                        <h3 className="font-semibold truncate text-gray-800 dark:text-white">
+                        <h3 className="font-semibold truncate text-gray-800 text-white">
                             {chat.name}
                         </h3>
-                        <span className="text-xs text-gray-500 dark:text-gray-400 flex-shrink-0 ml-2">
+                        <span className="text-xs text-gray-500 text-gray-400 flex-shrink-0 ml-2">
                             {chat.lastMessageAt ? formatMessageTime(chat.lastMessageAt) : ''}
                         </span>
                     </div>
-                    <p className="text-sm text-gray-600 dark:text-gray-400 truncate">
+                    <p className="text-sm text-gray-600 text-gray-400 truncate">
                         {chat.lastMessagePreview || 'Aucun message'}
                     </p>
                 </div>
@@ -230,7 +230,7 @@ const ChatClientV2 = ({ initialChats = [], initialMembers = [] }) => {
         return (
             <div className={`flex items-end gap-2 my-2 ${isSent ? 'justify-end' : 'justify-start'}`}>
                 {!isSent && (
-                    <div className="w-8 h-8 rounded-full bg-gray-300 dark:bg-gray-600 flex items-center justify-center flex-shrink-0">
+                    <div className="w-8 h-8 rounded-full bg-gray-300 bg-gray-600 flex items-center justify-center flex-shrink-0">
                         {message.sender?.avatar ? (
                             <Image 
                                 src={message.sender.avatar} 
@@ -240,7 +240,7 @@ const ChatClientV2 = ({ initialChats = [], initialMembers = [] }) => {
                                 className="w-8 h-8 rounded-full object-cover" 
                             />
                         ) : (
-                            <span className="text-xs font-bold text-gray-600 dark:text-gray-300">
+                            <span className="text-xs font-bold text-gray-600 text-gray-300">
                                 {message.sender?.name?.charAt(0) || 'U'}
                             </span>
                         )}
@@ -249,16 +249,16 @@ const ChatClientV2 = ({ initialChats = [], initialMembers = [] }) => {
                 <div className={`max-w-xs md:max-w-md px-4 py-3 rounded-2xl ${
                     isSent 
                         ? 'bg-blue-600 text-white rounded-br-lg' 
-                        : 'bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-bl-lg'
+                        : 'bg-gray-200 bg-gray-700 text-gray-800 text-gray-200 rounded-bl-lg'
                 }`}>
                     {!isSent && (
-                        <p className="text-xs font-semibold text-blue-500 dark:text-blue-400 mb-1">
+                        <p className="text-xs font-semibold text-blue-500 text-blue-400 mb-1">
                             {message.sender?.name || 'Utilisateur'}
                         </p>
                     )}
                     <p className="whitespace-pre-wrap">{message.content}</p>
                     <div className={`text-xs mt-1 text-right ${
-                        isSent ? 'text-blue-200' : 'text-gray-500 dark:text-gray-400'
+                        isSent ? 'text-blue-200' : 'text-gray-500 text-gray-400'
                     }`}>
                         {formatMessageTime(message.sentAt)}
                     </div>
@@ -268,18 +268,18 @@ const ChatClientV2 = ({ initialChats = [], initialMembers = [] }) => {
     };
 
     return (
-        <div className="h-full flex bg-white dark:bg-gray-900 rounded-2xl shadow-xl overflow-hidden">
+        <div className="h-full flex bg-white bg-gray-900 rounded-2xl shadow-xl overflow-hidden">
             {/* Liste des chats */}
-            <div className="w-1/3 border-r border-gray-200 dark:border-gray-700 flex flex-col">
+            <div className="w-1/3 border-r border-gray-200 border-gray-700 flex flex-col">
                 {/* Header avec recherche */}
-                <div className="p-4 border-b border-gray-200 dark:border-gray-700">
+                <div className="p-4 border-b border-gray-200 border-gray-700">
                     <div className="flex items-center justify-between mb-4">
-                        <h2 className="text-xl font-bold text-gray-800 dark:text-white">
+                        <h2 className="text-xl font-bold text-gray-800 text-white">
                             {t('chat.title')}
                         </h2>
                         <button
                             onClick={handleCreateRoom}
-                            className="p-2 text-blue-600 hover:bg-blue-100 dark:hover:bg-blue-900/50 rounded-lg transition-colors"
+                            className="p-2 text-blue-600 hover:bg-blue-100 hover:bg-blue-900/50 rounded-lg transition-colors"
                             title="Créer une nouvelle salle"
                         >
                             <Plus className="w-5 h-5" />
@@ -292,7 +292,7 @@ const ChatClientV2 = ({ initialChats = [], initialMembers = [] }) => {
                             placeholder={t('chat.search_placeholder')}
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
-                            className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="w-full pl-10 pr-4 py-2 border border-gray-300 border-gray-600 rounded-lg bg-white bg-gray-800 text-gray-700 text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
                         />
                     </div>
                 </div>
@@ -300,7 +300,7 @@ const ChatClientV2 = ({ initialChats = [], initialMembers = [] }) => {
                 {/* Liste des conversations */}
                 <div className="flex-1 overflow-y-auto p-2">
                     {chats.length === 0 ? (
-                        <div className="text-center py-8 text-gray-500 dark:text-gray-400">
+                        <div className="text-center py-8 text-gray-500 text-gray-400">
                             <MessageCircle className="w-12 h-12 mx-auto mb-4 opacity-50" />
                             <p>Aucune conversation</p>
                             <button
@@ -332,17 +332,17 @@ const ChatClientV2 = ({ initialChats = [], initialMembers = [] }) => {
                 {selectedChat ? (
                     <>
                         {/* Header de la conversation */}
-                        <div className="p-4 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800">
+                        <div className="p-4 border-b border-gray-200 border-gray-700 bg-gray-50 bg-gray-800">
                             <div className="flex items-center justify-between">
                                 <div className="flex items-center">
                                     <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center mr-3">
                                         <Users className="text-white w-5 h-5" />
                                     </div>
                                     <div>
-                                        <h3 className="font-semibold text-gray-800 dark:text-white">
+                                        <h3 className="font-semibold text-gray-800 text-white">
                                             {selectedChat.name}
                                         </h3>
-                                        <p className="text-sm text-gray-600 dark:text-gray-400">
+                                        <p className="text-sm text-gray-600 text-gray-400">
                                             {selectedChat.memberCount} membre(s)
                                         </p>
                                     </div>
@@ -350,12 +350,12 @@ const ChatClientV2 = ({ initialChats = [], initialMembers = [] }) => {
                                 <div className="flex items-center space-x-2">
                                     <button
                                         onClick={() => setShowMembersList(!showMembersList)}
-                                        className="p-2 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                                        className="p-2 text-gray-600 text-gray-400 hover:bg-gray-200 hover:bg-gray-700 rounded-lg transition-colors"
                                         title="Voir les membres"
                                     >
                                         <Users className="w-5 h-5" />
                                     </button>
-                                    <button className="p-2 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-lg transition-colors">
+                                    <button className="p-2 text-gray-600 text-gray-400 hover:bg-gray-200 hover:bg-gray-700 rounded-lg transition-colors">
                                         <MoreVertical className="w-5 h-5" />
                                     </button>
                                 </div>
@@ -364,13 +364,13 @@ const ChatClientV2 = ({ initialChats = [], initialMembers = [] }) => {
 
                         {/* Zone d'erreur */}
                         {error && (
-                            <div className="p-3 bg-red-100 dark:bg-red-900/50 border-b border-red-200 dark:border-red-800">
-                                <div className="flex items-center text-red-800 dark:text-red-200">
+                            <div className="p-3 bg-red-100 bg-red-900/50 border-b border-red-200 border-red-800">
+                                <div className="flex items-center text-red-800 text-red-200">
                                     <AlertCircle className="w-4 h-4 mr-2" />
                                     <span className="text-sm">{error}</span>
                                     <button
                                         onClick={() => setError(null)}
-                                        className="ml-auto text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-200"
+                                        className="ml-auto text-red-600 text-red-400 hover:text-red-800 hover:text-red-200"
                                     >
                                         ×
                                     </button>
@@ -383,10 +383,10 @@ const ChatClientV2 = ({ initialChats = [], initialMembers = [] }) => {
                             {isLoading ? (
                                 <div className="text-center py-8">
                                     <div className="animate-spin w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full mx-auto mb-4"></div>
-                                    <p className="text-gray-500 dark:text-gray-400">Chargement des messages...</p>
+                                    <p className="text-gray-500 text-gray-400">Chargement des messages...</p>
                                 </div>
                             ) : messages.length === 0 ? (
-                                <div className="text-center py-8 text-gray-500 dark:text-gray-400">
+                                <div className="text-center py-8 text-gray-500 text-gray-400">
                                     <MessageCircle className="w-12 h-12 mx-auto mb-4 opacity-50" />
                                     <p>Aucun message dans cette conversation</p>
                                     <p className="text-sm mt-2">Soyez le premier à écrire !</p>
@@ -399,7 +399,7 @@ const ChatClientV2 = ({ initialChats = [], initialMembers = [] }) => {
                             
                             {/* Indicateur de saisie */}
                             {typingUsers.length > 0 && (
-                                <div className="flex items-center text-gray-500 dark:text-gray-400 text-sm">
+                                <div className="flex items-center text-gray-500 text-gray-400 text-sm">
                                     <div className="flex space-x-1 mr-2">
                                         <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
                                         <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
@@ -412,9 +412,9 @@ const ChatClientV2 = ({ initialChats = [], initialMembers = [] }) => {
                         </div>
 
                         {/* Zone de saisie */}
-                        <div className="p-4 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800">
+                        <div className="p-4 border-t border-gray-200 border-gray-700 bg-gray-50 bg-gray-800">
                             <div className="flex items-end space-x-2">
-                                <button className="p-2 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-lg transition-colors">
+                                <button className="p-2 text-gray-600 text-gray-400 hover:bg-gray-200 hover:bg-gray-700 rounded-lg transition-colors">
                                     <Paperclip className="w-5 h-5" />
                                 </button>
                                 <div className="flex-1 relative">
@@ -423,7 +423,7 @@ const ChatClientV2 = ({ initialChats = [], initialMembers = [] }) => {
                                         onChange={(e) => setMessageInput(e.target.value)}
                                         onKeyPress={handleKeyPress}
                                         placeholder={t('chat.message_placeholder')}
-                                        className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-900 text-gray-700 dark:text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none max-h-32"
+                                        className="w-full px-4 py-2 border border-gray-300 border-gray-600 rounded-lg bg-white bg-gray-900 text-gray-700 text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none max-h-32"
                                         rows="1"
                                         disabled={isLoading}
                                     />
@@ -441,7 +441,7 @@ const ChatClientV2 = ({ initialChats = [], initialMembers = [] }) => {
                 ) : (
                     /* État vide */
                     <div className="flex-1 flex items-center justify-center">
-                        <div className="text-center text-gray-500 dark:text-gray-400">
+                        <div className="text-center text-gray-500 text-gray-400">
                             <MessageCircle className="w-16 h-16 mx-auto mb-4 opacity-50" />
                             <h3 className="text-lg font-medium mb-2">Sélectionnez une conversation</h3>
                             <p>Choisissez une conversation dans la liste pour commencer à discuter</p>

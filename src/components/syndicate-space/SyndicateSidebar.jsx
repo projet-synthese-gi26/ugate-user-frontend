@@ -42,14 +42,14 @@ export default function SyndicateSidebar({ isCollapsed, onToggle, syndicateData 
         return (
             <motion.nav
                 animate={{ width: isCollapsed ? 80 : 280 }}
-                className="hidden lg:flex bg-white/80 dark:bg-gray-800/50 flex-col z-10 border-r"
+                className="hidden lg:flex bg-white/80 bg-gray-800/50 flex-col z-10 border-r"
             >
                 <div className="p-4 border-b animate-pulse">
-                    <div className="w-full h-10 bg-gray-200 dark:bg-gray-700 rounded-md"></div>
+                    <div className="w-full h-10 bg-gray-200 bg-gray-700 rounded-md"></div>
                 </div>
                 <div className="flex-grow p-4 space-y-2">
                     {[...Array(5)].map((_, i) => (
-                        <div key={i} className="w-full h-12 bg-gray-200 dark:bg-gray-700 rounded-xl animate-pulse"></div>
+                        <div key={i} className="w-full h-12 bg-gray-200 bg-gray-700 rounded-xl animate-pulse"></div>
                     ))}
                 </div>
             </motion.nav>
@@ -72,7 +72,7 @@ export default function SyndicateSidebar({ isCollapsed, onToggle, syndicateData 
         <motion.nav
             animate={{ width: isCollapsed ? 80 : 280 }}
             transition={{ duration: 0.3, ease: 'easeInOut' }}
-            className="hidden lg:flex bg-white dark:bg-neutral-900 flex-col z-10 border-r border-blue-100 dark:border-neutral-700 shadow-lg transition-colors duration-300"
+            className="hidden lg:flex bg-white bg-neutral-900 flex-col z-10 border-r border-blue-100 border-neutral-700 shadow-lg transition-colors duration-300"
         >
             <div className={`p-4 flex items-center gap-4 border-b border-blue-100 bg-white transition-all duration-300 ${isCollapsed ? 'justify-center' : 'justify-between'}`}>
                 {!isCollapsed && (
@@ -92,7 +92,7 @@ export default function SyndicateSidebar({ isCollapsed, onToggle, syndicateData 
                 )}
                 <motion.button 
                     onClick={onToggle} 
-                    className="p-2 text-neutral-500 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-800 rounded-xl transition-all duration-200" 
+                    className="p-2 text-neutral-500 text-neutral-400 hover:bg-neutral-100 hover:bg-neutral-800 rounded-xl transition-all duration-200" 
                     aria-label={isCollapsed ? t('expand') : t('collapse')}
                 >
                     {isCollapsed ? <ChevronRight size={18} /> : <ChevronLeft size={18} />}
@@ -112,8 +112,8 @@ export default function SyndicateSidebar({ isCollapsed, onToggle, syndicateData 
                                 isCollapsed ? 'justify-center' : ''
                             } ${
                                     isActive 
-                                        ? 'text-blue-700 dark:text-blue-300 bg-blue-50 dark:bg-blue-900/20' 
-                                        : 'text-neutral-600 dark:text-neutral-400 hover:bg-blue-50 dark:hover:bg-neutral-800 hover:text-blue-800 dark:hover:text-white'
+                                        ? 'text-blue-700 text-blue-300 bg-blue-50 bg-blue-900/20' 
+                                        : 'text-neutral-600 text-neutral-400 hover:bg-blue-50 hover:bg-neutral-800 hover:text-blue-800 hover:text-white'
                                 } ${
                                     isNavigating && activeRoute === item.route ? 'opacity-75' : ''
                                 }`}
@@ -122,16 +122,16 @@ export default function SyndicateSidebar({ isCollapsed, onToggle, syndicateData 
                                 {isActive && (
                                     <motion.div 
                                         layoutId="active-sidebar-indicator" 
-                                        className="absolute inset-0 bg-blue-50 dark:bg-blue-900/20 rounded-xl border border-blue-200 dark:border-blue-800" 
+                                        className="absolute inset-0 bg-blue-50 bg-blue-900/20 rounded-xl border border-blue-200 border-blue-800" 
                                         transition={{ type: 'spring', stiffness: 300, damping: 25 }} 
                                     />
                                 )}
                                 
                             <div className="relative z-10 flex items-center">
                                 {isNavigating && activeRoute === item.route ? (
-                                    <Loader2 className="h-5 w-5 flex-shrink-0 animate-spin text-blue-600 dark:text-blue-400" />
+                                    <Loader2 className="h-5 w-5 flex-shrink-0 animate-spin text-blue-600 text-blue-400" />
                                 ) : (
-                                    <item.icon className={`h-5 w-5 flex-shrink-0 ${isActive ? 'text-blue-600 dark:text-blue-400' : ''}`} />
+                                    <item.icon className={`h-5 w-5 flex-shrink-0 ${isActive ? 'text-blue-600 text-blue-400' : ''}`} />
                                 )}
                                 {!isCollapsed && (
                                     <span className="font-medium truncate ml-3">{item.label}</span>

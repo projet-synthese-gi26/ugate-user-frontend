@@ -11,7 +11,7 @@ import { Calendar } from "lucide-react";
  */
 export default function ProfileActivities({ activities }) {
     if (!activities || activities.length === 0) {
-        return <p className="text-gray-500 dark:text-gray-400">Aucune activité récente à afficher.</p>;
+        return <p className="text-gray-500 text-gray-400">Aucune activité récente à afficher.</p>;
     }
 
     return (

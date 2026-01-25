@@ -1,86 +1,106 @@
 "use client";
+
 import { motion } from "framer-motion";
-import Image from 'next/image';
-import { ChevronRight, UserPlus, Users, Star, ShieldCheck } from "lucide-react";
-import { SyndicatDefaultAvatar } from "../shared/SyndicatDefaultAvatar";
-import { STATIC_FILES_URL } from '@/lib/constants';
+import { Users, MapPin, ChevronRight, Star } from "lucide-react";
+import Image from "next/image";
 import { useTranslations } from "next-intl";
 
 export default function ExploreCard({ syndicat, itemVariants, onDetails, onAdhere }) {
     const t = useTranslations('explorer_page');
 
-    const formatMemberCount = (count) => {
-        if (!count) return '0';
-        if (count >= 1000) return `${(count / 1000).toFixed(1)}k`;
-        return count.toString();
-    };
-
-    // Si l'URL commence déjà par http, l'utiliser directement, sinon ajouter le préfixe
-    const getFullUrl = (url) => {
-        if (!url) return null;
-        return url.startsWith('http') ? url : `${STATIC_FILES_URL}${url}`;
-    };
-    const logoUrl = getFullUrl(syndicat.logoUrl);
-    const bannerUrl = syndicat.bannerUrl ? getFullUrl(syndicat.bannerUrl) : "/placeholder-cover.jpg";
-    const rating = syndicat.rating || '4.5';
-    const isApproved = syndicat.isApproved || false;
-    // Utiliser le domaine d'activité de l'API comme tag
-    const domain = syndicat.domain;
+    // On utilise le logoUrl comme image de couverture, sinon un placeholder
+    const coverImage = syndicat.logoUrl || "/placeholder-cover.png";
 
     return (
         <motion.div
-            className="group bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-100 overflow-hidden flex flex-col"
             variants={itemVariants}
-            whileHover={{ y: -8 }}
+            className="group bg-white rounded-3xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100 flex flex-col h-full"
         >
-            <div className="relative aspect-video">
-                <Image src={bannerUrl} alt={syndicat.name} fill sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" style={{ objectFit: 'cover' }} className="transition-transform duration-500 group-hover:scale-105" />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
-                <div className="absolute -bottom-8 left-6">
-                    <div className="w-20 h-20 bg-white rounded-full p-1 shadow-lg border-4 border-white">
-                        {logoUrl ? <Image src={logoUrl} alt={`${syndicat.name} logo`} width={80} height={80} className="rounded-full object-cover w-full h-full" /> : <SyndicatDefaultAvatar name={syndicat.name} size={72} />}
+            {/* SECTION IMAGE (COVER) */}
+            <div className="relative aspect-video w-full overflow-hidden">
+                <Image
+                    src={coverImage}
+                    alt={syndicat.name}
+                    fill
+                    className="object-cover transition-transform duration-500 group-hover:scale-110"
+                    unoptimized // Pour éviter les erreurs 500 de timeout en local
+                />
+                
+                {/* Overlay dégradé pour que le badge ressorte bien */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-60" />
+
+                {/* Badge du Domaine (ex: Technologie) */}
+                {syndicat.domain && (
+                    <div className="absolute bottom-3 left-3 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-lg shadow-sm">
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-blue-600">
+                            {syndicat.domain}
+                        </span>
                     </div>
-                </div>
-                {isApproved && <div className="absolute top-3 right-3 bg-green-500 text-white p-2 rounded-full shadow-lg" title={t('certified')}><ShieldCheck className="w-4 h-4" /></div>}
+                )}
+
+                {/* Badge de certification ou statut (optionnel) */}
+                {syndicat.isApproved && (
+                    <div className="absolute top-3 right-3 bg-green-500 p-1.5 rounded-full shadow-lg">
+                        <Star className="w-3 h-3 text-white fill-current" />
+                    </div>
+                )}
             </div>
-            <div className="p-6 pt-10 flex flex-col flex-grow">
-                <h2 className="text-xl font-semibold text-gray-900 mb-3 leading-snug line-clamp-2 h-14">
+
+            {/* SECTION CONTENU */}
+            <div className="p-5 flex flex-col flex-grow">
+                {/* Titre du Syndicat */}
+                <h3 className="text-xl font-bold text-gray-900 mb-2 line-clamp-1 group-hover:text-blue-600 transition-colors">
                     {syndicat.name}
-                </h2>
-                <div className="flex items-center justify-between text-gray-600 text-sm mb-4">
-                    <div className="flex items-center" title={t('members')}>
-                        <Users className="h-4 w-4 mr-2 text-blue-500 flex-shrink-0"/>
-                        <span className="font-medium">{formatMemberCount(syndicat.memberCount)} {t('members')}</span>
+                </h3>
+
+                {/* Description courte (si besoin) */}
+                {syndicat.description && (
+                    <p className="text-sm text-gray-500 line-clamp-2 mb-4 flex-grow">
+                        {syndicat.description}
+                    </p>
+                )}
+
+                {/* INFOS (Membres & Localisation) */}
+                <div className="flex flex-col gap-2 mb-6">
+                    {/* Membres */}
+                    <div className="flex items-center text-gray-600">
+                        <div className="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center mr-3">
+                            <Users className="w-4 h-4 text-blue-500" />
+                        </div>
+                        <span className="text-sm font-medium">
+                            {syndicat.memberCount || 0} {t('card.members', 'membres')}
+                        </span>
                     </div>
-                    <div className="flex items-center" title="Note moyenne">
-                        <Star className="h-4 w-4 mr-1 text-yellow-400 fill-current"/>
-                        <span className="font-medium">{rating}</span>
-                    </div>
+
+                    {/* LOCALISATION (À activer quand l'API sera prête) */}
+                    {/* 
+                    <div className="flex items-center text-gray-600">
+                        <div className="w-8 h-8 rounded-lg bg-orange-50 flex items-center justify-center mr-3">
+                            <MapPin className="w-4 h-4 text-orange-500" />
+                        </div>
+                        <span className="text-sm font-medium">
+                            {syndicat.location || "Cameroun, Centre"}
+                        </span>
+                    </div> 
+                    */}
                 </div>
-                <div className="flex flex-wrap gap-1 mb-4">
-                    {domain && (
-                        <span className="px-2 py-1 bg-blue-50 text-blue-700 text-xs rounded-full font-medium">{domain}</span>
-                    )}
-                </div>
-                <div className="mt-auto pt-4 flex gap-3">
-                    <motion.button
-                        className="flex-1 bg-white text-blue-600 py-2.5 rounded-lg border-2 border-blue-100 hover:border-blue-200 hover:bg-blue-50 transition-all duration-300 flex items-center justify-center font-semibold"
-                        whileHover={{ scale: 1.03 }}
-                        whileTap={{ scale: 0.98 }}
+
+                {/* BOUTONS D'ACTION */}
+                <div className="flex items-center gap-3">
+                    <button
                         onClick={() => onDetails(syndicat)}
+                        className="flex-1 py-3 px-4 rounded-xl border border-gray-200 text-gray-700 font-bold text-sm hover:bg-gray-50 hover:border-gray-300 transition-all flex items-center justify-center gap-2"
                     >
-                        <span>{t('details')}</span>
-                        <ChevronRight className="ml-1 h-4 w-4"/>
-                    </motion.button>
-                    <motion.button
-                        className="flex-1 bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-2.5 rounded-lg hover:shadow-lg transition-all duration-300 flex items-center justify-center font-semibold"
-                        whileHover={{ scale: 1.03 }}
-                        whileTap={{ scale: 0.98 }}
+                        {t('card.details', 'Détails')}
+                        <ChevronRight className="w-4 h-4" />
+                    </button>
+                    
+                    <button
                         onClick={() => onAdhere(syndicat)}
+                        className="flex-1 py-3 px-4 rounded-xl bg-blue-600 text-white font-bold text-sm hover:bg-blue-700 shadow-md shadow-blue-200 transition-all active:scale-95"
                     >
-                        <UserPlus className="mr-2 h-4 w-4"/>
-                        <span>{t('join')}</span>
-                    </motion.button>
+                        {t('card.adhere', 'Adhérer')}
+                    </button>
                 </div>
             </div>
         </motion.div>

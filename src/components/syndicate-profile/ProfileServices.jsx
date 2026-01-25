@@ -10,7 +10,7 @@ import { Package } from 'lucide-react'; // Utilisation d'une icône pertinente
  */
 export default function ProfileServices({ services }) {
     if (!services || services.length === 0) {
-        return <p className="text-gray-500 dark:text-gray-400">Aucun service n'est actuellement proposé.</p>;
+        return <p className="text-gray-500 text-gray-400">Aucun service n'est actuellement proposé.</p>;
     }
 
     return (
@@ -23,14 +23,14 @@ export default function ProfileServices({ services }) {
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: index * 0.1 }}
                 >
-                    <div className="flex-shrink-0 w-6 h-6 bg-blue-100 dark:bg-blue-900/50 rounded-full flex items-center justify-center mr-4 mt-1">
-                        <Package className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+                    <div className="flex-shrink-0 w-6 h-6 bg-blue-100 bg-blue-900/50 rounded-full flex items-center justify-center mr-4 mt-1">
+                        <Package className="w-4 h-4 text-blue-600 text-blue-400" />
                     </div>
                     <div>
-                        <h4 className="font-semibold text-gray-800 dark:text-gray-200">
+                        <h4 className="font-semibold text-gray-800 text-gray-200">
                             {service.name}
                         </h4>
-                        <p className="text-sm text-gray-600 dark:text-gray-400">
+                        <p className="text-sm text-gray-600 text-gray-400">
                             {service.description}
                         </p>
                     </div>

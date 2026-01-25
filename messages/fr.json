@@ -246,7 +246,12 @@
     "details": "Détails",
     "join": "Adhérer",
     "members": "membres",
-    "certified": "Syndicat Certifié"
+    "certified": "Syndicat Certifié",
+    "card": {
+      "members": "membres",
+      "details": "Détails",
+      "adhere": "Adhérer"
+    }
   },
   "profile_page": {
     "back_to_explorer": "Retour à l'exploration",
@@ -341,7 +346,21 @@
     "empty_search_desc": "Essayez avec d'autres mots-clés.",
     "create_button": "Créer un syndicat",
     "access_space": "Accéder à l'espace",
-    "create_modal_title": "Créer un nouveau syndicat"
+    "create_modal_title": "Créer un nouveau syndicat",
+    "syndicats": {
+      "create_modal_title": "Créer un nouveau syndicat",
+      "no_syndicats_title": "Aucun syndicat trouvé",
+      "no_syndicats_description": "Vous n'êtes membre d'aucun syndicat pour le moment."
+    },
+    "create_syndicate": {
+    "create_your_syndicate": "Informations du syndicat",
+    "choose_syndicate_type": "Remplissez les informations de base pour créer votre syndicat.",
+    "step_1_of_2": "Étape 1 sur 2",
+    "step_2_of_2": "Étape 2 sur 2",
+    "back": "Retour",
+    "next": "Suivant",
+    "submit": "Créer le syndicat"
+  }
   },
   "settings_page": {
     "title": "Paramètres du Profil",
@@ -375,6 +394,14 @@
       "votes": "Votes & Sondages"
     }
   },
+  
+  "create_event_modal": {
+    "modal_title": "Créer un nouvel événement",
+    "submit_button": "Créer l'événement",
+    "cancel_button": "Annuler"
+  },
+
+
   "members_page": {
     "title": "Gestion des Membres",
     "subtitle": "Consultez et gérez les membres et les demandes d'adhésion de votre syndicat.",

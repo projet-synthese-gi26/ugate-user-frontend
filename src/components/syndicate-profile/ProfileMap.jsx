@@ -1,52 +1,41 @@
 "use client";
-
-import { MapContainer, TileLayer, Marker, Popup, Tooltip } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 
+// Fix pour les icônes Leaflet dans Next.js
 const customIcon = L.icon({
     iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
-    iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png',
     shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
     iconSize: [25, 41],
     iconAnchor: [12, 41],
-    popupAnchor: [1, -34],
-    shadowSize: [41, 41]
 });
 
 export default function ProfileMap({ antennes = [] }) {
-    const validAntennes = antennes.filter(a => a.latitude != null && a.longitude != null);
-    
-    if (validAntennes.length === 0) {
-        return <div>Aucune antenne géolocalisée.</div>;
-    }
-    
-    const bounds = L.latLngBounds(validAntennes.map(a => [a.latitude, a.longitude]));
-    const center = bounds.getCenter();
-    
+    // Position par défaut (Cameroun / Yaoundé)
+    const center = [3.848, 11.502];
+
     return (
-        <MapContainer
-            center={center}
-            bounds={bounds}
-            style={{ height: '400px', width: '100%' }}
-            className="rounded-lg"
-        >
-            <TileLayer
-                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-            />
-            {validAntennes.map((office) => (
-                <Marker
-                    key={office.id}
-                    position={[office.latitude, office.longitude]}
-                    icon={customIcon}
-                >
-                    <Tooltip>{office.name}</Tooltip>
-                    <Popup>
-                        <div>{office.name}</div>
-                    </Popup>
+        <div className="h-[400px] w-full rounded-2xl overflow-hidden border border-gray-100 shadow-inner mt-4">
+            <MapContainer center={center} zoom={6} scrollWheelZoom={false} style={{ height: '100%', width: '100%' }}>
+                <TileLayer
+                    url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png" // Version "Light" de la carte pour rester dans le design blanc
+                    attribution='&copy; OpenStreetMap contributors'
+                />
+                
+                {/* Exemple de marqueur - À dynamiser avec syndicate.branches */}
+                <Marker position={center} icon={customIcon}>
+                    <Popup>Siège National</Popup>
                 </Marker>
-            ))}
-        </MapContainer>
+
+                {antennes?.map((antenne, idx) => (
+                    antenne.lat && antenne.lng && (
+                        <Marker key={idx} position={[antenne.lat, antenne.lng]} icon={customIcon}>
+                            <Popup>{antenne.name}</Popup>
+                        </Marker>
+                    )
+                ))}
+            </MapContainer>
+        </div>
     );
 }

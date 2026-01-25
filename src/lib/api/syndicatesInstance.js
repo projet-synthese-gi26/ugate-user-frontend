@@ -1,18 +1,41 @@
 import axios from 'axios';
+import { getCookie, getServerCookie } from '../utils/cookies';
+
+// Côté serveur, on utilise les URLs complètes directement (pas de proxy)
+// Côté client, on utilise /api qui passe par le proxy Next.js
+const getBaseURL = () => {
+    if (typeof window === 'undefined') {
+        // Côté serveur - URL complète
+        return 'https://ugate.pynfi.com';
+    }
+    // Côté client - proxy Next.js
+    return '/api';
+};
 
 const syndicatesInstance = axios.create({
-    baseURL: process.env.NEXT_PUBLIC_SYNDICATES_API_URL || 'https://ugate.pynfi.com',
+    baseURL: 'https://ugate.pynfi.com',
     timeout: 15000,
     headers: {
         'Content-Type': 'application/json',
     },
 });
 
-// Intercepteur pour injecter le token dans chaque requête
+// Fonction pour obtenir le token (côté client ou serveur)
+const getToken = async () => {
+    if (typeof window !== 'undefined') {
+        // Côté client: localStorage d'abord, puis cookie
+        return localStorage.getItem('accessToken') || getCookie('accessToken');
+    } else {
+        // Côté serveur: lire depuis les cookies
+        return await getServerCookie('accessToken');
+    }
+};
+
+// Intercepteur pour injecter le token dans chaque requête (côté client uniquement)
 syndicatesInstance.interceptors.request.use(
     (config) => {
         if (typeof window !== 'undefined') {
-            const token = localStorage.getItem('accessToken');
+            const token = localStorage.getItem('accessToken') || getCookie('accessToken');
             if (token) {
                 config.headers.Authorization = `Bearer ${token}`;
             }
@@ -23,6 +46,23 @@ syndicatesInstance.interceptors.request.use(
         return Promise.reject(error);
     }
 );
+
+// Fonction wrapper pour les appels côté serveur
+export const serverFetch = async (method, url, data = null, config = {}) => {
+    const token = await getToken();
+    const headers = {
+        ...config.headers,
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    };
+
+    return syndicatesInstance.request({
+        method,
+        url,
+        data,
+        ...config,
+        headers,
+    });
+};
 
 syndicatesInstance.interceptors.response.use(
     (response) => response,

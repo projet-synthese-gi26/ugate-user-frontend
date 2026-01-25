@@ -20,7 +20,7 @@ export default function ThemeSwitcher() {
   if (!mounted) {
     return (
       <button className="p-2 rounded-full" disabled>
-        <div className="w-[22px] h-[22px] bg-gray-200 dark:bg-gray-700 rounded-full animate-pulse"></div>
+        <div className="w-[22px] h-[22px] bg-gray-200 bg-gray-700 rounded-full animate-pulse"></div>
       </button>
     );
   }
@@ -34,7 +34,7 @@ export default function ThemeSwitcher() {
   return (
     <button
       onClick={toggleTheme}
-      className="p-2 rounded-full text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+      className="p-2 rounded-full text-gray-600 text-gray-300 hover:bg-gray-100 hover:bg-gray-700 transition-colors"
       aria-label="Changer de thème"
     >
       {resolvedTheme === 'dark' ? <Sun size={22} /> : <Moon size={22} />}

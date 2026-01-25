@@ -1,5 +1,5 @@
 // src/lib/api/feed.js
-import apiInstance from './instance';
+import { ugateInstance }  from './instance';
 import { createPaginationParams, processPaginatedResponse, handleAPIError } from './helpers';
 
 /**
@@ -14,7 +14,7 @@ export const getUserFeedAPI = async (page = 0, size = 20, sortBy = 'createdAt', 
     try {
         const params = createPaginationParams(page, size, sortBy, sortDirection);
         
-        const response = await apiInstance.get('/feed', { params });
+        const response = await ugateInstance.get('/feed', { params });
         return processPaginatedResponse(response);
     } catch (error) {
         throw handleAPIError(error, 'Impossible de récupérer le feed personnalisé');
@@ -33,18 +33,30 @@ export const getGlobalFeedAPI = async (page = 0, size = 20, sortBy = 'createdAt'
     try {
         const params = createPaginationParams(page, size, sortBy, sortDirection);
         
-        const config = { params };
+        const config = { 
+            params,
+            // On augmente le timeout spécifiquement pour cet appel
+            timeout: 20000 
+        };
+
         if (token) {
-            config.headers = {
-                ...config.headers,
-                'Authorization': `Bearer ${token}`
-            };
+            config.headers = { 'Authorization': `Bearer ${token}` };
         }
 
-        const response = await apiInstance.get('/feed/global', config);
+        const response = await ugateInstance.get('/feed/global', config);
         return processPaginatedResponse(response);
+
     } catch (error) {
-        throw handleAPIError(error, 'Impossible de récupérer le feed global');
+        // ICI : On log l'erreur proprement au lieu de faire "throw"
+        // Cela empêche l'apparition du gros bloc d'erreur rouge AggregateError
+        console.error('⚠️ Le serveur API est injoignable par votre PC (Timeout).');
+        
+        // On renvoie une structure vide pour que le dashboard s'affiche quand même
+        return { 
+            content: [], 
+            totalPages: 0, 
+            totalElements: 0 
+        };
     }
 };
 

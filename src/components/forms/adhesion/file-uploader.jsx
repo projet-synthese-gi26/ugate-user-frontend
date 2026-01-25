@@ -54,10 +54,10 @@ export const FileUploader = ({
 
     return (
         <div className="space-y-2">
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+            <label className="block text-sm font-medium text-gray-700 text-gray-300">
                 {label} {required && <span className="text-red-500 ml-1">*</span>}
             </label>
-            <motion.div onClick={() => fileInputRef.current?.click()} className={`relative cursor-pointer rounded-xl border-2 border-dashed p-6 text-center transition-all duration-300 ${file ? 'border-green-400 bg-green-50 dark:bg-green-900/50' : 'border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800/50 hover:border-blue-400'}`}>
+            <motion.div onClick={() => fileInputRef.current?.click()} className={`relative cursor-pointer rounded-xl border-2 border-dashed p-6 text-center transition-all duration-300 ${file ? 'border-green-400 bg-green-50 bg-green-900/50' : 'border-gray-300 border-gray-600 bg-white bg-gray-800/50 hover:border-blue-400'}`}>
                 <input 
                     type="file" 
                     ref={fileInputRef} 
@@ -67,11 +67,11 @@ export const FileUploader = ({
                 />
                 {file ? (
                     <div className="flex items-center justify-between">
-                        <div className="flex items-center space-x-3"><CheckCircle className="w-6 h-6 text-green-500" /><p className="text-sm font-medium text-gray-900 dark:text-gray-200 truncate">{file.name}</p></div>
+                        <div className="flex items-center space-x-3"><CheckCircle className="w-6 h-6 text-green-500" /><p className="text-sm font-medium text-gray-900 text-gray-200 truncate">{file.name}</p></div>
                         <button type="button" onClick={(e) => { e.stopPropagation(); removeFile(); }} className="p-1 text-red-500 hover:bg-red-100 rounded-full"><X className="w-4 h-4" /></button>
                     </div>
                 ) : (
-                    <div className="space-y-1 text-gray-500 dark:text-gray-400">
+                    <div className="space-y-1 text-gray-500 text-gray-400">
                         {icon || <Upload className="mx-auto h-8 w-8" />}
                         <p className="text-sm font-semibold">Cliquer ou glisser un fichier</p>
                         <p className="text-xs">

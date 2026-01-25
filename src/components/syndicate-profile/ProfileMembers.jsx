@@ -16,7 +16,7 @@ export default function ProfileMembers({ members }) {
     const membersPerPage = 4;
 
     if (!members || members.length === 0) {
-        return <p className="text-gray-500 dark:text-gray-400">Aucun membre de l'équipe à afficher.</p>;
+        return <p className="text-gray-500 text-gray-400">Aucun membre de l'équipe à afficher.</p>;
     }
 
     const totalPages = Math.ceil(members.length / membersPerPage);
@@ -32,7 +32,7 @@ export default function ProfileMembers({ members }) {
                     return (
                         <motion.div
                             key={member.userId || index}
-                            className="flex items-center p-3 rounded-xl bg-gray-50 dark:bg-gray-700/50 hover:bg-blue-50 dark:hover:bg-gray-700 transition-colors"
+                            className="flex items-center p-3 rounded-xl bg-gray-50 bg-gray-700/50 hover:bg-blue-50 hover:bg-gray-700 transition-colors"
                             initial={{ opacity: 0, scale: 0.95 }}
                             animate={{ opacity: 1, scale: 1 }}
                             transition={{ delay: index * 0.1 }}
@@ -45,16 +45,16 @@ export default function ProfileMembers({ members }) {
                                     alt={member.userName || 'Avatar du membre'}
                                     width={56}
                                     height={56}
-                                    className="w-14 h-14 rounded-full object-cover border-2 border-white dark:border-gray-600 shadow-sm"
+                                    className="w-14 h-14 rounded-full object-cover border-2 border-white border-gray-600 shadow-sm"
                                 />
                             ) : (
                                 <SyndicatDefaultAvatar name={member.userName || '?'} size={56} className="w-14 h-14" />
                             )}
                             <div className="ml-4">
                                 {/* CORRECTION : On utilise userName pour le nom. */}
-                                <p className="font-semibold text-gray-900 dark:text-gray-100">{member.userName}</p>
+                                <p className="font-semibold text-gray-900 text-gray-100">{member.userName}</p>
                                 {/* CORRECTION : On nettoie le nom du rôle pour l'affichage. */}
-                                <p className="text-sm text-blue-600 dark:text-blue-400">{member.role.replace('ROLE_', '')}</p>
+                                <p className="text-sm text-blue-600 text-blue-400">{member.role.replace('ROLE_', '')}</p>
                             </div>
                         </motion.div>
                     );
@@ -65,25 +65,25 @@ export default function ProfileMembers({ members }) {
             {totalPages > 1 && (
                 <div className="mt-6 flex justify-center items-center space-x-4">
                     <motion.button
-                        className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="p-2 rounded-full hover:bg-gray-100 hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
                         onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
                         disabled={currentPage === 1}
                         whileTap={{ scale: 0.95 }}
                         aria-label="Page précédente"
                     >
-                        <ChevronLeft className="h-5 w-5 text-gray-600 dark:text-gray-400" />
+                        <ChevronLeft className="h-5 w-5 text-gray-600 text-gray-400" />
                     </motion.button>
-                    <span className="text-sm font-medium text-gray-600 dark:text-gray-400">
+                    <span className="text-sm font-medium text-gray-600 text-gray-400">
                         Page {currentPage} / {totalPages}
                     </span>
                     <motion.button
-                        className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="p-2 rounded-full hover:bg-gray-100 hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
                         onClick={() => setCurrentPage((p) => Math.min(p + 1, totalPages))}
                         disabled={currentPage === totalPages}
                         whileTap={{ scale: 0.95 }}
                         aria-label="Page suivante"
                     >
-                        <ChevronRight className="h-5 w-5 text-gray-600 dark:text-gray-400" />
+                        <ChevronRight className="h-5 w-5 text-gray-600 text-gray-400" />
                     </motion.button>
                 </div>
             )}

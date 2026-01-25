@@ -85,29 +85,29 @@ export default function CommentModal({ post, isOpen, onClose, onAddComment }) {
                         initial={{ scale: 0.9, y: 20 }}
                         animate={{ scale: 1, y: 0 }}
                         exit={{ scale: 0.9, y: 20 }}
-                        className="bg-white dark:bg-gray-800 rounded-2xl w-full max-w-2xl h-[90vh] flex flex-col shadow-2xl"
+                        className="bg-white bg-gray-800 rounded-2xl w-full max-w-2xl h-[90vh] flex flex-col shadow-2xl"
                         onClick={(e) => e.stopPropagation()}
                     >
-                        <div className="p-6 border-b dark:border-gray-700 flex justify-between items-center flex-shrink-0">
-                            <h2 className="text-xl font-bold text-gray-800 dark:text-white">Publication de {post.author.name}</h2>
-                            <button onClick={onClose} className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full"><X/></button>
+                        <div className="p-6 border-b border-gray-700 flex justify-between items-center flex-shrink-0">
+                            <h2 className="text-xl font-bold text-gray-800 text-white">Publication de {post.author.name}</h2>
+                            <button onClick={onClose} className="p-2 hover:bg-gray-100 hover:bg-gray-700 rounded-full"><X/></button>
                         </div>
                         
                         <div className="flex-1 overflow-y-auto p-6 space-y-6">
                             <div>
-                                <p className="text-gray-700 dark:text-gray-300 whitespace-pre-wrap">{post.content}</p>
+                                <p className="text-gray-700 text-gray-300 whitespace-pre-wrap">{post.content}</p>
                                 {post.image && <div className="mt-4 rounded-lg overflow-hidden"><Image src={post.image} alt="Post content" width={600} height={400} className="w-full h-auto" /></div>}
                             </div>
-                            <hr className="dark:border-gray-700"/>
+                            <hr className="border-gray-700"/>
                             <div className="space-y-6">
                                 {comments.map(comment => <Comment key={comment.id} comment={comment} onReply={handleReply} />)}
                             </div>
                         </div>
 
-                        <div className="relative p-4 border-t dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50 rounded-b-2xl flex-shrink-0">
+                        <div className="relative p-4 border-t border-gray-700 bg-gray-50 bg-gray-900/50 rounded-b-2xl flex-shrink-0">
                             {replyTo && (
-                                <div className="mb-2 p-2 bg-blue-100 dark:bg-blue-900/50 rounded-lg flex justify-between items-center text-xs">
-                                    <span className="text-blue-600 dark:text-blue-400">Répondre à <strong>{replyTo.author.name}</strong></span>
+                                <div className="mb-2 p-2 bg-blue-100 bg-blue-900/50 rounded-lg flex justify-between items-center text-xs">
+                                    <span className="text-blue-600 text-blue-400">Répondre à <strong>{replyTo.author.name}</strong></span>
                                     <button onClick={() => setReplyTo(null)} className="font-bold p-1"><X size={14} /></button>
                                 </div>
                             )}
@@ -120,12 +120,12 @@ export default function CommentModal({ post, isOpen, onClose, onAddComment }) {
                                         value={newComment}
                                         onChange={(e) => setNewComment(e.target.value)}
                                         placeholder={t('comments.placeholder')}
-                                        className="w-full p-3 pr-28 rounded-full bg-white dark:bg-gray-700 border-2 border-gray-200 dark:border-gray-600 text-gray-900 dark:text-gray-200"
+                                        className="w-full p-3 pr-28 rounded-full bg-white bg-gray-700 border-2 border-gray-200 border-gray-600 text-gray-900 text-gray-200"
                                         onKeyPress={(e) => { if (e.key === 'Enter') handleSubmitComment(); }}
                                     />
                                     <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1">
-                                        <button onClick={() => setIsEmojiPickerVisible(!isEmojiPickerVisible)} className="p-2 hover:bg-gray-100 dark:hover:bg-gray-600 rounded-full"><Smile className="w-5 h-5 text-yellow-500" /></button>
-                                        <button onClick={() => fileInputRef.current?.click()} className="p-2 hover:bg-gray-100 dark:hover:bg-gray-600 rounded-full"><ImageIcon className="w-5 h-5 text-green-500" /></button>
+                                        <button onClick={() => setIsEmojiPickerVisible(!isEmojiPickerVisible)} className="p-2 hover:bg-gray-100 hover:bg-gray-600 rounded-full"><Smile className="w-5 h-5 text-yellow-500" /></button>
+                                        <button onClick={() => fileInputRef.current?.click()} className="p-2 hover:bg-gray-100 hover:bg-gray-600 rounded-full"><ImageIcon className="w-5 h-5 text-green-500" /></button>
                                         <input type="file" ref={fileInputRef} onChange={handleImageUpload} className="hidden" accept="image/*" />
                                         <button onClick={handleSubmitComment} className="p-2 bg-blue-500 text-white rounded-full hover:bg-blue-600 disabled:bg-gray-400" disabled={!newComment.trim()}><Send size={16} /></button>
                                     </div>

@@ -10,9 +10,9 @@ import { SyndicatDefaultAvatar } from '@/components/shared/SyndicatDefaultAvatar
 
 // Composant InfoPill (inchangé)
 const InfoPill = ({ icon: Icon, text, colorClass = 'blue' }) => (
-    <div className={`flex items-center px-3 py-1.5 bg-${colorClass}-50 dark:bg-${colorClass}-900/50 rounded-full`}>
-        <Icon className={`w-4 h-4 mr-2 text-${colorClass}-500 dark:text-${colorClass}-400`} />
-        <span className={`text-xs font-semibold text-${colorClass}-800 dark:text-${colorClass}-200`}>{text}</span>
+    <div className={`flex items-center px-3 py-1.5 bg-${colorClass}-50 bg-${colorClass}-900/50 rounded-full`}>
+        <Icon className={`w-4 h-4 mr-2 text-${colorClass}-500 text-${colorClass}-400`} />
+        <span className={`text-xs font-semibold text-${colorClass}-800 text-${colorClass}-200`}>{text}</span>
     </div>
 );
 
@@ -53,7 +53,7 @@ export default function EventCard({ event, onUpdateEvent, onShowParticipants }) 
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, ease: "easeOut" }}
-            className="bg-white dark:bg-gray-800/50 rounded-2xl shadow-xl hover:shadow-2xl dark:shadow-black/20 overflow-hidden mb-8 w-full max-w-xl mx-auto border border-gray-200/80 dark:border-white/10"
+            className="bg-white bg-gray-800/50 rounded-2xl shadow-xl hover:shadow-2xl shadow-black/20 overflow-hidden mb-8 w-full max-w-xl mx-auto border border-gray-200/80 border-white/10"
         >
             <div className="relative h-56 group">
                 <Image
@@ -96,8 +96,8 @@ export default function EventCard({ event, onUpdateEvent, onShowParticipants }) 
                         />
                     )}
                     <div className="ml-3">
-                        <p className="text-sm font-semibold text-gray-800 dark:text-gray-100">{event.author?.name || "Utilisateur inconnu"}</p>
-                        <p className="text-xs text-gray-500 dark:text-gray-400">Organisateur</p>
+                        <p className="text-sm font-semibold text-gray-800 text-gray-100">{event.author?.name || "Utilisateur inconnu"}</p>
+                        <p className="text-xs text-gray-500 text-gray-400">Organisateur</p>
                     </div>
                 </div>
 
@@ -106,7 +106,7 @@ export default function EventCard({ event, onUpdateEvent, onShowParticipants }) 
                     <InfoPill icon={MapPin} text={event.location} colorClass="purple" />
                 </div>
 
-                <motion.p layout className="text-gray-700 dark:text-gray-300 mb-5 leading-relaxed text-sm">
+                <motion.p layout className="text-gray-700 text-gray-300 mb-5 leading-relaxed text-sm">
                     {isExpanded ? event.description : `${(event.description || '').slice(0, 120)}...`}
                     {(event.description || '').length > 120 && (
                         <button onClick={() => setIsExpanded(!isExpanded)} className="ml-1 text-blue-500 hover:underline font-semibold text-sm">
@@ -115,7 +115,7 @@ export default function EventCard({ event, onUpdateEvent, onShowParticipants }) 
                     )}
                 </motion.p>
                 
-                <button onClick={() => onShowParticipants(event)} className="flex items-center justify-between w-full text-sm text-gray-600 dark:text-gray-400 mb-6 p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700/50">
+                <button onClick={() => onShowParticipants(event)} className="flex items-center justify-between w-full text-sm text-gray-600 text-gray-400 mb-6 p-2 rounded-lg hover:bg-gray-100 hover:bg-gray-700/50">
                     <div className="flex items-center">
                         <Users className="w-4 h-4 mr-2" />
                         {/* Utilise participantsCount pour la fiabilité */}
@@ -124,12 +124,12 @@ export default function EventCard({ event, onUpdateEvent, onShowParticipants }) 
                     <div className="flex -space-x-3">
                         {/* Utilise participantsToDisplay qui est garanti être un tableau */}
                         {participantsToDisplay.slice(0, 4).map((p, i) => (
-                             <div key={i} className="w-7 h-7 bg-gray-300 rounded-full border-2 border-white dark:border-gray-800 flex items-center justify-center text-xs font-bold text-gray-600">
+                             <div key={i} className="w-7 h-7 bg-gray-300 rounded-full border-2 border-white border-gray-800 flex items-center justify-center text-xs font-bold text-gray-600">
                                 {p.name.charAt(0)}
                              </div>
                         ))}
                         {participantsCount > 4 && 
-                            <div className="w-7 h-7 bg-gray-200 text-gray-600 text-xs font-bold rounded-full border-2 border-white dark:border-gray-800 flex items-center justify-center">+{participantsCount - 4}</div>
+                            <div className="w-7 h-7 bg-gray-200 text-gray-600 text-xs font-bold rounded-full border-2 border-white border-gray-800 flex items-center justify-center">+{participantsCount - 4}</div>
                         }
                     </div>
                 </button>

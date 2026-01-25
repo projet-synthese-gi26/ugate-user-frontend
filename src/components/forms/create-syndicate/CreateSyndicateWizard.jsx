@@ -7,23 +7,19 @@ import { useTranslations } from 'next-intl';
 import { createSyndicateAPI } from '@/lib/api/syndicates';
 import { useUser } from '@/context/UserContext';
 
-import Step1_TypeSelection from './Step1_TypeSelection';
+// On garde uniquement les composants nécessaires
 import Step2_AnonymousForm from './Step2_AnonymousForm';
 import Step3_Antennes from './Step3_Antennes';
-
-const Step2Accredited = ({ goBackToStep1, t }) => (
-    <div className="p-8 text-center">
-        <h2 className="text-2xl font-bold mb-4">{t('upcoming_feature')}</h2>
-        <p className="text-gray-600 mb-6">{t('accredited_syndicate_development')}</p>
-        <button onClick={goBackToStep1} className="text-blue-800 font-semibold hover:text-blue-900 transition-colors">{t('back')}</button>
-    </div>
-);
 
 export function CreateSyndicateWizard({ onSuccess }) {
     const { user } = useUser();
     const t = useTranslations('create_syndicate');
+    
+    // MODIFICATION : On commence directement à l'étape 1 (qui est maintenant le formulaire)
     const [currentStep, setCurrentStep] = useState(1);
-    const [syndicatType, setSyndicatType] = useState("");
+    
+    // On force le type à "anonymous" par défaut
+    const [syndicatType] = useState("anonymous");
 
     const [formData, setFormData] = useState({
         name: "",
@@ -40,36 +36,29 @@ export function CreateSyndicateWizard({ onSuccess }) {
     const [antennes, setAntennes] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
 
-    const handleTypeSelection = (type) => {
-        setSyndicatType(type);
+    // Navigation entre les étapes simplifiée
+    const goToStep2 = (dataFromStep1) => {
+        setFormData(prev => ({ ...prev, ...dataFromStep1 }));
         setCurrentStep(2);
     };
-
+    
     const goBackToStep1 = () => setCurrentStep(1);
-    const goToStep3 = (dataFromStep2) => {
-        setFormData(prev => ({ ...prev, ...dataFromStep2 }));
-        setCurrentStep(3);
-    };
-    const goBackToStep2 = () => setCurrentStep(2);
 
     const handleSubmit = async () => {
         setIsLoading(true);
         try {
             const submissionFormData = new FormData();
 
-            // Champs requis par l'API Swagger
             submissionFormData.append('name', formData.name);
             submissionFormData.append('description', formData.description);
             submissionFormData.append('domain', formData.domain);
 
-            // Logo (fichier image obligatoire)
             if (formData.logoFile) {
                 submissionFormData.append('logo', formData.logoFile);
             } else {
                 throw new Error("Le logo est obligatoire.");
             }
 
-            // Document des statuts (PDF obligatoire)
             if (formData.documentFile) {
                 submissionFormData.append('document', formData.documentFile);
             } else {
@@ -94,7 +83,7 @@ export function CreateSyndicateWizard({ onSuccess }) {
             Swal.fire({
                 icon: 'error',
                 title: 'Erreur',
-                text: err.response?.data?.message || "Une erreur est survenue lors de la création.",
+                text: err.response?.data?.message || err.message || "Une erreur est survenue.",
             });
         } finally {
             setIsLoading(false);
@@ -102,42 +91,30 @@ export function CreateSyndicateWizard({ onSuccess }) {
     };
     
     const animationProps = {
-        initial: { opacity: 0, x: 30 },
+        initial: { opacity: 0, x: 20 },
         animate: { opacity: 1, x: 0 },
-        exit: { opacity: 0, x: -30 },
-        transition: { duration: 0.4, ease: "easeInOut" }
+        exit: { opacity: 0, x: -20 },
+        transition: { duration: 0.3, ease: "easeInOut" }
     };
 
     const renderStep = () => {
         switch (currentStep) {
             case 1:
                 return (
-                    <motion.div key="step1" {...animationProps}>
-                        <Step1_TypeSelection handleTypeSelection={handleTypeSelection} />
+                    <motion.div key="step-form" {...animationProps}>
+                        <Step2_AnonymousForm
+                            initialData={formData}
+                            onNext={goToStep2}
+                            onBack={null} // Pas de retour possible car c'est la première étape
+                            setFormData={setFormData}
+                        />
                     </motion.div>
                 );
             case 2:
-                if (syndicatType === "anonymous") {
-                    return (
-                        <motion.div key="step2-anon" {...animationProps}>
-                            <Step2_AnonymousForm
-                                initialData={formData}
-                                onNext={goToStep3}
-                                onBack={goBackToStep1}
-                                setFormData={setFormData}
-                            />
-                        </motion.div>
-                    );
-                }
-                if (syndicatType === "accredited") {
-                    return <Step2Accredited goBackToStep1={goBackToStep1} t={t} />;
-                }
-                return goBackToStep1();
-            case 3:
                 return (
-                    <motion.div key="step3-antennes" {...animationProps}>
+                    <motion.div key="step-antennes" {...animationProps}>
                         <Step3_Antennes
-                            onBack={goBackToStep2}
+                            onBack={goBackToStep1}
                             onSubmit={handleSubmit}
                             antennes={antennes}
                             setAntennes={setAntennes}
@@ -146,12 +123,12 @@ export function CreateSyndicateWizard({ onSuccess }) {
                     </motion.div>
                 );
             default:
-                return <Step1_TypeSelection handleTypeSelection={handleTypeSelection} />;
+                return null;
         }
     };
 
     return (
-        <div className="p-4 sm:p-6 md:p-8">
+        <div className="p-2 sm:p-4 bg-white"> {/* Forcé en blanc */}
             <AnimatePresence mode="wait">
                 {renderStep()}
             </AnimatePresence>

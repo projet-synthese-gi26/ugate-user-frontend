@@ -14,6 +14,7 @@ import { useErrorHandler, useApiWithRetry } from '@/hooks/useErrorHandler';
 import { ErrorState, EmptyState, InlineError } from '../ErrorStates';
 import ErrorBoundary from '../ErrorBoundary';
 import { getEventsAPI } from '@/lib/api/event';
+import { ugateInstance } from '@/lib/api/instance'; // IMPORT AJOUTÉ
 
 function EventsFeedInner({ initialEvents = [], syndicatId }) {
     const t = useTranslations('common');
@@ -27,6 +28,8 @@ function EventsFeedInner({ initialEvents = [], syndicatId }) {
     const [isCreatingEvent, setIsCreatingEvent] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
     const [lastRefresh, setLastRefresh] = useState(Date.now());
+
+    const [activeBranchId, setActiveBranchId] = useState(null);
     
     const filteredEvents = useMemo(() => 
         (events || []).filter(event => 
@@ -34,50 +37,67 @@ function EventsFeedInner({ initialEvents = [], syndicatId }) {
             event?.description?.toLowerCase().includes(searchTerm.toLowerCase())
         ), [events, searchTerm]);
 
-    // Fonction pour recharger les événements avec pagination correcte
-    const refreshEvents = async (force = false, page = 0, size = 20) => {
+    // --- FONCTION REFRESH MODIFIÉE POUR UTILISER LA BRANCHE ---
+    const refreshEvents = async (force = false, page = 0, size = 20, branchIdOverride = null) => {
+        // On utilise l'ID passé en paramètre ou l'ID stocké dans l'état
+        const targetId = branchIdOverride || activeBranchId;
+
+        if (!targetId) {
+            console.warn("Impossible de rafraîchir : ID de branche manquant");
+            return;
+        }
+
         try {
             await executeWithRetry(async () => {
-                const eventsData = await getEventsAPI(syndicatId, page, size, 'startDate', 'DESC');
+                // APPEL API AVEC targetId (L'ID DE LA BRANCHE)
+                const eventsData = await getEventsAPI(targetId, page, size, 'startDate', 'DESC');
                 
-                // Gérer la structure de réponse paginée et convertir les dates
-                let events = [];
+                let fetchedEvents = [];
                 if (eventsData && eventsData.content) {
-                    events = eventsData.content;
+                    fetchedEvents = eventsData.content;
                 } else if (Array.isArray(eventsData)) {
-                    events = eventsData;
+                    fetchedEvents = eventsData;
                 }
                 
-                // Convertir les dates string en objets Date
-                const eventsWithDates = events.map(event => ({
+                const eventsWithDates = fetchedEvents.map(event => ({
                     ...event,
-                    startDate: new Date(event.startDate),
-                    endDate: new Date(event.endDate),
-                    createdAt: new Date(event.createdAt)
+                    startDate: event.date ? new Date(event.date) : new Date(),
+                    endDate: event.date ? new Date(event.date) : new Date(),
+                    createdAt: event.createdAt ? new Date(event.createdAt) : new Date()
                 }));
                 
                 setEvents(eventsWithDates);
-                
                 setLastRefresh(Date.now());
                 clearError('events');
             }, 'refresh-events', {
                 maxRetries: 2,
                 onSuccess: () => {
-                    if (force) {
-                        toast.success("Événements mis à jour !");
-                    }
+                    if (force) toast.success("Événements mis à jour !");
                 }
             });
         } catch (error) {
-            // L'erreur est déjà gérée par executeWithRetry
+            console.error("Erreur refreshEvents:", error);
         }
     };
 
-    // Charger les événements au montage si pas de données initiales
+    // --- CHARGEMENT INITIAL DES BRANCHES ---
     useEffect(() => {
-        if ((!initialEvents || initialEvents.length === 0) && syndicatId) {
-            refreshEvents(false);
-        }
+        const loadInitialData = async () => {
+            try {
+                const response = await ugateInstance.get(`/syndicates/${syndicatId}/branches`);
+                const branches = response.data || [];
+                
+                if (branches.length > 0) {
+                    const bId = branches[0].id;
+                    setActiveBranchId(bId);
+                    // On charge les événements de CETTE branche spécifiquement
+                    refreshEvents(false, 0, 20, bId); 
+                }
+            } catch (err) {
+                console.error("Erreur chargement branche pour le feed", err);
+            }
+        };
+        if (syndicatId) loadInitialData();
     }, [syndicatId]);
 
     const handleUpdateEvent = (updatedEvent) => {
@@ -85,20 +105,20 @@ function EventsFeedInner({ initialEvents = [], syndicatId }) {
     };
 
     const handleCreateEvent = async (newEventData) => {
+        if (!activeBranchId) return;
         setIsCreatingEvent(true);
         
         try {
             await executeWithRetry(async () => {
-                // Appel de l'API réelle de création d'événement
                 const { createEventAPI } = await import('@/lib/api/event');
-                const createdEvent = await createEventAPI(syndicatId, newEventData, newEventData.imageFile);
+                // Utilisation de activeBranchId pour la création
+                const createdEvent = await createEventAPI(activeBranchId, newEventData, newEventData.imageFile ? [newEventData.imageFile] : []);
                 
-                // Convertir les dates de l'événement créé et l'ajouter à la liste
                 const eventWithDates = {
                     ...createdEvent,
-                    startDate: new Date(createdEvent.startDate),
-                    endDate: new Date(createdEvent.endDate),
-                    createdAt: new Date(createdEvent.createdAt)
+                    startDate: createdEvent.date ? new Date(createdEvent.date) : new Date(),
+                    endDate: createdEvent.date ? new Date(createdEvent.date) : new Date(),
+                    createdAt: createdEvent.createdAt ? new Date(createdEvent.createdAt) : new Date()
                 };
                 
                 setEvents(prevEvents => [eventWithDates, ...prevEvents]);
@@ -111,176 +131,95 @@ function EventsFeedInner({ initialEvents = [], syndicatId }) {
                 }
             });
         } catch (error) {
-            // L'erreur est déjà gérée par executeWithRetry
+            // Géré par executeWithRetry
         } finally {
             setIsCreatingEvent(false);
         }
     };
 
     const EventsList = ({ data }) => {
-        // Gestion des erreurs
         if (hasError('events')) {
-            return (
-                <ErrorState 
-                    error={getError('events')}
-                    onRetry={() => refreshEvents(true)}
-                    onDismiss={() => clearError('events')}
-                />
-            );
+            return <ErrorState error={getError('events')} onRetry={() => refreshEvents(true)} />;
         }
 
-        // État vide amélioré
         if (!data || data.length === 0) {
             return (
                 <EmptyState
                     icon={Calendar}
-                    title={searchTerm ? "Aucun événement trouvé" : "Aucun événement"}
-                    description={searchTerm ? "Aucun événement ne correspond à votre recherche." : "Aucun événement n'a été créé pour le moment."}
-                    action={!searchTerm && (
-                        <div className="flex gap-3">
-                            <motion.button
-                                whileHover={{ scale: 1.02 }}
-                                whileTap={{ scale: 0.98 }}
-                                onClick={() => setIsCreateModalOpen(true)}
-                                className="px-4 py-2 bg-blue-700 hover:bg-blue-800 text-white rounded-xl font-medium transition-all duration-200 flex items-center gap-2"
-                            >
-                                <Plus className="w-4 h-4" />
-                                Créer un événement
-                            </motion.button>
-                            <motion.button
-                                whileHover={{ scale: 1.02 }}
-                                whileTap={{ scale: 0.98 }}
-                                onClick={() => refreshEvents(true)}
-                                className="px-4 py-2 bg-white dark:bg-neutral-800 hover:bg-neutral-50 dark:hover:bg-neutral-700 border border-neutral-200 dark:border-neutral-700 text-neutral-700 dark:text-neutral-300 rounded-xl font-medium transition-all duration-200 flex items-center gap-2"
-                            >
-                                <RefreshCw className="w-4 h-4" />
-                                Actualiser
-                            </motion.button>
-                        </div>
-                    )}
-                    className="bg-white dark:bg-neutral-800 rounded-2xl shadow-soft border border-neutral-200 dark:border-neutral-700 p-12"
+                    title={searchTerm ? "Aucun résultat" : "Aucun événement"}
+                    description={searchTerm ? "Essayez d'autres mots-clés." : "Le fil d'actualité est vide."}
+                    className="bg-white rounded-2xl shadow-sm border border-gray-200 p-12"
                 />
             );
         }
 
         return (
-            <div className="space-y-6">
-                {isLoadingEvents ? (
-                    Array.from({ length: 3 }).map((_, index) => (
-                        <CardSkeleton key={`event-skeleton-${index}`} />
-                    ))
-                ) : (
-                    <AnimatePresence>
-                        {data.map((event) => (
-                            <EventCard 
-                                key={event.id} 
-                                event={event} 
-                                onShowParticipants={setSelectedEventForParticipants}
-                                onUpdateEvent={handleUpdateEvent}
-                            />
-                        ))}
-                    </AnimatePresence>
-                )}
-            </div>
+         // Remplacer grid-cols-2 par max-w-2xl mx-auto
+       <div className="max-w-3xl mx-auto flex flex-col gap-8"> 
+            {data.map((event) => (
+                <EventCard 
+                    key={event.id} 
+                    event={event} 
+                    onShowParticipants={setSelectedEventForParticipants}
+                    onUpdateEvent={handleUpdateEvent}
+                />
+            ))}
+        </div>
+
         );
     };
 
     return (
         <div className="space-y-8">
-            {/* Header avec actions */}
-            <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }}>
-                <div className="flex items-start justify-between mb-6">
-                    <div>
-                        <h1 className="text-3xl font-bold text-neutral-800 dark:text-white mb-2">
-                            Événements
-                        </h1>
-                        <p className="text-neutral-600 dark:text-neutral-400">
-                            Gérez et participez aux événements du syndicat
-                        </p>
-                    </div>
-                    
-                    <div className="flex gap-3">
-                        <motion.button
-                            whileHover={{ scale: 1.02 }}
-                            whileTap={{ scale: 0.98 }}
-                            onClick={() => refreshEvents(true)}
-                            disabled={apiLoading}
-                            className="px-4 py-2 bg-white dark:bg-neutral-800 hover:bg-neutral-50 dark:hover:bg-neutral-700 border border-neutral-200 dark:border-neutral-700 text-neutral-700 dark:text-neutral-300 rounded-xl font-medium transition-all duration-200 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed shadow-soft"
-                        >
-                            <RefreshCw className={`w-4 h-4 ${apiLoading ? 'animate-spin' : ''}`} />
-                            Actualiser
-                        </motion.button>
-                    </div>
+            <div className="flex items-center justify-between">
+                <div>
+                    <h1 className="text-3xl font-bold text-gray-900">Événements</h1>
+                    <p className="text-gray-500">Planifiez et gérez les activités de votre syndicat</p>
                 </div>
-            </motion.div>
-
-            {/* Affichage des erreurs globales */}
-            <AnimatePresence>
-                {hasError('refresh-events') && (
-                    <InlineError 
-                        error={getError('refresh-events')}
-                        className="mb-6"
-                    />
-                )}
-                {hasError('create-event') && (
-                    <InlineError 
-                        error={getError('create-event')}
-                        className="mb-6"
-                    />
-                )}
-            </AnimatePresence>
-
-            {/* Barre de recherche */}
-            <div className="bg-white dark:bg-neutral-800 rounded-2xl shadow-soft border border-neutral-200 dark:border-neutral-700 p-6">
-                <div className="relative max-w-md">
-                    <input 
-                        type="text" 
-                        placeholder="Rechercher des événements..." 
-                        className="w-full pl-10 pr-4 py-2.5 bg-white dark:bg-neutral-700 rounded-xl border border-neutral-200 dark:border-neutral-600 focus:border-primary-500 dark:focus:border-primary-400 focus:ring-2 focus:ring-primary-500/20 transition-all duration-200 text-sm" 
-                        value={searchTerm} 
-                        onChange={(e) => setSearchTerm(e.target.value)} 
-                    />
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400 w-4 h-4" />
-                </div>
+                <button
+                    onClick={() => refreshEvents(true)}
+                    className="p-2 bg-white border border-gray-200 rounded-xl hover:bg-gray-50 transition-all"
+                    disabled={apiLoading}
+                >
+                    <RefreshCw className={`w-5 h-5 ${apiLoading ? 'animate-spin' : ''}`} />
+                </button>
             </div>
 
-            {/* Liste des événements */}
+            <div className="bg-white p-4 rounded-2xl border border-gray-100 shadow-sm flex items-center">
+                <Search className="w-5 h-5 text-gray-400 mr-3" />
+                <input 
+                    type="text" 
+                    placeholder="Rechercher..." 
+                    className="flex-1 bg-transparent border-none focus:ring-0 text-gray-900"
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                />
+            </div>
+
             <EventsList data={filteredEvents} />
 
-            {/* Bouton flottant pour créer un événement */}
-            <motion.button
-                whileHover={{ scale: 1.1 }}
-                whileTap={{ scale: 0.9 }}
+            <button
                 onClick={() => setIsCreateModalOpen(true)}
-                className="fixed bottom-6 right-6 w-14 h-14 bg-blue-700 hover:bg-blue-800 text-white rounded-full shadow-xl hover:shadow-2xl flex items-center justify-center z-50 transition-all duration-200"
-                title="Créer un événement"
+                className="fixed bottom-8 right-8 w-14 h-14 bg-blue-600 text-white rounded-full shadow-lg flex items-center justify-center hover:bg-blue-700 transition-all z-40"
             >
-                <Plus className="w-6 h-6" />
-            </motion.button>
+                <Plus size={24} />
+            </button>
 
-            {/* Modals */}
-            <ParticipantsModal 
-                event={selectedEventForParticipants} 
-                onClose={() => setSelectedEventForParticipants(null)} 
-            />
+            <ParticipantsModal event={selectedEventForParticipants} onClose={() => setSelectedEventForParticipants(null)} />
             
             <CreateEventModal 
                 isOpen={isCreateModalOpen}
                 onClose={() => setIsCreateModalOpen(false)}
-                onCreateEvent={handleCreateEvent}
+                onRefresh={() => refreshEvents(true)}
                 isLoading={isCreatingEvent}
             />
         </div>
     );
 }
 
-// Wrapper avec ErrorBoundary
 export default function EventsFeed(props) {
     return (
-        <ErrorBoundary
-            title="Erreur dans la section Événements"
-            subtitle="Une erreur s'est produite lors du chargement des événements."
-        >
+        <ErrorBoundary title="Erreur section Événements">
             <EventsFeedInner {...props} />
         </ErrorBoundary>
     );

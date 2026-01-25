@@ -88,7 +88,7 @@ function MembersClientInner({ initialMembers = [], initialRequests = [], branche
             confirmButtonText: t('yes_continue'),
             cancelButtonText: t('cancel'),
             customClass: {
-                popup: 'dark:bg-neutral-800 dark:text-white',
+                popup: 'bg-neutral-800 text-white',
             }
         });
 
@@ -132,37 +132,37 @@ function MembersClientInner({ initialMembers = [], initialRequests = [], branche
                             {t('refresh')}
                         </motion.button>
                     )}
-                    className="bg-white dark:bg-neutral-800/50 rounded-2xl border border-neutral-200 dark:border-neutral-700/80 p-8"
+                    className="bg-white bg-neutral-800/50 rounded-2xl border border-neutral-200 border-neutral-700/80 p-8"
                 />
             );
         }
 
         return (
-            <div className="bg-white dark:bg-neutral-800/50 rounded-2xl shadow-soft overflow-hidden border border-neutral-200 dark:border-neutral-700/80">
+            <div className="bg-white bg-neutral-800/50 rounded-2xl shadow-soft overflow-hidden border border-neutral-200 border-neutral-700/80">
                 <div className="overflow-x-auto">
-                    <table className="min-w-full divide-y divide-neutral-200 dark:divide-neutral-700">
-                        <thead className="bg-neutral-50 dark:bg-neutral-900/50">
+                    <table className="min-w-full divide-y divide-neutral-200 divide-neutral-700">
+                        <thead className="bg-neutral-50 bg-neutral-900/50">
                             <tr>
-                                <th className="px-6 py-4 text-left text-xs font-semibold text-neutral-500 dark:text-neutral-400 uppercase tracking-wider">{t('member')}</th>
-                                <th className="px-6 py-4 text-left text-xs font-semibold text-neutral-500 dark:text-neutral-400 uppercase tracking-wider">{t('role')}</th>
-                                <th className="px-6 py-4 text-left text-xs font-semibold text-neutral-500 dark:text-neutral-400 uppercase tracking-wider">{t('status')}</th>
-                                <th className="px-6 py-4 text-left text-xs font-semibold text-neutral-500 dark:text-neutral-400 uppercase tracking-wider">{t('actions')}</th>
+                                <th className="px-6 py-4 text-left text-xs font-semibold text-neutral-500 text-neutral-400 uppercase tracking-wider">{t('member')}</th>
+                                <th className="px-6 py-4 text-left text-xs font-semibold text-neutral-500 text-neutral-400 uppercase tracking-wider">{t('role')}</th>
+                                <th className="px-6 py-4 text-left text-xs font-semibold text-neutral-500 text-neutral-400 uppercase tracking-wider">{t('status')}</th>
+                                <th className="px-6 py-4 text-left text-xs font-semibold text-neutral-500 text-neutral-400 uppercase tracking-wider">{t('actions')}</th>
                             </tr>
                         </thead>
-                        <tbody className="divide-y divide-neutral-200 dark:divide-neutral-700">
+                        <tbody className="divide-y divide-neutral-200 divide-neutral-700">
                             {apiLoading && data.length === 0 ? (
                                 Array.from({ length: 5 }).map((_, index) => <MemberRowSkeleton key={`skeleton-${index}`} />)
                             ) : (
                                 <AnimatePresence>
                                     {data.map(member => (
-                                    <motion.tr key={member.userId} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="hover:bg-neutral-50 dark:hover:bg-neutral-700/50 transition-colors duration-200">
+                                    <motion.tr key={member.userId} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="hover:bg-neutral-50 hover:bg-neutral-700/50 transition-colors duration-200">
                                         <td className="px-6 py-4 whitespace-nowrap"><div className="flex items-center">
                                             {member.userAvatarUrl ? <Image src={`${STATIC_FILES_URL}${member.userAvatarUrl}`} alt={member.userName} width={44} height={44} className="w-11 h-11 rounded-xl object-cover shadow-soft"/> : <SyndicatDefaultAvatar name={member.userName} size={44} className="rounded-xl"/>}
-                                            <div className="ml-4"><div className="text-sm font-medium text-neutral-800 dark:text-white">{member.userName}</div></div>
+                                            <div className="ml-4"><div className="text-sm font-medium text-neutral-800 text-white">{member.userName}</div></div>
                                         </div></td>
-                                        <td className="px-6 py-4"><span className={`px-3 py-1 text-xs font-medium rounded-full ${member.role === 'ROLE_PRESIDENT' ? 'bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-300' : 'bg-neutral-100 text-neutral-700 dark:bg-neutral-700 dark:text-neutral-300'}`}>{member.role.replace('ROLE_', '')}</span></td>
-                                        <td className="px-6 py-4"><span className={`px-3 py-1 inline-flex text-xs font-semibold rounded-full ${member.status === 'ACTIVE' ? 'bg-emerald-100 dark:bg-emerald-900/20 text-emerald-800 dark:text-emerald-300' : 'bg-amber-100 dark:bg-amber-900/20 text-amber-700 dark:text-amber-300'}`}>{member.status}</span></td>
-                                        <td className="px-6 py-4"><button className="p-2 text-neutral-500 hover:text-red-600 hover:bg-red-100 dark:hover:bg-red-900/20 rounded-xl transition-all duration-200"><UserX size={16}/></button></td>
+                                        <td className="px-6 py-4"><span className={`px-3 py-1 text-xs font-medium rounded-full ${member.role === 'ROLE_PRESIDENT' ? 'bg-blue-100 text-blue-800 bg-blue-900/20 text-blue-300' : 'bg-neutral-100 text-neutral-700 bg-neutral-700 text-neutral-300'}`}>{member.role.replace('ROLE_', '')}</span></td>
+                                        <td className="px-6 py-4"><span className={`px-3 py-1 inline-flex text-xs font-semibold rounded-full ${member.status === 'ACTIVE' ? 'bg-emerald-100 bg-emerald-900/20 text-emerald-800 text-emerald-300' : 'bg-amber-100 bg-amber-900/20 text-amber-700 text-amber-300'}`}>{member.status}</span></td>
+                                        <td className="px-6 py-4"><button className="p-2 text-neutral-500 hover:text-red-600 hover:bg-red-100 hover:bg-red-900/20 rounded-xl transition-all duration-200"><UserX size={16}/></button></td>
                                     </motion.tr>
                                     ))}
                                 </AnimatePresence>
@@ -196,7 +196,7 @@ function MembersClientInner({ initialMembers = [], initialRequests = [], branche
                             {t('refresh')}
                         </motion.button>
                     )}
-                    className="bg-white dark:bg-neutral-800/50 rounded-2xl border border-neutral-200 dark:border-neutral-700/80 p-8"
+                    className="bg-white bg-neutral-800/50 rounded-2xl border border-neutral-200 border-neutral-700/80 p-8"
                 />
             );
         }
@@ -208,9 +208,9 @@ function MembersClientInner({ initialMembers = [], initialRequests = [], branche
                 ) : (
                     <AnimatePresence>
                         {data.map(req => (
-                    <motion.div key={req.userId} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, x: -30 }} className="bg-white dark:bg-neutral-800/50 rounded-2xl shadow-soft p-5 border border-neutral-200 dark:border-neutral-700/80">
+                    <motion.div key={req.userId} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, x: -30 }} className="bg-white bg-neutral-800/50 rounded-2xl shadow-soft p-5 border border-neutral-200 border-neutral-700/80">
                         <div className="flex flex-col sm:flex-row items-start justify-between gap-4">
-                            <div className="flex items-center flex-grow"><div className="w-16 h-16 flex-shrink-0">{req.userAvatarUrl ? <Image src={`${STATIC_FILES_URL}${req.userAvatarUrl}`} alt={req.userName} width={64} height={64} className="rounded-xl object-cover"/> : <SyndicatDefaultAvatar name={req.userName} size={64} className="rounded-xl"/>}</div><div className="ml-4"><h3 className="text-lg font-semibold text-neutral-800 dark:text-white">{req.userName}</h3><p className="text-sm text-neutral-500 dark:text-neutral-400">{t('request_date', {date: new Date(req.requestTimestamp).toLocaleDateString('fr-FR')})}</p></div></div>
+                            <div className="flex items-center flex-grow"><div className="w-16 h-16 flex-shrink-0">{req.userAvatarUrl ? <Image src={`${STATIC_FILES_URL}${req.userAvatarUrl}`} alt={req.userName} width={64} height={64} className="rounded-xl object-cover"/> : <SyndicatDefaultAvatar name={req.userName} size={64} className="rounded-xl"/>}</div><div className="ml-4"><h3 className="text-lg font-semibold text-neutral-800 text-white">{req.userName}</h3><p className="text-sm text-neutral-500 text-neutral-400">{t('request_date', {date: new Date(req.requestTimestamp).toLocaleDateString('fr-FR')})}</p></div></div>
                             <div className="flex space-x-3 self-start sm:self-center flex-shrink-0 pt-2 sm:pt-0">
                                 {branches && branches.length > 0 ? (
                                     <>
@@ -218,11 +218,11 @@ function MembersClientInner({ initialMembers = [], initialRequests = [], branche
                                         <motion.button whileHover={{scale: 1.1}} whileTap={{scale: 0.95}} onClick={() => handleResponse(req.userId, branches[0].id, false)} className="p-2.5 bg-red-500 text-white rounded-full shadow-lg hover:bg-red-600 transition-colors"><X className="w-5 h-5"/></motion.button>
                                     </>
                                 ) : (
-                                    <div className="text-sm text-neutral-500 dark:text-neutral-400">{t('actions_unavailable')}</div>
+                                    <div className="text-sm text-neutral-500 text-neutral-400">{t('actions_unavailable')}</div>
                                 )}
                             </div>
                         </div>
-                        <div className="mt-4 p-4 bg-neutral-50 dark:bg-neutral-700/50 rounded-xl border-l-4 border-blue-500"><p className="text-neutral-600 dark:text-neutral-300 italic">"{req.motivation}"</p></div>
+                        <div className="mt-4 p-4 bg-neutral-50 bg-neutral-700/50 rounded-xl border-l-4 border-blue-500"><p className="text-neutral-600 text-neutral-300 italic">"{req.motivation}"</p></div>
                     </motion.div>
                         ))}
                     </AnimatePresence>
@@ -236,15 +236,15 @@ function MembersClientInner({ initialMembers = [], initialRequests = [], branche
             <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }}>
                 <div className="flex items-start justify-between mb-4 flex-wrap gap-4">
                     <div>
-                        <h1 className="text-3xl font-bold text-neutral-800 dark:text-white mb-1">{t('title')}</h1>
-                        <p className="text-neutral-600 dark:text-neutral-400 max-w-2xl">{t('subtitle')}</p>
+                        <h1 className="text-3xl font-bold text-neutral-800 text-white mb-1">{t('title')}</h1>
+                        <p className="text-neutral-600 text-neutral-400 max-w-2xl">{t('subtitle')}</p>
                     </div>
                     <motion.button
                         whileHover={{ scale: 1.02 }}
                         whileTap={{ scale: 0.98 }}
                         onClick={() => refreshData(true)}
                         disabled={apiLoading}
-                        className="px-4 py-2 bg-white dark:bg-neutral-800 hover:bg-neutral-50 dark:hover:bg-neutral-700 border border-neutral-200 dark:border-neutral-700 text-neutral-700 dark:text-neutral-300 rounded-xl font-medium transition-all duration-200 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed shadow-soft"
+                        className="px-4 py-2 bg-white bg-neutral-800 hover:bg-neutral-50 hover:bg-neutral-700 border border-neutral-200 border-neutral-700 text-neutral-700 text-neutral-300 rounded-xl font-medium transition-all duration-200 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed shadow-soft"
                     >
                         <RefreshCw className={`w-4 h-4 ${apiLoading ? 'animate-spin' : ''}`} />
                         {t('refresh')}
@@ -262,15 +262,15 @@ function MembersClientInner({ initialMembers = [], initialRequests = [], branche
                 <StatCard icon={UserPlus} value={(stats?.pending || requests.length).toLocaleString()} label={t('pending_requests')} />
             </div>
 
-            <div className="bg-white dark:bg-neutral-800/50 rounded-2xl shadow-soft border border-neutral-200 dark:border-neutral-700/80">
-                <div className="p-4 sm:p-5 border-b border-neutral-200 dark:border-neutral-700">
+            <div className="bg-white bg-neutral-800/50 rounded-2xl shadow-soft border border-neutral-200 border-neutral-700/80">
+                <div className="p-4 sm:p-5 border-b border-neutral-200 border-neutral-700">
                     <div className="flex items-center justify-between flex-wrap gap-4">
-                        <div className="flex space-x-1 bg-neutral-100 dark:bg-neutral-900/50 rounded-xl p-1">
+                        <div className="flex space-x-1 bg-neutral-100 bg-neutral-900/50 rounded-xl p-1">
                             <TabButton active={activeTab === 'members'} icon={Users} label={`${t('tab_members')} (${filteredMembers.length})`} onClick={() => setActiveTab('members')} />
                             <TabButton active={activeTab === 'requests'} icon={UserPlus} label={`${t('tab_requests')} (${filteredRequests.length})`} onClick={() => setActiveTab('requests')} />
                         </div>
                         <div className="relative flex-1 min-w-[200px] max-w-xs">
-                            <input type="text" placeholder={t("search_placeholder")} className="w-full pl-10 pr-4 py-2.5 bg-white dark:bg-neutral-700 rounded-xl border border-neutral-300 dark:border-neutral-600 focus:border-blue-500 dark:focus:border-blue-400 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200 text-sm" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
+                            <input type="text" placeholder={t("search_placeholder")} className="w-full pl-10 pr-4 py-2.5 bg-white bg-neutral-700 rounded-xl border border-neutral-300 border-neutral-600 focus:border-blue-500 focus:border-blue-400 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200 text-sm" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
                             <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-neutral-400 w-4 h-4" />
                         </div>
                     </div>

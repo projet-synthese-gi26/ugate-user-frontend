@@ -1,173 +1,62 @@
 "use client";
 
-import { Bell, LogOut, Menu, Users, MapPin } from 'lucide-react';
+import { Bell, LogOut, Menu, Users } from 'lucide-react';
 import { Link } from '@/navigation';
-import { STATIC_FILES_URL } from '@/lib/constants';
 import { useTranslations } from 'next-intl';
-import Image from 'next/image';
-import { motion, AnimatePresence } from 'framer-motion';
-import { useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
 
-export default function SyndicateHeader({ syndicateData, onSidebarToggle, onNotificationToggle, isCollapsed = false }) {
+export default function SyndicateHeader({ syndicateData, onSidebarToggle, onNotificationToggle, isCollapsed, isSidebarOpen }) {
     const t = useTranslations();
-    const bannerUrl = syndicateData.bannerUrl ? `${STATIC_FILES_URL}${syndicateData.bannerUrl}` : null;
 
     return (
-        <>
-            {/* Header principal avec animation */}
+        <header 
+            className="fixed top-0 right-0 z-40 bg-white shadow-sm transition-all duration-300 ease-in-out"
+            style={{ 
+                // On ajuste la largeur en fonction de la sidebar
+                left: typeof window !== 'undefined' && window.innerWidth > 1024 
+                    ? (isSidebarOpen ? '280px' : '80px') 
+                    : '0px' 
+            }}
+        >
+            {/* Bannière (Hauteur 160px) */}
             <motion.div 
-                className="bg-white shadow-lg overflow-hidden"
-                style={{
-                    position: 'sticky',
-                    top: 0,
-                    zIndex: 50
-                }}
+                className="relative bg-blue-700 overflow-hidden"
+                animate={{ height: isCollapsed ? 0 : 160 }}
+                transition={{ duration: 0.3 }}
             >
-                {/* Bannière Header - Se transforme au lieu de changer de hauteur */}
-                <motion.div 
-                    className="relative bg-gradient-to-r from-blue-600 to-blue-700 overflow-hidden"
-                    initial={false}
-                    animate={{
-                        height: isCollapsed ? 0 : 192,
-                        opacity: isCollapsed ? 0 : 1
-                    }}
-                    transition={{ duration: 0.3, ease: 'easeInOut' }}
-                >
-                            {bannerUrl && (
-                                <Image 
-                                    src={bannerUrl} 
-                                    alt={`Bannière ${syndicateData.name}`}
-                                    fill
-                                    className="object-cover"
-                                    priority
-                                />
-                            )}
-                            <div className="absolute inset-0 bg-gradient-to-r from-blue-800/70 to-blue-700/70"></div>
-                            
-                            {/* Contenu de la bannière */}
-                            <div className="relative z-10 h-full flex flex-col justify-between p-6">
-                                {/* Top bar avec contrôles */}
-                                <div className="flex justify-between items-start">
-                                    <button 
-                                        onClick={onSidebarToggle} 
-                                        className="text-white lg:hidden p-2 rounded-xl hover:bg-white/20 transition-all duration-200"
-                                    >
-                                        <Menu size={22} />
-                                    </button>
-                                    
-                                    <div className="flex items-center space-x-2">
-                                        <button 
-                                            onClick={onNotificationToggle} 
-                                            className="relative p-2.5 rounded-xl hover:bg-white/20 transition-all duration-200 group"
-                                        >
-                                            <Bell size={20} className="text-white group-hover:text-blue-200 transition-colors duration-200" />
-                                            <span className="absolute -top-0.5 -right-0.5 block h-3 w-3 rounded-full bg-red-500 border-2 border-white" />
-                                        </button>
-                                        <Link 
-                                            href="/home" 
-                                            className="p-2.5 rounded-xl bg-white/20 hover:bg-white/30 transition-all duration-200 group" 
-                                            aria-label="Quitter l'espace syndicat"
-                                        >
-                                            <LogOut size={20} className="text-white group-hover:text-blue-200 transition-colors duration-200" />
-                                        </Link>
-                                    </div>
-                                </div>
-                                
-                                {/* Info syndicat */}
-                                <motion.div 
-                                    initial={{ opacity: 0, y: 20 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    className="text-white"
-                                >
-                                    <h1 className="text-3xl font-bold mb-2">
-                                        {syndicateData.name}
-                                    </h1>
-                                    <div className="flex items-center space-x-6 text-blue-100">
-                                        <div className="flex items-center space-x-2">
-                                            <Users className="w-4 h-4" />
-                                            <span className="text-sm font-medium">
-                                                {syndicateData.memberCount || 0} membres
-                                            </span>
-                                        </div>
-                                        {syndicateData.address && (
-                                            <div className="flex items-center space-x-2">
-                                                <MapPin className="w-4 h-4" />
-                                                <span className="text-sm font-medium">
-                                                    {syndicateData.address}
-                                                </span>
-                                            </div>
-                                        )}
-                                    </div>
-                                </motion.div>
-                            </div>
-                </motion.div>
-                
-                {/* Barre de navigation compacte - Toujours visible */}
-                <motion.div 
-                    className="bg-white border-b border-gray-200 px-6 flex items-center justify-between"
-                    animate={{
-                        height: isCollapsed ? 60 : 48,
-                        paddingTop: isCollapsed ? 12 : 0,
-                        paddingBottom: isCollapsed ? 12 : 0
-                    }}
-                    transition={{ duration: 0.3 }}
-                >
-                    <div className="flex items-center space-x-4">
-                        {isCollapsed && (
-                            <motion.button 
-                                onClick={onSidebarToggle} 
-                                className="text-blue-700 lg:hidden p-2 rounded-xl hover:bg-blue-50 transition-all duration-200"
-                                initial={{ opacity: 0, scale: 0.8 }}
-                                animate={{ opacity: 1, scale: 1 }}
-                                transition={{ delay: 0.1 }}
-                            >
-                                <Menu size={20} />
-                            </motion.button>
-                        )}
-                        
-                        <div className="flex items-center space-x-2">
-                            <div className="w-3 h-3 rounded-full bg-blue-700"></div>
-                            <span className="text-sm font-semibold text-blue-700">
-                                {t('syndicate_space.member_space')}
-                            </span>
-                            {isCollapsed && (
-                                <motion.span 
-                                    className="text-sm text-gray-500 ml-2"
-                                    initial={{ opacity: 0, x: -10 }}
-                                    animate={{ opacity: 1, x: 0 }}
-                                    transition={{ delay: 0.2 }}
-                                >
-                                    - {syndicateData.name}
-                                </motion.span>
-                            )}
-                        </div>
+                <div className="absolute inset-0 bg-gradient-to-r from-blue-800 to-blue-600 p-6 flex flex-col justify-end">
+                    <h1 className="text-2xl font-bold text-white">{syndicateData.name}</h1>
+                    <div className="flex items-center text-blue-100 text-sm mt-1">
+                        <Users className="w-4 h-4 mr-1" />
+                        {syndicateData.memberCount || 0} membres
                     </div>
-                    
-                    {isCollapsed && (
-                        <motion.div 
-                            className="flex items-center space-x-2"
-                            initial={{ opacity: 0, scale: 0.8 }}
-                            animate={{ opacity: 1, scale: 1 }}
-                            transition={{ delay: 0.1 }}
-                        >
-                            <button 
-                                onClick={onNotificationToggle} 
-                                className="relative p-2 rounded-xl hover:bg-blue-50 transition-all duration-200 group"
-                            >
-                                <Bell size={16} className="text-blue-700 group-hover:text-blue-800 transition-colors duration-200" />
-                                <span className="absolute -top-0.5 -right-0.5 block h-2 w-2 rounded-full bg-red-500 border border-white" />
-                            </button>
-                            <Link 
-                                href="/home" 
-                                className="p-2 rounded-xl bg-blue-50 hover:bg-blue-100 transition-all duration-200 group" 
-                                aria-label="Quitter l'espace syndicat"
-                            >
-                                <LogOut size={16} className="text-blue-700 group-hover:text-blue-800 transition-colors duration-200" />
-                            </Link>
-                        </motion.div>
-                    )}
-                </motion.div>
+                </div>
             </motion.div>
-        </>
+            
+            {/* Barre de navigation (Hauteur 64px) */}
+            <div className="h-16 px-6 border-b flex items-center justify-between bg-white">
+                <div className="flex items-center gap-4">
+                    <button onClick={onSidebarToggle} className="lg:hidden p-2 hover:bg-gray-100 rounded-lg">
+                        <Menu size={20} />
+                    </button>
+                    <div className="flex items-center gap-2">
+                        <div className="w-2 h-2 rounded-full bg-blue-600"></div>
+                        <span className="font-bold text-gray-800">
+                            {isCollapsed ? syndicateData.name : "Espace Membre"}
+                        </span>
+                    </div>
+                </div>
+
+                <div className="flex items-center gap-3">
+                    <button onClick={onNotificationToggle} className="relative p-2 hover:bg-gray-100 rounded-lg">
+                        <Bell size={20} className="text-gray-600" />
+                        <span className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full border-2 border-white"></span>
+                    </button>
+                    <Link href="/home" className="p-2 hover:bg-red-50 rounded-lg">
+                        <LogOut size={20} className="text-gray-600" />
+                    </Link>
+                </div>
+            </div>
+        </header>
     );
 }

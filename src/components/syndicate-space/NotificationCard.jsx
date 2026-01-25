@@ -13,21 +13,21 @@ import { motion } from 'framer-motion';
  */
 export default function NotificationCard({ icon: Icon, title, message, time, type }) {
     const bgColors = {
-        info: 'bg-primary-50 dark:bg-primary-900/20 border-primary-100 dark:border-primary-800/30',
-        success: 'bg-emerald-50 dark:bg-emerald-900/20 border-emerald-100 dark:border-emerald-800/30',
-        warning: 'bg-amber-50 dark:bg-amber-900/20 border-amber-100 dark:border-amber-800/30',
+        info: 'bg-primary-50 bg-primary-900/20 border-primary-100 border-primary-800/30',
+        success: 'bg-emerald-50 bg-emerald-900/20 border-emerald-100 border-emerald-800/30',
+        warning: 'bg-amber-50 bg-amber-900/20 border-amber-100 border-amber-800/30',
     };
 
     const iconBgColors = {
-        info: 'bg-primary-100 dark:bg-primary-800/30',
-        success: 'bg-emerald-100 dark:bg-emerald-800/30',
-        warning: 'bg-amber-100 dark:bg-amber-800/30',
+        info: 'bg-primary-100 bg-primary-800/30',
+        success: 'bg-emerald-100 bg-emerald-800/30',
+        warning: 'bg-amber-100 bg-amber-800/30',
     };
     
     const iconTextColors = {
-        info: 'text-primary-600 dark:text-primary-400',
-        success: 'text-emerald-600 dark:text-emerald-400',
-        warning: 'text-amber-600 dark:text-amber-400',
+        info: 'text-primary-600 text-primary-400',
+        success: 'text-emerald-600 text-emerald-400',
+        warning: 'text-amber-600 text-amber-400',
     };
 
     return (
@@ -43,14 +43,14 @@ export default function NotificationCard({ icon: Icon, title, message, time, typ
                     <Icon className={`w-4 h-4 ${iconTextColors[type] || iconTextColors.info}`} />
                 </div>
                 <div className="ml-3 flex-1 min-w-0">
-                    <h4 className="font-semibold text-sm text-neutral-800 dark:text-neutral-100 group-hover:text-neutral-900 dark:group-hover:text-white transition-colors duration-200">
+                    <h4 className="font-semibold text-sm text-neutral-800 text-neutral-100 group-hover:text-neutral-900 group-hover:text-white transition-colors duration-200">
                         {title}
                     </h4>
-                    <p className="text-sm text-neutral-600 dark:text-neutral-300 mt-1 leading-relaxed">
+                    <p className="text-sm text-neutral-600 text-neutral-300 mt-1 leading-relaxed">
                         {message}
                     </p>
                     <div className="flex items-center justify-between mt-2">
-                        <span className="text-xs font-medium text-neutral-500 dark:text-neutral-400">
+                        <span className="text-xs font-medium text-neutral-500 text-neutral-400">
                             {time}
                         </span>
                         <div className="w-2 h-2 rounded-full bg-current opacity-20"></div>

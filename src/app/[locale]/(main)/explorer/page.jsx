@@ -70,7 +70,7 @@ export default function ExplorerPage() {
                 
                 <ExploreHeader syndicatesCount={totalElements} t={t} />
 
-                <ExplorerClient initialSyndicates={syndicates} />
+                <ExplorerClient syndicates={syndicates} />
 
                 <div className="text-center mt-12">
                     {hasNextPage ? (
