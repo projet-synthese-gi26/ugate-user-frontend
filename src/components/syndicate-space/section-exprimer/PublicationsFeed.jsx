@@ -1,104 +1,89 @@
 "use client";
-
-import { useState, useEffect, useMemo } from 'react';
-import { AnimatePresence, motion } from 'framer-motion';
+import { useState, useEffect } from 'react';
 import { toast } from 'react-hot-toast';
-import { useTranslations } from "next-intl";
-import { Plus, RefreshCw, MessageSquare, Search } from 'lucide-react';
+import { ugateInstance } from '@/lib/api/instance';
+import { getPostsAPI, createPostAPI } from '@/lib/api/posts';
 import Post from './Post';
 import NewPostModal from './NewPostModal';
 import { useUser } from '@/context/UserContext';
-import { getPostsAPI, createPostAPI } from '@/lib/api/posts';
-import { ugateInstance } from '@/lib/api/instance'; 
+import { Plus, RefreshCw } from 'lucide-react';
 
-export default function PublicationsFeed({ initialPosts = [], syndicatId }) {
-    const t = useTranslations('express_page');
+export default function PublicationsFeed({ syndicatId }) {
     const { user } = useUser();
-    
-    const [posts, setPosts] = useState(initialPosts || []);
-    const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
-    const [isCreatingPost, setIsCreatingPost] = useState(false);
-    const [searchTerm, setSearchTerm] = useState('');
+    const [posts, setPosts] = useState([]);
     const [activeBranchId, setActiveBranchId] = useState(null);
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [loading, setLoading] = useState(true);
 
-    // 1. RÉCUPÉRER LA BRANCHE (Indispensable pour le branchId)
-    useEffect(() => {
-        const loadBranch = async () => {
-            try {
-                const res = await ugateInstance.get(`/syndicates/${syndicatId}/branches`);
-                if (res.data && res.data.length > 0) {
-                    const bId = res.data[0].id;
-                    setActiveBranchId(bId);
-                    // Charger les posts de la branche
-                    const postsData = await getPostsAPI(bId);
-                    setPosts(postsData?.content || []);
-                }
-            } catch (err) {
-                console.error("Erreur récupération branche:", err);
-            }
-        };
-        if (syndicatId) loadBranch();
-    }, [syndicatId]);
-
-    const handleCreatePost = async (formData) => {
-        setIsCreatingPost(true);
+    // 1. Charger la branche ET les posts existants
+    const loadData = async () => {
+        setLoading(true);
         try {
-            const newPost = await createPostAPI(formData);
-            setPosts(prev => [newPost, ...prev]);
-            setIsCreateModalOpen(false);
-            toast.success("Publication créée !");
-        } catch (error) {
-            toast.error("Erreur lors de la publication");
+            const resBranch = await ugateInstance.get(`/syndicates/${syndicatId}/branches`);
+            if (resBranch.data && resBranch.data.length > 0) {
+                const bId = resBranch.data[0].id;
+                setActiveBranchId(bId);
+                
+                // On récupère les publications
+                const resPosts = await getPostsAPI(bId);
+                // On gère le fait que l'API renvoie un tableau direct
+                const postsArray = Array.isArray(resPosts) ? resPosts : (resPosts.content || []);
+                setPosts(postsArray);
+            }
+        } catch (e) {
+            console.error("Erreur de chargement", e);
         } finally {
-            setIsCreatingPost(false);
+            setLoading(false);
         }
     };
 
-    const filteredPosts = useMemo(() => 
-        (posts || []).filter(post => 
-            post?.content?.toLowerCase().includes(searchTerm.toLowerCase())
-        ), [posts, searchTerm]);
+    useEffect(() => {
+        if (syndicatId) loadData();
+    }, [syndicatId]);
+
+    const handleCreatePost = async (formData) => {
+        try {
+            const newPost = await createPostAPI(formData);
+            // On ajoute le nouveau post en haut de la liste
+            setPosts(prev => [newPost, ...prev]);
+            setIsModalOpen(false);
+            toast.success("Publication réussie !");
+        } catch (e) {
+            toast.error("Erreur lors de la publication");
+        }
+    };
 
     return (
-        <div className="space-y-8">
-            <div className="flex items-start justify-between">
-                <h1 className="text-3xl font-bold text-gray-900 text-white">Publications</h1>
+        <div className="max-w-2xl mx-auto py-8 px-4">
+            <div className="flex items-center justify-between mb-8">
+                <h1 className="text-3xl font-black text-gray-900 tracking-tight text-white">Publications</h1>
                 <button 
-                    onClick={() => setIsCreateModalOpen(true)}
-                    className="p-3 bg-blue-700 text-white rounded-full shadow-lg hover:bg-blue-800 transition-all"
+                    onClick={() => setIsModalOpen(true)}
+                    className="w-12 h-12 bg-blue-600 text-white rounded-full flex items-center justify-center shadow-lg hover:bg-blue-700 transition-all active:scale-90"
                 >
-                    <Plus size={24} />
+                    <Plus size={28} />
                 </button>
             </div>
 
-            {/* Barre de recherche */}
-            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 flex items-center">
-                <Search className="text-gray-400 mr-2" size={20} />
-                <input 
-                    type="text" 
-                    placeholder="Rechercher..." 
-                    className="flex-1 outline-none text-gray-700"
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                />
-            </div>
+            {loading ? (
+                <div className="flex justify-center py-20"><RefreshCw className="animate-spin text-blue-500" /></div>
+            ) : posts.length > 0 ? (
+                <div className="space-y-4">
+                    {posts.map(p => <Post key={p.id} post={p} />)}
+                </div>
+            ) : (
+                <div className="text-center py-20 bg-white rounded-2xl border border-dashed border-gray-300">
+                    <p className="text-gray-400 font-medium">Aucune publication pour le moment.</p>
+                </div>
+            )}
 
-            {/* Liste des posts */}
-            <div className="space-y-6">
-                {filteredPosts.map((post) => (
-                    <Post key={post.postId} post={post} syndicatId={syndicatId} />
-                ))}
-            </div>
-
-            {/* MODALE DE CRÉATION */}
             <NewPostModal 
-                isOpen={isCreateModalOpen}
-                onClose={() => setIsCreateModalOpen(false)}
+                isOpen={isModalOpen} 
+                onClose={() => setIsModalOpen(false)}
                 onNewPost={handleCreatePost}
-                isLoading={isCreatingPost}
+                authorId={user?.id}
+                branchId={activeBranchId}
                 userName={user?.firstName}
-                authorId={user?.id}        // L'ID de l'utilisateur
-                branchId={activeBranchId}  // L'ID de l'antenne récupéré en haut
             />
         </div>
     );

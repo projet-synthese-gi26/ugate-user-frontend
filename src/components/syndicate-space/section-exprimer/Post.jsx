@@ -1,114 +1,127 @@
 "use client";
 
-import { useState } from 'react';
-import { motion } from 'framer-motion';
+import { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import Image from 'next/image';
-import { 
-    Heart, 
-    MessageCircle, 
-    Share2, 
-    MoreHorizontal, 
-    Clock,
-    User
-} from 'lucide-react';
+import { Heart, MessageCircle, Share2, Send, Clock, ImageIcon } from 'lucide-react';
 import { SyndicatDefaultAvatar } from '@/components/shared/SyndicatDefaultAvatar';
+import { getCommentsAPI, addCommentAPI } from '@/lib/api/posts';
+import { toast } from 'react-hot-toast';
 
 export default function Post({ post }) {
-    const [isLiked, setIsLiked] = useState(false);
+    const [showComments, setShowComments] = useState(false);
+    const [comments, setComments] = useState([]);
+    const [newComment, setNewComment] = useState("");
+    const [isLoadingComments, setIsLoadingComments] = useState(false);
 
-    // --- LOGIQUE D'EXTRACTION DES DONNÉES (Basée sur ton JSON Swagger) ---
-    const authorName = post.authorFullName || "Utilisateur";
-    const content = post.content || "";
-    const date = post.createdAt ? new Date(post.createdAt).toLocaleDateString('fr-FR', {
-        day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit'
-    }) : "À l'instant";
+    // 1. Charger les commentaires quand on clique sur le bouton
+    const toggleComments = async () => {
+        if (!showComments) {
+            setIsLoadingComments(true);
+            try {
+                const data = await getCommentsAPI(null, post.id); // branchId est null ici car non requis par ton Swagger
+                setComments(Array.isArray(data) ? data : []);
+            } catch (e) {
+                console.error(e);
+            } finally {
+                setIsLoadingComments(false);
+            }
+        }
+        setShowComments(!showComments);
+    };
 
-    // On cherche l'image dans le tableau fileUrlAndType
-    const imageInfo = post.fileUrlAndType?.find(file => file.type === "IMAGE");
-    const imageUrl = imageInfo?.url;
+    // 2. Envoyer un nouveau commentaire
+    const handleAddComment = async (e) => {
+        e.preventDefault();
+        if (!newComment.trim()) return;
+
+        try {
+            const created = await addCommentAPI(post.id, newComment.trim());
+            setComments([created, ...comments]);
+            setNewComment("");
+            toast.success("Commentaire ajouté");
+        } catch (e) {
+            toast.error("Erreur lors de l'envoi");
+        }
+    };
 
     return (
-        <motion.div 
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden mb-6 w-full"
-        >
-            {/* 1. HEADER DU POST */}
-            <div className="p-4 flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                    <div className="relative">
-                        <SyndicatDefaultAvatar name={authorName} size={42} />
-                        <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-white rounded-full"></div>
-                    </div>
-                    <div>
-                        <h4 className="font-bold text-gray-900 text-sm leading-tight">{authorName}</h4>
-                        <p className="text-[11px] text-gray-500 flex items-center gap-1">
-                            <Clock size={10} /> {date}
-                        </p>
-                    </div>
-                </div>
-                <button className="text-gray-400 hover:bg-gray-50 p-2 rounded-full transition-colors">
-                    <MoreHorizontal size={20} />
+        <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden mb-6 w-full max-w-2xl mx-auto">
+            {/* ... (Garder le header et le contenu du post comme avant) ... */}
+            <div className="p-4">
+                <h4 className="font-bold text-sm">{post.authorFullName}</h4>
+                <p className="text-gray-800 text-sm mt-1">{post.content}</p>
+            </div>
+
+            {/* BARRE D'ACTIONS */}
+            <div className="px-2 py-1 flex items-center border-t border-gray-50">
+                <button className="flex-1 py-2 flex items-center justify-center gap-2 text-gray-600 hover:bg-gray-50 rounded-lg transition-colors text-sm">
+                    <Heart size={18} /> J'aime
                 </button>
-            </div>
 
-            {/* 2. TEXTE DU POST */}
-            <div className="px-4 pb-3">
-                <p className="text-[15px] text-gray-800 leading-relaxed whitespace-pre-wrap">
-                    {content}
-                </p>
-            </div>
-
-            {/* 3. IMAGE DU POST (Si elle existe) */}
-            {imageUrl && (
-                <div className="px-4 mb-3">
-                    <div className="relative aspect-video w-full rounded-xl overflow-hidden border border-gray-100 bg-gray-50">
-                        <Image 
-                            src={imageUrl} 
-                            alt="Illustration de la publication" 
-                            fill 
-                            className="object-cover"
-                            unoptimized // Pour éviter les timeouts sur ton PC
-                        />
-                    </div>
-                </div>
-            )}
-
-            {/* 4. COMPTEURS (Likes / Comments) */}
-            <div className="px-4 py-2 flex items-center justify-between border-b border-gray-50">
-                <div className="flex items-center gap-2">
-                    <div className="flex -space-x-1">
-                        <div className="w-5 h-5 rounded-full bg-blue-500 flex items-center justify-center border border-white">
-                            <Heart size={10} className="text-white fill-current" />
-                        </div>
-                    </div>
-                    <span className="text-xs text-gray-500">{post.nlikes || 0} réactions</span>
-                </div>
-                <div className="text-xs text-gray-500">
-                    {post.ncomments || 0} commentaires
-                </div>
-            </div>
-
-            {/* 5. ACTIONS SOCIALES */}
-            <div className="px-2 py-1 flex items-center justify-between">
                 <button 
-                    onClick={() => setIsLiked(!isLiked)}
-                    className={`flex-1 py-2 flex items-center justify-center gap-2 rounded-lg transition-colors ${isLiked ? 'text-blue-600 font-bold' : 'text-gray-600 hover:bg-gray-50'}`}
+                    onClick={toggleComments}
+                    className={`flex-1 py-2 flex items-center justify-center gap-2 rounded-lg transition-colors text-sm ${showComments ? 'text-blue-600 font-bold bg-blue-50' : 'text-gray-600 hover:bg-gray-50'}`}
                 >
-                    <Heart size={18} className={isLiked ? "fill-current" : ""} />
-                    <span className="text-sm">J'aime</span>
+                    <MessageCircle size={18} /> Commenter
                 </button>
 
-                <button className="flex-1 py-2 flex items-center justify-center gap-2 text-gray-600 hover:bg-gray-50 rounded-lg transition-colors">
-                    <MessageCircle size={18} />
-                    <span className="text-sm">Commenter</span>
-                </button>
-
-                <button className="flex-1 py-2 flex items-center justify-center gap-2 text-gray-600 hover:bg-gray-50 rounded-lg transition-colors">
-                    <Share2 size={18} />
-                    <span className="text-sm">Partager</span>
+                <button className="flex-1 py-2 flex items-center justify-center gap-2 text-gray-600 hover:bg-gray-50 rounded-lg transition-colors text-sm">
+                    <Share2 size={18} /> Partager
                 </button>
             </div>
-        </motion.div>
+
+            {/* SECTION COMMENTAIRES (AnimatePresence pour un effet fluide) */}
+            <AnimatePresence>
+                {showComments && (
+                    <motion.div 
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: 'auto', opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        className="bg-gray-50 border-t border-gray-100 overflow-hidden"
+                    >
+                        {/* Champ de saisie */}
+                        <div className="p-4 flex gap-3">
+                            <SyndicatDefaultAvatar name="Moi" size={32} />
+                            <form onSubmit={handleAddComment} className="flex-1 relative">
+                                <input 
+                                    value={newComment}
+                                    onChange={(e) => setNewComment(e.target.value)}
+                                    placeholder="Écrivez un commentaire..."
+                                    className="w-full bg-white border border-gray-200 rounded-full py-2 pl-4 pr-10 text-sm focus:outline-none focus:border-blue-400 transition-all"
+                                />
+                                <button type="submit" className="absolute right-2 top-1/2 -translate-y-1/2 text-blue-600 hover:text-blue-700">
+                                    <Send size={16} />
+                                </button>
+                            </form>
+                        </div>
+
+                        {/* Liste des commentaires */}
+                        <div className="px-4 pb-4 space-y-4">
+                            {isLoadingComments ? (
+                                <p className="text-center text-xs text-gray-400 py-4">Chargement...</p>
+                            ) : comments.length > 0 ? (
+                                comments.map(comment => (
+                                    <div key={comment.id} className="flex gap-3">
+                                        <SyndicatDefaultAvatar name={comment.authorFullName} size={32} />
+                                        <div className="flex-1 bg-white p-3 rounded-2xl shadow-sm border border-gray-100">
+                                            <div className="flex justify-between items-center mb-1">
+                                                <span className="font-bold text-xs text-gray-900">{comment.authorFullName}</span>
+                                                <span className="text-[10px] text-gray-400">
+                                                    {new Date(comment.createdAt).toLocaleDateString()}
+                                                </span>
+                                            </div>
+                                            <p className="text-sm text-gray-700">{comment.content}</p>
+                                        </div>
+                                    </div>
+                                ))
+                            ) : (
+                                <p className="text-center text-xs text-gray-400 py-2">Soyez le premier à commenter !</p>
+                            )}
+                        </div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+        </div>
     );
 }

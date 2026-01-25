@@ -8,40 +8,24 @@ export const ugateInstance = axios.create({
     timeout: 15000,
 });
 
-export const getAuthToken = async () => {
-    if (typeof window === 'undefined') {
-        try {
-            const { cookies } = await import('next/headers');
-            const cookieStore = await cookies();
-            // On essaie de récupérer 'accessToken'
-            const token = cookieStore.get('accessToken')?.value;
-            return token || null;
-        } catch (e) {
-            return null;
-        }
-    }
-    return typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null;
-};
-
-// Intercepteur pour les appels navigateurs
+// Intercepteur unique et simple
 ugateInstance.interceptors.request.use(async (config) => {
-    const token = await getAuthToken();
-    if (token) config.headers.Authorization = `Bearer ${token}`;
+    let token = null;
+    if (typeof window === 'undefined') {
+        const { cookies } = await import('next/headers');
+        token = (await cookies()).get('accessToken')?.value;
+    } else {
+        token = localStorage.getItem('accessToken');
+    }
+    
+    if (token) {
+        config.headers.Authorization = `Bearer ${token}`;
+    }
     return config;
 });
 
-export const serverFetch = async (method, url, data = null, config = {}) => {
-    try {
-        const token = await getAuthToken();
-        const headers = {
-            ...config.headers,
-            ...(token ? { Authorization: `Bearer ${token}` } : {})
-        };
-        return await ugateInstance.request({ method, url, data, ...config, headers });
-    } catch (error) {
-        // IMPORTANT : On rejette l'erreur pour qu'elle soit attrapée par le try/catch du composant
-        return Promise.reject(error);
-    }
+export const serverFetch = (method, url, data = null, config = {}) => {
+    return ugateInstance.request({ method, url, data, ...config });
 };
 
-export default axios.create({ baseURL: AUTH_URL, timeout: 15000 });
+export default axios.create({ baseURL: AUTH_URL });

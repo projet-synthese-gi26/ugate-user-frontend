@@ -40,17 +40,36 @@ export const likePostAPI = async (branchId, postId, liked) => {
 };
 
 /**
- * Ajouter un commentaire
+ * Ajouter un commentaire (Format Multipart/Form-Data selon Swagger)
  */
-export const addCommentAPI = async (branchId, publicationId, content, imageUrl = null, parentId = null) => {
-    // Changé 'axios' par 'ugateInstance'
-    return await ugateInstance.post(`/publications/${publicationId}/comments`, { 
-        content, 
-        imageUrl, 
-        parentId 
-    });
-};
+export const addCommentAPI = async (publicationId, content, imageFile = null, parentId = null) => {
+    try {
+        const formData = new FormData();
+        formData.append('content', content);
 
+        // On n'ajoute parentId QUE s'il existe vraiment (réponse à un message)
+        // Surtout ne pas envoyer "string" ou ""
+        if (parentId) {
+            formData.append('parentId', parentId);
+        }
+
+        // Ajout de l'image optionnelle
+        if (imageFile) {
+            formData.append('image', imageFile);
+        }
+
+        const response = await ugateInstance.post(
+            `/publications/${publicationId}/comments`, 
+            formData,
+            { headers: { 'Content-Type': 'multipart/form-data' } }
+        );
+        
+        return response.data;
+    } catch (error) {
+        console.error("Erreur ajout commentaire:", error.message);
+        throw error;
+    }
+};
 /**
  * Récupérer les commentaires
  */
