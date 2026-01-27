@@ -5,9 +5,10 @@ import i18nConfig from './src/i18n.js';
 const nextConfig = {
     // Mode strict React
     reactStrictMode: true,
-
-    output: 'standalone',
     
+    output: 'standalone',
+      // Optimise le tracing des fichiers pour Docker
+        outputFileTracingRoot: process.cwd(), 
 
     images: {
         remotePatterns: [
@@ -81,8 +82,7 @@ const nextConfig = {
     
     // Optimisations pour Docker
     experimental: {
-        // Optimise le tracing des fichiers pour Docker
-        outputFileTracingRoot: process.cwd(),
+      
     },
 };
 
