@@ -85,12 +85,17 @@ export const createEventAPI = async (branchId, eventData, imageFiles = []) => {
 };
 
 /**
- * Rejoindre un événement
+ * Permet à l'utilisateur connecté de rejoindre un événement
+ * @param {string} eventId - UUID de l'événement
  */
 export const joinEventAPI = async (eventId) => {
-    // Changé axios.post par ugateInstance.post
-    const response = await ugateInstance.post(`/events/${eventId}/join`);
-    return response.data;
+    try {
+        const response = await ugateInstance.post(`/events/${eventId}/join`);
+        return response.data;
+    } catch (error) {
+        console.error("Erreur lors de la participation à l'événement:", error.response?.data || error.message);
+        throw error;
+    }
 };
 
 /**
@@ -125,3 +130,4 @@ export const getRecentPublicEventsAPI = async (size = 5) => {
         return [];
     }
 };
+

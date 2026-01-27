@@ -94,3 +94,21 @@ export const getRecentPublicPostsAPI = async (size = 5) => {
         return [];
     }
 };
+
+/**
+ * Ajoute une réaction de type LIKE à une publication
+ * @param {string} publicationId - UUID de la publication
+ * @param {string} userId - UUID de l'utilisateur qui like
+ */
+export const addReactionAPI = async (publicationId, userId) => {
+    try {
+        const response = await ugateInstance.post(`/publications/${publicationId}/reactions`, {
+            userId: userId,
+            reactionType: "LIKE" // Valeur attendue par le schéma Swagger
+        });
+        return response.data;
+    } catch (error) {
+        console.error("Erreur lors de l'ajout de la réaction:", error.response?.data || error.message);
+        throw error;
+    }
+};

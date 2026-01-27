@@ -52,6 +52,22 @@ export default function EventCard({ event, onUpdateEvent, onShowParticipants }) 
             setIsJoining(false);
         }
     };
+            // À l'intérieur du composant EventCard
+const handleJoinEvent = async () => {
+    setIsJoining(true);
+    try {
+        // Appel conforme au Swagger (URL seule, authentifiée)
+        await joinEventAPI(event.id);
+        
+        setHasJoined(true);
+        toast.success("Inscription réussie !");
+    } catch (error) {
+        toast.error("Erreur lors de l'inscription");
+    } finally {
+        setIsJoining(false);
+    }
+};
+
 
     return (
         <motion.div
