@@ -1,5 +1,6 @@
 import axios from './instance';
 import { getUserSyndicatesAPI } from './syndicates';
+import { getMySyndicatesAPI } from './syndicates';
 import { setCookie, deleteCookie } from '../utils/cookies';
 
 export const loginWithIdentifier = async (identifier, password) => {
@@ -8,29 +9,29 @@ export const loginWithIdentifier = async (identifier, password) => {
     identifier, 
     password 
 });
+if (response.data?.accessToken) {
+        const token = response.data.accessToken;
 
-    if (response.data?.accessToken) {
-        localStorage.setItem('accessToken', response.data.accessToken);
-        localStorage.setItem('refreshToken', response.data.refreshToken);
+        // 1. ON ENREGISTRE LE TOKEN IMMÉDIATEMENT
+        // C'est crucial pour que l'appel suivant (mine) soit autorisé
+        localStorage.setItem('accessToken', token);
+        setCookie('accessToken', token, 7);
         localStorage.setItem('user', JSON.stringify(response.data.user));
-        // Stocker aussi dans les cookies pour l'accès côté serveur
-        setCookie('accessToken', response.data.accessToken, 7);
-        setCookie('refreshToken', response.data.refreshToken, 30);
 
-        // Récupérer les syndicats de l'utilisateur
-        const userId = response.data.user?.id;
-        if (userId) {
-            try {
-                const syndicates = await getUserSyndicatesAPI(userId);
-                if (syndicates && syndicates.length > 0) {
-                    // Stocker le premier syndicat comme syndicat actif
-                    localStorage.setItem('syndicatId', syndicates[0].id);
-                    response.data.syndicatId = syndicates[0].id;
-                    response.data.syndicates = syndicates;
-                }
-            } catch (error) {
-                console.warn("Impossible de récupérer les syndicats de l'utilisateur:", error);
+        // 2. ON RÉCUPÈRE LE SYNDICAT LIÉ VIA /syndicates/mine
+        try {
+            const mySyndicates = await getMySyndicatesAPI();
+            
+            if (mySyndicates && mySyndicates.length > 0) {
+                // On prend le premier (et normalement seul) syndicat assigné par l'admin
+                const assignedId = mySyndicates[0].id;
+                localStorage.setItem('syndicatId', assignedId);
+                
+                // On passe l'info à l'objet de réponse pour le formulaire
+                response.data.assignedSyndicatId = assignedId;
             }
+        } catch (error) {
+            console.error("Erreur lors de la récupération automatique du syndicat:", error);
         }
     }
     return response.data;

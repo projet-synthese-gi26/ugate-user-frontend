@@ -23,10 +23,10 @@ export const createSyndicateAPI = async (formData) => {
  */
 export const getMySyndicatesAPI = async () => {
     try {
-        const response = await axios.get('/syndicates/mine');
-        return response.data;
+        // Cette requête partira avec "Authorization: Bearer <ton_token>"
+        const response = await ugateInstance.get('/syndicates/mine');
+        return response.data; // Renvoie [] ou [ {id: ...} ]
     } catch (error) {
-        console.error("Erreur lors de la récupération de mes syndicats:", error);
         throw error;
     }
 };
