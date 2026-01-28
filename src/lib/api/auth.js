@@ -35,18 +35,38 @@ export const loginWithIdentifier = async (identifier, password) => {
     }
     return response.data;
 };
+export const registerWithEmail = async (userData, profileFile = null) => {
+    const formData = new FormData();
 
-export const registerWithEmail = async (userData) => {
-    // Note: This needs to be adapted if the registration endpoint has changed
-    const response = await axios.post('/auth/register', userData);
+    // 1. On prépare l'objet 'data' tel que demandé par Swagger
+    // On le transforme en Blob JSON pour que le backend le reconnaisse comme du JSON
+    const dataBlob = new Blob([JSON.stringify(userData)], {
+        type: 'application/json'
+    });
+    
+    formData.append('data', dataBlob);
+
+    // 2. On ajoute le fichier s'il existe
+    if (profileFile) {
+        formData.append('file', profileFile);
+    }
+
+    // 3. Envoi avec axios
+    const response = await axios.post('/auth/register', formData, {
+        headers: {
+            'Content-Type': 'multipart/form-data',
+        },
+    });
+
+    // Logique des cookies (inchangée)
     if (response.data?.accessToken) {
         localStorage.setItem('accessToken', response.data.accessToken);
         localStorage.setItem('refreshToken', response.data.refreshToken);
         localStorage.setItem('user', JSON.stringify(response.data.user));
-        // Stocker aussi dans les cookies pour l'accès côté serveur
         setCookie('accessToken', response.data.accessToken, 7);
         setCookie('refreshToken', response.data.refreshToken, 30);
     }
+    
     return response.data;
 };
 
