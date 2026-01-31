@@ -1,4 +1,5 @@
 import axios from './instance';
+//import axios from 'axios';
 import { getUserSyndicatesAPI } from './syndicates';
 import { getMySyndicatesAPI } from './syndicates';
 import { setCookie, deleteCookie } from '../utils/cookies';
@@ -11,27 +12,22 @@ export const loginWithIdentifier = async (identifier, password) => {
 });
 if (response.data?.accessToken) {
         const token = response.data.accessToken;
-
-        // 1. ON ENREGISTRE LE TOKEN IMMÉDIATEMENT
-        // C'est crucial pour que l'appel suivant (mine) soit autorisé
+        
+        // 2. STOCKAGE IMMÉDIAT
         localStorage.setItem('accessToken', token);
-        setCookie('accessToken', token, 7);
         localStorage.setItem('user', JSON.stringify(response.data.user));
+        setCookie('accessToken', token, 7);
 
-        // 2. ON RÉCUPÈRE LE SYNDICAT LIÉ VIA /syndicates/mine
+        // 3. RÉCUPÉRATION DU SYNDICAT (OPTIONNEL ET SÉCURISÉ)
         try {
             const mySyndicates = await getMySyndicatesAPI();
-            
             if (mySyndicates && mySyndicates.length > 0) {
-                // On prend le premier (et normalement seul) syndicat assigné par l'admin
                 const assignedId = mySyndicates[0].id;
                 localStorage.setItem('syndicatId', assignedId);
-                
-                // On passe l'info à l'objet de réponse pour le formulaire
                 response.data.assignedSyndicatId = assignedId;
             }
-        } catch (error) {
-            console.error("Erreur lors de la récupération automatique du syndicat:", error);
+        } catch (e) {
+            console.warn("L'utilisateur n'a pas encore de syndicat assigné.");
         }
     }
     return response.data;

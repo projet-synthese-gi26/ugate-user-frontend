@@ -65,16 +65,16 @@ export default function LoginForm() {
                 timer: 1500,
                 showConfirmButton: false,
             });
-            // Rediriger vers l'espace syndicat si syndicatId présent, sinon vers explorer
-            const result = await loginWithIdentifier(data.identifier, data.password);
 
-if (result.assignedSyndicatId) {
-    // Si l'admin a fait son travail, l'user arrive direct dans SON espace
-    router.push(`/${locale}/syndicat-space/${result.assignedSyndicatId}/membres`);
-} else {
-    // Si c'est un compte vide (pas de syndicat lié), on va sur la home
-    router.push(`/${locale}/home`);
-}
+            // Rediriger vers l'espace syndicat si syndicatId présent, sinon vers home
+            // Note: router.push de next-intl ajoute automatiquement la locale
+            if (response.assignedSyndicatId) {
+                // Si l'admin a fait son travail, l'user arrive direct dans SON espace
+                router.push(`/syndicat-space/${response.assignedSyndicatId}/membres`);
+            } else {
+                // Si c'est un compte vide (pas de syndicat lié), on va sur la home
+                router.push(`/home`);
+            }
         } catch (error) {
             console.error("Erreur de connexion:", error);
             let errorMessage = t('generic_error');
