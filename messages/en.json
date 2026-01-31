@@ -243,7 +243,12 @@
     "details": "Details",
     "join": "Join",
     "members": "members",
-    "certified": "Certified Union"
+    "certified": "Certified Union",
+    "card": {
+      "members": "members",
+      "details": "Details",
+      "adhere": "Join"
+    }
   },
   
 
@@ -251,15 +256,6 @@
   "adhesion_modal": {
     "title": "Join {syndicatName}",
     "subtitle": "Follow the steps to finalize your membership application."
-  },
-  "adhesion_wizard": {
-    "step1_name": "Branch",
-    "step2_name": "Membership type",
-    "step3_name": "Your information",
-    "step4_name": "Confirmation",
-    "step_of": "Step {current} of {total}",
-    "previous": "Previous",
-    "next": "Next"
   },
   "adhesion_form": {
     "title": "Membership form",
@@ -283,17 +279,29 @@
     "id_photo": "ID photo",
     "id_card_front": "ID card (Front)",
     "id_card_back": "ID card (Back)",
-    "submit_button": "Submit my application"
-  },
-  "confirmation": {
-    "title": "Application sent!",
-    "subtitle": "Your membership application for the {antenneName} branch has been received.",
-    "ref_number": "Your reference number",
-    "next_steps_title": "Next steps",
-    "step_1": "Your application will be reviewed by the branch managers.",
-    "step_2": "You will receive a notification by email and on the platform once your application is processed.",
-    "step_3": "If accepted, you will have access to the full member area of the union.",
-    "back_to_home": "Back to home"
+    "submit_button": "Submit my application",
+    "adhesion_wizard": {
+      "step1_name": "Branch",
+      "step2_name": "Membership type",
+      "step3_name": "Your information",
+      "step4_name": "Confirmation",
+      "step_of": "Step {current} of {total}",
+      "previous": "Previous",
+      "next": "Next",
+      "loading_branches": "Loading branches...",
+      "retry": "Retry",
+      "no_branches": "No branches available for this union."
+    },
+    "confirmation": {
+      "title": "Application sent!",
+      "subtitle": "Your membership application for the {antenneName} branch has been received.",
+      "ref_number": "Your reference number",
+      "next_steps_title": "Next steps",
+      "step_1": "Your application will be reviewed by the branch managers.",
+      "step_2": "You will receive a notification by email and on the platform once your application is processed.",
+      "step_3": "If accepted, you will have access to the full member area of the union.",
+      "back_to_home": "Back to home"
+    }
   },
   "syndicats_page": {
     "loading_text": "Loading your unions...",
@@ -408,6 +416,7 @@
     "success_toast": "Event created successfully!"
   },
   "chat": {
+    "title": "Messaging",
     "search_placeholder": "Search for a conversation...",
     "new_discussion": "New discussion",
     "message_placeholder": "Write a message...",

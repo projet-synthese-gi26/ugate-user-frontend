@@ -1,5 +1,5 @@
 import {getTranslations} from 'next-intl/server'; // CORRECTION : On importe le bon helper
-import { getBranchMembersAPI, getAdhesionRequestsAPI } from '@/lib/api/membership';
+import { getSyndicateMembersAPI, getAdhesionRequestsAPI } from '@/lib/api/membership';
 import { getSyndicateDetailsAPI } from '@/lib/api/syndicates';
 import MembersClient from '@/components/syndicate-space/section-membres/MembersClient';
 import { notFound } from 'next/navigation';
@@ -33,9 +33,10 @@ async function getMembersData(syndicateId) {
         let requests = [];
 
         try {
-            members = await getBranchMembersAPI(mainBranchId);
+            // Utilise syndicateId au lieu de branchId (nouvelle route API)
+            members = await getSyndicateMembersAPI(syndicateId);
         } catch (error) {
-            console.warn(`Failed to fetch members for branch ${mainBranchId}:`, error.message);
+            console.warn(`Failed to fetch members for syndicate ${syndicateId}:`, error.message);
             // L'API peut ne pas être implémentée, on continue avec un tableau vide
             members = [];
         }

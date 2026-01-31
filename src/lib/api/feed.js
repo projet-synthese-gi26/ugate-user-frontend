@@ -73,7 +73,7 @@ export const getSyndicateFeedAPI = async (syndicateId, page = 0, size = 20, sort
     try {
         const params = createPaginationParams(page, size, sortBy, sortDirection);
         
-        const response = await apiInstance.get(`/syndicates/${syndicateId}/feed`, { params });
+        const response = await ugateInstance.get(`/syndicates/${syndicateId}/feed`, { params });
         return processPaginatedResponse(response);
     } catch (error) {
         throw handleAPIError(error, `Impossible de récupérer le feed du syndicat ${syndicateId}`);

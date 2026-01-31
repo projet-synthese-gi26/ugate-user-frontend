@@ -293,15 +293,6 @@
     "title": "Adhérer à {syndicatName}",
     "subtitle": "Suivez les étapes pour finaliser votre demande d'adhésion."
   },
-  "adhesion_wizard": {
-    "step1_name": "Antenne",
-    "step2_name": "Type d'adhésion",
-    "step3_name": "Vos informations",
-    "step4_name": "Confirmation",
-    "step_of": "Étape {current} sur {total}",
-    "previous": "Précédent",
-    "next": "Suivant"
-  },
   "adhesion_form": {
     "title": "Formulaire d'adhésion",
     "subtitle": "Veuillez remplir vos informations personnelles.",
@@ -324,17 +315,29 @@
     "id_photo": "Photo d'identité",
     "id_card_front": "Pièce d'identité (Recto)",
     "id_card_back": "Pièce d'identité (Verso)",
-    "submit_button": "Soumettre ma demande"
-  },
-  "confirmation": {
-    "title": "Demande envoyée !",
-    "subtitle": "Votre demande d'adhésion pour l'antenne {antenneName} a bien été reçue.",
-    "ref_number": "Votre numéro de référence",
-    "next_steps_title": "Prochaines étapes",
-    "step_1": "Votre demande sera examinée par les responsables de l'antenne.",
-    "step_2": "Vous recevrez une notification par e-mail et sur la plateforme une fois votre demande traitée.",
-    "step_3": "En cas d'acceptation, vous aurez accès à l'espace membre complet du syndicat.",
-    "back_to_home": "Retour à l'accueil"
+    "submit_button": "Soumettre ma demande",
+    "adhesion_wizard": {
+      "step1_name": "Antenne",
+      "step2_name": "Type d'adhésion",
+      "step3_name": "Vos informations",
+      "step4_name": "Confirmation",
+      "step_of": "Étape {current} sur {total}",
+      "previous": "Précédent",
+      "next": "Suivant",
+      "loading_branches": "Chargement des antennes...",
+      "retry": "Réessayer",
+      "no_branches": "Aucune antenne disponible pour ce syndicat."
+    },
+    "confirmation": {
+      "title": "Demande envoyée !",
+      "subtitle": "Votre demande d'adhésion pour l'antenne {antenneName} a bien été reçue.",
+      "ref_number": "Votre numéro de référence",
+      "next_steps_title": "Prochaines étapes",
+      "step_1": "Votre demande sera examinée par les responsables de l'antenne.",
+      "step_2": "Vous recevrez une notification par e-mail et sur la plateforme une fois votre demande traitée.",
+      "step_3": "En cas d'acceptation, vous aurez accès à l'espace membre complet du syndicat.",
+      "back_to_home": "Retour à l'accueil"
+    }
   },
   "syndicats_page": {
     "loading_text": "Chargement de vos syndicats...",
@@ -478,6 +481,7 @@
     "success_toast": "Événement créé avec succès !"
   },
   "chat": {
+    "title": "Messagerie",
     "search_placeholder": "Rechercher une conversation...",
     "new_discussion": "Nouvelle discussion",
     "message_placeholder": "Écrire un message...",

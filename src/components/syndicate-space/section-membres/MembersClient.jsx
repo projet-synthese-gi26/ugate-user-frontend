@@ -8,7 +8,7 @@ import { toast } from 'react-hot-toast';
 import { Users, UserPlus, Search, Filter, Check, X, AlertTriangle, UserX, Shield, UserCheck, RefreshCw } from 'lucide-react';
 import StatCard from './StatCard';
 import TabButton from './TabButton';
-import { respondToAdhesionAPI, getBranchMembersAPI, getAdhesionRequestsAPI } from '@/lib/api/membership';
+import { respondToAdhesionAPI, getSyndicateMembersAPI, getAdhesionRequestsAPI } from '@/lib/api/membership';
 import { STATIC_FILES_URL } from '@/lib/constants';
 import { SyndicatDefaultAvatar } from '@/components/shared/SyndicatDefaultAvatar';
 import { MemberRowSkeleton, CardSkeleton } from '../SyndicateSpaceLoader';
@@ -42,13 +42,13 @@ function MembersClientInner({ initialMembers = [], initialRequests = [], branche
 
     const refreshData = async (force = false) => {
         if (!branches || branches.length === 0) return;
-        
+
         const mainBranchId = branches[0].id;
-        
+
         try {
             await executeWithRetry(async () => {
                 const [membersData, requestsData] = await Promise.all([
-                    getBranchMembersAPI(mainBranchId),
+                    getSyndicateMembersAPI(syndicatId),
                     getAdhesionRequestsAPI(syndicatId, mainBranchId)
                 ]);
                 

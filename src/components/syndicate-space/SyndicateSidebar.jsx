@@ -1,12 +1,12 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Link, usePathname, useRouter } from '@/navigation';
 import { useTranslations } from 'next-intl';
-import { 
+import {
     Users, Calendar, MessageCircle, Vote,
-    Home, ChevronLeft, ChevronRight, MessageSquare, Loader2 
+    Home, ChevronLeft, ChevronRight, MessageSquare
 } from 'lucide-react';
 import { SyndicatDefaultAvatar } from '@/components/shared/SyndicatDefaultAvatar.jsx';
 import { useParams } from 'next/navigation';
@@ -20,22 +20,13 @@ export default function SyndicateSidebar({ isCollapsed, onToggle, syndicateData 
     const params = useParams();
     const { syndicatId } = params;
 
-    const [isNavigating, setIsNavigating] = useState(false);
-    const [activeRoute, setActiveRoute] = useState(null);
-
     const handleNavigation = (route) => {
         const path = `/syndicat-space/${syndicatId}${route ? `/${route}` : ''}`;
-        
+
         // Ne pas naviguer si on est déjà sur cette route
         if (pathname === path) return;
-        
-        setIsNavigating(true);
-        setActiveRoute(route);
-        
-        // Simuler un délai minimum pour le loading
-        setTimeout(() => {
-            router.push(path);
-        }, 300);
+
+        router.push(path);
     };
 
     if (!syndicateData) {
@@ -111,28 +102,22 @@ export default function SyndicateSidebar({ isCollapsed, onToggle, syndicateData 
                             className={`relative group flex items-center w-full px-3 py-2.5 rounded-xl cursor-pointer transition-all duration-200 ${
                                 isCollapsed ? 'justify-center' : ''
                             } ${
-                                    isActive 
-                                        ? 'text-blue-700 text-blue-300 bg-blue-50 bg-blue-900/20' 
-                                        : 'text-neutral-600 text-neutral-400 hover:bg-blue-50 hover:bg-neutral-800 hover:text-blue-800 hover:text-white'
-                                } ${
-                                    isNavigating && activeRoute === item.route ? 'opacity-75' : ''
-                                }`}
-                                title={isCollapsed ? item.label : ''}
-                            >
-                                {isActive && (
-                                    <motion.div 
-                                        layoutId="active-sidebar-indicator" 
-                                        className="absolute inset-0 bg-blue-50 bg-blue-900/20 rounded-xl border border-blue-200 border-blue-800" 
-                                        transition={{ type: 'spring', stiffness: 300, damping: 25 }} 
-                                    />
-                                )}
-                                
+                                isActive
+                                    ? 'text-blue-700 text-blue-300 bg-blue-50 bg-blue-900/20'
+                                    : 'text-neutral-600 text-neutral-400 hover:bg-blue-50 hover:bg-neutral-800 hover:text-blue-800 hover:text-white'
+                            }`}
+                            title={isCollapsed ? item.label : ''}
+                        >
+                            {isActive && (
+                                <motion.div
+                                    layoutId="active-sidebar-indicator"
+                                    className="absolute inset-0 bg-blue-50 bg-blue-900/20 rounded-xl border border-blue-200 border-blue-800"
+                                    transition={{ type: 'spring', stiffness: 300, damping: 25 }}
+                                />
+                            )}
+
                             <div className="relative z-10 flex items-center">
-                                {isNavigating && activeRoute === item.route ? (
-                                    <Loader2 className="h-5 w-5 flex-shrink-0 animate-spin text-blue-600 text-blue-400" />
-                                ) : (
-                                    <item.icon className={`h-5 w-5 flex-shrink-0 ${isActive ? 'text-blue-600 text-blue-400' : ''}`} />
-                                )}
+                                <item.icon className={`h-5 w-5 flex-shrink-0 ${isActive ? 'text-blue-600 text-blue-400' : ''}`} />
                                 {!isCollapsed && (
                                     <span className="font-medium truncate ml-3">{item.label}</span>
                                 )}

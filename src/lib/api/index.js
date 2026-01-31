@@ -24,6 +24,15 @@ export * from './user';
 // Votes
 export * from './vote';
 
+// Feed
+export * from './feed';
+
+// Marketplace - Produits
+export * from './products';
+
+// Marketplace - Services
+export * from './services';
+
 // Recherche
 export * from './search';
 
