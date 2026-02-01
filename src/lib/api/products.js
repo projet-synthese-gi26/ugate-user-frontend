@@ -1,6 +1,26 @@
 // src/lib/api/products.js
 import { ugateInstance } from './instance';
 
+
+/**
+ * Créer un nouveau produit
+ * POST /products (multipart/form-data)
+ */
+export const createProductAPI = async (formData) => {
+    try {
+        const response = await ugateInstance.post('/products', formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data',
+            },
+        });
+        return response.data;
+    } catch (error) {
+        console.error("Erreur lors de la création du produit:", error.response?.data || error.message);
+        throw error;
+    }
+};
+
+
 /**
  * Récupérer les détails d'un produit
  * GET /products/{id}
