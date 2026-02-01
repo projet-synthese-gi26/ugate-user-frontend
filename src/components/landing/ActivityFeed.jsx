@@ -188,34 +188,48 @@ export default function ActivityFeed() {
     }, []);
 
     return (
-        <section className="py-20 bg-white">
-            <div className="container mx-auto px-4">
-                <div className="text-center mb-16">
-                    <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-4">
+        <section className="py-24 bg-gradient-to-b from-slate-50 to-white relative overflow-hidden">
+            {/* Background decorations */}
+            <div className="absolute top-20 left-0 w-72 h-72 bg-blue-100/50 rounded-full blur-3xl" />
+            <div className="absolute bottom-20 right-0 w-96 h-96 bg-indigo-100/50 rounded-full blur-3xl" />
+
+            <div className="container relative mx-auto px-4">
+                <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.6 }}
+                    className="text-center mb-16"
+                >
+                    <span className="inline-block px-4 py-2 bg-indigo-100 text-indigo-700 rounded-full text-sm font-semibold mb-4">
+                        Actualités
+                    </span>
+                    <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-slate-900 mb-6">
                         {t('activity_feed_title')}
                     </h2>
-                    <p className="text-xl text-slate-600 max-w-3xl mx-auto">
+                    <p className="text-lg md:text-xl text-slate-600 max-w-3xl mx-auto leading-relaxed">
                         {t('activity_feed_subtitle')}
                     </p>
-                </div>
+                </motion.div>
 
-                <div className="max-w-xl mx-auto space-y-6">
+                <div className="max-w-2xl mx-auto space-y-8">
                     {loading ? (
-                        // Skeleton loading
+                        // Skeleton loading with improved design
                         [...Array(3)].map((_, index) => (
-                            <div key={index} className="bg-white rounded-2xl shadow-lg overflow-hidden animate-pulse">
+                            <div key={index} className="bg-white rounded-3xl shadow-lg shadow-slate-200/50 overflow-hidden animate-pulse border border-slate-100">
                                 <div className="p-6 border-b border-slate-100">
-                                    <div className="flex items-center space-x-3">
-                                        <div className="w-12 h-12 bg-gray-300 rounded-full"></div>
+                                    <div className="flex items-center space-x-4">
+                                        <div className="w-14 h-14 bg-gradient-to-br from-slate-200 to-slate-300 rounded-2xl"></div>
                                         <div className="flex-1">
-                                            <div className="h-4 bg-gray-300 rounded mb-2"></div>
-                                            <div className="h-3 bg-gray-300 rounded w-2/3"></div>
+                                            <div className="h-4 bg-gradient-to-r from-slate-200 to-slate-100 rounded-lg mb-2 w-32"></div>
+                                            <div className="h-3 bg-gradient-to-r from-slate-200 to-slate-100 rounded-lg w-48"></div>
                                         </div>
                                     </div>
                                 </div>
                                 <div className="p-6">
-                                    <div className="h-4 bg-gray-300 rounded mb-4"></div>
-                                    <div className="h-80 bg-gray-300 rounded"></div>
+                                    <div className="h-4 bg-gradient-to-r from-slate-200 to-slate-100 rounded-lg mb-3"></div>
+                                    <div className="h-4 bg-gradient-to-r from-slate-200 to-slate-100 rounded-lg mb-4 w-3/4"></div>
+                                    <div className="h-64 bg-gradient-to-br from-slate-200 to-slate-100 rounded-2xl"></div>
                                 </div>
                             </div>
                         ))
@@ -223,43 +237,64 @@ export default function ActivityFeed() {
                         activities.map((activity, index) => (
                             <motion.div
                                 key={activity.id}
-                                initial={{ opacity: 0, y: 20 }}
+                                initial={{ opacity: 0, y: 30 }}
                                 whileInView={{ opacity: 1, y: 0 }}
                                 viewport={{ once: true }}
                                 transition={{ duration: 0.5, delay: index * 0.1 }}
+                                className="transform hover:scale-[1.01] transition-transform duration-300"
                             >
-                                <UnifiedPostCard 
+                                <UnifiedPostCard
                                     item={activity}
                                     type={activity.type}
                                     variant="landing"
-                                    showActions={false} // Pas d'actions interactives sur la landing page
+                                    showActions={false}
                                 />
                             </motion.div>
                         ))
                     ) : (
-                        // Message d'erreur ou pas de données
-                        <div className="text-center py-12">
-                            <p className="text-slate-600 text-lg">
+                        // Message d'erreur ou pas de données avec meilleur design
+                        <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            className="text-center py-16 bg-white rounded-3xl shadow-lg border border-slate-100"
+                        >
+                            <div className="w-16 h-16 bg-slate-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                                <svg className="w-8 h-8 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
+                                </svg>
+                            </div>
+                            <p className="text-slate-600 text-lg font-medium">
                                 {error ? 'Erreur lors du chargement des activités' : 'Aucune activité disponible pour le moment'}
                             </p>
-                        </div>
+                            <p className="text-slate-400 text-sm mt-2">Revenez bientôt pour des nouvelles</p>
+                        </motion.div>
                     )}
                 </div>
 
-                <div className="text-center mt-16">
-                    <button className="group relative bg-blue-800 text-white px-14 py-4 rounded-2xl font-bold text-lg hover:bg-blue-900 hover:shadow-lg transition-all duration-300 shadow-md transform hover:scale-105">
-                        <span className="flex items-center space-x-3">
+                <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.6, delay: 0.3 }}
+                    className="text-center mt-16"
+                >
+                    <motion.button
+                        whileHover={{ scale: 1.02, y: -2 }}
+                        whileTap={{ scale: 0.98 }}
+                        className="group relative bg-gradient-to-r from-indigo-600 to-blue-600 text-white px-10 py-4 rounded-2xl font-bold text-lg shadow-lg shadow-indigo-500/30 hover:shadow-indigo-500/50 transition-all duration-300 overflow-hidden"
+                    >
+                        <span className="relative z-10 flex items-center space-x-3">
                             <span>{t('view_more_news')}</span>
-                            <svg className="w-6 h-6 transition-transform duration-300 group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <svg className="w-5 h-5 transition-transform duration-300 group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
                             </svg>
                         </span>
-                        <div className="absolute inset-0 bg-blue-700 rounded-2xl opacity-0 group-hover:opacity-30 transition-opacity duration-300"></div>
-                    </button>
-                    <p className="text-slate-600 mt-4 text-sm">
+                        <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-indigo-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                    </motion.button>
+                    <p className="text-slate-500 mt-4 text-sm">
                         {t('stay_connected_message')}
                     </p>
-                </div>
+                </motion.div>
             </div>
         </section>
     );

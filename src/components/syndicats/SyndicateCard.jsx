@@ -1,66 +1,80 @@
 "use client";
 
-import { motion } from "framer-motion";
-import Image from "next/image";
+import { motion } from 'framer-motion';
+import { Users, ChevronRight, Loader2, MapPin } from 'lucide-react';
 import { useRouter } from '@/navigation';
-import { ArrowRightCircle, Users, BarChart2 } from "lucide-react";
-import { useTranslations } from "next-intl";
-import { STATIC_FILES_URL } from "@/lib/constants";
-import { SyndicatDefaultAvatar } from "../shared/SyndicatDefaultAvatar";
-
-const itemVariants = {
-    hidden: { y: 20, opacity: 0 },
-    visible: { y: 0, opacity: 1 },
-};
+import { useState } from 'react';
+import { getSyndicateBranchesAPI } from '@/lib/api/syndicates';
+import { toast } from 'react-hot-toast';
+import { useTranslations } from 'next-intl';
 
 export default function SyndicateCard({ syndicat }) {
     const router = useRouter();
     const t = useTranslations('syndicats_page');
+    const [isAccessing, setIsAccessing] = useState(false);
 
-    const handleAccessSpace = (syndicatId) => {
-        router.push(`/syndicat-space/${syndicatId}/membres`);
+    const handleAccessSpace = async () => {
+        setIsAccessing(true);
+        try {
+            // On récupère la branche
+            const branches = await getSyndicateBranchesAPI(syndicat.id);
+            
+            if (branches && branches.length > 0) {
+                const branchId = branches[0].id;
+                // Redirection vers le format : /syndicat-space/ID_SYNDICAT/ID_BRANCHE/membres
+                router.push(`/syndicat-space/${syndicat.id}/${branchId}/membres`);
+            } else {
+                toast.error(t('no_branch_found') || "Aucune antenne trouvée pour ce syndicat.");
+            }
+        } catch (error) {
+            toast.error("Erreur d'accès à l'espace.");
+        } finally {
+            setIsAccessing(false);
+        }
     };
 
-    const bannerUrl = syndicat.bannerUrl && syndicat.bannerUrl.startsWith('/') ? `${STATIC_FILES_URL}${syndicat.bannerUrl}` : "/placeholder-cover.jpg";
-    const logoUrl = syndicat.logoUrl && syndicat.logoUrl.startsWith('/') ? `${STATIC_FILES_URL}${syndicat.logoUrl}` : null;
-
     return (
-        <motion.div
-            className="group bg-white bg-gray-800/50 rounded-2xl shadow-xl hover:shadow-2xl shadow-black/20 transition-all duration-300 border border-gray-100 border-gray-700 overflow-hidden flex flex-col"
-            variants={itemVariants}
-            whileHover={{ y: -8 }}
+        <motion.div 
+            whileHover={{ y: -5 }}
+            className="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden flex flex-col h-full hover:shadow-xl transition-all duration-300"
         >
-            <div className="relative aspect-video">
-                <Image src={bannerUrl} alt={syndicat.name} fill sizes="(max-width: 768px) 100vw, 50vw" style={{ objectFit: 'cover' }} className="transition-transform duration-500 group-hover:scale-105" onError={(e) => { e.currentTarget.src = "/placeholder-cover.jpg"; }}/>
-                <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent"></div>
-                <div className="absolute -bottom-10 left-6">
-                    <div className="w-20 h-20 bg-white bg-gray-800 rounded-full p-1 shadow-lg border-4 border-white border-gray-800">
-                        {logoUrl ? <Image src={logoUrl} alt={`${syndicat.name} logo`} width={80} height={80} className="rounded-full object-cover w-full h-full" /> : <SyndicatDefaultAvatar name={syndicat.name} size={72} />}
+            {/* Bannière */}
+            <div className="h-32 bg-gradient-to-br from-blue-600 to-indigo-700 relative">
+                {syndicat.logoUrl && (
+                    <img src={syndicat.logoUrl} className="w-full h-full object-cover opacity-30" alt="" />
+                )}
+                <div className="absolute -bottom-6 left-6">
+                    <div className="w-16 h-16 rounded-2xl bg-white shadow-lg flex items-center justify-center border-4 border-white text-blue-600 font-bold text-xl">
+                        {syndicat.name.substring(0, 2).toUpperCase()}
                     </div>
                 </div>
             </div>
 
-            <div className="p-6 pt-12 flex flex-col flex-grow">
-                <h2 className="text-xl font-bold text-gray-900 text-white line-clamp-2 leading-snug h-14">
-                    {syndicat.name}
-                </h2>
-                <div className="flex items-center justify-between text-gray-600 text-gray-400 my-4">
-                    <div className="flex items-center space-x-2">
-                        <Users className="h-5 w-5 text-blue-700" />
-                        <span className="text-sm font-medium">{(syndicat.memberCount || 0).toLocaleString()} membres</span>
+            <div className="p-6 pt-10 flex-grow">
+                <h3 className="text-xl font-bold text-gray-900 mb-2">{syndicat.name}</h3>
+                <p className="text-sm text-gray-500 line-clamp-2 mb-4">{syndicat.description || "Pas de description"}</p>
+                
+                <div className="flex items-center gap-4 text-gray-600 mb-6">
+                    <div className="flex items-center gap-1.5 bg-blue-50 px-3 py-1 rounded-full">
+                        <Users size={14} className="text-blue-600" />
+                        <span className="text-xs font-bold text-blue-700">{syndicat.memberCount || 0} membres</span>
                     </div>
-                    <BarChart2 className="h-5 w-5 text-gray-400 text-gray-500" title="Tendance stable" />
                 </div>
-                <div className="mt-auto pt-4 border-t border-gray-100 border-gray-700">
-                    <motion.button
-                        className="w-full bg-gradient-to-r from-blue-700 to-blue-800 text-white py-3 rounded-xl hover:shadow-lg transition-all flex items-center justify-center font-semibold group-hover:from-blue-600 group-hover:to-blue-700"
-                        whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.98 }}
-                        onClick={() => handleAccessSpace(syndicat.id)}
-                    >
-                        <span>{t("access_space")}</span>
-                        <ArrowRightCircle className="h-5 w-5 ml-2 transition-transform duration-300 group-hover:translate-x-1" />
-                    </motion.button>
-                </div>
+
+                <button 
+                    onClick={handleAccessSpace}
+                    disabled={isAccessing}
+                    className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold transition-all flex items-center justify-center gap-2 shadow-md shadow-blue-100"
+                >
+                    {isAccessing ? (
+                        <Loader2 className="animate-spin" size={18} />
+                    ) : (
+                        <>
+                            Accéder à l'espace
+                            <ChevronRight size={18} />
+                        </>
+                    )}
+                </button>
             </div>
         </motion.div>
     );

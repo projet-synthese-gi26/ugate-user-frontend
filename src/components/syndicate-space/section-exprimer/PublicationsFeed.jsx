@@ -1,45 +1,43 @@
 "use client";
 import { useState, useEffect } from 'react';
 import { toast } from 'react-hot-toast';
-import { ugateInstance } from '@/lib/api/instance';
 import { getPostsAPI, createPostAPI } from '@/lib/api/posts';
 import Post from './Post';
 import NewPostModal from './NewPostModal';
 import { useUser } from '@/context/UserContext';
 import { Plus, RefreshCw } from 'lucide-react';
 
-export default function PublicationsFeed({ syndicatId }) {
+export default function PublicationsFeed({ syndicatId, branchId }) {
     const { user } = useUser();
     const [posts, setPosts] = useState([]);
-    const [activeBranchId, setActiveBranchId] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [loading, setLoading] = useState(true);
 
-    // 1. Charger la branche ET les posts existants
+    // Charger les posts de la branche
     const loadData = async () => {
+        if (!branchId) {
+            console.warn('branchId manquant pour charger les publications');
+            setLoading(false);
+            return;
+        }
+
         setLoading(true);
         try {
-            const resBranch = await ugateInstance.get(`/syndicates/${syndicatId}/branches`);
-            if (resBranch.data && resBranch.data.length > 0) {
-                const bId = resBranch.data[0].id;
-                setActiveBranchId(bId);
-                
-                // On récupère les publications
-                const resPosts = await getPostsAPI(bId);
-                // On gère le fait que l'API renvoie un tableau direct
-                const postsArray = Array.isArray(resPosts) ? resPosts : (resPosts.content || []);
-                setPosts(postsArray);
-            }
+            // On récupère les publications directement avec le branchId de l'URL
+            const resPosts = await getPostsAPI(branchId);
+            // On gère le fait que l'API renvoie un tableau direct
+            const postsArray = Array.isArray(resPosts) ? resPosts : (resPosts.content || []);
+            setPosts(postsArray);
         } catch (e) {
-            console.error("Erreur de chargement", e);
+            console.error("Erreur de chargement des publications", e);
         } finally {
             setLoading(false);
         }
     };
 
     useEffect(() => {
-        if (syndicatId) loadData();
-    }, [syndicatId]);
+        if (branchId) loadData();
+    }, [branchId]);
 
     const handleCreatePost = async (formData) => {
         try {
@@ -77,12 +75,12 @@ export default function PublicationsFeed({ syndicatId }) {
                 </div>
             )}
 
-            <NewPostModal 
-                isOpen={isModalOpen} 
+            <NewPostModal
+                isOpen={isModalOpen}
                 onClose={() => setIsModalOpen(false)}
                 onNewPost={handleCreatePost}
                 authorId={user?.id}
-                branchId={activeBranchId}
+                branchId={branchId}
                 userName={user?.firstName}
             />
         </div>

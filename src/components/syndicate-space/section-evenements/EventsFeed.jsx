@@ -14,13 +14,12 @@ import { useErrorHandler, useApiWithRetry } from '@/hooks/useErrorHandler';
 import { ErrorState, EmptyState, InlineError } from '../ErrorStates';
 import ErrorBoundary from '../ErrorBoundary';
 import { getEventsAPI } from '@/lib/api/event';
-import { ugateInstance } from '@/lib/api/instance'; // IMPORT AJOUTÉ
 
-function EventsFeedInner({ initialEvents = [], syndicatId }) {
+function EventsFeedInner({ initialEvents = [], syndicatId, branchId }) {
     const t = useTranslations('common');
     const { handleError, clearError, hasError, getError } = useErrorHandler();
     const { executeWithRetry, loading: apiLoading } = useApiWithRetry();
-    
+
     const [events, setEvents] = useState(initialEvents || []);
     const [selectedEventForParticipants, setSelectedEventForParticipants] = useState(null);
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
@@ -28,8 +27,6 @@ function EventsFeedInner({ initialEvents = [], syndicatId }) {
     const [isCreatingEvent, setIsCreatingEvent] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
     const [lastRefresh, setLastRefresh] = useState(Date.now());
-
-    const [activeBranchId, setActiveBranchId] = useState(null);
     
     const filteredEvents = useMemo(() => 
         (events || []).filter(event => 
@@ -37,35 +34,32 @@ function EventsFeedInner({ initialEvents = [], syndicatId }) {
             event?.description?.toLowerCase().includes(searchTerm.toLowerCase())
         ), [events, searchTerm]);
 
-    // --- FONCTION REFRESH MODIFIÉE POUR UTILISER LA BRANCHE ---
-    const refreshEvents = async (force = false, page = 0, size = 20, branchIdOverride = null) => {
-        // On utilise l'ID passé en paramètre ou l'ID stocké dans l'état
-        const targetId = branchIdOverride || activeBranchId;
-
-        if (!targetId) {
-            console.warn("Impossible de rafraîchir : ID de branche manquant");
+    // Rafraîchir les événements de la branche
+    const refreshEvents = async (force = false, page = 0, size = 20) => {
+        if (!branchId) {
+            console.warn("Impossible de rafraîchir : branchId manquant");
             return;
         }
 
         try {
             await executeWithRetry(async () => {
-                // APPEL API AVEC targetId (L'ID DE LA BRANCHE)
-                const eventsData = await getEventsAPI(targetId, page, size, 'startDate', 'DESC');
-                
+                // Utiliser directement branchId de l'URL
+                const eventsData = await getEventsAPI(branchId, page, size, 'startDate', 'DESC');
+
                 let fetchedEvents = [];
                 if (eventsData && eventsData.content) {
                     fetchedEvents = eventsData.content;
                 } else if (Array.isArray(eventsData)) {
                     fetchedEvents = eventsData;
                 }
-                
+
                 const eventsWithDates = fetchedEvents.map(event => ({
                     ...event,
                     startDate: event.date ? new Date(event.date) : new Date(),
                     endDate: event.date ? new Date(event.date) : new Date(),
                     createdAt: event.createdAt ? new Date(event.createdAt) : new Date()
                 }));
-                
+
                 setEvents(eventsWithDates);
                 setLastRefresh(Date.now());
                 clearError('events');
@@ -80,39 +74,26 @@ function EventsFeedInner({ initialEvents = [], syndicatId }) {
         }
     };
 
-    // --- CHARGEMENT INITIAL DES BRANCHES ---
+    // Charger les événements au montage si pas d'initialEvents
     useEffect(() => {
-        const loadInitialData = async () => {
-            try {
-                const response = await ugateInstance.get(`/syndicates/${syndicatId}/branches`);
-                const branches = response.data || [];
-                
-                if (branches.length > 0) {
-                    const bId = branches[0].id;
-                    setActiveBranchId(bId);
-                    // On charge les événements de CETTE branche spécifiquement
-                    refreshEvents(false, 0, 20, bId); 
-                }
-            } catch (err) {
-                console.error("Erreur chargement branche pour le feed", err);
-            }
-        };
-        if (syndicatId) loadInitialData();
-    }, [syndicatId]);
+        if (branchId && (!initialEvents || initialEvents.length === 0)) {
+            refreshEvents(false);
+        }
+    }, [branchId]);
 
     const handleUpdateEvent = (updatedEvent) => {
         setEvents(events.map(e => e.id === updatedEvent.id ? updatedEvent : e));
     };
 
     const handleCreateEvent = async (newEventData) => {
-        if (!activeBranchId) return;
+        if (!branchId) return;
         setIsCreatingEvent(true);
-        
+
         try {
             await executeWithRetry(async () => {
                 const { createEventAPI } = await import('@/lib/api/event');
-                // Utilisation de activeBranchId pour la création
-                const createdEvent = await createEventAPI(activeBranchId, newEventData, newEventData.imageFile ? [newEventData.imageFile] : []);
+                // Utilisation de branchId de l'URL pour la création
+                const createdEvent = await createEventAPI(branchId, newEventData, newEventData.imageFile ? [newEventData.imageFile] : []);
                 
                 const eventWithDates = {
                     ...createdEvent,

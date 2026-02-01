@@ -61,22 +61,26 @@ export const getVoteResultsAPI = async (voteId) => {
     }
 };
 
-// ============================================================
-// ANCIENNES FONCTIONS (pour compatibilité temporaire)
-// ============================================================
-
 /**
- * @deprecated Les routes /syndicates/{id}/votes n'existent pas dans l'API
+ * Récupérer tous les sondages/votes d'une branche
+ * GET /publication-votes/branch/{branchId}
+ *
+ * @param {string} branchId - ID de la branche
+ * @param {number} page - Numéro de page (défaut: 0)
+ * @param {number} size - Nombre d'éléments par page (défaut: 20)
  */
-export const getVotesAPI = async (syndicateId) => {
-    console.warn('getVotesAPI est déprécié. Utiliser getVoteResultsAPI avec un voteId.');
-    return [];
-};
-
-/**
- * @deprecated Utiliser castVoteAPI à la place
- */
-export const submitVoteAPI = async (syndicateId, voteId, choiceId) => {
-    console.warn('submitVoteAPI est déprécié. Utiliser castVoteAPI.');
-    return castVoteAPI(voteId, { optionId: choiceId });
+export const getVotesByBranchAPI = async (branchId, page = 0, size = 20) => {
+    try {
+        if (!branchId) {
+            console.warn('branchId manquant pour getVotesByBranchAPI');
+            return { content: [] };
+        }
+        const response = await ugateInstance.get(`/publication-votes/branch/${branchId}`, {
+            params: { page, size }
+        });
+        return response.data || { content: [] };
+    } catch (error) {
+        console.error("Erreur récupération votes de la branche:", error.message);
+        return { content: [] };
+    }
 };

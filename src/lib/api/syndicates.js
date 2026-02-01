@@ -101,10 +101,32 @@ export const getSyndicateDetailsAPI = async (syndicateId) => {
  */
 export const getSyndicateBranchesAPI = async (syndicateId) => {
     try {
-        const response = await ugateInstance.get(`/syndicates/${syndicatId}/branches`);
-        return response.data || []; 
+        const response = await ugateInstance.get(`/syndicates/${syndicateId}/branches`);
+        return response.data || [];
     } catch (error) {
         console.error("Erreur lors de la récupération des branches:", error);
         return [];
+    }
+};
+
+/**
+ * Demande d'adhésion à un syndicat via une branche
+ * POST /syndicates/{syndicatId}/memberships/request
+ *
+ * @param {string} syndicatId - ID du syndicat
+ * @param {string} branchId - ID de la branche choisie
+ * @param {string} motivation - Message de motivation de l'utilisateur
+ * @returns {Promise<object>} Réponse de l'API
+ */
+export const requestMembershipAPI = async (syndicatId, branchId, motivation) => {
+    try {
+        const response = await ugateInstance.post(
+            `/syndicates/${syndicatId}/memberships/request`,
+            { branchId, motivation }
+        );
+        return response.data;
+    } catch (error) {
+        console.error("Erreur demande d'adhésion:", error.response?.data || error.message);
+        throw error;
     }
 };

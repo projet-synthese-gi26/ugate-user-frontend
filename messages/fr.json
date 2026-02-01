@@ -118,9 +118,18 @@
   "dashboard": {
     "welcome": "Bienvenue, {name} !",
     "dear_user": "cher utilisateur",
-    "portal_description": "Voici votre portail central pour toutes vos activités syndicales.",
-    "launch_syndicate": "Lancer mon syndicat",
+    "portal_description": "Gérez vos syndicats, connectez-vous avec vos membres et restez informé.",
+    "launch_syndicate": "Créer un syndicat",
     "news_and_events": "Actualités & Événements",
+    "public_welcome_line1": "Bienvenue sur",
+    "public_description": "L'union fait la force. Rejoignez la plateforme centrale pour vos activités syndicales et citoyennes.",
+    "join_us": "Nous rejoindre",
+    "explore_public": "Explorer les syndicats",
+    "platform_tagline": "Plateforme de gestion syndicale",
+    "trust_secure": "Sécurisé",
+    "trust_members": "+50 000 membres",
+    "trust_syndicates": "+1 500 syndicats",
+    "visitor": "Visiteur",
     "sidebar": {
       "home": "Accueil",
       "my_syndicats": "Mes Syndicats",
@@ -342,6 +351,7 @@
   "syndicats_page": {
     "loading_text": "Chargement de vos syndicats...",
     "load_error": "Impossible de charger vos syndicats.",
+    "no_branch_found": "Vous n'êtes assigné à aucune branche pour ce syndicat. Veuillez contacter l'administrateur.",
     "search_placeholder": "Rechercher dans vos syndicats...",
     "empty_list_title": "Vous n'êtes membre d'aucun syndicat",
     "empty_list_desc": "Explorez de nouveaux syndicats ou créez le vôtre pour commencer.",

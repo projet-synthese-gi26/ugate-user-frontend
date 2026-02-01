@@ -66,15 +66,9 @@ export default function LoginForm() {
                 showConfirmButton: false,
             });
 
-            // Rediriger vers l'espace syndicat si syndicatId présent, sinon vers home
-            // Note: router.push de next-intl ajoute automatiquement la locale
-            if (response.assignedSyndicatId) {
-                // Si l'admin a fait son travail, l'user arrive direct dans SON espace
-                router.push(`/syndicat-space/${response.assignedSyndicatId}/membres`);
-            } else {
-                // Si c'est un compte vide (pas de syndicat lié), on va sur la home
-                router.push(`/home`);
-            }
+            // Rediriger systématiquement vers la page "Mes Syndicats"
+            // L'utilisateur choisira ensuite le syndicat et sera redirigé vers la bonne branche
+            router.push('/syndicats');
         } catch (error) {
             console.error("Erreur de connexion:", error);
             let errorMessage = t('generic_error');

@@ -18,10 +18,10 @@ export default function SyndicateSidebar({ isCollapsed, onToggle, syndicateData 
     const pathname = usePathname();
     const router = useRouter();
     const params = useParams();
-    const { syndicatId } = params;
+    const { syndicatId, branchId } = params;
 
     const handleNavigation = (route) => {
-        const path = `/syndicat-space/${syndicatId}${route ? `/${route}` : ''}`;
+        const path = `/syndicat-space/${syndicatId}/${branchId}${route ? `/${route}` : ''}`;
 
         // Ne pas naviguer si on est déjà sur cette route
         if (pathname === path) return;
@@ -57,7 +57,7 @@ export default function SyndicateSidebar({ isCollapsed, onToggle, syndicateData 
         { id: 'votes', icon: Vote, label: t('sidebar.votes'), route: 'votes' },
     ];
 
-    const buildLink = (route) => `/syndicat-space/${syndicatId}${route ? `/${route}` : ''}`;
+    const buildLink = (route) => `/syndicat-space/${syndicatId}/${branchId}${route ? `/${route}` : ''}`;
 
     return (
         <motion.nav

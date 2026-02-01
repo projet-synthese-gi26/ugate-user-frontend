@@ -1,10 +1,11 @@
-import {getTranslations} from 'next-intl/server'; // CORRECTION : On importe le bon helper
+// src/app/[locale]/(syndicate-space)/syndicat-space/[syndicatId]/[branchId]/(sections)/membres/page.jsx
+import { getTranslations } from 'next-intl/server';
 import { getSyndicateMembersAPI, getAdhesionRequestsAPI } from '@/lib/api/membership';
 import { getSyndicateDetailsAPI } from '@/lib/api/syndicates';
 import MembersClient from '@/components/syndicate-space/section-membres/MembersClient';
 import { notFound } from 'next/navigation';
 
-async function getMembersData(syndicateId) {
+async function getMembersData(syndicateId, branchId) {
     try {
         // Récupérer les détails du syndicat
         const syndicateDetails = await getSyndicateDetailsAPI(syndicateId);
@@ -16,36 +17,39 @@ async function getMembersData(syndicateId) {
         // Gérer le cas où il n'y a pas de branches définies
         if (!syndicateDetails.branches || syndicateDetails.branches.length === 0) {
             console.warn(`No branches found for syndicate ${syndicateId}`);
-            return { 
-                members: [], 
-                requests: [], 
-                branches: [], 
+            return {
+                members: [],
+                requests: [],
+                branches: [],
                 stats: { total: 0, active: 0, pending: 0 },
-                syndicateDetails 
+                syndicateDetails
             };
         }
-        
-        // Prendre la première branche comme référence
-        const mainBranchId = syndicateDetails.branches[0].id;
+
+        // Utiliser le branchId passé en paramètre, ou la première branche par défaut
+        const activeBranchId = branchId || syndicateDetails.branches[0].id;
+
+        // Vérifier que la branche existe dans le syndicat
+        const branchExists = syndicateDetails.branches.some(b => b.id === activeBranchId);
+        if (!branchExists && branchId) {
+            console.warn(`Branch ${branchId} not found in syndicate ${syndicateId}`);
+        }
 
         // Essayer de récupérer les membres et demandes, avec gestion d'erreur individuelle
         let members = [];
         let requests = [];
 
         try {
-            // Utilise syndicateId au lieu de branchId (nouvelle route API)
             members = await getSyndicateMembersAPI(syndicateId);
         } catch (error) {
             console.warn(`Failed to fetch members for syndicate ${syndicateId}:`, error.message);
-            // L'API peut ne pas être implémentée, on continue avec un tableau vide
             members = [];
         }
 
         try {
-            requests = await getAdhesionRequestsAPI(syndicateId, mainBranchId);
+            requests = await getAdhesionRequestsAPI(syndicateId, activeBranchId);
         } catch (error) {
-            console.warn(`Failed to fetch adhesion requests for branch ${mainBranchId}:`, error.message);
-            // L'API peut ne pas être implémentée, on continue avec un tableau vide
+            console.warn(`Failed to fetch adhesion requests for branch ${activeBranchId}:`, error.message);
             requests = [];
         }
 
@@ -55,40 +59,39 @@ async function getMembersData(syndicateId) {
             pending: requests?.length || 0
         };
 
-        return { 
-            members: members || [], 
-            requests: requests || [], 
-            branches: syndicateDetails.branches || [], 
+        return {
+            members: members || [],
+            requests: requests || [],
+            branches: syndicateDetails.branches || [],
             stats,
-            syndicateDetails 
+            syndicateDetails,
+            activeBranchId
         };
 
     } catch (error) {
         console.error(`Failed to fetch members data for syndicate ${syndicateId}:`, error);
-        // En cas d'erreur critique, retourner un état vide mais valide
-        return { 
-            members: [], 
-            requests: [], 
-            branches: [], 
+        return {
+            members: [],
+            requests: [],
+            branches: [],
             stats: { total: 0, active: 0, pending: 0 },
-            error: error.message 
+            error: error.message
         };
     }
 }
 
 export default async function MembersPage({ params }) {
-    const { locale, syndicatId } = await params;
+    const { locale, syndicatId, branchId } = await params;
     const t = await getTranslations();
-    
+
     // Récupérer les données avec gestion d'erreur robuste
-    const data = await getMembersData(syndicatId);
+    const data = await getMembersData(syndicatId, branchId);
 
     // Si on n'arrive pas à récupérer les données de base du syndicat, alors 404
-    // Mais si c'est juste les APIs membres qui échouent, on affiche quand même la page
     if (!data || (data.error && !data.syndicateDetails)) {
         notFound();
     }
-    
+
     return (
         <div className="space-y-8">
             {data.error && (
@@ -105,13 +108,14 @@ export default async function MembersPage({ params }) {
                     </div>
                 </div>
             )}
-            
-            <MembersClient 
+
+            <MembersClient
                 initialMembers={data.members || []}
                 initialRequests={data.requests || []}
                 branches={data.branches || []}
                 stats={data.stats || { total: 0, active: 0, pending: 0 }}
                 syndicatId={syndicatId}
+                branchId={branchId}
             />
         </div>
     );
