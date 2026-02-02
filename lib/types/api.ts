@@ -157,6 +157,17 @@ export interface LocalTime {
     nano: number;
 }
 
+export interface MemberResponse {
+    userId: string;         // UUID de l'utilisateur
+    firstName: string;      // Prénom
+    lastName: string;       // Nom
+    email: string;          // Email de l'utilisateur
+    profileImageUrl?: string; // URL de la photo de profil (optionnel)
+    role: 'CUSTOMER' | 'DRIVER' | 'FLEET_MANAGER' | 'ADMIN' | 'PASSENGER' | 'PRESIDENT' | 'MODERATOR' | 'CLIENT';
+    branchId: string;       // C'est cet ID qui est crucial pour filtrer vos publications/événements
+    joinedAt: string;       // Date d'adhésion au format ISO string
+}
+
 export interface Event {
     id: string;
     creatorId: string;
