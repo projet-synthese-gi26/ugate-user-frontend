@@ -1,0 +1,111 @@
+{
+  "Common": {
+    "loading": "Loading...",
+    "error": "An error occurred",
+    "copyright": "© {year} U-Gate Platform. All rights reserved."
+  },
+  "Nav": {
+    "home": "Home",
+    "explorer": "Explore",
+    "services": "Services",
+    "about": "About",
+    "login": "Login",
+    "register": "Join"
+  },
+  "Hero": {
+    "tagline": "Union Platform 3.0",
+    "title_part1": "Unite your voices,",
+    "title_part2": "Simplify action.",
+    "description": "U-Gate revolutionizes union management. Membership management, secure blockchain voting, and exclusive services for professionals.",
+    "cta_primary": "Join a Union",
+    "cta_secondary": "Explore Offers",
+    "badge_secure": "100% Secure",
+    "badge_secure_sub": "Encrypted Data",
+    "badge_members": "+50,000 Members",
+    "badge_members_sub": "Active on platform",
+    "card_dashboard": "Member Dashboard",
+    "card_contributions": "Contributions",
+    "card_status_ok": "Up to date",
+    "card_votes": "Active Votes"
+  },
+  "Partners": {
+    "title": "Trusted by"
+  },
+  "Features": {
+    "title_part1": "Everything you need to",
+    "title_part2": "manage your activity",
+    "subtitle": "A complete suite of tools designed to modernize interactions between unions and their members.",
+    "identity_title": "Digital Identity",
+    "identity_desc": "A unique and verified profile to access all your union and partner services.",
+    "democracy_title": "Direct Democracy",
+    "democracy_desc": "Participate in important decisions via a secure and transparent voting system.",
+    "docs_title": "Document Management",
+    "docs_desc": "Access your charters, regulations, and certificates in PDF format at any time.",
+    "member_title": "Member Area",
+    "member_desc": "An interactive news feed to engage with your community and follow events.",
+    "market_title": "Dedicated Marketplace",
+    "market_desc": "Enjoy products and services negotiated specifically for your professional branch.",
+    "compliance_title": "Automated Compliance",
+    "compliance_desc": "Automatic compliance verification for partner platforms (VTC, logistics)."
+  },
+  "Auth": {
+    "login_title": "Welcome Back",
+    "login_subtitle": "Access your U-Gate member area",
+    "register_title": "Join Excellence",
+    "register_subtitle": "Create your account to manage memberships",
+    "email_label": "Email Address",
+    "password_label": "Password",
+    "confirm_password_label": "Confirm Password",
+    "firstname_label": "First Name",
+    "lastname_label": "Last Name",
+    "phone_label": "Phone Number",
+    "submit_login": "Sign In",
+    "submit_register": "Create Account",
+    "no_account": "No account yet?",
+    "already_account": "Already a member?",
+    "forgot_password": "Forgot password?",
+    "login_success": "Login successful",
+    "login_error": "Invalid credentials",
+    "register_success": "Account created successfully",
+    "register_error": "Error creating account",
+    "errors": {
+      "required": "This field is required",
+      "email_invalid": "Invalid email",
+      "password_min": "Password must be at least 8 characters",
+      "passwords_mismatch": "Passwords do not match"
+    }
+  },
+
+  "Explorer": {
+    "title": "Explore Syndicates",
+    "subtitle": "Join the professional elite. Discover organizations shaping the future of your sector.",
+    "search_placeholder": "Search by name, domain...",
+    "filter_btn": "Filters",
+    "empty_state": "No syndicate matches your search.",
+    "view_all": "View all",
+    "members_count": "{count} Members",
+    "see_details": "View Profile",
+    "active_status": "Verified & Active",
+    "inactive_status": "Pending"
+  },
+  "SyndicateDetails": {
+    "created_in": "Founded in {year}",
+    "join_btn": "Join this Syndicate",
+    "tabs": {
+      "about": "Presentation & Legal",
+      "branches": "Local Branches",
+      "products": "Services & Shop"
+    },
+    "about_title": "Vision & Mission",
+    "legal_docs_title": "Official Documentation",
+    "legal_doc_subtitle": "Certified PDF Document",
+    "download": "View",
+    "branches_title": "Choose your anchor point",
+    "branches_subtitle": "Select the nearest branch for your membership.",
+    "contact": "Contact",
+    "products_title": "Exclusive Marketplace",
+    "buy_btn": "Order",
+    "out_of_stock": "Out of Stock",
+    "price_currency": "XAF"
+  }
+}

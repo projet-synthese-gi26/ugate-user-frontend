@@ -1,0 +1,234 @@
+{
+  "Common": {
+    "loading": "Chargement...",
+    "error": "Une erreur est survenue",
+    "copyright": "© {year} U-Gate Platform. Tous droits réservés."
+  },
+  "Nav": {
+    "home": "Accueil",
+    "explorer": "Explorer",
+    "services": "Services",
+    "about": "À Propos",
+    "login": "Connexion",
+    "register": "Rejoindre"
+  },
+  "Hero": {
+    "tagline": "Plateforme Syndicale 3.0",
+    "title_part1": "Unifiez vos voix,",
+    "title_part2": "Simplifiez l'action.",
+    "description": "U-Gate révolutionne le syndicalisme. Gestion d'adhésions, votes sécurisés sur la blockchain et services exclusifs pour les professionnels.",
+    "cta_primary": "Rejoindre un syndicat",
+    "cta_secondary": "Explorer les offres",
+    "badge_secure": "100% Sécurisé",
+    "badge_secure_sub": "Données chiffrées",
+    "badge_members": "+50,000 Membres",
+    "badge_members_sub": "Actifs sur la plateforme",
+    "card_dashboard": "Dashboard Membre",
+    "card_contributions": "Cotisations",
+    "card_status_ok": "À jour",
+    "card_votes": "Votes en cours"
+  },
+  "Partners": {
+    "title": "Ils nous font confiance"
+  },
+  "Features": {
+    "title_part1": "Tout ce dont vous avez besoin pour",
+    "title_part2": "gérer votre activité",
+    "subtitle": "Une suite d'outils complète conçue pour moderniser les interactions entre les syndicats et leurs membres.",
+    "identity_title": "Identité Numérique",
+    "identity_desc": "Un profil unique et vérifié pour accéder à tous vos services syndicaux et partenaires.",
+    "democracy_title": "Démocratie Directe",
+    "democracy_desc": "Participez aux décisions importantes via un système de vote sécurisé et transparent.",
+    "docs_title": "Gestion Documentaire",
+    "docs_desc": "Accédez à vos chartes, règlements et certificats en format PDF à tout moment.",
+    "member_title": "Espace Membre",
+    "member_desc": "Un fil d'actualité interactif pour échanger avec votre communauté et suivre les événements.",
+    "market_title": "Marketplace Dédiée",
+    "market_desc": "Profitez de produits et services négociés spécifiquement pour votre branche professionnelle.",
+    "compliance_title": "Compliance Automatisée",
+    "compliance_desc": "Vérification automatique de conformité pour les plateformes partenaires (VTC, logistique)."
+  },
+  "Auth": {
+    "login_title": "Bon retour parmi nous",
+    "login_subtitle": "Accédez à votre espace membre U-Gate",
+    "register_title": "Rejoindre l'excellence",
+    "register_subtitle": "Créez votre compte pour gérer vos adhésions",
+    "email_label": "Adresse email",
+    "password_label": "Mot de passe",
+    "confirm_password_label": "Confirmer le mot de passe",
+    "firstname_label": "Prénom",
+    "lastname_label": "Nom",
+    "phone_label": "Numéro de téléphone",
+    "submit_login": "Se connecter",
+    "submit_register": "Créer mon compte",
+    "no_account": "Pas encore de compte ?",
+    "already_account": "Déjà membre ?",
+    "forgot_password": "Mot de passe oublié ?",
+    "or_continue_with": "Ou continuer avec",
+    "login_success": "Connexion réussie",
+    "login_error": "Identifiants incorrects",
+    "register_success": "Compte créé avec succès",
+    "register_error": "Erreur lors de la création du compte",
+    "aside": {
+      "tagline1": "Gestion Syndicale Simplifiée",
+      "tagline2": "Votes Sécurisés Blockchain",
+      "tagline3": "Conformité VTC Automatisée",
+      "tagline4": "Communauté Active"
+    },
+    "errors": {
+      "required": "Ce champ est requis",
+      "email_invalid": "Email invalide",
+      "password_min": "Le mot de passe doit faire au moins 8 caractères",
+      "passwords_mismatch": "Les mots de passe ne correspondent pas"
+    }
+  },
+
+  "Explorer": {
+    "title": "Explorer les Syndicats",
+    "subtitle": "Rejoignez l'élite professionnelle. Découvrez les organisations qui façonnent l'avenir de votre secteur.",
+    "search_placeholder": "Rechercher par nom, domaine...",
+    "filter_btn": "Filtres",
+    "empty_state": "Aucun syndicat ne correspond à votre recherche.",
+    "view_all": "Voir tout",
+    "members_count": "{count} Membres",
+    "see_details": "Voir le profil",
+    "active_status": "Vérifié & Actif",
+    "inactive_status": "En attente"
+  },
+  "SyndicateDetails": {
+    "created_in": "Fondé en {year}",
+    "join_btn": "Rejoindre ce syndicat",
+    "tabs": {
+      "about": "Présentation & Légal",
+      "branches": "Nos Antennes Locales",
+      "products": "Services & Boutique"
+    },
+    "about_title": "Vision & Mission",
+    "legal_docs_title": "Documentation Officielle",
+    "legal_doc_subtitle": "Document PDF certifié",
+    "download": "Consulter",
+    "branches_title": "Choisissez votre point d'ancrage",
+    "branches_subtitle": "Sélectionnez l'antenne la plus proche pour votre adhésion.",
+    "contact": "Contact",
+    "products_title": "Marketplace Exclusive",
+    "buy_btn": "Commander",
+    "out_of_stock": "Épuisé",
+    "price_currency": "FCFA"
+  },
+  "Dashboard": {
+    "welcome": "Tableau de bord",
+    "my_syndicates": "Mes Adhésions",
+    "my_syndicates_sub": "Accédez aux espaces membres de vos syndicats et antennes.",
+    "enter_space": "Accéder à l'espace",
+    "no_syndicates": "Vous n'êtes membre d'aucun syndicat pour le moment.",
+    "explore_cta": "Explorer les syndicats",
+    "sidebar": {
+      "feed": "Fil d'actualité",
+      "members": "Membres",
+      "events": "Événements",
+      "votes": "Votes & Sondages",
+      "documents": "Mes Documents",
+      "compliance": "Conformité"
+    }
+  },
+  "Feed": {
+    "create_post_placeholder": "Quoi de neuf dans la communauté, {name} ?",
+    "post_btn": "Publier",
+    "reactions": {
+      "like": "J'aime",
+      "love": "Adore",
+      "haha": "Rire",
+      "wow": "Waouh",
+      "sad": "Triste",
+      "angry": "En colère"
+    },
+    "comments": "Commentaires",
+    "reply": "Répondre",
+    "see_more": "Voir plus",
+    "read_pdf": "Lire le PDF"
+  },
+
+  "Event": {
+    "join": "Participer",
+    "joined": "J'y vais",
+    "participants": "{count} participants",
+    "location": "Lieu",
+    "date": "Date & Heure",
+    "create_title": "Créer un événement",
+    "success_join": "Votre participation est enregistrée !"
+  },
+  "Comments": {
+    "write_comment": "Écrire un commentaire...",
+    "reply": "Répondre",
+    "view_replies": "Voir les {count} réponses",
+    "hide_replies": "Masquer",
+    "post": "Envoyer"
+  },
+  "Votes": {
+    "title": "Sondages & Décisions",
+    "subtitle": "Exprimez votre voix sur les orientations de votre antenne.",
+    "total_votes": "{count} votes exprimés",
+    "vote_now": "Voter",
+    "closing_at": "Clôture le {date}",
+    "already_voted": "Vous avez déjà participé",
+    "results_title": "Résultats en temps réel",
+    "create_btn": "Créer un vote",
+    "success_vote": "Votre vote a été enregistré !",
+    "closed": "Sondage terminé"
+  },
+
+  "Profile": {
+    "title": "Mon Profil Certifié",
+    "subtitle": "Gérez vos informations personnelles et vos documents de conformité.",
+    "sections": {
+      "identity": "Identité",
+      "compliance": "Conformité Légale",
+      "account": "Sécurité du compte"
+    },
+    "status": {
+      "verified": "Profil Vérifié",
+      "pending": "Vérification en cours",
+      "unverified": "Action requise"
+    },
+    "fields": {
+      "cni_number": "Numéro de CNI",
+      "license_number": "Numéro de Permis",
+      "birth_date": "Date de naissance",
+      "nationality": "Nationalité"
+    },
+    "docs": {
+      "cni": "Carte Nationale d'Identité",
+      "license": "Permis de Conduire",
+      "cv": "Curriculum Vitae",
+      "update_btn": "Mettre à jour le document",
+      "view_btn": "Consulter l'actuel"
+    }
+  },
+
+  "Membership": {
+    "title": "Demande d'adhésion",
+    "subtitle": "Vous rejoignez l'antenne {branch} du syndicat {syndicate}",
+    "steps": {
+      "personal": "Infos Personnelles",
+      "documents": "Documents Légaux",
+      "motivation": "Finalisation"
+    },
+    "partner_notice": "Bienvenue partenaire ! Vos informations de profil ont été récupérées automatiquement.",
+    "firstname_label": "Prénom",
+    "lastname_label": "Nom",
+    "email_label": "Adresse Email",
+    "form": {
+      "motivation_label": "Pourquoi souhaitez-vous nous rejoindre ?",
+      "motivation_placeholder": "Expliquez brièvement vos motivations...",
+      "cni_recto": "CNI (Recto)",
+      "cni_verso": "CNI (Verso)",
+      "license_recto": "Permis de conduire (Recto)",
+      "cv_label": "Curriculum Vitae (PDF)",
+      "drop_files": "Glissez vos fichiers ici ou cliquez pour parcourir",
+      "submit": "Envoyer ma demande",
+      "submitting": "Traitement en cours..."
+    },
+    "success_title": "Demande envoyée !",
+    "success_message": "Votre dossier est en cours d'examen par les administrateurs de l'antenne. Vous recevrez une notification dès validation."
+  }
+}

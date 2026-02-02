@@ -1,0 +1,16 @@
+{
+  "Common": {
+    "loading": "Laden...",
+    "error": "Ein Fehler ist aufgetreten"
+  },
+  "Nav": {
+    "home": "Startseite",
+    "explorer": "Erkunden",
+    "login": "Anmelden",
+    "register": "Beitreten"
+  },
+  "Hero": {
+    "title": "Vereinigen Sie Ihre Stimmen, vereinfachen Sie das Handeln",
+    "subtitle": "Die Gewerkschaftsplattform der nächsten Generation."
+  }
+}
