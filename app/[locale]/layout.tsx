@@ -5,8 +5,9 @@ import { Toaster } from 'react-hot-toast';
 import '../globals.css';
 import { ReactNode } from 'react';
 
-// ✅ IMPORT DU NOUVEAU PROVIDER
 import QueryProvider from '@/components/providers/QueryProvider';
+// ✅ IMPORT DU SETTINGS PROVIDER
+import { SettingsProvider } from '@/lib/context/SettingsContext';
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
 
@@ -28,10 +29,12 @@ export default async function RootLayout({ children, params }: RootLayoutProps) 
         <html lang={locale}>
         <body className={`${inter.variable} font-sans min-h-screen flex flex-col antialiased`}>
         <NextIntlClientProvider messages={messages}>
-            {/* ✅ ON ENVELOPPE TOUT ICI */}
             <QueryProvider>
-                <Toaster position="top-right" />
-                {children}
+                {/* ✅ ACTIVATION DU CONTEXTE DATA SAVER */}
+                <SettingsProvider>
+                    <Toaster position="top-right" />
+                    {children}
+                </SettingsProvider>
             </QueryProvider>
         </NextIntlClientProvider>
         </body>

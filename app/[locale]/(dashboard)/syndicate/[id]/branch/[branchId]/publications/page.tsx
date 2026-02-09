@@ -1,18 +1,15 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, use } from 'react';
 import { ugateApi } from '@/lib/axios';
 import { Publication } from '@/lib/types/api';
 import PostCard from '@/components/social/PostCard';
 import CreatePost from '@/components/social/CreatePost';
 import { Loader2, FileSearch } from 'lucide-react';
 
-/**
- * COMPOSANT : Page des Publications uniquement
- */
-function OnlyPublicationsPage({ params }: { params: React.Usable<{ id: string }> }) {
-    // Unwrapping des params pour Next.js 15/16
-    const { id } = React.use(params);
+export default function OnlyPublicationsPage({ params }: { params: Promise<{ id: string, branchId: string }> }) {
+    // Extraction des IDs comme dans le feed
+    const { id: syndicateId, branchId } = use(params);
 
     const [pubs, setPubs] = useState<Publication[]>([]);
     const [loading, setLoading] = useState(true);
@@ -20,8 +17,8 @@ function OnlyPublicationsPage({ params }: { params: React.Usable<{ id: string }>
     useEffect(() => {
         const fetchPubs = async () => {
             try {
-                // Utilisation de l'endpoint spécifique pour les publications de la branche
-                const res = await ugateApi.get(`/publications/branch/${id}`);
+                // On utilise branchId pour filtrer les publications de l'antenne
+                const res = await ugateApi.get(`/publications/branch/${branchId}`);
                 setPubs(Array.isArray(res.data) ? res.data : []);
             } catch (e) {
                 console.error("Erreur lors du chargement des publications :", e);
@@ -30,12 +27,12 @@ function OnlyPublicationsPage({ params }: { params: React.Usable<{ id: string }>
             }
         };
         fetchPubs();
-    }, [id]);
+    }, [branchId]);
 
     return (
         <div className="max-w-2xl mx-auto space-y-8 animate-in fade-in duration-500">
-            {/* Outil de création de post */}
-            <CreatePost syndicateId={id} />
+            {/* Outil de création de post lié à la branche */}
+            <CreatePost syndicateId={branchId} />
 
             {/* Séparateur sémantique */}
             <div className="flex items-center gap-4 py-2">
@@ -70,6 +67,3 @@ function OnlyPublicationsPage({ params }: { params: React.Usable<{ id: string }>
         </div>
     );
 }
-
-// EXPORT PAR DÉFAUT EXPLICITE
-export default OnlyPublicationsPage;

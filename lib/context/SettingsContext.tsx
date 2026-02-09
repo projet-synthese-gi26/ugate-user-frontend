@@ -13,25 +13,50 @@ const SettingsContext = createContext<SettingsContextType>({} as any);
 
 export function SettingsProvider({ children }: { children: ReactNode }) {
     const [networkQuality, setNetworkQuality] = useState<NetworkQuality>('auto');
-    const [effectiveType, setEffectiveType] = useState<string>('4g');
+    const [isHighRes, setIsHighRes] = useState(true);
 
     useEffect(() => {
-        // Détection automatique du réseau (Navigator API)
-        const connection = (navigator as any).connection;
-        if (connection) {
-            setEffectiveType(connection.effectiveType); // '4g', '3g', '2g'
-            const updateConnection = () => setEffectiveType(connection.effectiveType);
-            connection.addEventListener('change', updateConnection);
-            return () => connection.removeEventListener('change', updateConnection);
-        }
-    }, []);
+        const checkConnection = () => {
+            // Si l'utilisateur force un mode, on respecte son choix
+            if (networkQuality === 'high') {
+                setIsHighRes(true);
+                return;
+            }
+            if (networkQuality === 'low') {
+                setIsHighRes(false);
+                return;
+            }
 
-    const shouldLoadHighRes =
-        networkQuality === 'high' ||
-        (networkQuality === 'auto' && effectiveType === '4g');
+            // Mode 'auto' : Détection via Network Information API (Chrome/Edge/Android)
+            // @ts-ignore
+            const connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+
+            if (connection) {
+                // Si c'est de la 4G, on charge la HD. Sinon (3g, 2g, slow-2g), on économise.
+                const isFast = connection.effectiveType === '4g';
+                // On vérifie aussi si l'utilisateur a activé "Data Saver" dans son OS
+                const isDataSaver = connection.saveData;
+
+                setIsHighRes(isFast && !isDataSaver);
+            } else {
+                // Par défaut HD si l'API n'est pas supportée
+                setIsHighRes(true);
+            }
+        };
+
+        checkConnection();
+
+        // Écouter les changements de réseau
+        // @ts-ignore
+        const connection = navigator.connection;
+        if (connection) {
+            connection.addEventListener('change', checkConnection);
+            return () => connection.removeEventListener('change', checkConnection);
+        }
+    }, [networkQuality]);
 
     return (
-        <SettingsContext.Provider value={{ networkQuality, setNetworkQuality, shouldLoadHighRes }}>
+        <SettingsContext.Provider value={{ networkQuality, setNetworkQuality, shouldLoadHighRes: isHighRes }}>
             {children}
         </SettingsContext.Provider>
     );

@@ -9,8 +9,9 @@ import CreateEventModal from '@/components/social/CreateEventModal';
 import { Loader2, Plus, CalendarSearch, Calendar } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 
-export default function SyndicateEventsPage({ params }: { params: Promise<{ id: string }> }) {
-    const { id } = use(params);
+export default function SyndicateEventsPage({ params }: { params: Promise<{ id: string, branchId: string }> }) {
+    // Extraction des IDs
+    const { id: syndicateId, branchId } = use(params);
     const { user } = useAuthStore();
 
     const [events, setEvents] = useState<Event[]>([]);
@@ -21,7 +22,8 @@ export default function SyndicateEventsPage({ params }: { params: Promise<{ id: 
 
     const fetchEvents = async () => {
         try {
-            const res = await ugateApi.get(`/events/branch/${id}`);
+            // Appel API ciblé sur la branche
+            const res = await ugateApi.get(`/events/branch/${branchId}`);
             const data = Array.isArray(res.data) ? res.data : (res.data.content || []);
             setEvents(data);
         } catch (e) {
@@ -33,10 +35,9 @@ export default function SyndicateEventsPage({ params }: { params: Promise<{ id: 
 
     useEffect(() => {
         fetchEvents();
-    }, [id]);
+    }, [branchId]);
 
     return (
-        // CONTENEUR DE CENTRAGE : max-w-5xl mx-auto
         <div className="max-w-5xl mx-auto space-y-12 animate-in fade-in slide-in-from-bottom-4 duration-700">
 
             {/* En-tête de section centré */}
@@ -64,9 +65,9 @@ export default function SyndicateEventsPage({ params }: { params: Promise<{ id: 
                 )}
             </div>
 
-            {/* Grille d'événements centrée */}
+            {/* Grille d'événements */}
             {loading ? (
-                <div className="flex justify-center py-32">
+                <div className="">
                     <Loader2 className="animate-spin text-primary-800 w-12 h-12" />
                 </div>
             ) : events.length > 0 ? (
@@ -76,7 +77,6 @@ export default function SyndicateEventsPage({ params }: { params: Promise<{ id: 
                     ))}
                 </div>
             ) : (
-                /* État vide centré */
                 <div className="bg-white rounded-[3rem] p-20 text-center border border-slate-100 shadow-xl shadow-slate-200/50 mt-8">
                     <div className="w-24 h-24 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-6 text-slate-300">
                         <CalendarSearch size={48} />
@@ -99,7 +99,7 @@ export default function SyndicateEventsPage({ params }: { params: Promise<{ id: 
             <CreateEventModal
                 isOpen={isModalOpen}
                 onClose={() => setIsModalOpen(false)}
-                branchId={id}
+                branchId={branchId}
                 onSuccess={fetchEvents}
             />
         </div>

@@ -1,32 +1,52 @@
 "use client";
 
-import { useState, useEffect } from 'react';
-import { useParams } from 'next/navigation';
+import { use, useState, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
 import { useAuthStore } from '@/lib/store';
+import { ugateApi } from '@/lib/axios';
 import MemberSidebar from '@/components/dashboard/MemberSidebar';
 import VoteCard from '@/components/social/VoteCard';
 import CreateVoteModal from '@/components/social/CreateVoteModal';
-import { Plus, Vote as VoteIcon } from 'lucide-react';
+import { Plus, Vote as VoteIcon, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 
-export default function SyndicateVotesPage() {
-    const { id: syndicateId } = useParams();
+export default function SyndicateVotesPage({ params }: { params: Promise<{ id: string, branchId: string }> }) {
+    // Extraction des IDs de manière synchrone via use()
+    const { id: syndicateId, branchId } = use(params);
+
     const t = useTranslations('Votes');
     const { user } = useAuthStore();
+
     const [isModalOpen, setIsModalOpen] = useState(false);
-
-    // Idéalement, on récupèrerait ici une liste d'IDs de votes actifs pour cette branche
-    // Pour l'instant, on se base sur les votes présents dans le flux
     const [voteIds, setVoteIds] = useState<string[]>([]);
+    const [loading, setLoading] = useState(true);
 
-    const isAdmin = user?.roles.includes('ADMIN') || user?.roles.includes('PRESIDENT');
+    const isAdmin = user?.roles.includes('ADMIN') || user?.roles.includes('CLIENT') || user?.roles.includes('MODERATOR');
+
+    const fetchVotes = async () => {
+        try {
+            // Note: Adaptez l'endpoint si vous avez un service de liste de votes par branche
+            const res = await ugateApi.get(`/publication-votes/branch/${branchId}`);
+            // On extrait les IDs des votes pour les passer au VoteCard
+            const data = Array.isArray(res.data) ? res.data : (res.data.content || []);
+            setVoteIds(data.map((v: any) => v.id));
+        } catch (error) {
+            console.error("Erreur chargement votes", error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        fetchVotes();
+    }, [branchId]);
 
     return (
         <div className="min-h-screen bg-[#F8FAFC]">
-            <MemberSidebar syndicateId={syndicateId as string} />
+            {/* Sidebar avec le contexte complet */}
+            <MemberSidebar syndicateId={syndicateId} branchId={branchId} />
 
-            <main >
+            <main>
                 <div className="max-w-4xl mx-auto">
 
                     <header className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 mb-12">
@@ -46,31 +66,35 @@ export default function SyndicateVotesPage() {
                         )}
                     </header>
 
-                    <div className="grid gap-8">
-                        {/* Exemple de vote actif */}
-                        <VoteCard voteId="80ef205a-84ba-41a1-9eb5-6d2d3ae791ed" />
-
-                        {/* État vide si aucun ID n'est trouvé */}
-                        {voteIds.length === 0 && (
-                            <div className="bg-white rounded-[3rem] p-20 text-center border border-slate-100 shadow-xl mt-8">
-                                <div className="w-20 h-20 bg-slate-50 rounded-3xl flex items-center justify-center mx-auto mb-6 text-slate-300">
-                                    <VoteIcon size={40} />
+                    {loading ? (
+                        <div className="flex justify-center py-20">
+                            <Loader2 className="animate-spin text-primary-800 w-10 h-10" />
+                        </div>
+                    ) : (
+                        <div className="grid gap-8">
+                            {voteIds.length > 0 ? (
+                                voteIds.map(vId => (
+                                    <VoteCard key={vId} voteId={vId} />
+                                ))
+                            ) : (
+                                <div className="bg-white rounded-[3rem] p-20 text-center border border-slate-100 shadow-xl mt-8">
+                                    <div className="w-20 h-20 bg-slate-50 rounded-3xl flex items-center justify-center mx-auto mb-6 text-slate-300">
+                                        <VoteIcon size={40} />
+                                    </div>
+                                    <h2 className="text-xl font-bold text-slate-400">Aucun scrutin en cours pour cette antenne.</h2>
                                 </div>
-                                <h2 className="text-xl font-bold text-slate-400">Aucun autre sondage disponible.</h2>
-                            </div>
-                        )}
-                    </div>
+                            )}
+                        </div>
+                    )}
                 </div>
             </main>
 
-            {/* Modal de création */}
+            {/* Modal de création avec le branchId correct */}
             <CreateVoteModal
                 isOpen={isModalOpen}
                 onClose={() => setIsModalOpen(false)}
-                branchId={syndicateId as string} // Ou branchId spécifique si disponible
-                onSuccess={() => {
-                    // Logique pour rafraîchir la liste
-                }}
+                branchId={branchId}
+                onSuccess={fetchVotes}
             />
         </div>
     );

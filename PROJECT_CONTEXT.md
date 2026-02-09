@@ -1,6 +1,6 @@
 # 📦 Contexte Complet du Projet U-Gate Premium
 
-> Généré automatiquement le 09/02/2026 04:05:49
+> Généré automatiquement le 09/02/2026 08:15:06
 
 ---
 
@@ -78,12 +78,17 @@ D:\Projets\Scolaire\Reseau\New Version\ugate-user-frontend2\u-gate-premium
 │   │   └── AuthLayout.tsx
 │   ├── AuthAside.tsx
 │   ├── dashboard/
-│   │   └── MemberSidebar.tsx
+│   │   ├── MemberSidebar.tsx
+│   │   └── widgets/
+│   │       ├── EventsWidget.tsx
+│   │       └── NetworkWidget.tsx
 │   ├── layout/
 │   │   ├── Footer.tsx
 │   │   └── Navbar.tsx
 │   ├── profile/
 │   │   └── DocumentCard.tsx
+│   ├── providers/
+│   │   └── QueryProvider.tsx
 │   ├── sections/
 │   │   ├── auth/
 │   │   ├── Hero.tsx
@@ -101,6 +106,7 @@ D:\Projets\Scolaire\Reseau\New Version\ugate-user-frontend2\u-gate-premium
 │   │   ├── CreateVoteModal.tsx
 │   │   ├── EventCard.tsx
 │   │   ├── HorizontalPDFReader.tsx
+│   │   ├── InfiniteFeed.tsx
 │   │   ├── MediaGallery.tsx
 │   │   ├── PostCard.tsx
 │   │   ├── PostModal.tsx
@@ -110,6 +116,7 @@ D:\Projets\Scolaire\Reseau\New Version\ugate-user-frontend2\u-gate-premium
 │   │   ├── BranchSelector.tsx
 │   │   └── SyndicateCard.tsx
 │   └── ui/
+│       ├── AdaptiveImage.tsx
 │       ├── Badge.tsx
 │       ├── Button.tsx
 │       ├── FileUpload.tsx
@@ -117,13 +124,19 @@ D:\Projets\Scolaire\Reseau\New Version\ugate-user-frontend2\u-gate-premium
 │       ├── Input.tsx
 │       ├── Label.tsx
 │       ├── Logo.tsx
-│       └── PDFViewer.tsx
+│       ├── PDFViewer.tsx
+│       └── UserAvatar.tsx
 ├── eslint.config.mjs
 ├── generate.js
 ├── i18n.ts
 ├── lib/
 │   ├──  utils.ts
 │   ├── axios.ts
+│   ├── context/
+│   │   └── SettingsContext.tsx
+│   ├── hooks/
+│   │   ├── useFeed.ts
+│   │   └── useReaction.ts
 │   ├── schemas.ts
 │   ├── store/
 │   │   └── authStore.ts
@@ -141,6 +154,7 @@ D:\Projets\Scolaire\Reseau\New Version\ugate-user-frontend2\u-gate-premium
 ├── package-lock.json
 ├── package.json
 ├── postcss.config.mjs
+├── PROJECT_CONTEXT.md
 ├── public/
 │   ├── file.svg
 │   ├── globe.svg
@@ -175,6 +189,7 @@ D:\Projets\Scolaire\Reseau\New Version\ugate-user-frontend2\u-gate-premium
     "@hookform/resolvers": "^5.2.2",
     "@radix-ui/react-label": "^2.1.8",
     "@tanstack/react-query": "^5.90.20",
+    "@tanstack/react-query-devtools": "^5.91.3",
     "axios": "^1.13.4",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
@@ -188,6 +203,7 @@ D:\Projets\Scolaire\Reseau\New Version\ugate-user-frontend2\u-gate-premium
     "react-dom": "19.2.3",
     "react-hook-form": "^7.71.1",
     "react-hot-toast": "^2.6.0",
+    "react-intersection-observer": "^10.0.2",
     "tailwind-merge": "^3.4.0",
     "zod": "^4.3.6",
     "zustand": "^5.0.11"
@@ -1888,30 +1904,65 @@ export default function SyndicateVotesPage() {
 import { use } from 'react';
 import { usePathname } from 'next/navigation';
 import MemberSidebar from '@/components/dashboard/MemberSidebar';
+import EventsWidget from '@/components/dashboard/widgets/EventsWidget'; // ✅ Vrai
+import NetworkWidget from '@/components/dashboard/widgets/NetworkWidget'; // ✅ Vrai
 
-export default function SyndicateRootLayout({
-                                                children,
-                                                params
-                                            }: {
+export default function SyndicateLayout({
+                                            children,
+                                            params
+                                        }: {
     children: React.ReactNode,
     params: Promise<{ id: string }>
 }) {
     const { id: syndicateId } = use(params);
     const pathname = usePathname();
 
+    // Extraction robuste de l'ID de branche
     const segments = pathname.split('/');
-    const branchIdIndex = segments.indexOf('branch') + 1;
-    const branchId = branchIdIndex > 0 ? segments[branchIdIndex] : "";
+    const branchIndex = segments.indexOf('branch');
+    const branchId = branchIndex !== -1 && segments.length > branchIndex + 1
+        ? segments[branchIndex + 1]
+        : "";
 
     return (
-        <div className="min-h-screen bg-[#F8FAFC] flex items-stretch">
-            <MemberSidebar
-                syndicateId={syndicateId}
-                branchId={branchId}
-            />
+        <div className="min-h-screen bg-[#F0F2F5] font-sans">
 
-            <div className="flex-1 lg:ml-72 flex flex-col min-w-0 w-full">
-                {children}
+            {/* Navigation Gauche (Fixe) */}
+            <div className="hidden lg:block">
+                <MemberSidebar syndicateId={syndicateId} branchId={branchId} />
+            </div>
+
+            {/* Zone Principale */}
+            <div className="lg:ml-72 min-h-screen flex justify-center">
+                <div className="w-full max-w-[1200px] px-4 sm:px-6 py-6 grid grid-cols-1 xl:grid-cols-12 gap-6 lg:gap-8 pt-24 lg:pt-8">
+
+                    {/* COLONNE CENTRALE : FEED */}
+                    <main className="xl:col-span-8 flex flex-col gap-6 min-w-0">
+                        {children}
+                    </main>
+
+                    {/* COLONNE DROITE : WIDGETS RÉELS */}
+                    <aside className="hidden xl:block xl:col-span-4 space-y-6">
+                        <div className="sticky top-6 space-y-6">
+
+                            {/* Widget 1 : Contrôle Réseau (Fonctionnel) */}
+                            <NetworkWidget />
+
+                            {/* Widget 2 : Événements Réels de la branche */}
+                            {/* On ne l'affiche que si on est dans le contexte d'une branche */}
+                            {branchId && (
+                                <EventsWidget branchId={branchId} syndicateId={syndicateId} />
+                            )}
+
+                            {/* Footer Simple */}
+                            <div className="text-[11px] text-slate-400 text-center px-4">
+                                © 2026 U-Gate • <a href="#" className="hover:underline">Confidentialité</a>
+                            </div>
+
+                        </div>
+                    </aside>
+
+                </div>
             </div>
         </div>
     );
@@ -2738,6 +2789,10 @@ import { Toaster } from 'react-hot-toast';
 import '../globals.css';
 import { ReactNode } from 'react';
 
+import QueryProvider from '@/components/providers/QueryProvider';
+// ✅ IMPORT DU SETTINGS PROVIDER
+import { SettingsProvider } from '@/lib/context/SettingsContext';
+
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
 
 export const metadata = {
@@ -2747,26 +2802,28 @@ export const metadata = {
 
 interface RootLayoutProps {
     children: ReactNode;
-    params: Promise<{ locale: string }>; // Promise obligatoire en Next 15
+    params: Promise<{ locale: string }>;
 }
 
 export default async function RootLayout({ children, params }: RootLayoutProps) {
-    // On await les params avant de les utiliser
     const { locale } = await params;
-
-    // Récupération des messages côté serveur
     const messages = await getMessages();
 
     return (
         <html lang={locale}>
         <body className={`${inter.variable} font-sans min-h-screen flex flex-col antialiased`}>
-    <NextIntlClientProvider messages={messages}>
-    <Toaster position="top-right" />
-        {children}
+        <NextIntlClientProvider messages={messages}>
+            <QueryProvider>
+                {/* ✅ ACTIVATION DU CONTEXTE DATA SAVER */}
+                <SettingsProvider>
+                    <Toaster position="top-right" />
+                    {children}
+                </SettingsProvider>
+            </QueryProvider>
         </NextIntlClientProvider>
         </body>
         </html>
-);
+    );
 }
 ```
 
@@ -3351,6 +3408,167 @@ export default function MemberSidebar({ syndicateId, branchId }: MemberSidebarPr
 }
 ```
 
+## 📄 `components\dashboard\widgets\EventsWidget.tsx`
+
+```tsx
+"use client";
+
+import { useQuery } from '@tanstack/react-query';
+import { ugateApi } from '@/lib/axios';
+import { EventResponseDTO } from '@/lib/types/api';
+import { Calendar, MapPin, Loader2, AlertCircle } from 'lucide-react';
+import { Link } from '@/navigation';
+import { format } from 'date-fns';
+import { fr } from 'date-fns/locale';
+
+export default function EventsWidget({ branchId, syndicateId }: { branchId: string, syndicateId: string }) {
+    // 🔥 Appel API Réel avec TanStack Query
+    const { data, isLoading, isError } = useQuery({
+        queryKey: ['events', branchId],
+        queryFn: async () => {
+            if (!branchId) return [];
+            const res = await ugateApi.get(`/events/branch/${branchId}`);
+            // Gestion robuste du format de réponse (Tableau direct ou Page)
+            const events = Array.isArray(res.data) ? res.data : (res.data.content || []);
+
+            // Filtrer : Seulement futurs, Triés par date, Max 3
+            return events
+                .filter((e: EventResponseDTO) => new Date(e.date) >= new Date())
+                .sort((a: EventResponseDTO, b: EventResponseDTO) => new Date(a.date).getTime() - new Date(b.date).getTime())
+                .slice(0, 3);
+        },
+        enabled: !!branchId, // Ne pas lancer si pas de branche
+        staleTime: 1000 * 60 * 5 // Cache de 5 minutes
+    });
+
+    if (!branchId) return null;
+
+    return (
+        <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+            <div className="p-4 border-b border-slate-50 flex items-center justify-between">
+                <h3 className="font-bold text-slate-700 text-sm flex items-center gap-2">
+                    <Calendar size={16} className="text-primary-600" />
+                    Agenda
+                </h3>
+            </div>
+
+            <div className="p-4 space-y-4">
+                {isLoading && (
+                    <div className="flex justify-center py-4">
+                        <Loader2 className="animate-spin text-slate-300" />
+                    </div>
+                )}
+
+                {isError && (
+                    <div className="text-xs text-red-400 flex items-center gap-2">
+                        <AlertCircle size={12} /> Impossible de charger l'agenda
+                    </div>
+                )}
+
+                {!isLoading && data?.length === 0 && (
+                    <p className="text-xs text-slate-400 text-center py-2">Aucun événement prévu.</p>
+                )}
+
+                {data?.map((event: EventResponseDTO) => {
+                    const eventDate = new Date(event.date);
+                    return (
+                        <Link key={event.id} href={`/syndicate/${syndicateId}/branch/${branchId}/events`} className="flex gap-3 items-start group">
+                            <div className="w-12 h-12 bg-slate-50 rounded-xl flex flex-col items-center justify-center border border-slate-100 group-hover:border-primary-200 transition-colors shrink-0">
+                                <span className="text-[10px] font-bold text-slate-400 uppercase">
+                                    {format(eventDate, 'MMM', { locale: fr })}
+                                </span>
+                                <span className="text-lg font-black text-slate-800 leading-none">
+                                    {format(eventDate, 'dd')}
+                                </span>
+                            </div>
+                            <div className="flex-1 min-w-0">
+                                <h4 className="text-sm font-bold text-slate-900 leading-tight truncate group-hover:text-primary-700 transition-colors">
+                                    {event.title}
+                                </h4>
+                                <div className="flex items-center gap-1 text-xs text-slate-500 mt-1">
+                                    <MapPin size={10} />
+                                    <span className="truncate">{event.location}</span>
+                                </div>
+                            </div>
+                        </Link>
+                    );
+                })}
+
+                <Link
+                    href={`/syndicate/${syndicateId}/branch/${branchId}/events`}
+                    className="block w-full py-2 text-center text-xs font-bold text-primary-600 hover:bg-primary-50 rounded-lg transition-colors border border-transparent hover:border-primary-100"
+                >
+                    Voir tout l'agenda
+                </Link>
+            </div>
+        </div>
+    );
+}
+```
+
+## 📄 `components\dashboard\widgets\NetworkWidget.tsx`
+
+```tsx
+"use client";
+import { useSettings } from '@/lib/context/SettingsContext';
+import { Signal, Wifi, Zap, Info } from 'lucide-react';
+
+export default function NetworkWidget() {
+    const { networkQuality, setNetworkQuality } = useSettings();
+
+    return (
+        <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+            <div className="p-4 border-b border-slate-50 flex items-center justify-between">
+                <h3 className="font-bold text-slate-700 text-sm flex items-center gap-2">
+                    <Signal size={16} className="text-primary-600" />
+                    Qualité Média
+                </h3>
+            </div>
+            <div className="p-4">
+                <p className="text-xs text-slate-500 mb-3 leading-relaxed">
+                    Ajustez le chargement des images selon votre connexion.
+                </p>
+                <div className="grid grid-cols-3 gap-2">
+                    <button
+                        onClick={() => setNetworkQuality('high')}
+                        className={`flex flex-col items-center justify-center p-2 rounded-xl border text-xs font-bold transition-all ${
+                            networkQuality === 'high'
+                                ? 'bg-primary-50 border-primary-500 text-primary-700'
+                                : 'border-slate-100 text-slate-500 hover:bg-slate-50'
+                        }`}
+                    >
+                        <Wifi size={16} className="mb-1" />
+                        HD
+                    </button>
+                    <button
+                        onClick={() => setNetworkQuality('auto')}
+                        className={`flex flex-col items-center justify-center p-2 rounded-xl border text-xs font-bold transition-all ${
+                            networkQuality === 'auto'
+                                ? 'bg-blue-50 border-blue-500 text-blue-700'
+                                : 'border-slate-100 text-slate-500 hover:bg-slate-50'
+                        }`}
+                    >
+                        <Zap size={16} className="mb-1" />
+                        Auto
+                    </button>
+                    <button
+                        onClick={() => setNetworkQuality('low')}
+                        className={`flex flex-col items-center justify-center p-2 rounded-xl border text-xs font-bold transition-all ${
+                            networkQuality === 'low'
+                                ? 'bg-emerald-50 border-emerald-500 text-emerald-700'
+                                : 'border-slate-100 text-slate-500 hover:bg-slate-50'
+                        }`}
+                    >
+                        <Signal size={16} className="mb-1" />
+                        Éco
+                    </button>
+                </div>
+            </div>
+        </div>
+    );
+}
+```
+
 ## 📄 `components\layout\Footer.tsx`
 
 ```tsx
@@ -3552,6 +3770,29 @@ export default function DocumentCard({ title, description, url, onView, onUpdate
             </button>
         </div>
     );
+}
+```
+
+## 📄 `components\providers\QueryProvider.tsx`
+
+```tsx
+"use client";
+
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { useState } from 'react';
+
+export default function QueryProvider({ children }: { children: React.ReactNode }) {
+    const [client] = useState(() => new QueryClient({
+        defaultOptions: {
+            queries: {
+                staleTime: 1000 * 60, // Les données restent fraîches 1 minute
+                refetchOnWindowFocus: false,
+                retry: 1,
+            },
+        },
+    }));
+
+    return <QueryClientProvider client={client}>{children}</QueryClientProvider>;
 }
 ```
 
@@ -5038,6 +5279,80 @@ export default function HorizontalPDFReader({ url, title }: { url: string, title
 }
 ```
 
+## 📄 `components\social\InfiniteFeed.tsx`
+
+```tsx
+"use client";
+import { useInView } from 'react-intersection-observer';
+import { useFeed } from '@/lib/hooks/useFeed';
+import { useEffect } from 'react';
+import PostCard from './PostCard';
+import EventCard from './EventCard';
+import VoteCard from './VoteCard'; // Si tu as un type 'poll' dans le feed
+import { Loader2 } from 'lucide-react';
+import CreatePost from './CreatePost';
+
+export default function InfiniteFeed({ branchId, branchName }: { branchId: string, branchName?: string }) {
+    const {
+        data,
+        fetchNextPage,
+        hasNextPage,
+        isFetchingNextPage,
+        status
+    } = useFeed(branchId);
+
+    const { ref, inView } = useInView();
+
+    useEffect(() => {
+        if (inView && hasNextPage) {
+            fetchNextPage();
+        }
+    }, [inView, hasNextPage]);
+
+    if (status === 'pending') return <FeedSkeleton />;
+    if (status === 'error') return <div className="text-center py-10 text-red-500">Erreur de chargement du flux.</div>;
+
+    return (
+        <div className="space-y-6">
+            <CreatePost syndicateId={branchId} branchName={branchName} />
+
+            {data?.pages.map((page, i) => (
+                <div key={i} className="space-y-6">
+                    {page.map((item: any) => {
+                        // Switch sur le type d'item renvoyé par /api/v1/feed
+                        switch (item.type) {
+                            case 'publication':
+                                return <PostCard key={item.data.id} publication={item.data} />;
+                            case 'event':
+                                return <EventCard key={item.data.id} event={item.data} />;
+                            case 'poll': // Si ton API feed inclut les votes
+                                return <VoteCard key={item.data.id} voteId={item.data.id} />;
+                            default:
+                                return null;
+                        }
+                    })}
+                </div>
+            ))}
+
+            <div ref={ref} className="flex justify-center py-8">
+                {isFetchingNextPage && <Loader2 className="animate-spin text-primary-500" />}
+                {!hasNextPage && <p className="text-slate-400 text-sm">Vous avez tout vu !</p>}
+            </div>
+        </div>
+    );
+}
+
+function FeedSkeleton() {
+    return (
+        <div className="space-y-6">
+            {[1, 2, 3].map(i => (
+                <div key={i} className="bg-white rounded-2xl p-6 h-64 animate-pulse shadow-sm" />
+            ))}
+        </div>
+    );
+}
+```
+
 ## 📄 `components\social\MediaGallery.tsx`
 
 ```tsx
@@ -5353,71 +5668,272 @@ export default function MediaGallery({ media }: { media: (MediaItem | string)[] 
 ```tsx
 "use client";
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { Publication } from '@/lib/types/api';
-import { MessageCircle, Share2, ThumbsUp, Heart, Clock } from 'lucide-react';
+import { ugateApi } from '@/lib/axios';
+import { useAuthStore } from '@/lib/store';
+import {
+    MessageCircle, Share2, ThumbsUp, MoreHorizontal,
+    Globe, CheckCircle2
+} from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { fr } from 'date-fns/locale';
-import { cn } from '@/lib/utils';
-import MediaGallery from './MediaGallery';
-import PostModal from './PostModal'; // Import de la modale
+import { motion, AnimatePresence } from 'framer-motion';
+import { toast } from 'react-hot-toast';
+import { cn } from '@/lib/ utils';
 
-export default function PostCard({ publication }: { publication: Publication }) {
+// Composants internes
+import MediaGallery from './MediaGallery';
+import PostModal from './PostModal';
+import ReactionPicker, { REACTION_TYPES } from './ReactionPicker';
+import UserAvatar from '@/components/ui/UserAvatar'; // ✅ Import du composant Avatar
+
+interface PostCardProps {
+    publication: Publication;
+}
+
+export default function PostCard({ publication }: PostCardProps) {
+    const { user } = useAuthStore();
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isExpanded, setIsExpanded] = useState(false);
+
+    // --- GESTION DES RÉACTIONS ---
+    const [showReactions, setShowReactions] = useState(false);
+    const [currentReaction, setCurrentReaction] = useState<string | null>(null);
+    const [likeCount, setLikeCount] = useState(publication.nlikes || 0);
+
+    const hoverTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+    // --- ⚡ LOGIQUE API STRICTE ---
+    const handleReaction = async (type: string) => {
+        // 1. Validation de l'utilisateur connecté
+        if (!user?.id) {
+            toast.error("Veuillez vous connecter pour réagir");
+            return;
+        }
+
+        // Fermeture du picker
+        setShowReactions(false);
+        if (hoverTimeoutRef.current) clearTimeout(hoverTimeoutRef.current);
+
+        // Sauvegarde pour rollback
+        const previousReaction = currentReaction;
+        const previousCount = likeCount;
+
+        // Mise à jour Optimiste (UX Instantanée)
+        // Note: L'API ne gérant pas le "toggle" (suppression), on écrase juste la valeur.
+        const isNew = currentReaction === null;
+        setCurrentReaction(type);
+        if (isNew) setLikeCount(prev => prev + 1);
+
+        try {
+            // 2. Appel API conforme au Swagger
+            // POST /publications/{publicationId}/reactions
+            // Body: CreateReactionRequest { userId: UUID, reactionType: Enum }
+
+            const payload = {
+                userId: user.id,      // UUID de l'utilisateur connecté
+                reactionType: type    // "LIKE", "LOVE", "HAHA", etc.
+            };
+
+            await ugateApi.post(`/publications/${publication.id}/reactions`, payload);
+
+            // Pas de toast de succès pour ne pas spammer l'utilisateur (comme FB)
+        } catch (error: any) {
+            console.error("Erreur réaction:", error.response?.data);
+
+            // 3. Rollback en cas d'erreur
+            setCurrentReaction(previousReaction);
+            setLikeCount(previousCount);
+            toast.error("Impossible d'enregistrer la réaction");
+        }
+    };
+
+    // --- GESTION DU SURVOL ---
+    const handleMouseEnter = () => {
+        if (hoverTimeoutRef.current) clearTimeout(hoverTimeoutRef.current);
+        hoverTimeoutRef.current = setTimeout(() => setShowReactions(true), 400);
+    };
+
+    const handleMouseLeave = () => {
+        if (hoverTimeoutRef.current) clearTimeout(hoverTimeoutRef.current);
+        hoverTimeoutRef.current = setTimeout(() => setShowReactions(false), 300);
+    };
+
+    // --- VISUELS DU BOUTON PRINCIPAL ---
+    const getReactionVisuals = () => {
+        if (!currentReaction) {
+            return {
+                icon: <ThumbsUp size={18} />,
+                label: "J'aime",
+                colorClass: "text-slate-600 hover:bg-slate-50"
+            };
+        }
+
+        const config = REACTION_TYPES.find(r => r.label === currentReaction);
+        if (!config) return { icon: <ThumbsUp size={18} />, label: "J'aime", colorClass: "text-blue-600" };
+
+        return {
+            icon: <span className="text-xl leading-none -mt-1">{config.emoji}</span>,
+            label: config.name,
+            colorClass: `${config.color} bg-slate-50`
+        };
+    };
+
+    const visuals = getReactionVisuals();
+
+    // --- LOGIQUE D'AFFICHAGE DU TEXTE ---
+    const textLimit = 200;
+    const isLongText = publication.content && publication.content.length > textLimit;
+    const displayContent = isExpanded || !isLongText
+        ? publication.content
+        : publication.content?.slice(0, textLimit) + "...";
 
     return (
         <>
-            <div className="bg-white rounded-[2rem] shadow-sm border border-slate-200 overflow-hidden animate-in fade-in duration-500 max-w-2xl mx-auto">
-                {/* ... Header et Contenu restent identiques ... */}
-                <div className="p-5 flex items-center gap-3">
-                    {/* ... Avatar et Nom ... */}
-                    <div className="w-10 h-10 bg-primary-800 rounded-full flex items-center justify-center text-white font-bold">{publication.authorFullName.charAt(0)}</div>
-                    <div>
-                        <div className="font-bold text-slate-900">{publication.authorFullName}</div>
-                        <div className="text-xs text-slate-400">{formatDistanceToNow(new Date(publication.createdAt), { addSuffix: true, locale: fr })}</div>
+            <motion.article
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: "-50px" }}
+                className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-visible mb-6"
+            >
+                {/* 1. EN-TÊTE AVEC AVATAR API AUTH */}
+                <div className="p-4 flex justify-between items-start">
+                    <div className="flex gap-3">
+                        {/* ✅ Utilisation du UserAvatar pour récupérer la photo depuis l'Auth API */}
+                        <UserAvatar
+                            userId={publication.authorId || ""} // Utilisation de l'authorId de la publi
+                            fallbackName={publication.authorFullName}
+                            className="w-11 h-11"
+                        />
+
+                        <div>
+                            <h3 className="font-bold text-[15px] text-slate-900 leading-tight hover:underline cursor-pointer">
+                                {publication.authorFullName}
+                            </h3>
+                            <div className="flex items-center gap-1.5 text-xs text-slate-500 mt-0.5">
+                                <span className="font-medium text-slate-400">
+                                    {publication.createdAt
+                                        ? formatDistanceToNow(new Date(publication.createdAt), { addSuffix: true, locale: fr })
+                                        : 'À l\'instant'}
+                                </span>
+                                <span className="text-slate-300">•</span>
+                                <Globe size={10} className="text-slate-400" />
+                            </div>
+                        </div>
                     </div>
+
+                    <button className="p-2 text-slate-400 hover:bg-slate-50 hover:text-slate-600 rounded-full transition-colors">
+                        <MoreHorizontal size={20} />
+                    </button>
                 </div>
 
-                <div className="px-5 pb-3 text-slate-800 text-[15px] line-clamp-3">
-                    {publication.content}
-                </div>
+                {/* 2. CONTENU TEXTUEL */}
+                {publication.content && (
+                    <div className="px-4 pb-3">
+                        <p className="text-[15px] leading-relaxed text-slate-800 whitespace-pre-wrap font-normal">
+                            {displayContent}
+                        </p>
+                        {isLongText && (
+                            <button
+                                onClick={() => setIsExpanded(!isExpanded)}
+                                className="text-slate-500 font-bold text-sm hover:underline mt-1 hover:text-primary-600"
+                            >
+                                {isExpanded ? "Voir moins" : "Voir plus"}
+                            </button>
+                        )}
+                    </div>
+                )}
 
-                {/* Zone Media */}
+                {/* 3. MÉDIAS (EDGE-TO-EDGE) */}
                 {publication.fileUrlAndType?.length > 0 && (
-                    <div className="cursor-pointer" onClick={() => setIsModalOpen(true)}>
+                    <div
+                        className="w-full bg-slate-50 cursor-pointer border-t border-slate-100"
+                        onClick={() => setIsModalOpen(true)}
+                    >
                         <MediaGallery media={publication.fileUrlAndType} />
                     </div>
                 )}
 
-                {/* Footer Stats & Actions */}
-                <div className="px-5 py-3 border-t border-slate-50 flex justify-between items-center">
-                    <div className="flex items-center gap-1 text-slate-500 text-xs font-bold">
-                        <ThumbsUp size={14} className="text-blue-500 fill-current" />
-                        {publication.nlikes}
+                {/* 4. BARRE DE STATISTIQUES */}
+                <div className="px-4 py-3 flex items-center justify-between text-xs text-slate-500 border-b border-slate-50">
+                    <div className="flex items-center gap-1.5 min-h-[20px]">
+                        {likeCount > 0 && (
+                            <div className="flex items-center gap-1 animate-in fade-in zoom-in duration-300">
+                                <div className="w-5 h-5 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center ring-2 ring-white shadow-sm">
+                                    <ThumbsUp size={10} fill="white" className="text-white" />
+                                </div>
+                                {/* Si une autre réaction que Like est dominante, on pourrait l'afficher ici */}
+                                <span className="hover:underline cursor-pointer font-medium ml-1 text-slate-600">
+                                    {likeCount}
+                                </span>
+                            </div>
+                        )}
                     </div>
-                    <div className="text-slate-500 text-xs font-bold hover:underline cursor-pointer" onClick={() => setIsModalOpen(true)}>
-                        {publication.ncomments} commentaires
+
+                    <div className="flex gap-3 font-medium text-slate-500">
+                        <span onClick={() => setIsModalOpen(true)} className="hover:underline cursor-pointer hover:text-slate-700">
+                            {publication.ncomments > 0 ? `${publication.ncomments} commentaires` : "0 commentaire"}
+                        </span>
                     </div>
                 </div>
 
-                <div className="grid grid-cols-3 gap-1 px-2 pb-2">
-                    <button className="py-2.5 rounded-xl hover:bg-slate-50 text-slate-600 font-bold text-sm flex items-center justify-center gap-2">
-                        <ThumbsUp size={18} /> J'aime
-                    </button>
-                    {/* Le clic sur Commenter ouvre la Modale */}
-                    <button
-                        onClick={() => setIsModalOpen(true)}
-                        className="py-2.5 rounded-xl hover:bg-slate-50 text-slate-600 font-bold text-sm flex items-center justify-center gap-2"
-                    >
-                        <MessageCircle size={18} /> Commenter
-                    </button>
-                    <button className="py-2.5 rounded-xl hover:bg-slate-50 text-slate-600 font-bold text-sm flex items-center justify-center gap-2">
-                        <Share2 size={18} /> Partager
-                    </button>
-                </div>
-            </div>
+                {/* 5. BARRE D'ACTIONS */}
+                <div className="px-2 py-1 relative z-10">
+                    <div className="grid grid-cols-3 gap-1">
 
-            {/* La Modale Facebook-style */}
+                        {/* A. RÉACTION (HOVER & CLICK) */}
+                        <div
+                            className="relative"
+                            onMouseEnter={handleMouseEnter}
+                            onMouseLeave={handleMouseLeave}
+                        >
+                            <AnimatePresence>
+                                {showReactions && (
+                                    <ReactionPicker onSelect={handleReaction} />
+                                )}
+                            </AnimatePresence>
+
+                            <motion.button
+                                whileTap={{ scale: 0.95 }}
+                                onClick={() => handleReaction(currentReaction || 'LIKE')}
+                                className={cn(
+                                    "w-full flex items-center justify-center gap-2 py-2.5 rounded-lg text-sm font-bold transition-all duration-200 select-none",
+                                    visuals.colorClass
+                                )}
+                            >
+                                <motion.div
+                                    key={currentReaction || 'default'}
+                                    initial={{ scale: 0.8 }}
+                                    animate={{ scale: 1 }}
+                                    transition={{ type: "spring", stiffness: 400 }}
+                                >
+                                    {visuals.icon}
+                                </motion.div>
+                                <span className="hidden sm:inline">{visuals.label}</span>
+                            </motion.button>
+                        </div>
+
+                        {/* B. COMMENTER */}
+                        <button
+                            onClick={() => setIsModalOpen(true)}
+                            className="flex items-center justify-center gap-2 py-2.5 rounded-lg text-slate-600 hover:bg-slate-50 text-sm font-bold transition-colors active:scale-95"
+                        >
+                            <MessageCircle size={18} />
+                            <span className="hidden sm:inline">Commenter</span>
+                        </button>
+
+                        {/* C. PARTAGER */}
+                        <button className="flex items-center justify-center gap-2 py-2.5 rounded-lg text-slate-600 hover:bg-slate-50 text-sm font-bold transition-colors active:scale-95">
+                            <Share2 size={18} />
+                            <span className="hidden sm:inline">Partager</span>
+                        </button>
+                    </div>
+                </div>
+
+            </motion.article>
+
+            {/* MODALE DÉTAILS */}
             <PostModal
                 publication={publication}
                 isOpen={isModalOpen}
@@ -5590,35 +6106,92 @@ export default function PostModal({ publication, isOpen, onClose }: Props) {
 ```tsx
 "use client";
 
-import { motion } from 'framer-motion';
+import { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 
-const reactions = [
-    { label: 'LIKE', emoji: '👍', color: 'text-blue-500' },
-    { label: 'LOVE', emoji: '❤️', color: 'text-red-500' },
-    { label: 'HAHA', emoji: '😆', color: 'text-yellow-500' },
-    { label: 'WOW', emoji: '😮', color: 'text-blue-400' },
-    { label: 'SAD', emoji: '😢', color: 'text-yellow-600' },
-    { label: 'ANGRY', emoji: '😡', color: 'text-orange-600' },
+// Vos types de réactions
+export const REACTION_TYPES = [
+    { label: 'LIKE', emoji: '👍', color: 'text-blue-600', name: 'J\'aime' },
+    { label: 'LOVE', emoji: '❤️', color: 'text-red-600', name: 'J\'adore' },
+    { label: 'HAHA', emoji: '😂', color: 'text-yellow-500', name: 'Haha' },
+    { label: 'WOW', emoji: '😮', color: 'text-amber-500', name: 'Wouah' },
+    { label: 'SAD', emoji: '😢', color: 'text-blue-400', name: 'Triste' },
+    { label: 'ANGRY', emoji: '😡', color: 'text-orange-600', name: 'Grrr' },
 ];
 
-export default function ReactionPicker({ onSelect }: { onSelect: (type: string) => void }) {
+interface ReactionPickerProps {
+    onSelect: (type: string) => void;
+}
+
+export default function ReactionPicker({ onSelect }: ReactionPickerProps) {
+    // On suit quel émoji est survolé pour afficher son label
+    const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
+
     return (
         <motion.div
-            initial={{ opacity: 0, y: 10, scale: 0.9 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            className="absolute bottom-full left-0 mb-2 bg-white shadow-2xl border border-slate-100 rounded-full p-1.5 flex gap-1 z-50"
+            initial={{ opacity: 0, scale: 0.8, y: 10 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.5, y: 10, transition: { duration: 0.2 } }}
+            className="absolute bottom-full left-0 mb-3 z-50"
+            // Important : on empêche le clic de se propager au post en dessous
+            onClick={(e) => e.stopPropagation()}
         >
-            {reactions.map((res, i) => (
-                <motion.button
-                    key={res.label}
-                    whileHover={{ scale: 1.3 }}
-                    transition={{ type: "spring", stiffness: 400, damping: 10 }}
-                    onClick={() => onSelect(res.label)}
-                    className="w-10 h-10 flex items-center justify-center text-2xl hover:bg-slate-50 rounded-full transition-colors"
-                >
-                    {res.emoji}
-                </motion.button>
-            ))}
+            {/* Conteneur Blanc (La "Dock") */}
+            <div className="bg-white rounded-full shadow-[0_8px_30px_rgb(0,0,0,0.12)] border border-slate-100 p-1.5 flex gap-2 items-center">
+                {REACTION_TYPES.map((reaction, i) => (
+                    <div key={reaction.label} className="relative group">
+
+                        {/* 1. Le Label (Tooltip) qui apparaît au survol */}
+                        <AnimatePresence>
+                            {hoveredIndex === i && (
+                                <motion.div
+                                    initial={{ opacity: 0, y: 10, scale: 0.8 }}
+                                    animate={{ opacity: 1, y: -45, scale: 1 }}
+                                    exit={{ opacity: 0, y: 10, scale: 0.8 }}
+                                    transition={{ type: "spring", stiffness: 300, damping: 20 }}
+                                    className="absolute left-1/2 -translate-x-1/2 bg-slate-900/90 text-white text-[10px] font-bold px-2 py-1 rounded-full whitespace-nowrap backdrop-blur-sm pointer-events-none"
+                                >
+                                    {reaction.name}
+                                </motion.div>
+                            )}
+                        </AnimatePresence>
+
+                        {/* 2. Le Bouton Emoji Animé */}
+                        <motion.button
+                            // Animation d'entrée en cascade (stagger)
+                            initial={{ opacity: 0, y: 20, scale: 0.5 }}
+                            animate={{
+                                opacity: 1,
+                                y: 0,
+                                scale: 1,
+                                transition: { delay: i * 0.05, type: "spring", stiffness: 400, damping: 15 }
+                            }}
+
+                            // Animation au survol (Gros zoom + oscillation)
+                            whileHover={{
+                                scale: 1.5,
+                                y: -10,
+                                transition: { type: "spring", stiffness: 400, damping: 10 }
+                            }}
+                            whileTap={{ scale: 0.9 }}
+
+                            onHoverStart={() => setHoveredIndex(i)}
+                            onHoverEnd={() => setHoveredIndex(null)}
+                            onClick={() => onSelect(reaction.label)}
+
+                            className="w-10 h-10 flex items-center justify-center text-3xl transition-colors relative"
+                            style={{
+                                // Permet aux emojis de ne pas être flous lors du scale
+                                willChange: "transform",
+                                filter: hoveredIndex === i ? "drop-shadow(0 4px 6px rgba(0,0,0,0.2))" : "none"
+                            }}
+                        >
+                            {/* L'Emoji */}
+                            {reaction.emoji}
+                        </motion.button>
+                    </div>
+                ))}
+            </div>
         </motion.div>
     );
 }
@@ -5951,6 +6524,84 @@ export default function SyndicateCard({ syndicate }: SyndicateCardProps) {
                 </div>
             </div>
         </Link>
+    );
+}
+```
+
+## 📄 `components\ui\AdaptiveImage.tsx`
+
+```tsx
+"use client";
+
+import { useState } from 'react';
+import { useSettings } from '@/lib/context/SettingsContext';
+import { Image as ImageIcon, Loader2, DownloadCloud } from 'lucide-react';
+import { cn } from '@/lib/ utils';
+
+interface Props extends React.ImgHTMLAttributes<HTMLImageElement> {
+    src: string;
+    alt: string;
+    className?: string;
+}
+
+export default function AdaptiveImage({ src, alt, className, ...props }: Props) {
+    const { shouldLoadHighRes } = useSettings();
+
+    // État local : est-ce que l'utilisateur a cliqué pour charger manuellement ?
+    const [forceLoad, setForceLoad] = useState(false);
+    const [isLoading, setIsLoading] = useState(true);
+    const [hasError, setHasError] = useState(false);
+
+    // On charge l'image si : Le réseau est bon OU l'utilisateur a forcé le chargement
+    const shouldRenderImage = shouldLoadHighRes || forceLoad;
+
+    if (!shouldRenderImage) {
+        return (
+            <div
+                onClick={(e) => { e.stopPropagation(); setForceLoad(true); }}
+                className={cn(
+                    "bg-slate-100 flex flex-col items-center justify-center cursor-pointer hover:bg-slate-200 transition-all group border border-slate-200 min-h-[200px]",
+                    className
+                )}
+            >
+                <div className="bg-white p-3 rounded-full shadow-sm mb-3 group-hover:scale-110 transition-transform">
+                    <DownloadCloud className="text-primary-600" size={24} />
+                </div>
+                <span className="text-xs text-slate-700 font-bold">Cliquer pour afficher</span>
+                <span className="text-[10px] text-slate-400 font-medium mt-1">Mode Éco activé • {alt.substring(0, 20)}...</span>
+            </div>
+        );
+    }
+
+    return (
+        <div className={cn("relative overflow-hidden bg-slate-50", className)}>
+            <img
+                src={src}
+                alt={alt}
+                className={cn(
+                    "w-full h-full object-cover transition-opacity duration-500",
+                    isLoading ? 'opacity-0' : 'opacity-100'
+                )}
+                onLoad={() => setIsLoading(false)}
+                onError={() => { setIsLoading(false); setHasError(true); }}
+                {...props}
+            />
+
+            {/* Spinner de chargement */}
+            {isLoading && !hasError && (
+                <div className="absolute inset-0 flex items-center justify-center bg-slate-100/50 backdrop-blur-sm">
+                    <Loader2 className="animate-spin text-primary-600 w-8 h-8" />
+                </div>
+            )}
+
+            {/* Fallback erreur */}
+            {hasError && (
+                <div className="absolute inset-0 flex flex-col items-center justify-center bg-slate-100 text-slate-400">
+                    <ImageIcon size={32} className="mb-2 opacity-50" />
+                    <span className="text-xs font-medium">Image indisponible</span>
+                </div>
+            )}
+        </div>
     );
 }
 ```
@@ -6372,6 +7023,70 @@ export default function PDFViewer({ isOpen, onClose, url, title }: PDFViewerProp
 }
 ```
 
+## 📄 `components\ui\UserAvatar.tsx`
+
+```tsx
+"use client";
+
+import { useQuery } from '@tanstack/react-query';
+import { authApi } from '@/lib/axios';
+import { UserResponse } from '@/lib/types/api';
+import { cn } from '@/lib/ utils';
+
+interface UserAvatarProps {
+    userId: string;
+    fallbackName: string;
+    className?: string;
+}
+
+export default function UserAvatar({ userId, fallbackName, className }: UserAvatarProps) {
+    // 1. Récupération optimisée du profil utilisateur via l'API Auth
+    const { data: userProfile, isLoading } = useQuery<UserResponse>({
+        queryKey: ['user-profile', userId],
+        queryFn: async () => {
+            const res = await authApi.get(`/api/users/${userId}`);
+            return res.data;
+        },
+        staleTime: 1000 * 60 * 60, // Cache de 1 heure (les photos changent rarement)
+        enabled: !!userId, // Ne lance pas la requête si pas d'ID
+    });
+
+    const initial = fallbackName.charAt(0).toUpperCase();
+
+    // Classes de base pour le conteneur
+    const containerClass = cn(
+        "relative flex items-center justify-center overflow-hidden rounded-full bg-slate-100 border border-slate-200 text-slate-500 font-bold",
+        className
+    );
+
+    if (isLoading) {
+        return (
+            <div className={containerClass}>
+                <div className="animate-pulse bg-slate-200 w-full h-full" />
+            </div>
+        );
+    }
+
+    if (userProfile?.photoUri) {
+        return (
+            <div className={containerClass}>
+                <img
+                    src={userProfile.photoUri}
+                    alt={fallbackName}
+                    className="w-full h-full object-cover transition-opacity duration-300"
+                />
+            </div>
+        );
+    }
+
+    return (
+        <div className={containerClass}>
+            {initial}
+        </div>
+    );
+}
+```
+
 ## 📄 `lib\ utils.ts`
 
 ```typescript
@@ -6434,6 +7149,160 @@ const errorInterceptor = async (error: AxiosError) => {
 
 authApi.interceptors.response.use((response) => response, errorInterceptor);
 ugateApi.interceptors.response.use((response) => response, errorInterceptor);
+```
+
+## 📄 `lib\context\SettingsContext.tsx`
+
+```tsx
+"use client";
+import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+
+type NetworkQuality = 'high' | 'low' | 'auto';
+
+interface SettingsContextType {
+    networkQuality: NetworkQuality;
+    setNetworkQuality: (q: NetworkQuality) => void;
+    shouldLoadHighRes: boolean;
+}
+
+const SettingsContext = createContext<SettingsContextType>({} as any);
+
+export function SettingsProvider({ children }: { children: ReactNode }) {
+    const [networkQuality, setNetworkQuality] = useState<NetworkQuality>('auto');
+    const [isHighRes, setIsHighRes] = useState(true);
+
+    useEffect(() => {
+        const checkConnection = () => {
+            // Si l'utilisateur force un mode, on respecte son choix
+            if (networkQuality === 'high') {
+                setIsHighRes(true);
+                return;
+            }
+            if (networkQuality === 'low') {
+                setIsHighRes(false);
+                return;
+            }
+
+            // Mode 'auto' : Détection via Network Information API (Chrome/Edge/Android)
+            // @ts-ignore
+            const connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+
+            if (connection) {
+                // Si c'est de la 4G, on charge la HD. Sinon (3g, 2g, slow-2g), on économise.
+                const isFast = connection.effectiveType === '4g';
+                // On vérifie aussi si l'utilisateur a activé "Data Saver" dans son OS
+                const isDataSaver = connection.saveData;
+
+                setIsHighRes(isFast && !isDataSaver);
+            } else {
+                // Par défaut HD si l'API n'est pas supportée
+                setIsHighRes(true);
+            }
+        };
+
+        checkConnection();
+
+        // Écouter les changements de réseau
+        // @ts-ignore
+        const connection = navigator.connection;
+        if (connection) {
+            connection.addEventListener('change', checkConnection);
+            return () => connection.removeEventListener('change', checkConnection);
+        }
+    }, [networkQuality]);
+
+    return (
+        <SettingsContext.Provider value={{ networkQuality, setNetworkQuality, shouldLoadHighRes: isHighRes }}>
+            {children}
+        </SettingsContext.Provider>
+    );
+}
+
+export const useSettings = () => useContext(SettingsContext);
+```
+
+## 📄 `lib\hooks\useFeed.ts`
+
+```typescript
+import { useInfiniteQuery } from '@tanstack/react-query';
+import { ugateApi } from '@/lib/axios';
+
+export const useFeed = (branchId: string) => {
+    return useInfiniteQuery({
+        queryKey: ['feed', branchId],
+        queryFn: async ({ pageParam = 0 }) => {
+            // Appel API feed mélangé
+            const { data } = await ugateApi.get('/api/v1/feed', {
+                params: { page: pageParam, size: 10, branchId } // Assure-toi que l'API filtre par branche si nécessaire
+            });
+            return data; // Supposons que l'API renvoie une liste directe ou un objet paginé
+        },
+        getNextPageParam: (lastPage, allPages) => {
+            // Logique de pagination : si moins de 10 items, on est à la fin
+            return lastPage.length === 10 ? allPages.length : undefined;
+        },
+        initialPageParam: 0,
+    });
+};
+```
+
+## 📄 `lib\hooks\useReaction.ts`
+
+```typescript
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { ugateApi } from '@/lib/axios';
+import { toast } from 'react-hot-toast';
+
+export const useReaction = (publicationId: string, currentLikes: number) => {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: async (type: string) => {
+            return ugateApi.post(`/publications/${publicationId}/reactions`, { reactionType: type });
+        },
+        onMutate: async (newReaction) => {
+            // 1. Annuler les refetchs en cours
+            await queryClient.cancelQueries({ queryKey: ['feed'] });
+
+            // 2. Snapshot de l'état précédent
+            const previousFeed = queryClient.getQueryData(['feed']);
+
+            // 3. Mise à jour optimiste du cache
+            queryClient.setQueriesData({ queryKey: ['feed'] }, (old: any) => {
+                if (!old) return old;
+                return {
+                    ...old,
+                    pages: old.pages.map((page: any) =>
+                        page.map((item: any) => {
+                            if (item.type === 'publication' && item.data.id === publicationId) {
+                                return {
+                                    ...item,
+                                    data: {
+                                        ...item.data,
+                                        nlikes: item.data.nlikes + 1, // Incrémenter artificiellement
+                                        // userHasLiked: true (si tu as ce champ)
+                                    }
+                                };
+                            }
+                            return item;
+                        })
+                    )
+                };
+            });
+
+            return { previousFeed };
+        },
+        onError: (err, newReaction, context) => {
+            // Rollback en cas d'erreur
+            queryClient.setQueryData(['feed'], context?.previousFeed);
+            toast.error("Impossible de réagir");
+        },
+        onSettled: () => {
+            // Refetch pour être sûr
+            queryClient.invalidateQueries({ queryKey: ['feed'] });
+        }
+    });
+};
 ```
 
 ## 📄 `lib\schemas.ts`
@@ -7574,6 +8443,6 @@ export type UserType = 'VISITOR' | 'MEMBER' | 'PARTNER';
 
 ## 📈 Statistiques
 
-- **Fichiers traités**: 76
-- **Taille totale**: 319KB
-- **Date de génération**: 09/02/2026 04:05:50
+- **Fichiers traités**: 85
+- **Taille totale**: 354KB
+- **Date de génération**: 09/02/2026 08:15:06
