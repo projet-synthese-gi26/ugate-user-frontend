@@ -1,6 +1,6 @@
 # 📦 Contexte Complet du Projet U-Gate Premium
 
-> Généré automatiquement le 08/02/2026 23:15:31
+> Généré automatiquement le 09/02/2026 04:05:49
 
 ---
 
@@ -80,6 +80,7 @@ D:\Projets\Scolaire\Reseau\New Version\ugate-user-frontend2\u-gate-premium
 │   ├── dashboard/
 │   │   └── MemberSidebar.tsx
 │   ├── layout/
+│   │   ├── Footer.tsx
 │   │   └── Navbar.tsx
 │   ├── profile/
 │   │   └── DocumentCard.tsx
@@ -87,7 +88,10 @@ D:\Projets\Scolaire\Reseau\New Version\ugate-user-frontend2\u-gate-premium
 │   │   ├── auth/
 │   │   ├── Hero.tsx
 │   │   └── landing/
+│   │       ├── CallToAction.tsx
 │   │       ├── Features.tsx
+│   │       ├── HowItWorks.tsx
+│   │       ├── Stats.tsx
 │   │       └── TrustedPartners.tsx
 │   ├── social/
 │   │   ├── CommentInput.tsx
@@ -611,19 +615,26 @@ import { useState, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
 import { ugateApi } from '@/lib/axios';
 import { Syndicate } from '@/lib/types/api';
+import { useAuthStore } from '@/lib/store'; // Pour récupérer le nom de l'user
 import { Link } from '@/navigation';
-import { Loader2, ArrowRight, Building2, PlusCircle, ShieldCheck, User } from 'lucide-react';
+import {
+    Loader2, ArrowRight, Building2, PlusCircle,
+    ShieldCheck, User, Sparkles, Bell, Calendar
+} from 'lucide-react';
 import { motion } from 'framer-motion';
 
 export default function DashboardHomePage() {
     const t = useTranslations('Dashboard');
+    const { user } = useAuthStore(); // Récupération de l'utilisateur
     const [mySyndicates, setMySyndicates] = useState<Syndicate[]>([]);
     const [loading, setLoading] = useState(true);
+
+    // Date du jour formatée
+    const today = new Date().toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' });
 
     useEffect(() => {
         const fetchMine = async () => {
             try {
-                // Récupère la liste des syndicats avec les infos contextuelles (rôle, branche)
                 const response = await ugateApi.get('/syndicates/mine');
                 setMySyndicates(response.data);
             } catch (error) {
@@ -636,35 +647,76 @@ export default function DashboardHomePage() {
     }, []);
 
     if (loading) return (
-        <div className="h-screen flex items-center justify-center bg-[#F8FAFC]">
+        <div className="h-screen flex items-center justify-center bg-slate-50">
             <Loader2 className="animate-spin text-primary-800 w-12 h-12" />
         </div>
     );
 
     return (
-        <div className="min-h-screen bg-[#F8FAFC] pt-32 pb-20 px-6">
-            <div className="max-w-6xl mx-auto">
+        <div className="min-h-screen bg-slate-50/50">
 
-                <header className="mb-12">
-                    <h1 className="text-4xl font-black text-slate-900 tracking-tight mb-2">{t('my_syndicates')}</h1>
-                    <p className="text-slate-500 font-medium text-lg">{t('my_syndicates_sub')}</p>
-                </header>
+            {/* --- 1. WELCOME HEADER (COCKPIT) --- */}
+            <div className="bg-[#0f172a] pt-32 pb-24 relative overflow-hidden rounded-b-[3rem] shadow-2xl">
+                {/* Background FX */}
+                <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-blue-600/20 blur-[120px] rounded-full pointer-events-none" />
+                <div className="absolute bottom-0 left-0 w-[300px] h-[300px] bg-purple-600/10 blur-[100px] rounded-full pointer-events-none" />
+                <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-10" />
+
+                <div className="max-w-6xl mx-auto px-6 relative z-10 flex flex-col md:flex-row justify-between items-end gap-6">
+                    <motion.div
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                    >
+                        <div className="flex items-center gap-2 text-blue-200 text-sm font-bold uppercase tracking-widest mb-2">
+                            <Calendar size={14} /> {today}
+                        </div>
+                        <h1 className="text-4xl md:text-5xl font-black text-white tracking-tight mb-2">
+                            Bonjour, {user?.firstName} !
+                        </h1>
+                        <p className="text-slate-400 text-lg">
+                            Voici ce qui se passe dans vos réseaux professionnels aujourd'hui.
+                        </p>
+                    </motion.div>
+
+                    {/* Quick Stats Row */}
+                    <motion.div
+                        initial={{ opacity: 0, x: 20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: 0.1 }}
+                        className="flex gap-4"
+                    >
+                        <div className="bg-white/10 backdrop-blur-md border border-white/10 rounded-2xl p-4 min-w-[120px]">
+                            <div className="text-3xl font-black text-white mb-1">{mySyndicates.length}</div>
+                            <div className="text-xs text-blue-200 font-bold uppercase">Adhésions</div>
+                        </div>
+                        <div className="bg-white/10 backdrop-blur-md border border-white/10 rounded-2xl p-4 min-w-[120px]">
+                            <div className="text-3xl font-black text-emerald-400 mb-1">OK</div>
+                            <div className="text-xs text-emerald-200 font-bold uppercase">Statut</div>
+                        </div>
+                    </motion.div>
+                </div>
+            </div>
+
+            {/* --- 2. CONTENU PRINCIPAL --- */}
+            <div className="max-w-6xl mx-auto px-6 -mt-16 pb-20 relative z-20">
+
+                <div className="flex items-center gap-3 mb-8 ml-2">
+                    <div className="w-8 h-8 bg-blue-600 text-white rounded-lg flex items-center justify-center shadow-lg shadow-blue-600/30">
+                        <Building2 size={18} />
+                    </div>
+                    <h2 className="text-2xl font-bold text-slate-900">{t('my_syndicates')}</h2>
+                </div>
 
                 {mySyndicates.length > 0 ? (
                     <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
                         {mySyndicates.map((syndicate, index) => {
-                            // LOGIQUE DE ROUTAGE INTELLIGENTE
                             const userRole = syndicate.userRole || 'MEMBER';
                             const isAdmin = ['ADMIN', 'PRESIDENT', 'MODERATOR'].includes(userRole);
-
-                            // 1. Si Admin -> Page de sélection de branche
-                            // 2. Si Membre avec branche -> Espace branche direct
-                            // 3. Fallback -> Page de sélection (cas d'erreur ou attente validation)
                             const targetUrl = isAdmin
                                 ? `/syndicate/${syndicate.id}/select-branch`
                                 : syndicate.userBranchId
                                     ? `/syndicate/${syndicate.id}/branch/${syndicate.userBranchId}`
-                                    : `/syndicate/${syndicate.id}/select-branch`; // Fallback
+                                    : `/syndicate/${syndicate.id}/select-branch`;
 
                             return (
                                 <motion.div
@@ -673,42 +725,46 @@ export default function DashboardHomePage() {
                                     transition={{ delay: index * 0.1 }}
                                     key={syndicate.id}
                                 >
-                                    <Link href={targetUrl}>
-                                        <div className="group bg-white p-8 rounded-[2.5rem] border border-slate-200 shadow-xl shadow-slate-200/40 hover:border-primary-800 hover:shadow-primary-900/10 transition-all cursor-pointer relative overflow-hidden h-full flex flex-col">
-                                            {/* Décoration d'arrière-plan */}
-                                            <div className="absolute top-0 right-0 w-32 h-32 bg-slate-50 rounded-full -mr-16 -mt-16 group-hover:bg-primary-50 transition-colors" />
+                                    <Link href={targetUrl} className="block h-full">
+                                        <div className="group bg-white h-full rounded-[2rem] border border-slate-100 shadow-xl shadow-slate-200/40 hover:shadow-2xl hover:shadow-blue-900/10 hover:border-blue-200 transition-all duration-300 relative overflow-hidden flex flex-col">
 
-                                            {/* Logo */}
-                                            <div className="w-16 h-16 bg-white rounded-2xl shadow-md border border-slate-100 flex items-center justify-center mb-6 relative z-10 text-2xl font-black text-primary-900 shrink-0">
-                                                {syndicate.documents?.logoUrl ? (
-                                                    <img src={syndicate.documents.logoUrl} className="w-full h-full object-cover rounded-2xl" alt="Logo" />
-                                                ) : (
-                                                    syndicate.name.charAt(0)
-                                                )}
+                                            {/* Header Card (Banner) */}
+                                            <div className="h-24 bg-slate-50 relative overflow-hidden">
+                                                {/* Pattern décoratif */}
+                                                <div className="absolute inset-0 bg-[radial-gradient(#cbd5e1_1px,transparent_1px)] [background-size:16px_16px] opacity-30" />
+                                                <div className="absolute top-4 right-4">
+                                                     <span className={`text-[10px] font-bold px-3 py-1 rounded-full flex items-center gap-1 shadow-sm ${isAdmin ? 'bg-purple-100 text-purple-700' : 'bg-emerald-50 text-emerald-700'}`}>
+                                                        {isAdmin ? <ShieldCheck size={12} /> : <User size={12} />}
+                                                         {userRole}
+                                                    </span>
+                                                </div>
+                                            </div>
+
+                                            {/* Logo Flottant */}
+                                            <div className="px-8 -mt-10 relative z-10">
+                                                <div className="w-20 h-20 bg-white rounded-2xl shadow-md border border-slate-100 flex items-center justify-center text-3xl font-black text-slate-900 shrink-0">
+                                                    {syndicate.documents?.logoUrl ? (
+                                                        <img src={syndicate.documents.logoUrl} className="w-full h-full object-cover rounded-2xl" alt="Logo" />
+                                                    ) : (
+                                                        syndicate.name.charAt(0)
+                                                    )}
+                                                </div>
                                             </div>
 
                                             {/* Info Syndicat */}
-                                            <div className="flex-1">
-                                                <h3 className="text-xl font-bold text-slate-900 mb-2 group-hover:text-primary-800 transition-colors line-clamp-1">
+                                            <div className="p-8 pt-4 flex-1 flex flex-col">
+                                                <h3 className="text-xl font-bold text-slate-900 mb-2 group-hover:text-blue-700 transition-colors line-clamp-1">
                                                     {syndicate.name}
                                                 </h3>
-                                                <p className="text-sm text-slate-500 mb-6 line-clamp-2 font-medium">
-                                                    {syndicate.description || "Espace membre actif"}
+                                                <p className="text-sm text-slate-500 mb-6 line-clamp-2 font-medium leading-relaxed">
+                                                    {syndicate.description || "Espace membre actif et sécurisé."}
                                                 </p>
-                                            </div>
 
-                                            {/* Footer Carte */}
-                                            <div className="flex items-center justify-between pt-6 border-t border-slate-50 mt-auto">
-                                                <div className="flex flex-col">
-                                                    <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1">Votre rôle</span>
-                                                    <span className={`text-xs font-bold px-2 py-1 rounded-lg w-fit flex items-center gap-1 ${isAdmin ? 'bg-purple-50 text-purple-700' : 'bg-slate-100 text-slate-600'}`}>
-                                                        {isAdmin ? <ShieldCheck size={12} /> : <User size={12} />}
-                                                        {userRole}
-                                                    </span>
-                                                </div>
-
-                                                <div className="w-10 h-10 bg-slate-900 text-white rounded-full flex items-center justify-center group-hover:bg-primary-600 group-hover:scale-110 transition-all shadow-lg">
-                                                    <ArrowRight size={18} />
+                                                <div className="mt-auto flex items-center justify-between pt-6 border-t border-slate-50">
+                                                    <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Accéder</span>
+                                                    <div className="w-10 h-10 bg-slate-900 text-white rounded-full flex items-center justify-center group-hover:bg-blue-600 group-hover:scale-110 transition-all shadow-lg">
+                                                        <ArrowRight size={18} />
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
@@ -717,30 +773,44 @@ export default function DashboardHomePage() {
                             );
                         })}
 
-                        {/* Card "Explorer d'autres syndicats" */}
-                        <Link href="/explorer">
-                            <div className="h-full min-h-[300px] border-2 border-dashed border-slate-300 rounded-[2.5rem] flex flex-col items-center justify-center p-8 text-slate-400 hover:border-primary-600 hover:text-primary-600 hover:bg-primary-50/30 transition-all group bg-slate-50/50">
-                                <div className="p-4 bg-white rounded-full shadow-sm mb-4 group-hover:scale-110 transition-transform">
+                        {/* Card "Explorer" Premium */}
+                        <Link href="/explorer" className="block h-full">
+                            <motion.div
+                                initial={{ opacity: 0, y: 20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ delay: 0.2 }}
+                                className="h-full min-h-[300px] border-2 border-dashed border-slate-300 rounded-[2rem] flex flex-col items-center justify-center p-8 text-slate-400 hover:border-blue-400 hover:bg-blue-50/30 transition-all group cursor-pointer bg-slate-50"
+                            >
+                                <div className="w-16 h-16 bg-white rounded-full shadow-md flex items-center justify-center mb-6 group-hover:scale-110 group-hover:text-blue-600 transition-all">
                                     <PlusCircle size={32} />
                                 </div>
-                                <span className="font-bold text-lg">{t('explore_cta')}</span>
-                            </div>
+                                <h3 className="font-bold text-lg text-slate-600 mb-1 group-hover:text-blue-700">Rejoindre un autre syndicat</h3>
+                                <p className="text-sm text-center max-w-[200px] text-slate-400">Parcourez le réseau pour trouver de nouvelles opportunités.</p>
+                            </motion.div>
                         </Link>
                     </div>
                 ) : (
                     /* État vide (Aucun syndicat rejoint) */
-                    <div className="bg-white rounded-[3rem] p-20 text-center border border-slate-100 shadow-xl">
-                        <div className="w-24 h-24 bg-slate-50 rounded-[2rem] flex items-center justify-center mx-auto mb-8 text-slate-300">
-                            <Building2 size={48} />
+                    <motion.div
+                        initial={{ opacity: 0, scale: 0.95 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        className="bg-white rounded-[3rem] p-12 md:p-20 text-center border border-slate-100 shadow-2xl relative overflow-hidden"
+                    >
+                        <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-blue-500 via-purple-500 to-blue-500" />
+
+                        <div className="w-24 h-24 bg-blue-50 rounded-3xl flex items-center justify-center mx-auto mb-8 text-blue-600">
+                            <Sparkles size={48} />
                         </div>
-                        <h2 className="text-2xl font-bold text-slate-900 mb-2">{t('no_syndicates')}</h2>
-                        <p className="text-slate-500 max-w-md mx-auto mb-8">
-                            Vous n'avez pas encore rejoint de communauté. Explorez les syndicats disponibles pour commencer.
+                        <h2 className="text-3xl font-black text-slate-900 mb-4">{t('no_syndicates')}</h2>
+                        <p className="text-slate-500 max-w-lg mx-auto mb-10 text-lg leading-relaxed">
+                            Votre espace est vide pour le moment. Rejoignez une communauté de professionnels pour accéder aux services, votes et événements.
                         </p>
-                        <Link href="/explorer" className="inline-flex items-center px-8 py-4 bg-primary-800 text-white rounded-2xl font-bold hover:bg-primary-900 transition-all shadow-lg shadow-primary-900/20">
-                            {t('explore_cta')} <ArrowRight size={18} className="ml-2" />
+                        <Link href="/explorer">
+                            <button className="inline-flex items-center px-10 py-5 bg-slate-900 text-white rounded-2xl font-bold text-lg hover:bg-blue-700 hover:shadow-xl hover:shadow-blue-900/20 transition-all transform hover:-translate-y-1">
+                                {t('explore_cta')} <ArrowRight size={20} className="ml-3" />
+                            </button>
                         </Link>
-                    </div>
+                    </motion.div>
                 )}
             </div>
         </div>
@@ -2442,15 +2512,22 @@ import { useState, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
 import { ugateApi } from '@/lib/axios';
 import { Syndicate } from '@/lib/types/api';
-import { Loader2, Search, Filter } from 'lucide-react';
+import { Loader2, Search, SlidersHorizontal, Briefcase, Users } from 'lucide-react';
 import SyndicateCard from '@/components/syndicate/SyndicateCard';
 import { Button } from '@/components/ui/Button';
+import { motion } from 'framer-motion';
+
+// Image : Contexte réseau/communauté
+const HEADER_BG = "https://images.unsplash.com/photo-1630266531677-52ee3825ec12?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D";
 
 export default function ExplorerPage() {
     const t = useTranslations('Explorer');
     const [syndicates, setSyndicates] = useState<Syndicate[]>([]);
     const [loading, setLoading] = useState(true);
     const [search, setSearch] = useState('');
+    const [activeFilter, setActiveFilter] = useState('Tous');
+
+    const quickFilters = ["Tous", "Transport", "Commerce", "Éducation", "Santé", "Numérique"];
 
     useEffect(() => {
         const fetchSyndicates = async () => {
@@ -2467,62 +2544,166 @@ export default function ExplorerPage() {
         fetchSyndicates();
     }, []);
 
-    const filteredSyndicates = syndicates.filter(s =>
-        s.name.toLowerCase().includes(search.toLowerCase()) ||
-        s.domain.toLowerCase().includes(search.toLowerCase())
-    );
+    const filteredSyndicates = syndicates.filter(s => {
+        const matchesSearch = s.name.toLowerCase().includes(search.toLowerCase()) ||
+            s.domain.toLowerCase().includes(search.toLowerCase());
+        const matchesCategory = activeFilter === 'Tous' || s.domain.toLowerCase().includes(activeFilter.toLowerCase());
+        return matchesSearch && matchesCategory;
+    });
 
     return (
         <div className="min-h-screen bg-slate-50">
 
-            {/* --- HEADER SOMBRE (PREMIUM CONTRAST) --- */}
-            <div className="bg-[#0F172A] pt-32 pb-20 relative overflow-hidden">
-                {/* Background Pattern discret */}
-                <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-10" />
-                <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-primary-600/20 blur-[120px] rounded-full pointer-events-none" />
+            {/* --- HEADER --- */}
+            {/* pt-52 : On pousse le contenu vers le bas pour dégager la navbar */}
+            <div className="relative pt-24 pb-32 overflow-hidden min-h-[50vh] flex flex-col justify-center">
 
-                <div className="max-w-7xl mx-auto px-6 relative z-10">
-                    <h1 className="text-4xl md:text-5xl font-bold text-white mb-6 tracking-tight">
-                        {t('title')}
-                    </h1>
-                    <p className="text-slate-300 text-lg md:text-xl max-w-2xl font-light leading-relaxed">
-                        {t('subtitle')}
-                    </p>
+                {/* 1. ARRIÈRE-PLAN TRAITÉ */}
+                <div className="absolute inset-0 z-0">
+                    <img
+                        src={HEADER_BG}
+                        alt="Community Network"
+                        className="w-full h-full object-cover"
+                    />
 
-                    {/* Barre de Recherche Flottante (Glassmorphism sur fond sombre) */}
-                    <div className="mt-10 flex gap-2 max-w-xl bg-white/10 backdrop-blur-md p-2 rounded-2xl border border-white/10 shadow-2xl">
-                        <div className="relative flex-1">
-                            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={20} />
+                    {/* COUCHE 1 : Teinte Bleu Foncé (Le secret du look Premium) */}
+                    {/* mix-blend-multiply permet au bleu de coloriser l'image sans la masquer totalement */}
+                    <div className="absolute inset-0 bg-blue-950/80 mix-blend-multiply" />
+
+                    {/* COUCHE 2 : Dégradé de Profondeur */}
+                    {/* Plus sombre en haut pour la navbar, plus sombre en bas pour la transition */}
+                    <div className="absolute inset-0 bg-gradient-to-b from-slate-950 via-transparent to-slate-950/90 opacity-90" />
+
+                    {/* COUCHE 3 : Texture Tech */}
+                    <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-20 mix-blend-overlay" />
+                </div>
+
+                <div className="max-w-7xl mx-auto px-6 relative z-10 text-center w-full">
+
+                    {/* Titre & Sous-titre */}
+                    <motion.div
+                        initial={{ opacity: 0, y: 30 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.6 }}
+                    >
+                        <h1 className="text-4xl md:text-6xl font-black text-white mb-6 tracking-tight drop-shadow-2xl">
+                            {t('title')}
+                        </h1>
+                        <p className="text-blue-100 text-lg md:text-xl max-w-2xl mx-auto font-light leading-relaxed mb-12 opacity-90">
+                            {t('subtitle')}
+                        </p>
+                    </motion.div>
+
+                    {/* Barre de Recherche */}
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.6, delay: 0.2 }}
+                        className="max-w-2xl mx-auto"
+                    >
+                        <div className="relative flex items-center p-2 bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl shadow-2xl ring-1 ring-white/10 group focus-within:bg-white/20 transition-all">
+                            <Search className="ml-4 text-blue-200 group-focus-within:text-white transition-colors" size={24} />
                             <input
                                 type="text"
                                 placeholder={t('search_placeholder')}
-                                className="w-full pl-12 h-12 rounded-xl bg-transparent text-white placeholder:text-slate-400 focus:bg-white/5 transition-all outline-none border-none"
+                                className="w-full h-12 px-4 bg-transparent text-white placeholder:text-blue-200/70 border-none outline-none text-lg font-medium"
                                 value={search}
                                 onChange={(e) => setSearch(e.target.value)}
                             />
+                            <Button className="h-12 px-6 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold shadow-lg shadow-blue-600/30 border-none">
+                                <span className="hidden md:inline">{t('filter_btn')}</span>
+                                <SlidersHorizontal size={18} className="md:ml-2" />
+                            </Button>
                         </div>
-                        <Button className="bg-primary-600 hover:bg-primary-500 text-white h-12 px-6 rounded-xl border-none shadow-lg shadow-primary-600/20">
-                            {t('filter_btn')}
-                        </Button>
-                    </div>
+
+                        {/* Tags / Filtres */}
+                        <div className="flex flex-wrap justify-center gap-2 mt-8">
+                            {quickFilters.map((filter, idx) => (
+                                <button
+                                    key={idx}
+                                    onClick={() => setActiveFilter(filter)}
+                                    className={`px-4 py-2 rounded-full text-sm font-bold transition-all border ${
+                                        activeFilter === filter
+                                            ? "bg-white text-slate-900 border-white shadow-lg scale-105"
+                                            : "bg-blue-950/40 text-blue-100 border-white/10 hover:bg-white/10 hover:text-white backdrop-blur-sm"
+                                    }`}
+                                >
+                                    {filter}
+                                </button>
+                            ))}
+                        </div>
+                    </motion.div>
                 </div>
             </div>
 
-            {/* --- CONTENU SUR FOND CLAIR --- */}
-            <div className="max-w-7xl mx-auto px-6 -mt-10 pb-20 relative z-20">
+            {/* --- CONTENU (Grille) --- */}
+            <div className="max-w-7xl mx-auto px-6 -mt-24 pb-20 relative z-20">
+
+                {/* Stats Rapides */}
+                <div className="flex flex-wrap justify-center gap-4 mb-12">
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.4 }}
+                        className="bg-white px-8 py-4 rounded-2xl shadow-xl shadow-slate-900/10 flex items-center gap-4 border border-slate-100"
+                    >
+                        <div className="p-3 bg-blue-50 text-blue-600 rounded-xl"><Briefcase size={20} /></div>
+                        <div className="text-left">
+                            <div className="text-[10px] text-slate-400 font-black uppercase tracking-widest">Total Syndicats</div>
+                            <div className="text-2xl font-black text-slate-900 leading-none mt-1">{syndicates.length}</div>
+                        </div>
+                    </motion.div>
+
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.5 }}
+                        className="bg-white px-8 py-4 rounded-2xl shadow-xl shadow-slate-900/10 flex items-center gap-4 border border-slate-100"
+                    >
+                        <div className="p-3 bg-emerald-50 text-emerald-600 rounded-xl"><Users size={20} /></div>
+                        <div className="text-left">
+                            <div className="text-[10px] text-slate-400 font-black uppercase tracking-widest">Membres Actifs</div>
+                            <div className="text-2xl font-black text-slate-900 leading-none mt-1">50k+</div>
+                        </div>
+                    </motion.div>
+                </div>
+
+                {/* État de chargement et Grille */}
                 {loading ? (
-                    <div className="flex flex-col items-center justify-center py-32">
+                    <div className="flex flex-col items-center justify-center py-32 bg-white/50 rounded-3xl border border-slate-200/50 backdrop-blur-sm">
                         <Loader2 className="w-12 h-12 text-primary-600 animate-spin mb-4" />
+                        <p className="text-slate-400 font-medium animate-pulse">Recherche des communautés...</p>
                     </div>
                 ) : filteredSyndicates.length > 0 ? (
-                    <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-                        {filteredSyndicates.map((syndicate) => (
-                            <SyndicateCard key={syndicate.id} syndicate={syndicate} />
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        className="grid md:grid-cols-2 lg:grid-cols-3 gap-8"
+                    >
+                        {filteredSyndicates.map((syndicate, index) => (
+                            <motion.div
+                                key={syndicate.id}
+                                initial={{ opacity: 0, y: 20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ delay: index * 0.05 }}
+                            >
+                                <SyndicateCard syndicate={syndicate} />
+                            </motion.div>
                         ))}
-                    </div>
+                    </motion.div>
                 ) : (
-                    <div className="text-center py-20 bg-white rounded-2xl border border-slate-200 shadow-sm">
-                        <p className="text-slate-500 text-lg">{t('empty_state')}</p>
+                    <div className="text-center py-32 bg-white rounded-[2.5rem] border border-slate-200 shadow-sm">
+                        <div className="w-24 h-24 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-6">
+                            <Search className="text-slate-300" size={40} />
+                        </div>
+                        <h3 className="text-xl font-bold text-slate-900 mb-2">Aucun résultat</h3>
+                        <p className="text-slate-500 max-w-md mx-auto">{t('empty_state')}</p>
+                        <button
+                            onClick={() => { setSearch(''); setActiveFilter('Tous'); }}
+                            className="mt-8 text-primary-600 font-bold hover:underline"
+                        >
+                            Réinitialiser les filtres
+                        </button>
                     </div>
                 )}
             </div>
@@ -2597,35 +2778,39 @@ import Navbar from "@/components/layout/Navbar";
 import Hero from "@/components/sections/Hero";
 import Features from "@/components/sections/landing/Features";
 import TrustedPartners from "@/components/sections/landing/TrustedPartners";
+import Stats from "@/components/sections/landing/Stats";
+import HowItWorks from "@/components/sections/landing/HowItWorks";
+import CallToAction from "@/components/sections/landing/CallToAction";
+import Footer from "@/components/layout/Footer";
 
 export default async function HomePage({ params }: { params: Promise<{ locale: string }> }) {
-    // Note: Dans les server components Next 15, on await les params
     const { locale } = await params;
 
     return (
-        <main className="min-h-screen bg-navy-950 selection:bg-primary-500/30">
+        <main className="min-h-screen bg-[#020617] selection:bg-primary-500/30 overflow-x-hidden">
             <Navbar />
 
+            {/* 1. Hero: Immersion & Proposition de valeur */}
             <Hero />
+
+            {/* 2. Preuve Sociale : Logos Partenaires */}
             <TrustedPartners />
+
+            {/* 3. Preuve Sociale : Chiffres clés */}
+            <Stats />
+
+            {/* 4. Solution : Grille de fonctionnalités Premium */}
             <Features />
 
+            {/* 5. Éducation : Comment ça marche (Créer vs Rejoindre) */}
+            <HowItWorks />
+
+            {/* 6. Conversion : Appel à l'action final */}
+            <CallToAction />
+
+            {/* 7. Footer complet */}
             <Footer />
         </main>
-    );
-}
-
-// Petit composant Footer interne pour l'exemple (à extraire plus tard)
-function Footer() {
-    const t = useTranslations('Common');
-    const year = new Date().getFullYear();
-
-    return (
-        <footer className="py-12 border-t border-white/10 bg-slate-950">
-            <div className="max-w-7xl mx-auto px-6 text-center text-slate-500 text-sm">
-                <p>{t('copyright', { year })}</p>
-            </div>
-        </footer>
     );
 }
 ```
@@ -2795,6 +2980,18 @@ body {
   padding-left: 1.5rem;
   padding-right: 1.5rem;
 }
+
+@layer utilities {
+  .animate-gradient {
+    background-size: 200% auto;
+    animation: gradient 4s linear infinite;
+  }
+  @keyframes gradient {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+}
 ```
 
 ## 📄 `app\layout.tsx`
@@ -2840,72 +3037,46 @@ export default function RootLayout({
 ## 📄 `app\page.tsx`
 
 ```tsx
-import Image from "next/image";
+import { useTranslations } from 'next-intl';
+import Navbar from "@/components/layout/Navbar";
+import Hero from "@/components/sections/Hero";
+import Features from "@/components/sections/landing/Features";
+import TrustedPartners from "@/components/sections/landing/TrustedPartners";
+import Stats from "@/components/sections/landing/Stats";
+import HowItWorks from "@/components/sections/landing/HowItWorks";
+import CallToAction from "@/components/sections/landing/CallToAction";
+import Footer from "@/components/layout/Footer";
 
-export default function Home() {
+export default async function HomePage({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale } = await params;
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
+      <main className="min-h-screen bg-[#020617] selection:bg-primary-500/30 overflow-x-hidden">
+        <Navbar />
+
+        {/* 1. Hero: Immersion & Proposition de valeur */}
+        <Hero />
+
+        {/* 2. Preuve Sociale : Logos Partenaires */}
+        <TrustedPartners />
+
+        {/* 3. Preuve Sociale : Chiffres clés */}
+        <Stats />
+
+        {/* 4. Solution : Grille de fonctionnalités Premium */}
+        <Features />
+
+        {/* 5. Éducation : Comment ça marche (Créer vs Rejoindre) */}
+        <HowItWorks />
+
+        {/* 6. Conversion : Appel à l'action final */}
+        <CallToAction />
+
+        {/* 7. Footer complet */}
+        <Footer />
       </main>
-    </div>
   );
 }
-
 ```
 
 ## 📄 `components\AuthAside.tsx`
@@ -2937,7 +3108,7 @@ export default function AuthAside({ animatedTexts }: AuthAsideProps) {
             <div className="absolute inset-0 z-0">
                 {/* Tu peux changer l'URL de l'image ici */}
                 <img
-                    src="https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&q=80"
+                    src="https://images.unsplash.com/photo-1610473068533-b68dbcd23543?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
                     alt="Office"
                     className="w-full h-full object-cover opacity-20"
                 />
@@ -3180,6 +3351,68 @@ export default function MemberSidebar({ syndicateId, branchId }: MemberSidebarPr
 }
 ```
 
+## 📄 `components\layout\Footer.tsx`
+
+```tsx
+"use client";
+
+import { Logo } from '@/components/ui/Logo';
+import { Link } from '@/navigation';
+import { Twitter, Linkedin, Facebook, Github } from 'lucide-react';
+
+export default function Footer() {
+    const year = new Date().getFullYear();
+
+    return (
+        <footer className="bg-[#020617] border-t border-white/10 pt-20 pb-10">
+            <div className="max-w-7xl mx-auto px-6">
+                <div className="grid md:grid-cols-4 gap-12 mb-16">
+                    <div className="col-span-1 md:col-span-2">
+                        <Logo className="mb-6" />
+                        <p className="text-slate-400 max-w-sm leading-relaxed mb-6">
+                            La plateforme de référence pour la gestion syndicale 3.0.
+                            Transparence, Sécurité et Démocratie au service des professionnels.
+                        </p>
+                        <div className="flex gap-4">
+                            {[Twitter, Linkedin, Facebook, Github].map((Icon, i) => (
+                                <a key={i} href="#" className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-slate-400 hover:bg-primary-600 hover:text-white transition-all">
+                                    <Icon size={18} />
+                                </a>
+                            ))}
+                        </div>
+                    </div>
+
+                    <div>
+                        <h4 className="text-white font-bold mb-6">Plateforme</h4>
+                        <ul className="space-y-4 text-slate-400">
+                            <li><Link href="/explorer" className="hover:text-primary-400 transition-colors">Explorer</Link></li>
+                            <li><Link href="/about" className="hover:text-primary-400 transition-colors">À propos</Link></li>
+                            <li><Link href="/services" className="hover:text-primary-400 transition-colors">Services</Link></li>
+                            <li><a href="https://ugate-admin-frontend.vercel.app/" target="_blank" className="hover:text-primary-400 transition-colors">Espace Admin</a></li>
+                        </ul>
+                    </div>
+
+                    <div>
+                        <h4 className="text-white font-bold mb-6">Légal</h4>
+                        <ul className="space-y-4 text-slate-400">
+                            <li><Link href="#" className="hover:text-primary-400 transition-colors">Confidentialité</Link></li>
+                            <li><Link href="#" className="hover:text-primary-400 transition-colors">Conditions d'utilisation</Link></li>
+                            <li><Link href="#" className="hover:text-primary-400 transition-colors">Mentions légales</Link></li>
+                            <li><Link href="#" className="hover:text-primary-400 transition-colors">Cookies</Link></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div className="border-t border-white/5 pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-slate-500">
+                    <p>© {year} U-Gate. Tous droits réservés.</p>
+                    <p>Fait avec passion au Cameroun.</p>
+                </div>
+            </div>
+        </footer>
+    );
+}
+```
+
 ## 📄 `components\layout\Navbar.tsx`
 
 ```tsx
@@ -3327,143 +3560,187 @@ export default function DocumentCard({ title, description, url, onView, onUpdate
 ```tsx
 "use client";
 
-import { motion } from 'framer-motion';
+import { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslations } from 'next-intl';
 import { Link } from '@/navigation';
-import { ArrowRight, ShieldCheck, Users, Zap, Globe, Lock } from 'lucide-react';
+import { ArrowRight, PlayCircle, ShieldCheck } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
+
+// Images haute qualité pour le slider (VTC, Logistique, Transport, Réunion)
+const backgroundImages = [
+    "https://images.unsplash.com/photo-1766330301961-6366c58297d0?q=80&w=1171&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+
+    // 2. Digital & Mobilité : Femme professionnelle utilisant la technologie (cœur de U-Gate)
+    "https://images.unsplash.com/photo-1531482615713-2afd69097998?auto=format&fit=crop&q=80",
+
+    // 3. Communauté & Accord : Poignée de main ou collaboration (L'esprit syndical)
+    "https://media.istockphoto.com/id/2221927313/fr/photo/des-partenaires-commerciaux-se-serrent-la-main-apr%C3%A8s-une-r%C3%A9union-r%C3%A9ussie-dans-un-bureau.jpg?s=1024x1024&w=is&k=20&c=DteM6a43cq4Vb8yEHpDERUAef43T5oVXcJDPbd3TcrY=",
+
+    // 4. Innovation & Jeunesse : Équipe tech/startup africaine (Le futur de la gestion)
+    "https://plus.unsplash.com/premium_photo-1664300108565-fdd8a6132123?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+];
 
 export default function Hero() {
     const t = useTranslations('Hero');
+    const [index, setIndex] = useState(0);
+
+    // Rotation des images toutes les 5 secondes
+    useEffect(() => {
+        const timer = setInterval(() => {
+            setIndex((prev) => (prev + 1) % backgroundImages.length);
+        }, 5000);
+        return () => clearInterval(timer);
+    }, []);
 
     return (
-        <section className="relative min-h-[90vh] flex items-center pt-20 overflow-hidden bg-grid-pattern">
-            <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#020617]/80 to-[#020617] pointer-events-none" />
+        <section className="relative h-screen min-h-[800px] flex items-center justify-center overflow-hidden">
 
-            <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary-600/20 blur-[120px] rounded-full mix-blend-screen" />
-            <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-purple-600/10 blur-[120px] rounded-full mix-blend-screen" />
+            {/* --- SLIDER D'ARRIÈRE-PLAN --- */}
+            <div className="absolute inset-0 z-0">
+                <AnimatePresence mode="popLayout">
+                    <motion.div
+                        key={index}
+                        initial={{ opacity: 0, scale: 1.1 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        exit={{ opacity: 0 }}
+                        transition={{ duration: 1.5, ease: "easeInOut" }}
+                        className="absolute inset-0"
+                    >
+                        <img
+                            src={backgroundImages[index]}
+                            alt="Background"
+                            className="w-full h-full object-cover"
+                        />
+                    </motion.div>
+                </AnimatePresence>
 
-            <div className="max-w-7xl mx-auto px-6 relative z-10 grid lg:grid-cols-2 gap-16 items-center">
+                {/* Overlay Dégradé Premium (Navy Profond) */}
+                <div className="absolute inset-0 bg-gradient-to-b from-[#020617]/80 via-[#020617]/60 to-[#020617] z-10" />
+                <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-20 z-10 mix-blend-overlay" />
+            </div>
+
+            {/* --- CONTENU --- */}
+            <div className="max-w-7xl mx-auto px-6 relative z-20 text-center">
                 <motion.div
                     initial={{ opacity: 0, y: 30 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.8, ease: "easeOut" }}
                 >
-                    <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 text-primary-400 text-xs font-bold mb-8 tracking-widest uppercase backdrop-blur-md">
-                        <Zap size={14} className="fill-current" />
+                    {/* Badge "Nouveau" */}
+                    <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 border border-white/20 text-primary-300 text-xs font-bold mb-8 backdrop-blur-md shadow-lg">
+                        <span className="relative flex h-2 w-2">
+                          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                          <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                        </span>
                         {t('tagline')}
                     </div>
 
-                    <h1 className="text-5xl lg:text-7xl font-black tracking-tight text-white leading-[1.1] mb-6">
-                        {t('title_part1')}<br />
-                        <span className="text-gradient">{t('title_part2')}</span>
+                    {/* Titre Impactant */}
+                    <h1 className="text-5xl lg:text-7xl font-black tracking-tight text-white leading-[1.1] mb-6 drop-shadow-2xl">
+                        {t('title_part1')} <br className="hidden md:block" />
+                        <span className="bg-clip-text text-transparent bg-gradient-to-r from-primary-400 via-blue-200 to-primary-400 bg-[length:200%_auto] animate-gradient">
+                            {t('title_part2')}
+                        </span>
                     </h1>
 
-                    <p className="text-lg text-slate-400 max-w-xl mb-10 leading-relaxed font-light">
+                    <p className="text-lg md:text-xl text-slate-300 max-w-2xl mx-auto mb-10 leading-relaxed font-light">
                         {t('description')}
                     </p>
 
-                    <div className="flex flex-col sm:flex-row gap-4">
-                        <Link href="/register">
-                            <Button size="lg" className="w-full sm:w-auto rounded-full text-base px-8 h-14">
-                                {t('cta_primary')}
+                    {/* CTAs : Distinction Claire entre Créateur et Membre */}
+                    <div className="flex flex-col sm:flex-row items-center justify-center gap-5">
+                        {/* 1. Rejoindre (Public) */}
+                        <Link href="/explorer" className="w-full sm:w-auto">
+                            <Button size="lg" className="w-full h-14 rounded-full text-base px-8 bg-white text-slate-900 hover:bg-slate-100 hover:scale-105 transition-all shadow-[0_0_40px_-10px_rgba(255,255,255,0.3)]">
+                                {t('cta_secondary')} {/* "Explorer les syndicats" */}
                                 <ArrowRight className="ml-2 h-5 w-5" />
                             </Button>
                         </Link>
-                        <Link href="/explorer">
-                            <Button variant="outline" size="lg" className="w-full sm:w-auto rounded-full text-base px-8 h-14 bg-white/5 border-white/10 hover:bg-white/10 text-white">
-                                {t('cta_secondary')}
+
+                        {/* 2. Créer (Admin - Lien Externe) */}
+                        <a
+                            href="https://ugate-admin-frontend.vercel.app/"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="w-full sm:w-auto"
+                        >
+                            <Button variant="outline" size="lg" className="w-full h-14 rounded-full text-base px-8 border-white/20 text-white hover:bg-white/10 backdrop-blur-sm group">
+                                <PlayCircle className="mr-2 h-5 w-5 group-hover:text-primary-400 transition-colors" />
+                                Créer mon syndicat
+                            </Button>
+                        </a>
+                    </div>
+
+                    {/* Trust Badges */}
+                    <div className="mt-12 flex flex-wrap justify-center gap-8 text-sm font-medium text-slate-400">
+                        <div className="flex items-center gap-2">
+                            <ShieldCheck className="text-emerald-500" size={18} />
+                            Données Sécurisées
+                        </div>
+                        <div className="flex items-center gap-2">
+                            <ShieldCheck className="text-blue-500" size={18} />
+                            Certifié conforme
+                        </div>
+                    </div>
+                </motion.div>
+            </div>
+
+            {/* Scroll Indicator */}
+            <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 1, duration: 1 }}
+                className="absolute bottom-10 left-1/2 -translate-x-1/2"
+            >
+                <div className="w-[1px] h-16 bg-gradient-to-b from-transparent via-white/50 to-transparent" />
+            </motion.div>
+        </section>
+    );
+}
+```
+
+## 📄 `components\sections\landing\CallToAction.tsx`
+
+```tsx
+"use client";
+
+import { Link } from '@/navigation';
+import { Button } from '@/components/ui/Button';
+import { ArrowRight } from 'lucide-react';
+
+export default function CallToAction() {
+    return (
+        <section className="py-20 px-6">
+            <div className="max-w-5xl mx-auto relative">
+                {/* Glow Effect */}
+                <div className="absolute inset-0 bg-gradient-to-r from-primary-600 to-purple-600 blur-[100px] opacity-20 rounded-full" />
+
+                <div className="relative bg-gradient-to-b from-slate-800 to-slate-900 border border-white/10 rounded-[3rem] p-12 md:p-20 text-center overflow-hidden">
+                    <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -mr-32 -mt-32 blur-3xl" />
+                    <div className="absolute bottom-0 left-0 w-64 h-64 bg-primary-500/10 rounded-full -ml-32 -mb-32 blur-3xl" />
+
+                    <h2 className="text-4xl md:text-5xl font-black text-white mb-6 tracking-tight">
+                        Prêt à transformer votre <br/> expérience syndicale ?
+                    </h2>
+                    <p className="text-lg text-slate-400 max-w-2xl mx-auto mb-10">
+                        Rejoignez des milliers de professionnels qui utilisent U-Gate pour plus de transparence, de rapidité et d'impact.
+                    </p>
+
+                    <div className="flex flex-col sm:flex-row justify-center gap-4">
+                        <Link href="/register">
+                            <Button size="lg" className="h-16 px-10 rounded-2xl text-lg bg-white text-slate-900 hover:bg-slate-200 shadow-xl shadow-white/10">
+                                Créer un compte membre
                             </Button>
                         </Link>
+                        <a href="https://ugate-admin-frontend.vercel.app/" target="_blank" rel="noreferrer">
+                            <Button variant="outline" size="lg" className="h-16 px-10 rounded-2xl text-lg border-white/20 text-white hover:bg-white/10">
+                                Je veux créer un syndicat
+                                <ArrowRight className="ml-2" />
+                            </Button>
+                        </a>
                     </div>
-
-                    <div className="mt-12 pt-8 border-t border-white/10 flex flex-wrap gap-8">
-                        <div className="flex items-center gap-3">
-                            <div className="p-2 bg-emerald-500/10 rounded-lg text-emerald-400">
-                                <ShieldCheck size={20} />
-                            </div>
-                            <div className="flex flex-col">
-                                <span className="text-white font-bold">{t('badge_secure')}</span>
-                                <span className="text-xs text-slate-500">{t('badge_secure_sub')}</span>
-                            </div>
-                        </div>
-                        <div className="flex items-center gap-3">
-                            <div className="p-2 bg-blue-500/10 rounded-lg text-blue-400">
-                                <Users size={20} />
-                            </div>
-                            <div className="flex flex-col">
-                                <span className="text-white font-bold">{t('badge_members')}</span>
-                                <span className="text-xs text-slate-500">{t('badge_members_sub')}</span>
-                            </div>
-                        </div>
-                    </div>
-                </motion.div>
-
-                <motion.div
-                    initial={{ opacity: 0, scale: 0.9 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ duration: 1, delay: 0.2 }}
-                    className="relative hidden lg:block perspective-1000"
-                >
-                    <div className="relative z-10 animate-float">
-                        <div className="glass-panel p-1 rounded-3xl shadow-2xl bg-gradient-to-b from-white/10 to-transparent">
-                            <div className="bg-slate-950 rounded-[22px] overflow-hidden border border-white/5 relative h-[500px]">
-                                <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-20" />
-
-                                <div className="p-6 border-b border-white/5 flex items-center justify-between">
-                                    <div className="flex gap-2">
-                                        <div className="w-3 h-3 rounded-full bg-red-500/50" />
-                                        <div className="w-3 h-3 rounded-full bg-yellow-500/50" />
-                                        <div className="w-3 h-3 rounded-full bg-emerald-500/50" />
-                                    </div>
-                                    <div className="px-3 py-1 rounded-full bg-white/5 text-[10px] text-slate-400">
-                                        {t('card_dashboard')}
-                                    </div>
-                                </div>
-
-                                <div className="p-6 space-y-6">
-                                    <div className="flex gap-4">
-                                        <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary-500 to-purple-600 flex items-center justify-center text-white font-bold text-xl">
-                                            U
-                                        </div>
-                                        <div>
-                                            <div className="h-4 w-32 bg-white/10 rounded animate-pulse mb-2" />
-                                            <div className="h-3 w-48 bg-white/5 rounded" />
-                                        </div>
-                                    </div>
-
-                                    <div className="grid grid-cols-2 gap-4">
-                                        <div className="p-4 rounded-xl bg-white/5 border border-white/5">
-                                            <div className="text-slate-400 text-xs mb-1">{t('card_contributions')}</div>
-                                            <div className="text-2xl font-bold text-white">{t('card_status_ok')}</div>
-                                        </div>
-                                        <div className="p-4 rounded-xl bg-white/5 border border-white/5">
-                                            <div className="text-slate-400 text-xs mb-1">{t('card_votes')}</div>
-                                            <div className="text-2xl font-bold text-white">3</div>
-                                        </div>
-                                    </div>
-
-                                    <div className="space-y-3">
-                                        <div className="flex items-center gap-3 p-3 rounded-lg bg-white/5">
-                                            <Globe size={16} className="text-primary-400" />
-                                            <div className="h-2 w-full bg-white/10 rounded-full overflow-hidden">
-                                                <div className="h-full w-2/3 bg-primary-500" />
-                                            </div>
-                                        </div>
-                                        <div className="flex items-center gap-3 p-3 rounded-lg bg-white/5">
-                                            <Lock size={16} className="text-purple-400" />
-                                            <div className="h-2 w-full bg-white/10 rounded-full overflow-hidden">
-                                                <div className="h-full w-1/2 bg-purple-500" />
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div className="absolute -z-10 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[120%] h-[120%] bg-primary-500/20 blur-[100px] rounded-full" />
-                </motion.div>
+                </div>
             </div>
         </section>
     );
@@ -3477,63 +3754,207 @@ export default function Hero() {
 
 import { useTranslations } from 'next-intl';
 import { GlassCard } from '@/components/ui/GlassCard';
-import { Fingerprint, FileText, Vote, LayoutDashboard, ShoppingBag, Shield } from 'lucide-react';
+import { Fingerprint, Vote, FileText, LayoutDashboard, ShoppingBag, Shield, Zap, ArrowUpRight } from 'lucide-react';
+import { cn } from '@/lib/ utils';
 
 export default function Features() {
     const t = useTranslations('Features');
 
-    const featureList = [
+    // Configuration Bento Grid
+    const features = [
         {
-            icon: Fingerprint,
-            key: "identity"
+            icon: Fingerprint, key: "identity", colSpan: "md:col-span-2", bg: "bg-gradient-to-br from-blue-500/10 to-purple-500/10"
         },
         {
-            icon: Vote,
-            key: "democracy"
+            icon: Vote, key: "democracy", colSpan: "md:col-span-1", bg: "bg-slate-800/50"
         },
         {
-            icon: FileText,
-            key: "docs"
+            icon: LayoutDashboard, key: "member", colSpan: "md:col-span-1", bg: "bg-slate-800/50"
         },
         {
-            icon: LayoutDashboard,
-            key: "member"
+            icon: ShoppingBag, key: "market", colSpan: "md:col-span-2", bg: "bg-gradient-to-br from-emerald-500/10 to-teal-500/10"
         },
         {
-            icon: ShoppingBag,
-            key: "market"
-        },
-        {
-            icon: Shield,
-            key: "compliance"
+            icon: Shield, key: "compliance", colSpan: "md:col-span-3", bg: "bg-slate-800/50"
         }
     ];
 
     return (
-        <section className="py-32 relative">
-            <div className="max-w-7xl mx-auto px-6">
+        <section className="py-32 relative overflow-hidden">
+            {/* Background elements */}
+            <div className="absolute top-1/4 left-0 w-[500px] h-[500px] bg-primary-900/20 blur-[120px] rounded-full -translate-x-1/2" />
+
+            <div className="max-w-7xl mx-auto px-6 relative z-10">
                 <div className="text-center max-w-3xl mx-auto mb-20">
-                    <h2 className="text-3xl md:text-5xl font-bold text-white mb-6">
-                        {t('title_part1')} <span className="text-gradient">{t('title_part2')}</span>
-                    </h2>
+                    <h2 className="text-sm font-bold text-primary-400 uppercase tracking-widest mb-3">Fonctionnalités Premium</h2>
+                    <h3 className="text-3xl md:text-5xl font-bold text-white mb-6 leading-tight">
+                        {t('title_part1')} <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-400">{t('title_part2')}</span>
+                    </h3>
                     <p className="text-slate-400 text-lg">
                         {t('subtitle')}
                     </p>
                 </div>
 
-                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {featureList.map((feature, index) => (
-                        <GlassCard key={index} className="p-8">
-                            <div className="w-12 h-12 rounded-xl bg-primary-500/10 flex items-center justify-center text-primary-400 mb-6 group-hover:bg-primary-500 group-hover:text-white transition-colors duration-300">
-                                <feature.icon size={24} />
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    {features.map((feature, index) => (
+                        <GlassCard
+                            key={index}
+                            className={cn(
+                                "p-8 group cursor-pointer relative overflow-hidden border-white/5 hover:border-white/10 transition-all duration-500",
+                                feature.colSpan,
+                                feature.bg
+                            )}
+                        >
+                            <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity text-white">
+                                <ArrowUpRight size={20} />
                             </div>
-                            <h3 className="text-xl font-bold text-white mb-3">
+
+                            <div className="w-14 h-14 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-white mb-6 group-hover:scale-110 group-hover:bg-primary-500 group-hover:border-primary-400 transition-all duration-300 shadow-xl">
+                                <feature.icon size={28} />
+                            </div>
+
+                            <h3 className="text-2xl font-bold text-white mb-3 group-hover:text-primary-300 transition-colors">
                                 {t(`${feature.key}_title`)}
                             </h3>
-                            <p className="text-slate-400 leading-relaxed">
+                            <p className="text-slate-400 leading-relaxed group-hover:text-slate-300">
                                 {t(`${feature.key}_desc`)}
                             </p>
                         </GlassCard>
+                    ))}
+                </div>
+            </div>
+        </section>
+    );
+}
+```
+
+## 📄 `components\sections\landing\HowItWorks.tsx`
+
+```tsx
+"use client";
+
+import { motion } from 'framer-motion';
+import { UserPlus, Building, CheckCircle2, ArrowRight } from 'lucide-react';
+import { Button } from '@/components/ui/Button';
+import { Link } from '@/navigation';
+
+const steps = [
+    {
+        num: "01",
+        title: "Créer un Syndicat",
+        desc: "Les leaders utilisent le Dashboard Admin pour créer leur entité. Une seule création autorisée par compte président.",
+        icon: Building,
+        action: "Lien Admin",
+        link: "https://ugate-admin-frontend.vercel.app/"
+    },
+    {
+        num: "02",
+        title: "Validation & Certif.",
+        desc: "Notre autorité vérifie les documents légaux. Une fois approuvé, le syndicat devient visible sur la plateforme publique.",
+        icon: CheckCircle2,
+        action: null
+    },
+    {
+        num: "03",
+        title: "Rejoindre & Participer",
+        desc: "Les membres explorent les syndicats certifiés, adhèrent et accèdent à leurs outils (votes, events, marketplace).",
+        icon: UserPlus,
+        action: "Explorer",
+        link: "/explorer"
+    }
+];
+
+export default function HowItWorks() {
+    return (
+        <section className="py-24 bg-slate-950 relative border-t border-white/5">
+            <div className="max-w-7xl mx-auto px-6">
+                <div className="mb-16 md:flex justify-between items-end">
+                    <div className="max-w-2xl">
+                        <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">Un écosystème, deux expériences</h2>
+                        <p className="text-slate-400 text-lg">Que vous soyez un leader souhaitant structurer son organisation ou un membre cherchant à s'engager, U-Gate simplifie le processus.</p>
+                    </div>
+                </div>
+
+                <div className="grid md:grid-cols-3 gap-8 relative">
+                    {/* Ligne de connexion (Desktop) */}
+                    <div className="hidden md:block absolute top-12 left-[16%] right-[16%] h-0.5 bg-gradient-to-r from-primary-900 via-primary-500 to-primary-900 opacity-30" />
+
+                    {steps.map((step, i) => (
+                        <motion.div
+                            key={i}
+                            initial={{ opacity: 0, y: 30 }}
+                            whileInView={{ opacity: 1, y: 0 }}
+                            viewport={{ once: true }}
+                            transition={{ delay: i * 0.2 }}
+                            className="relative z-10"
+                        >
+                            <div className="bg-slate-900 border border-white/5 p-8 rounded-3xl h-full flex flex-col hover:border-primary-500/30 transition-colors group">
+                                <div className="flex items-center justify-between mb-6">
+                                    <div className="w-14 h-14 bg-slate-800 rounded-2xl flex items-center justify-center text-white group-hover:bg-primary-600 transition-colors shadow-lg">
+                                        <step.icon size={28} />
+                                    </div>
+                                    <span className="text-4xl font-black text-slate-800 group-hover:text-slate-700 transition-colors">{step.num}</span>
+                                </div>
+
+                                <h3 className="text-xl font-bold text-white mb-3">{step.title}</h3>
+                                <p className="text-slate-400 leading-relaxed mb-8 flex-grow">{step.desc}</p>
+
+                                {step.action && step.link && (
+                                    step.link.startsWith('http') ? (
+                                        <a href={step.link} target="_blank" rel="noreferrer" className="flex items-center gap-2 text-primary-400 font-bold hover:text-white transition-colors mt-auto">
+                                            {step.action === "Lien Admin" ? "Accéder au Portail Admin" : "Commencer"} <ArrowRight size={16} />
+                                        </a>
+                                    ) : (
+                                        <Link href={step.link} className="flex items-center gap-2 text-primary-400 font-bold hover:text-white transition-colors mt-auto">
+                                            Explorer les syndicats <ArrowRight size={16} />
+                                        </Link>
+                                    )
+                                )}
+                            </div>
+                        </motion.div>
+                    ))}
+                </div>
+            </div>
+        </section>
+    );
+}
+```
+
+## 📄 `components\sections\landing\Stats.tsx`
+
+```tsx
+"use client";
+
+import { motion } from 'framer-motion';
+
+const stats = [
+    { label: "Syndicats Actifs", value: "120+", color: "text-blue-400" },
+    { label: "Membres Connectés", value: "50k+", color: "text-emerald-400" },
+    { label: "Votes Sécurisés", value: "15k+", color: "text-purple-400" },
+    { label: "Taux de Satisfaction", value: "98%", color: "text-amber-400" },
+];
+
+export default function Stats() {
+    return (
+        <section className="relative py-12 border-y border-white/5 bg-slate-900/50 backdrop-blur-sm">
+            <div className="max-w-7xl mx-auto px-6">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+                    {stats.map((stat, i) => (
+                        <motion.div
+                            key={i}
+                            initial={{ opacity: 0, y: 20 }}
+                            whileInView={{ opacity: 1, y: 0 }}
+                            viewport={{ once: true }}
+                            transition={{ delay: i * 0.1 }}
+                            className="text-center"
+                        >
+                            <div className={`text-4xl md:text-5xl font-black mb-2 ${stat.color} tracking-tighter`}>
+                                {stat.value}
+                            </div>
+                            <div className="text-sm font-bold text-slate-500 uppercase tracking-widest">
+                                {stat.label}
+                            </div>
+                        </motion.div>
                     ))}
                 </div>
             </div>
@@ -7153,6 +7574,6 @@ export type UserType = 'VISITOR' | 'MEMBER' | 'PARTNER';
 
 ## 📈 Statistiques
 
-- **Fichiers traités**: 72
-- **Taille totale**: 297KB
-- **Date de génération**: 08/02/2026 23:15:32
+- **Fichiers traités**: 76
+- **Taille totale**: 319KB
+- **Date de génération**: 09/02/2026 04:05:50

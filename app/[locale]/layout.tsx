@@ -5,6 +5,9 @@ import { Toaster } from 'react-hot-toast';
 import '../globals.css';
 import { ReactNode } from 'react';
 
+// ✅ IMPORT DU NOUVEAU PROVIDER
+import QueryProvider from '@/components/providers/QueryProvider';
+
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
 
 export const metadata = {
@@ -14,24 +17,24 @@ export const metadata = {
 
 interface RootLayoutProps {
     children: ReactNode;
-    params: Promise<{ locale: string }>; // Promise obligatoire en Next 15
+    params: Promise<{ locale: string }>;
 }
 
 export default async function RootLayout({ children, params }: RootLayoutProps) {
-    // On await les params avant de les utiliser
     const { locale } = await params;
-
-    // Récupération des messages côté serveur
     const messages = await getMessages();
 
     return (
         <html lang={locale}>
         <body className={`${inter.variable} font-sans min-h-screen flex flex-col antialiased`}>
-    <NextIntlClientProvider messages={messages}>
-    <Toaster position="top-right" />
-        {children}
+        <NextIntlClientProvider messages={messages}>
+            {/* ✅ ON ENVELOPPE TOUT ICI */}
+            <QueryProvider>
+                <Toaster position="top-right" />
+                {children}
+            </QueryProvider>
         </NextIntlClientProvider>
         </body>
         </html>
-);
+    );
 }
