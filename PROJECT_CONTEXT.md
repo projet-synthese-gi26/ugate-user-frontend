@@ -1,6 +1,6 @@
 # 📦 Contexte Complet du Projet U-Gate Premium
 
-> Généré automatiquement le 02/02/2026 10:22:47
+> Généré automatiquement le 08/02/2026 23:15:31
 
 ---
 
@@ -44,17 +44,23 @@ D:\Projets\Scolaire\Reseau\New Version\ugate-user-frontend2\u-gate-premium
 │       │       ├── compliance/
 │       │       │   └── page.tsx
 │       │       └── [id]/
-│       │           ├── events/
-│       │           │   └── page.tsx
+│       │           ├── branch/
+│       │           │   └── [branchId]/
+│       │           │       ├── events/
+│       │           │       │   └── page.tsx
+│       │           │       ├── layout.tsx
+│       │           │       ├── members/
+│       │           │       │   └── page.tsx
+│       │           │       ├── page.tsx
+│       │           │       ├── publications/
+│       │           │       │   └── page.tsx
+│       │           │       └── votes/
+│       │           │           └── page.tsx
 │       │           ├── layout.tsx
-│       │           ├── members/
-│       │           │   └── page.tsx
 │       │           ├── page.tsx
 │       │           ├── profile/
 │       │           │   └── page.tsx
-│       │           ├── publications/
-│       │           │   └── page.tsx
-│       │           └── votes/
+│       │           └── select-branch/
 │       │               └── page.tsx
 │       ├── (public)/
 │       │   ├── explorer/
@@ -84,6 +90,7 @@ D:\Projets\Scolaire\Reseau\New Version\ugate-user-frontend2\u-gate-premium
 │   │       ├── Features.tsx
 │   │       └── TrustedPartners.tsx
 │   ├── social/
+│   │   ├── CommentInput.tsx
 │   │   ├── CommentItem.tsx
 │   │   ├── CreateEventModal.tsx
 │   │   ├── CreatePost.tsx
@@ -92,9 +99,11 @@ D:\Projets\Scolaire\Reseau\New Version\ugate-user-frontend2\u-gate-premium
 │   │   ├── HorizontalPDFReader.tsx
 │   │   ├── MediaGallery.tsx
 │   │   ├── PostCard.tsx
+│   │   ├── PostModal.tsx
 │   │   ├── ReactionPicker.tsx
 │   │   └── VoteCard.tsx
 │   ├── syndicate/
+│   │   ├── BranchSelector.tsx
 │   │   └── SyndicateCard.tsx
 │   └── ui/
 │       ├── Badge.tsx
@@ -128,7 +137,6 @@ D:\Projets\Scolaire\Reseau\New Version\ugate-user-frontend2\u-gate-premium
 ├── package-lock.json
 ├── package.json
 ├── postcss.config.mjs
-├── PROJECT_CONTEXT.md
 ├── public/
 │   ├── file.svg
 │   ├── globe.svg
@@ -167,6 +175,7 @@ D:\Projets\Scolaire\Reseau\New Version\ugate-user-frontend2\u-gate-premium
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "date-fns": "^4.1.0",
+    "emoji-picker-react": "^4.18.0",
     "framer-motion": "^12.29.2",
     "lucide-react": "^0.563.0",
     "next": "16.1.6",
@@ -603,7 +612,7 @@ import { useTranslations } from 'next-intl';
 import { ugateApi } from '@/lib/axios';
 import { Syndicate } from '@/lib/types/api';
 import { Link } from '@/navigation';
-import { Loader2, ArrowRight, Building2, LayoutGrid, PlusCircle } from 'lucide-react';
+import { Loader2, ArrowRight, Building2, PlusCircle, ShieldCheck, User } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 export default function DashboardHomePage() {
@@ -614,10 +623,11 @@ export default function DashboardHomePage() {
     useEffect(() => {
         const fetchMine = async () => {
             try {
+                // Récupère la liste des syndicats avec les infos contextuelles (rôle, branche)
                 const response = await ugateApi.get('/syndicates/mine');
                 setMySyndicates(response.data);
             } catch (error) {
-                console.error(error);
+                console.error("Erreur chargement syndicats", error);
             } finally {
                 setLoading(false);
             }
@@ -625,69 +635,109 @@ export default function DashboardHomePage() {
         fetchMine();
     }, []);
 
-    if (loading) return <div className="h-screen flex items-center justify-center"><Loader2 className="animate-spin text-primary-600" /></div>;
+    if (loading) return (
+        <div className="h-screen flex items-center justify-center bg-[#F8FAFC]">
+            <Loader2 className="animate-spin text-primary-800 w-12 h-12" />
+        </div>
+    );
 
     return (
-        <div className="min-h-screen bg-[#F8FAFC] pt-24 pb-20 px-6">
+        <div className="min-h-screen bg-[#F8FAFC] pt-32 pb-20 px-6">
             <div className="max-w-6xl mx-auto">
 
                 <header className="mb-12">
-                    <h1 className="text-3xl font-black text-slate-900 tracking-tight mb-2">{t('my_syndicates')}</h1>
-                    <p className="text-slate-500 font-medium">{t('my_syndicates_sub')}</p>
+                    <h1 className="text-4xl font-black text-slate-900 tracking-tight mb-2">{t('my_syndicates')}</h1>
+                    <p className="text-slate-500 font-medium text-lg">{t('my_syndicates_sub')}</p>
                 </header>
 
                 {mySyndicates.length > 0 ? (
                     <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-                        {mySyndicates.map((syndicate, index) => (
-                            <motion.div
-                                initial={{ opacity: 0, y: 20 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ delay: index * 0.1 }}
-                                key={syndicate.id}
-                            >
-                                <Link href={`/syndicate/${syndicate.id}`}>
-                                    <div className="group bg-white p-8 rounded-[2.5rem] border border-slate-200 shadow-xl shadow-slate-200/40 hover:border-primary-500 hover:shadow-primary-900/5 transition-all cursor-pointer relative overflow-hidden">
-                                        <div className="absolute top-0 right-0 w-32 h-32 bg-primary-50 rounded-full -mr-16 -mt-16 group-hover:bg-primary-100 transition-colors" />
+                        {mySyndicates.map((syndicate, index) => {
+                            // LOGIQUE DE ROUTAGE INTELLIGENTE
+                            const userRole = syndicate.userRole || 'MEMBER';
+                            const isAdmin = ['ADMIN', 'PRESIDENT', 'MODERATOR'].includes(userRole);
 
-                                        <div className="w-16 h-16 bg-white rounded-2xl shadow-md border border-slate-100 flex items-center justify-center mb-6 relative z-10">
-                                            {syndicate.logoUrl ? (
-                                                <img src={syndicate.logoUrl} className="w-full h-full object-cover rounded-2xl" />
-                                            ) : (
-                                                <span className="text-2xl font-black text-primary-800">{syndicate.name.charAt(0)}</span>
-                                            )}
-                                        </div>
+                            // 1. Si Admin -> Page de sélection de branche
+                            // 2. Si Membre avec branche -> Espace branche direct
+                            // 3. Fallback -> Page de sélection (cas d'erreur ou attente validation)
+                            const targetUrl = isAdmin
+                                ? `/syndicate/${syndicate.id}/select-branch`
+                                : syndicate.userBranchId
+                                    ? `/syndicate/${syndicate.id}/branch/${syndicate.userBranchId}`
+                                    : `/syndicate/${syndicate.id}/select-branch`; // Fallback
 
-                                        <h3 className="text-xl font-bold text-slate-900 mb-2 group-hover:text-primary-800 transition-colors">{syndicate.name}</h3>
-                                        <p className="text-sm text-slate-500 mb-8 line-clamp-2 font-medium">{syndicate.description}</p>
+                            return (
+                                <motion.div
+                                    initial={{ opacity: 0, y: 20 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    transition={{ delay: index * 0.1 }}
+                                    key={syndicate.id}
+                                >
+                                    <Link href={targetUrl}>
+                                        <div className="group bg-white p-8 rounded-[2.5rem] border border-slate-200 shadow-xl shadow-slate-200/40 hover:border-primary-800 hover:shadow-primary-900/10 transition-all cursor-pointer relative overflow-hidden h-full flex flex-col">
+                                            {/* Décoration d'arrière-plan */}
+                                            <div className="absolute top-0 right-0 w-32 h-32 bg-slate-50 rounded-full -mr-16 -mt-16 group-hover:bg-primary-50 transition-colors" />
 
-                                        <div className="flex items-center justify-between pt-6 border-t border-slate-50">
-                                            <span className="text-xs font-bold uppercase tracking-widest text-primary-600 bg-primary-50 px-3 py-1 rounded-full">
-                                                {syndicate.domain}
-                                            </span>
-                                            <div className="w-10 h-10 bg-slate-900 text-white rounded-full flex items-center justify-center group-hover:translate-x-1 transition-transform shadow-lg shadow-slate-900/20">
-                                                <ArrowRight size={18} />
+                                            {/* Logo */}
+                                            <div className="w-16 h-16 bg-white rounded-2xl shadow-md border border-slate-100 flex items-center justify-center mb-6 relative z-10 text-2xl font-black text-primary-900 shrink-0">
+                                                {syndicate.documents?.logoUrl ? (
+                                                    <img src={syndicate.documents.logoUrl} className="w-full h-full object-cover rounded-2xl" alt="Logo" />
+                                                ) : (
+                                                    syndicate.name.charAt(0)
+                                                )}
+                                            </div>
+
+                                            {/* Info Syndicat */}
+                                            <div className="flex-1">
+                                                <h3 className="text-xl font-bold text-slate-900 mb-2 group-hover:text-primary-800 transition-colors line-clamp-1">
+                                                    {syndicate.name}
+                                                </h3>
+                                                <p className="text-sm text-slate-500 mb-6 line-clamp-2 font-medium">
+                                                    {syndicate.description || "Espace membre actif"}
+                                                </p>
+                                            </div>
+
+                                            {/* Footer Carte */}
+                                            <div className="flex items-center justify-between pt-6 border-t border-slate-50 mt-auto">
+                                                <div className="flex flex-col">
+                                                    <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1">Votre rôle</span>
+                                                    <span className={`text-xs font-bold px-2 py-1 rounded-lg w-fit flex items-center gap-1 ${isAdmin ? 'bg-purple-50 text-purple-700' : 'bg-slate-100 text-slate-600'}`}>
+                                                        {isAdmin ? <ShieldCheck size={12} /> : <User size={12} />}
+                                                        {userRole}
+                                                    </span>
+                                                </div>
+
+                                                <div className="w-10 h-10 bg-slate-900 text-white rounded-full flex items-center justify-center group-hover:bg-primary-600 group-hover:scale-110 transition-all shadow-lg">
+                                                    <ArrowRight size={18} />
+                                                </div>
                                             </div>
                                         </div>
-                                    </div>
-                                </Link>
-                            </motion.div>
-                        ))}
+                                    </Link>
+                                </motion.div>
+                            );
+                        })}
 
-                        {/* Card Ajouter/Explorer */}
+                        {/* Card "Explorer d'autres syndicats" */}
                         <Link href="/explorer">
-                            <div className="h-full border-2 border-dashed border-slate-200 rounded-[2.5rem] flex flex-col items-center justify-center p-8 text-slate-400 hover:border-primary-400 hover:text-primary-500 hover:bg-primary-50/30 transition-all group">
-                                <PlusCircle size={48} className="mb-4 group-hover:scale-110 transition-transform" />
-                                <span className="font-bold">{t('explore_cta')}</span>
+                            <div className="h-full min-h-[300px] border-2 border-dashed border-slate-300 rounded-[2.5rem] flex flex-col items-center justify-center p-8 text-slate-400 hover:border-primary-600 hover:text-primary-600 hover:bg-primary-50/30 transition-all group bg-slate-50/50">
+                                <div className="p-4 bg-white rounded-full shadow-sm mb-4 group-hover:scale-110 transition-transform">
+                                    <PlusCircle size={32} />
+                                </div>
+                                <span className="font-bold text-lg">{t('explore_cta')}</span>
                             </div>
                         </Link>
                     </div>
                 ) : (
+                    /* État vide (Aucun syndicat rejoint) */
                     <div className="bg-white rounded-[3rem] p-20 text-center border border-slate-100 shadow-xl">
-                        <div className="w-20 h-20 bg-slate-50 rounded-3xl flex items-center justify-center mx-auto mb-6 text-slate-300">
-                            <Building2 size={40} />
+                        <div className="w-24 h-24 bg-slate-50 rounded-[2rem] flex items-center justify-center mx-auto mb-8 text-slate-300">
+                            <Building2 size={48} />
                         </div>
                         <h2 className="text-2xl font-bold text-slate-900 mb-2">{t('no_syndicates')}</h2>
-                        <Link href="/explorer" className="inline-flex items-center mt-6 text-primary-600 font-bold hover:underline">
+                        <p className="text-slate-500 max-w-md mx-auto mb-8">
+                            Vous n'avez pas encore rejoint de communauté. Explorez les syndicats disponibles pour commencer.
+                        </p>
+                        <Link href="/explorer" className="inline-flex items-center px-8 py-4 bg-primary-800 text-white rounded-2xl font-bold hover:bg-primary-900 transition-all shadow-lg shadow-primary-900/20">
                             {t('explore_cta')} <ArrowRight size={18} className="ml-2" />
                         </Link>
                     </div>
@@ -1255,7 +1305,7 @@ export default function ProfilePage() {
 }
 ```
 
-## 📄 `app\[locale]\(dashboard)\syndicate\[id]\events\page.tsx`
+## 📄 `app\[locale]\(dashboard)\syndicate\[id]\branch\[branchId]\events\page.tsx`
 
 ```tsx
 "use client";
@@ -1270,7 +1320,6 @@ import { Loader2, Plus, CalendarSearch, Calendar } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 
 export default function SyndicateEventsPage({ params }: { params: Promise<{ id: string }> }) {
-    // Dans Next.js 15, on déballe les params avec use()
     const { id } = use(params);
     const { user } = useAuthStore();
 
@@ -1278,14 +1327,11 @@ export default function SyndicateEventsPage({ params }: { params: Promise<{ id: 
     const [loading, setLoading] = useState(true);
     const [isModalOpen, setIsModalOpen] = useState(false);
 
-    // Vérification basique des droits (à adapter selon vos rôles réels)
     const isAdmin = user?.roles.includes('ADMIN') || user?.roles.includes('PRESIDENT') || user?.roles.includes('MODERATOR');
 
     const fetchEvents = async () => {
         try {
-            // Appel à l'API pour récupérer les événements de la branche
             const res = await ugateApi.get(`/events/branch/${id}`);
-            // Gestion de la réponse (tableau direct ou contenu paginé)
             const data = Array.isArray(res.data) ? res.data : (res.data.content || []);
             setEvents(data);
         } catch (e) {
@@ -1300,35 +1346,35 @@ export default function SyndicateEventsPage({ params }: { params: Promise<{ id: 
     }, [id]);
 
     return (
-        <div className="max-w-5xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
+        // CONTENEUR DE CENTRAGE : max-w-5xl mx-auto
+        <div className="max-w-5xl mx-auto space-y-12 animate-in fade-in slide-in-from-bottom-4 duration-700">
 
-            {/* En-tête de la section */}
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 border-b border-slate-200 pb-8">
+            {/* En-tête de section centré */}
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 border-b border-slate-200 pb-10">
                 <div>
-                    <div className="flex items-center gap-3 mb-2">
-                        <div className="p-3 bg-primary-100 text-primary-700 rounded-2xl">
-                            <Calendar size={28} />
+                    <div className="flex items-center gap-3 mb-3">
+                        <div className="w-12 h-12 bg-primary-100 text-primary-700 rounded-2xl flex items-center justify-center shadow-sm">
+                            <Calendar size={24} />
                         </div>
-                        <h1 className="text-3xl font-black text-slate-900 tracking-tight">Agenda</h1>
+                        <h1 className="text-4xl font-black text-slate-900 tracking-tight">Agenda</h1>
                     </div>
-                    <p className="text-slate-500 font-medium text-lg max-w-lg">
-                        Ne manquez aucun moment fort. Retrouvez ici toutes les réunions et activités de votre branche.
+                    <p className="text-slate-500 font-medium text-lg max-w-xl leading-relaxed">
+                        Retrouvez toutes les réunions, assemblées et activités organisées par votre branche.
                     </p>
                 </div>
 
-                {/* Bouton Créer (Visible seulement pour les admins) */}
                 {isAdmin && (
                     <Button
                         onClick={() => setIsModalOpen(true)}
-                        className="rounded-2xl h-14 px-8 bg-slate-900 hover:bg-black text-white shadow-xl transition-all hover:scale-105 active:scale-95 font-bold flex items-center gap-2"
+                        className="rounded-2xl h-14 px-8 bg-slate-900 hover:bg-black text-white shadow-xl transition-all hover:scale-105 active:scale-95 font-bold flex items-center gap-3"
                     >
                         <Plus size={20} />
-                        Créer un événement
+                        Programmer un événement
                     </Button>
                 )}
             </div>
 
-            {/* Contenu : Liste ou Vide */}
+            {/* Grille d'événements centrée */}
             {loading ? (
                 <div className="flex justify-center py-32">
                     <Loader2 className="animate-spin text-primary-800 w-12 h-12" />
@@ -1340,38 +1386,38 @@ export default function SyndicateEventsPage({ params }: { params: Promise<{ id: 
                     ))}
                 </div>
             ) : (
-                <div className="bg-white rounded-[3rem] p-20 text-center border border-slate-100 shadow-sm mt-8">
+                /* État vide centré */
+                <div className="bg-white rounded-[3rem] p-20 text-center border border-slate-100 shadow-xl shadow-slate-200/50 mt-8">
                     <div className="w-24 h-24 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-6 text-slate-300">
                         <CalendarSearch size={48} />
                     </div>
-                    <h2 className="text-2xl font-bold text-slate-400 mb-2">Aucun événement programmé.</h2>
-                    <p className="text-slate-400 font-medium">Revenez plus tard pour voir les nouvelles dates.</p>
+                    <h2 className="text-2xl font-bold text-slate-400 mb-2">Aucun événement à l'horizon</h2>
+                    <p className="text-slate-400 font-medium">Revenez plus tard pour découvrir les prochaines dates.</p>
 
                     {isAdmin && (
                         <Button
                             variant="outline"
                             onClick={() => setIsModalOpen(true)}
-                            className="mt-8 border-dashed border-2"
+                            className="mt-8 border-dashed border-2 py-6 px-10 rounded-2xl"
                         >
-                            Programmer le premier événement
+                            Créer le premier événement
                         </Button>
                     )}
                 </div>
             )}
 
-            {/* Modale de Création */}
             <CreateEventModal
                 isOpen={isModalOpen}
                 onClose={() => setIsModalOpen(false)}
                 branchId={id}
-                onSuccess={fetchEvents} // Rafraîchit la liste après création réussie
+                onSuccess={fetchEvents}
             />
         </div>
     );
 }
 ```
 
-## 📄 `app\[locale]\(dashboard)\syndicate\[id]\layout.tsx`
+## 📄 `app\[locale]\(dashboard)\syndicate\[id]\branch\[branchId]\layout.tsx`
 
 ```tsx
 "use client";
@@ -1379,78 +1425,72 @@ export default function SyndicateEventsPage({ params }: { params: Promise<{ id: 
 import { use, useEffect, useState } from 'react';
 import MemberSidebar from '@/components/dashboard/MemberSidebar';
 import { ugateApi } from '@/lib/axios';
-import { Syndicate } from '@/lib/types/api';
-import { Loader2, MapPin, ShieldCheck } from 'lucide-react';
+import { Syndicate, Branch } from '@/lib/types/api';
+import { Loader2, MapPin, ShieldCheck, ChevronRight } from 'lucide-react';
 
-export default function SyndicateLayout({
-                                            children,
-                                            params
-                                        }: {
-    children: React.ReactNode,
-    params: Promise<{ id: string }>
-}) {
-    const { id } = use(params);
+export default function WorkspaceLayout({ children, params }: { children: React.ReactNode, params: Promise<{ id: string, branchId: string }> }) {
+    const { id: syndicateId, branchId } = use(params);
     const [syndicate, setSyndicate] = useState<Syndicate | null>(null);
+    const [branch, setBranch] = useState<Branch | null>(null);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        const fetchSyndicate = async () => {
+        const fetchContext = async () => {
             try {
-                const res = await ugateApi.get(`/syndicates/${id}/details`);
-                setSyndicate(res.data);
+                const [syndRes, branchesRes] = await Promise.all([
+                    ugateApi.get(`/syndicates/${syndicateId}/details`),
+                    ugateApi.get(`/syndicates/${syndicateId}/branches`)
+                ]);
+                setSyndicate(syndRes.data);
+                setBranch(branchesRes.data.find((b: Branch) => b.id === branchId));
             } catch (e) { console.error(e); }
             finally { setLoading(false); }
         };
-        fetchSyndicate();
-    }, [id]);
+        fetchContext();
+    }, [syndicateId, branchId]);
 
-    if (loading) return (
-        <div className="h-screen flex flex-col items-center justify-center bg-white">
-            <Loader2 className="animate-spin text-primary-800 w-12 h-12 mb-4" />
-            <span className="text-slate-400 font-bold text-xs uppercase tracking-[0.3em]">Préparation de l'espace</span>
-        </div>
-    );
+    if (loading) return <div className="h-screen flex items-center justify-center"><Loader2 className="animate-spin text-primary-800" /></div>;
 
     return (
         <div className="min-h-screen bg-[#F8FAFC] flex">
-            {/* Sidebar Fixe */}
-            <MemberSidebar syndicateId={id} />
+            <MemberSidebar syndicateId={syndicateId} branchId={branchId} />
 
-            <div className="flex-1 lg:ml-72 flex flex-col">
-                {/* BANNIÈRE & IDENTITÉ SYNDICALE */}
-                <header className="relative h-64 bg-slate-900 overflow-hidden">
+            <div className="flex-1  flex flex-col min-w-0">
+                {/* HEADER UNIQUE - SYNDICAT FOCUS */}
+                <header className="relative h-64 bg-slate-900 overflow-hidden shrink-0">
                     {syndicate?.documents?.logoUrl && (
-                        <img
-                            src={syndicate.documents.logoUrl}
-                            className="w-full h-full object-cover opacity-50 blur-[1px]"
-                            alt="Banner"
-                        />
+                        <img src={syndicate.documents.logoUrl} className="w-full h-full object-cover opacity-40 blur-[2px]" alt="Syndicate" />
                     )}
-                    {/* Overlay de fondu vers le fond de la page */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-[#F8FAFC] via-[#F8FAFC]/20 to-transparent" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-[#F8FAFC] via-transparent to-black/20" />
 
-                    <div className="absolute bottom-0 left-0 w-full p-10 flex items-end gap-8">
-                        {/* Logo / Initiale */}
-                        <div className="w-24 h-24 bg-white rounded-[2rem] shadow-2xl flex items-center justify-center border-4 border-white overflow-hidden shrink-0">
-                            <span className="text-4xl font-black text-primary-900">{syndicate?.name.charAt(0)}</span>
-                        </div>
-
-                        <div className="mb-2 space-y-2">
-                            <div className="flex items-center gap-3">
-                                <h1 className="text-3xl font-black text-slate-900 tracking-tight">{syndicate?.name}</h1>
-                                <ShieldCheck className="text-primary-600" size={24} />
+                    <div className="absolute bottom-0 left-0 w-full pb-8">
+                        <div className="max-w-5xl mx-auto px-8 flex items-end gap-6">
+                            {/* Logo Syndicat */}
+                            <div className="w-24 h-24 bg-white rounded-[2rem] shadow-2xl flex items-center justify-center border-4 border-white shrink-0">
+                                <span className="text-4xl font-black text-primary-900">{syndicate?.name.charAt(0)}</span>
                             </div>
-                            <div className="flex items-center gap-2 text-slate-500 text-sm font-bold uppercase tracking-widest bg-white/50 backdrop-blur-md px-4 py-1.5 rounded-full border border-white/50 w-fit shadow-sm">
-                                <MapPin size={14} className="text-primary-600" />
-                                {syndicate?.domain} • Antenne locale
+                            <div className="mb-2">
+                                <div className="flex items-center gap-2 text-slate-500 text-[10px] font-black uppercase tracking-[0.2em] mb-1">
+                                    {syndicate?.name}
+                                    <ChevronRight size={12} className="text-primary-400" />
+                                    <span className="text-primary-700">Antenne</span>
+                                </div>
+                                <h1 className="text-3xl font-black text-slate-900 tracking-tight leading-none mb-3">
+                                    {branch?.name}
+                                </h1>
+                                <div className="flex items-center gap-2 bg-white/60 backdrop-blur-md px-3 py-1.5 rounded-full border border-white/50 w-fit shadow-sm">
+                                    <MapPin size={12} className="text-primary-600" />
+                                    <span className="text-[10px] font-bold text-slate-600 uppercase tracking-wider">{branch?.location}</span>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </header>
 
-                {/* Zone de contenu variable (Feed, Membres, Profil, etc.) */}
-                <main className="p-4 lg:p-10">
-                    {children}
+                <main className="flex-1 w-full">
+                    <div className="max-w-5xl mx-auto px-8 py-10">
+                        {children}
+                    </div>
                 </main>
             </div>
         </div>
@@ -1458,7 +1498,7 @@ export default function SyndicateLayout({
 }
 ```
 
-## 📄 `app\[locale]\(dashboard)\syndicate\[id]\members\page.tsx`
+## 📄 `app\[locale]\(dashboard)\syndicate\[id]\branch\[branchId]\members\page.tsx`
 
 ```tsx
 "use client";
@@ -1490,7 +1530,7 @@ export default function MembersPage({ params }: { params: Promise<{ id: string }
     return (
         <div className="min-h-screen bg-[#F8FAFC]">
             <MemberSidebar syndicateId={id} />
-            <main className="lg:ml-72 pt-32 pb-20 px-8">
+            <main >
                 <div className="max-w-5xl mx-auto">
                     <header className="mb-10">
                         <h1 className="text-3xl font-black text-slate-900 tracking-tight">Membres de l'antenne</h1>
@@ -1547,84 +1587,308 @@ export default function MembersPage({ params }: { params: Promise<{ id: string }
 }
 ```
 
-## 📄 `app\[locale]\(dashboard)\syndicate\[id]\page.tsx`
+## 📄 `app\[locale]\(dashboard)\syndicate\[id]\branch\[branchId]\page.tsx`
 
 ```tsx
 "use client";
 
 import { use, useState, useEffect } from 'react';
 import { ugateApi } from '@/lib/axios';
-import { FeedItem } from '@/lib/types/api';
+import { FeedItem, Branch } from '@/lib/types/api';
 import PostCard from '@/components/social/PostCard';
 import EventCard from '@/components/social/EventCard';
 import CreatePost from '@/components/social/CreatePost';
-import { Loader2, Sparkles, MessageSquare } from 'lucide-react';
+import { Loader2, Sparkles } from 'lucide-react';
 
-export default function BranchFeedPage({ params }: { params: Promise<{ id: string }> }) {
-    const { id: syndicateId } = use(params);
+export default function BranchFeedPage({ params }: { params: Promise<{ id: string, branchId: string }> }) {
+    const { branchId, id: syndicateId } = use(params);
     const [feed, setFeed] = useState<FeedItem[]>([]);
+    const [branch, setBranch] = useState<Branch | null>(null);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        const fetchFeed = async () => {
+        const fetchData = async () => {
             try {
-                // On récupère le feed combiné (Publications + Events)
-                const response = await ugateApi.get('/api/v1/feed', {
-                    params: { page: 0, size: 20 }
-                });
-                setFeed(Array.isArray(response.data) ? response.data : []);
-            } catch (error) {
-                console.error("Erreur Feed:", error);
-            } finally {
-                setLoading(false);
-            }
+                const [feedRes, branchRes] = await Promise.all([
+                    ugateApi.get('/api/v1/feed', { params: { page: 0, size: 20 } }),
+                    ugateApi.get(`/syndicates/${syndicateId}/branches`).then(r => ({ data: r.data.find((b: any) => b.id === branchId) }))
+                ]);
+                setFeed(Array.isArray(feedRes.data) ? feedRes.data : []);
+                setBranch(branchRes.data);
+            } catch (e) { console.error(e); }
+            finally { setLoading(false); }
         };
-        fetchFeed();
-    }, [syndicateId]);
+        fetchData();
+    }, [branchId, syndicateId]);
+
+    if (loading) return <div className="flex justify-center py-20"><Loader2 className="animate-spin text-primary-800" /></div>;
 
     return (
         <div className="max-w-2xl mx-auto space-y-8 animate-in fade-in duration-700">
+            {/* CreatePost personnalisé avec le nom de la branche */}
+            <CreatePost syndicateId={branchId} branchName={branch?.name} />
 
-            {/* Zone de Création de Publication */}
-            <CreatePost syndicateId={syndicateId} />
-
-            {/* Séparateur Design */}
             <div className="flex items-center gap-4 py-2">
                 <div className="h-[1px] flex-1 bg-slate-200" />
-                <span className="flex items-center gap-2 text-xs font-black text-slate-400 uppercase tracking-[0.2em]">
-                    <Sparkles size={14} className="text-primary-600" />
-                    Actualités de la branche
+                <span className="flex items-center gap-2 text-xs font-black text-slate-400 uppercase tracking-widest">
+                    <Sparkles size={14} className="text-primary-600" /> Actualités
                 </span>
                 <div className="h-[1px] flex-1 bg-slate-200" />
             </div>
 
-            {/* Liste du Flux */}
+            <div className="space-y-10">
+                {feed.map((item, idx) => (
+                    item.type === 'publication'
+                        ? <PostCard key={idx} publication={item.data as any} />
+                        : <EventCard key={idx} event={item.data as any} />
+                ))}
+            </div>
+        </div>
+    );
+}
+```
+
+## 📄 `app\[locale]\(dashboard)\syndicate\[id]\branch\[branchId]\publications\page.tsx`
+
+```tsx
+"use client";
+
+import React, { useState, useEffect } from 'react';
+import { ugateApi } from '@/lib/axios';
+import { Publication } from '@/lib/types/api';
+import PostCard from '@/components/social/PostCard';
+import CreatePost from '@/components/social/CreatePost';
+import { Loader2, FileSearch } from 'lucide-react';
+
+/**
+ * COMPOSANT : Page des Publications uniquement
+ */
+function OnlyPublicationsPage({ params }: { params: React.Usable<{ id: string }> }) {
+    // Unwrapping des params pour Next.js 15/16
+    const { id } = React.use(params);
+
+    const [pubs, setPubs] = useState<Publication[]>([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchPubs = async () => {
+            try {
+                // Utilisation de l'endpoint spécifique pour les publications de la branche
+                const res = await ugateApi.get(`/publications/branch/${id}`);
+                setPubs(Array.isArray(res.data) ? res.data : []);
+            } catch (e) {
+                console.error("Erreur lors du chargement des publications :", e);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchPubs();
+    }, [id]);
+
+    return (
+        <div className="max-w-2xl mx-auto space-y-8 animate-in fade-in duration-500">
+            {/* Outil de création de post */}
+            <CreatePost syndicateId={id} />
+
+            {/* Séparateur sémantique */}
+            <div className="flex items-center gap-4 py-2">
+                <div className="h-[1px] flex-1 bg-slate-200" />
+                <span className="text-xs font-black text-slate-400 uppercase tracking-widest">
+                    Publications de l'antenne
+                </span>
+                <div className="h-[1px] flex-1 bg-slate-200" />
+            </div>
+
+            {/* État de chargement */}
             {loading ? (
-                <div className="flex flex-col items-center justify-center py-20 gap-4">
+                <div className="flex justify-center py-20">
                     <Loader2 className="animate-spin text-primary-800 w-10 h-10" />
-                    <p className="text-slate-400 font-bold text-sm uppercase tracking-widest">Chargement du flux...</p>
                 </div>
-            ) : feed.length > 0 ? (
-                <div className="space-y-10">
-                    {feed.map((item, idx) => (
-                        <div key={`${item.type}-${idx}`} className="animate-in fade-in slide-in-from-bottom-4 duration-500" style={{ animationDelay: `${idx * 0.1}s` }}>
-                            {item.type === 'publication' ? (
-                                <PostCard publication={item.data as any} />
-                            ) : (
-                                <EventCard event={item.data as any} />
-                            )}
-                        </div>
+            ) : pubs.length > 0 ? (
+                <div className="space-y-8">
+                    {pubs.map((p) => (
+                        <PostCard key={p.id} publication={p} />
                     ))}
                 </div>
             ) : (
-                <div className="bg-white rounded-[3rem] p-20 text-center border border-slate-100 shadow-sm">
+                /* État vide si pas de publications */
+                <div className="bg-white rounded-[2.5rem] p-20 text-center border border-slate-100 shadow-sm">
                     <div className="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-6 text-slate-200">
-                        <MessageSquare size={40} />
+                        <FileSearch size={40} />
                     </div>
-                    <h2 className="text-xl font-bold text-slate-400">Le fil d'actualité est vide.</h2>
-                    <p className="text-slate-400 text-sm mt-1">Soyez le premier à publier quelque chose !</p>
+                    <h2 className="text-xl font-bold text-slate-400">Aucune publication.</h2>
+                    <p className="text-slate-400 text-sm mt-1">Les messages de la branche s'afficheront ici.</p>
                 </div>
             )}
+        </div>
+    );
+}
+
+// EXPORT PAR DÉFAUT EXPLICITE
+export default OnlyPublicationsPage;
+```
+
+## 📄 `app\[locale]\(dashboard)\syndicate\[id]\branch\[branchId]\votes\page.tsx`
+
+```tsx
+"use client";
+
+import { useState, useEffect } from 'react';
+import { useParams } from 'next/navigation';
+import { useTranslations } from 'next-intl';
+import { useAuthStore } from '@/lib/store';
+import MemberSidebar from '@/components/dashboard/MemberSidebar';
+import VoteCard from '@/components/social/VoteCard';
+import CreateVoteModal from '@/components/social/CreateVoteModal';
+import { Plus, Vote as VoteIcon } from 'lucide-react';
+import { Button } from '@/components/ui/Button';
+
+export default function SyndicateVotesPage() {
+    const { id: syndicateId } = useParams();
+    const t = useTranslations('Votes');
+    const { user } = useAuthStore();
+    const [isModalOpen, setIsModalOpen] = useState(false);
+
+    // Idéalement, on récupèrerait ici une liste d'IDs de votes actifs pour cette branche
+    // Pour l'instant, on se base sur les votes présents dans le flux
+    const [voteIds, setVoteIds] = useState<string[]>([]);
+
+    const isAdmin = user?.roles.includes('ADMIN') || user?.roles.includes('PRESIDENT');
+
+    return (
+        <div className="min-h-screen bg-[#F8FAFC]">
+            <MemberSidebar syndicateId={syndicateId as string} />
+
+            <main >
+                <div className="max-w-4xl mx-auto">
+
+                    <header className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 mb-12">
+                        <div>
+                            <h1 className="text-4xl font-black text-slate-900 tracking-tight mb-2">{t('title')}</h1>
+                            <p className="text-slate-500 font-medium">{t('subtitle')}</p>
+                        </div>
+
+                        {isAdmin && (
+                            <Button
+                                onClick={() => setIsModalOpen(true)}
+                                className="rounded-2xl h-14 px-8 bg-primary-800 hover:bg-primary-900 shadow-xl transition-all scale-105 active:scale-95 font-bold"
+                            >
+                                <Plus size={20} className="mr-2" />
+                                {t('create_btn')}
+                            </Button>
+                        )}
+                    </header>
+
+                    <div className="grid gap-8">
+                        {/* Exemple de vote actif */}
+                        <VoteCard voteId="80ef205a-84ba-41a1-9eb5-6d2d3ae791ed" />
+
+                        {/* État vide si aucun ID n'est trouvé */}
+                        {voteIds.length === 0 && (
+                            <div className="bg-white rounded-[3rem] p-20 text-center border border-slate-100 shadow-xl mt-8">
+                                <div className="w-20 h-20 bg-slate-50 rounded-3xl flex items-center justify-center mx-auto mb-6 text-slate-300">
+                                    <VoteIcon size={40} />
+                                </div>
+                                <h2 className="text-xl font-bold text-slate-400">Aucun autre sondage disponible.</h2>
+                            </div>
+                        )}
+                    </div>
+                </div>
+            </main>
+
+            {/* Modal de création */}
+            <CreateVoteModal
+                isOpen={isModalOpen}
+                onClose={() => setIsModalOpen(false)}
+                branchId={syndicateId as string} // Ou branchId spécifique si disponible
+                onSuccess={() => {
+                    // Logique pour rafraîchir la liste
+                }}
+            />
+        </div>
+    );
+}
+```
+
+## 📄 `app\[locale]\(dashboard)\syndicate\[id]\layout.tsx`
+
+```tsx
+"use client";
+
+import { use } from 'react';
+import { usePathname } from 'next/navigation';
+import MemberSidebar from '@/components/dashboard/MemberSidebar';
+
+export default function SyndicateRootLayout({
+                                                children,
+                                                params
+                                            }: {
+    children: React.ReactNode,
+    params: Promise<{ id: string }>
+}) {
+    const { id: syndicateId } = use(params);
+    const pathname = usePathname();
+
+    const segments = pathname.split('/');
+    const branchIdIndex = segments.indexOf('branch') + 1;
+    const branchId = branchIdIndex > 0 ? segments[branchIdIndex] : "";
+
+    return (
+        <div className="min-h-screen bg-[#F8FAFC] flex items-stretch">
+            <MemberSidebar
+                syndicateId={syndicateId}
+                branchId={branchId}
+            />
+
+            <div className="flex-1 lg:ml-72 flex flex-col min-w-0 w-full">
+                {children}
+            </div>
+        </div>
+    );
+}
+```
+
+## 📄 `app\[locale]\(dashboard)\syndicate\[id]\page.tsx`
+
+```tsx
+"use client";
+
+import { use, useEffect } from 'react';
+import { useRouter } from '@/navigation';
+import { ugateApi } from '@/lib/axios';
+import { useAuthStore } from '@/lib/store';
+import { Loader2 } from 'lucide-react';
+
+export default function SyndicateDispatcherPage({ params }: { params: Promise<{ id: string }> }) {
+    const { id: syndicateId } = use(params);
+    const router = useRouter();
+    const { user } = useAuthStore();
+
+    useEffect(() => {
+        const dispatch = async () => {
+            try {
+                const mineRes = await ugateApi.get('/syndicates/mine');
+                const myRelation = mineRes.data.find((s: any) => s.id === syndicateId);
+
+                if (myRelation) {
+                    const isAdmin = ['ADMIN', 'PRESIDENT', 'MODERATOR'].includes(myRelation.userRole);
+
+                    if (isAdmin) {
+                        router.replace(`/syndicate/${syndicateId}/select-branch`);
+                    } else if (myRelation.userBranchId) {
+                        router.replace(`/syndicate/${syndicateId}/branch/${myRelation.userBranchId}`);
+                    }
+                }
+            } catch (e) {
+                router.replace('/dashboard');
+            }
+        };
+        dispatch();
+    }, [syndicateId, user?.id, router]);
+
+    return (
+        <div className="h-screen flex items-center justify-center bg-white">
+            <Loader2 className="animate-spin text-primary-800 w-10 h-10" />
         </div>
     );
 }
@@ -1726,163 +1990,90 @@ export default function MemberProfilePage({ params }: { params: Promise<{ id: st
 }
 ```
 
-## 📄 `app\[locale]\(dashboard)\syndicate\[id]\publications\page.tsx`
+## 📄 `app\[locale]\(dashboard)\syndicate\[id]\select-branch\page.tsx`
 
 ```tsx
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect, use } from 'react';
 import { ugateApi } from '@/lib/axios';
-import { Publication } from '@/lib/types/api';
-import PostCard from '@/components/social/PostCard';
-import CreatePost from '@/components/social/CreatePost';
-import { Loader2, FileSearch } from 'lucide-react';
+import { Branch, Syndicate } from '@/lib/types/api';
+import { useRouter } from '@/navigation';
+import { Loader2, ArrowRight, MapPin, Building2, GitBranch } from 'lucide-react';
+import { motion } from 'framer-motion';
 
-/**
- * COMPOSANT : Page des Publications uniquement
- */
-function OnlyPublicationsPage({ params }: { params: React.Usable<{ id: string }> }) {
-    // Unwrapping des params pour Next.js 15/16
-    const { id } = React.use(params);
-
-    const [pubs, setPubs] = useState<Publication[]>([]);
+export default function SelectBranchPage({ params }: { params: Promise<{ id: string }> }) {
+    const { id } = use(params);
+    const router = useRouter();
+    const [branches, setBranches] = useState<Branch[]>([]);
+    const [syndicate, setSyndicate] = useState<Syndicate | null>(null);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        const fetchPubs = async () => {
+        const init = async () => {
             try {
-                // Utilisation de l'endpoint spécifique pour les publications de la branche
-                const res = await ugateApi.get(`/publications/branch/${id}`);
-                setPubs(Array.isArray(res.data) ? res.data : []);
-            } catch (e) {
-                console.error("Erreur lors du chargement des publications :", e);
-            } finally {
-                setLoading(false);
-            }
+                const [branchesRes, syndRes] = await Promise.all([
+                    ugateApi.get(`/syndicates/${id}/branches`),
+                    ugateApi.get(`/syndicates/${id}/details`)
+                ]);
+                setBranches(branchesRes.data);
+                setSyndicate(syndRes.data);
+            } catch (e) { console.error(e); }
+            finally { setLoading(false); }
         };
-        fetchPubs();
+        init();
     }, [id]);
 
+    if (loading) return <div className="h-screen flex items-center justify-center bg-white"><Loader2 className="animate-spin text-primary-800 w-12 h-12" /></div>;
+
     return (
-        <div className="max-w-2xl mx-auto space-y-8 animate-in fade-in duration-500">
-            {/* Outil de création de post */}
-            <CreatePost syndicateId={id} />
-
-            {/* Séparateur sémantique */}
-            <div className="flex items-center gap-4 py-2">
-                <div className="h-[1px] flex-1 bg-slate-200" />
-                <span className="text-xs font-black text-slate-400 uppercase tracking-widest">
-                    Publications de l'antenne
-                </span>
-                <div className="h-[1px] flex-1 bg-slate-200" />
-            </div>
-
-            {/* État de chargement */}
-            {loading ? (
-                <div className="flex justify-center py-20">
-                    <Loader2 className="animate-spin text-primary-800 w-10 h-10" />
+        <div className="min-h-screen bg-[#F8FAFC] py-20 px-6">
+            <div className="max-w-5xl mx-auto">
+                <div className="text-center mb-16 space-y-4">
+                    <div className="w-24 h-24 bg-white rounded-[2rem] shadow-2xl flex items-center justify-center mx-auto text-4xl font-black text-primary-900 border border-slate-100">
+                        {syndicate?.name.charAt(0)}
+                    </div>
+                    <h1 className="text-4xl font-black text-slate-900 tracking-tight">Espace Administration</h1>
+                    <p className="text-slate-500 font-medium text-lg italic">"{syndicate?.name}"</p>
                 </div>
-            ) : pubs.length > 0 ? (
-                <div className="space-y-8">
-                    {pubs.map((p) => (
-                        <PostCard key={p.id} publication={p} />
+
+                <div className="grid md:grid-cols-2 gap-8">
+                    {branches.map((branch, idx) => (
+                        <motion.div
+                            key={branch.id}
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: idx * 0.1 }}
+                            onClick={() => router.push(`/syndicate/${id}/branch/${branch.id}`)}
+                            className="group bg-white rounded-[2.5rem] overflow-hidden border border-slate-200 shadow-sm hover:shadow-2xl transition-all duration-500 cursor-pointer flex flex-col"
+                        >
+                            <div className="h-44 bg-slate-900 relative">
+                                {branch.bannerUrl ? (
+                                    <img src={branch.bannerUrl} className="w-full h-full object-cover opacity-60 group-hover:opacity-100 transition-all duration-700" alt={branch.name} />
+                                ) : (
+                                    <div className="w-full h-full bg-gradient-to-br from-slate-800 to-primary-900 flex items-center justify-center">
+                                        <GitBranch className="text-white/20" size={64} />
+                                    </div>
+                                )}
+                                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+                                <div className="absolute bottom-4 left-6 flex items-center gap-2 text-white">
+                                    <MapPin size={14} className="text-primary-400" />
+                                    <span className="text-xs font-bold uppercase tracking-widest">{branch.location}</span>
+                                </div>
+                            </div>
+                            <div className="p-8 flex-1 flex flex-col">
+                                <h3 className="text-2xl font-bold text-slate-900 mb-6 group-hover:text-primary-800 transition-colors">{branch.name}</h3>
+                                <div className="mt-auto pt-6 border-t border-slate-50 flex items-center justify-between">
+                                    <span className="text-xs font-black text-slate-400 uppercase tracking-widest">Gérer l'antenne</span>
+                                    <div className="w-10 h-10 rounded-full bg-slate-900 text-white flex items-center justify-center group-hover:bg-primary-600 transition-all shadow-lg shadow-slate-900/20">
+                                        <ArrowRight size={18} />
+                                    </div>
+                                </div>
+                            </div>
+                        </motion.div>
                     ))}
                 </div>
-            ) : (
-                /* État vide si pas de publications */
-                <div className="bg-white rounded-[2.5rem] p-20 text-center border border-slate-100 shadow-sm">
-                    <div className="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-6 text-slate-200">
-                        <FileSearch size={40} />
-                    </div>
-                    <h2 className="text-xl font-bold text-slate-400">Aucune publication.</h2>
-                    <p className="text-slate-400 text-sm mt-1">Les messages de la branche s'afficheront ici.</p>
-                </div>
-            )}
-        </div>
-    );
-}
-
-// EXPORT PAR DÉFAUT EXPLICITE
-export default OnlyPublicationsPage;
-```
-
-## 📄 `app\[locale]\(dashboard)\syndicate\[id]\votes\page.tsx`
-
-```tsx
-"use client";
-
-import { useState, useEffect } from 'react';
-import { useParams } from 'next/navigation';
-import { useTranslations } from 'next-intl';
-import { useAuthStore } from '@/lib/store';
-import MemberSidebar from '@/components/dashboard/MemberSidebar';
-import VoteCard from '@/components/social/VoteCard';
-import CreateVoteModal from '@/components/social/CreateVoteModal';
-import { Plus, Vote as VoteIcon } from 'lucide-react';
-import { Button } from '@/components/ui/Button';
-
-export default function SyndicateVotesPage() {
-    const { id: syndicateId } = useParams();
-    const t = useTranslations('Votes');
-    const { user } = useAuthStore();
-    const [isModalOpen, setIsModalOpen] = useState(false);
-
-    // Idéalement, on récupèrerait ici une liste d'IDs de votes actifs pour cette branche
-    // Pour l'instant, on se base sur les votes présents dans le flux
-    const [voteIds, setVoteIds] = useState<string[]>([]);
-
-    const isAdmin = user?.roles.includes('ADMIN') || user?.roles.includes('PRESIDENT');
-
-    return (
-        <div className="min-h-screen bg-[#F8FAFC]">
-            <MemberSidebar syndicateId={syndicateId as string} />
-
-            <main className="ml-72 pt-28 pb-20 px-10">
-                <div className="max-w-4xl mx-auto">
-
-                    <header className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 mb-12">
-                        <div>
-                            <h1 className="text-4xl font-black text-slate-900 tracking-tight mb-2">{t('title')}</h1>
-                            <p className="text-slate-500 font-medium">{t('subtitle')}</p>
-                        </div>
-
-                        {isAdmin && (
-                            <Button
-                                onClick={() => setIsModalOpen(true)}
-                                className="rounded-2xl h-14 px-8 bg-primary-800 hover:bg-primary-900 shadow-xl transition-all scale-105 active:scale-95 font-bold"
-                            >
-                                <Plus size={20} className="mr-2" />
-                                {t('create_btn')}
-                            </Button>
-                        )}
-                    </header>
-
-                    <div className="grid gap-8">
-                        {/* Exemple de vote actif */}
-                        <VoteCard voteId="80ef205a-84ba-41a1-9eb5-6d2d3ae791ed" />
-
-                        {/* État vide si aucun ID n'est trouvé */}
-                        {voteIds.length === 0 && (
-                            <div className="bg-white rounded-[3rem] p-20 text-center border border-slate-100 shadow-xl mt-8">
-                                <div className="w-20 h-20 bg-slate-50 rounded-3xl flex items-center justify-center mx-auto mb-6 text-slate-300">
-                                    <VoteIcon size={40} />
-                                </div>
-                                <h2 className="text-xl font-bold text-slate-400">Aucun autre sondage disponible.</h2>
-                            </div>
-                        )}
-                    </div>
-                </div>
-            </main>
-
-            {/* Modal de création */}
-            <CreateVoteModal
-                isOpen={isModalOpen}
-                onClose={() => setIsModalOpen(false)}
-                branchId={syndicateId as string} // Ou branchId spécifique si disponible
-                onSuccess={() => {
-                    // Logique pour rafraîchir la liste
-                }}
-            />
+            </div>
         </div>
     );
 }
@@ -2348,7 +2539,7 @@ import Navbar from "@/components/layout/Navbar";
 export default function PublicLayout({ children }: { children: React.ReactNode }) {
     return (
         <>
-
+            <Navbar />
             {children}
             {/* Footer ici si tu veux */}
         </>
@@ -2878,69 +3069,110 @@ import { Link, usePathname } from '@/navigation';
 import { useTranslations } from 'next-intl';
 import {
     Users, Calendar, Vote, UserCircle,
-    ChevronLeft, LogOut, FileText, LayoutDashboard
+    ChevronLeft, LogOut, FileText, LayoutDashboard,
+    ArrowLeftRight
 } from 'lucide-react';
 import { cn } from '@/lib/ utils';
 import { useAuthStore } from '@/lib/store';
 
-export default function MemberSidebar({ syndicateId }: { syndicateId: string }) {
+interface MemberSidebarProps {
+    syndicateId: string;
+    branchId: string;
+}
+
+export default function MemberSidebar({ syndicateId, branchId }: MemberSidebarProps) {
     const t = useTranslations('Dashboard.sidebar');
     const pathname = usePathname();
     const { logout, user } = useAuthStore();
 
+    // Construction de l'URL de base pour cette session
+    const baseUrl = `/syndicate/${syndicateId}/branch/${branchId}`;
+
     const menuItems = [
-        { icon: LayoutDashboard, label: "Fil d'actualité", href: `/syndicate/${syndicateId}` },
-        { icon: FileText, label: "Publications", href: `/syndicate/${syndicateId}/publications` },
-        { icon: Calendar, label: "Événements", href: `/syndicate/${syndicateId}/events` },
-        { icon: Users, label: "Membres", href: `/syndicate/${syndicateId}/members` },
-        { icon: Vote, label: "Votes & Sondages", href: `/syndicate/${syndicateId}/votes` },
-        { icon: UserCircle, label: "Mon Profil", href: `/syndicate/${syndicateId}/profile` },
+        { icon: LayoutDashboard, label: "Fil d'actualité", href: baseUrl },
+        { icon: FileText, label: "Publications", href: `${baseUrl}/publications` },
+        { icon: Calendar, label: "Événements", href: `${baseUrl}/events` },
+        { icon: Users, label: "Membres", href: `${baseUrl}/members` },
+        { icon: Vote, label: "Votes & Sondages", href: `${baseUrl}/votes` },
+        { icon: UserCircle, label: "Mon Profil", href: `${baseUrl}/profile` },
     ];
 
     return (
         <aside className="w-72 bg-white border-r border-slate-200 flex flex-col h-screen fixed left-0 top-0 z-50 shadow-xl">
-            <div className="p-8 flex-1">
-                <div className="mb-10 flex items-center gap-3">
-                    <div className="w-10 h-10 bg-primary-800 rounded-xl flex items-center justify-center text-white font-black">U</div>
+            <div className="p-8 flex-1 flex flex-col">
+
+                {/* Branding U-Gate */}
+                <div className="mb-8 flex items-center gap-3">
+                    <div className="w-10 h-10 bg-primary-800 rounded-xl flex items-center justify-center text-white font-black shadow-lg shadow-primary-900/20">U</div>
                     <span className="font-black text-xl text-slate-900 tracking-tighter">U-Gate</span>
                 </div>
 
-                <Link href="/dashboard" className="flex items-center gap-2 text-slate-400 hover:text-primary-800 mb-10 font-bold text-xs uppercase tracking-widest group transition-all">
-                    <ChevronLeft size={16} className="group-hover:-translate-x-1 transition-transform" />
-                    Quitter l'espace
-                </Link>
+                {/* Navigation de retour */}
+                <div className="space-y-2 mb-8">
+                    <Link
+                        href="/dashboard"
+                        className="flex items-center gap-2 text-slate-400 hover:text-primary-800 font-bold text-xs uppercase tracking-widest group transition-all px-2 py-1"
+                    >
+                        <ChevronLeft size={16} className="group-hover:-translate-x-1 transition-transform" />
+                        Quitter l'espace
+                    </Link>
 
-                <nav className="space-y-1.5">
-                    {menuItems.map((item) => (
-                        <Link
-                            key={item.href}
-                            href={item.href}
-                            className={cn(
-                                "flex items-center gap-3 px-4 py-3.5 rounded-2xl font-bold transition-all duration-300",
-                                pathname === item.href
-                                    ? "bg-primary-800 text-white shadow-lg shadow-primary-900/20 translate-x-1"
-                                    : "text-slate-500 hover:bg-slate-50 hover:text-slate-900"
-                            )}
-                        >
-                            <item.icon size={20} className={pathname === item.href ? "text-white" : "text-slate-400"} />
-                            {item.label}
-                        </Link>
-                    ))}
+                    {/* Bouton pour changer d'antenne (Retour au sélecteur) */}
+                    <Link
+                        href={`/syndicate/${syndicateId}/select-branch`}
+                        className="flex items-center gap-2 text-primary-600 hover:text-primary-800 font-bold text-xs uppercase tracking-widest group transition-all px-2 py-1"
+                    >
+                        <ArrowLeftRight size={16} />
+                        Changer d'antenne
+                    </Link>
+                </div>
+
+                {/* Menu Principal */}
+                <nav className="space-y-2">
+                    {menuItems.map((item) => {
+                        // Vérification stricte pour la racine, souple pour les sous-pages si besoin
+                        const isActive = pathname === item.href;
+
+                        return (
+                            <Link
+                                key={item.href}
+                                href={item.href}
+                                className={cn(
+                                    "flex items-center gap-3 px-4 py-3.5 rounded-2xl font-bold transition-all duration-300",
+                                    isActive
+                                        ? "bg-primary-800 text-white shadow-xl shadow-primary-900/20 translate-x-1"
+                                        : "text-slate-500 hover:bg-slate-50 hover:text-slate-900"
+                                )}
+                            >
+                                <item.icon size={20} className={isActive ? "text-white" : "text-slate-400"} />
+                                {item.label}
+                            </Link>
+                        );
+                    })}
                 </nav>
             </div>
 
+            {/* Footer Utilisateur */}
             <div className="p-6 border-t border-slate-50 bg-slate-50/50">
                 <div className="flex items-center gap-3 px-4 py-3 mb-4">
-                    <div className="w-10 h-10 rounded-full bg-primary-100 flex items-center justify-center text-primary-800 font-black text-xs border-2 border-white shadow-sm">
-                        {user?.firstName?.charAt(0)}
+                    <div className="w-10 h-10 rounded-full bg-primary-100 flex items-center justify-center text-primary-800 font-black text-xs border-2 border-white shadow-sm overflow-hidden">
+                        {user?.photoUri ? (
+                            <img src={user.photoUri} alt="User" className="w-full h-full object-cover" />
+                        ) : (
+                            user?.firstName?.charAt(0)
+                        )}
                     </div>
                     <div className="flex-1 overflow-hidden">
                         <div className="text-sm font-bold text-slate-900 truncate">{user?.firstName}</div>
-                        <div className="text-[10px] font-black text-slate-400 uppercase">Membre</div>
+                        <div className="text-[10px] font-black text-slate-400 uppercase tracking-tighter">Connecté</div>
                     </div>
                 </div>
-                <button onClick={() => logout()} className="flex items-center gap-3 w-full px-4 py-3 rounded-xl text-red-500 font-bold hover:bg-red-50 transition-all text-sm">
-                    <LogOut size={18} /> Déconnexion
+                <button
+                    onClick={() => logout()}
+                    className="flex items-center gap-3 w-full px-4 py-3 rounded-xl text-red-500 font-bold hover:bg-red-50 transition-all text-sm group"
+                >
+                    <LogOut size={18} className="group-hover:-translate-x-1 transition-transform" />
+                    Déconnexion
                 </button>
             </div>
         </aside>
@@ -3338,53 +3570,76 @@ export default function TrustedPartners() {
 }
 ```
 
-## 📄 `components\social\CommentItem.tsx`
+## 📄 `components\social\CommentInput.tsx`
 
 ```tsx
 "use client";
 
-import { useState } from 'react';
-import { useTranslations } from 'next-intl';
-import { CommentResponseDto } from '@/lib/types/api';
+import { useState, useRef } from 'react';
+import { useAuthStore } from '@/lib/store';
 import { ugateApi } from '@/lib/axios';
-import { formatDistanceToNow } from 'date-fns';
-import { fr } from 'date-fns/locale';
-import { MessageCircle, CornerDownRight, Send } from 'lucide-react';
+import { Smile, Image as ImageIcon, Send, X, Sticker, Loader2 } from 'lucide-react';
+import EmojiPicker, { EmojiClickData } from 'emoji-picker-react';
 import { toast } from 'react-hot-toast';
+import { cn } from '@/lib/ utils';
 
 interface Props {
-    comment: CommentResponseDto;
     publicationId: string;
-    allComments: CommentResponseDto[];
-    depth?: number;
+    parentId?: string;
+    onSuccess: () => void;
+    placeholder?: string;
+    autoFocus?: boolean;
 }
 
-export default function CommentItem({ comment, publicationId, allComments, depth = 0 }: Props) {
-    const t = useTranslations('Comments');
-    const [isReplying, setIsReplying] = useState(false);
-    const [replyText, setReplyText] = useState('');
+export default function CommentInput({ publicationId, parentId, onSuccess, placeholder = "Écrivez un commentaire...", autoFocus = false }: Props) {
+    const { user } = useAuthStore();
+    const [content, setContent] = useState('');
+    const [image, setImage] = useState<File | null>(null);
+    const [preview, setPreview] = useState<string | null>(null);
+    const [showEmoji, setShowEmoji] = useState(false);
     const [loading, setLoading] = useState(false);
 
-    // Filtrer les réponses à ce commentaire précis
-    const replies = allComments.filter(c => c.parentId === comment.id);
+    const fileInputRef = useRef<HTMLInputElement>(null);
 
-    const handleReply = async () => {
-        if (!replyText.trim()) return;
+    const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (e.target.files?.[0]) {
+            const file = e.target.files[0];
+            setImage(file);
+            setPreview(URL.createObjectURL(file));
+        }
+    };
+
+    const removeImage = () => {
+        setImage(null);
+        if (preview) URL.revokeObjectURL(preview);
+        setPreview(null);
+    };
+
+    const onEmojiClick = (emojiData: EmojiClickData) => {
+        setContent((prev) => prev + emojiData.emoji);
+        setShowEmoji(false);
+    };
+
+    const handleSubmit = async () => {
+        if (!content.trim() && !image) return;
+
         setLoading(true);
-        try {
-            const formData = new FormData();
-            formData.append('content', replyText);
-            formData.append('parentId', comment.id);
+        const formData = new FormData();
+        formData.append('content', content);
+        if (parentId) formData.append('parentId', parentId);
+        if (image) formData.append('image', image); // Champ 'image' selon ton API
 
+        try {
             await ugateApi.post(`/publications/${publicationId}/comments`, formData, {
                 headers: { 'Content-Type': 'multipart/form-data' }
             });
 
-            toast.success(t('success_reply'));
-            setReplyText('');
-            setIsReplying(false);
-            // Ici, idéalement, on rafraîchit la liste via un callback
-        } catch (error) {
+            setContent('');
+            removeImage();
+            onSuccess();
+            toast.success("Envoyé !");
+        } catch (e) {
+            console.error(e);
             toast.error("Erreur d'envoi");
         } finally {
             setLoading(false);
@@ -3392,78 +3647,178 @@ export default function CommentItem({ comment, publicationId, allComments, depth
     };
 
     return (
-        <div className={`group ${depth > 0 ? 'mt-4 ml-6 lg:ml-10' : 'mt-6'}`}>
-            <div className="flex gap-3">
-                {/* Avatar */}
-                <div className="w-8 h-8 lg:w-9 lg:h-9 bg-slate-200 rounded-full flex items-center justify-center font-bold text-slate-600 text-xs shrink-0 border border-white shadow-sm">
-                    {comment.authorFullName.charAt(0)}
-                </div>
+        <div className="flex gap-3 items-start w-full relative">
+            {/* Avatar */}
+            <div className="w-8 h-8 lg:w-10 lg:h-10 bg-slate-200 rounded-full flex items-center justify-center font-bold text-slate-500 overflow-hidden shrink-0 border border-slate-100">
+                {user?.photoUri ? <img src={user.photoUri} className="w-full h-full object-cover" /> : user?.firstName?.charAt(0)}
+            </div>
 
-                <div className="flex-1">
-                    {/* Bulle de commentaire */}
-                    <div className="bg-slate-50 rounded-2xl rounded-tl-none p-3 lg:p-4 border border-slate-100 group-hover:border-primary-100 transition-colors">
-                        <div className="flex justify-between items-center mb-1">
-                            <span className="font-bold text-slate-900 text-sm">{comment.authorFullName}</span>
-                            <span className="text-[10px] font-bold text-slate-400 uppercase">
-                                {formatDistanceToNow(new Date(comment.createdAt), { locale: fr })}
-                            </span>
-                        </div>
-                        <p className="text-slate-700 text-sm leading-relaxed">{comment.content}</p>
-                        {comment.imageUrl && (
-                            <img src={comment.imageUrl} className="mt-3 rounded-xl max-h-60 object-cover border border-slate-200" />
-                        )}
+            <div className="flex-1 bg-slate-100 rounded-[1.5rem] p-2 relative transition-all focus-within:bg-white focus-within:shadow-md focus-within:ring-1 focus-within:ring-slate-200">
+
+                {/* Prévisualisation Image */}
+                {preview && (
+                    <div className="relative w-fit mb-2 ml-2 mt-2">
+                        <img src={preview} className="h-20 rounded-xl object-cover border border-slate-200" alt="Preview" />
+                        <button onClick={removeImage} className="absolute -top-2 -right-2 bg-slate-900 text-white p-1 rounded-full hover:bg-red-500 transition-colors">
+                            <X size={10} />
+                        </button>
                     </div>
+                )}
 
-                    {/* Actions de commentaire */}
-                    <div className="flex items-center gap-4 mt-2 ml-1">
-                        <button
-                            onClick={() => setIsReplying(!isReplying)}
-                            className="text-xs font-bold text-slate-500 hover:text-primary-600 transition-colors flex items-center gap-1"
-                        >
-                            <MessageCircle size={14} />
-                            {t('reply')}
+                {/* Input Texte */}
+                <textarea
+                    value={content}
+                    onChange={(e) => setContent(e.target.value)}
+                    placeholder={placeholder}
+                    autoFocus={autoFocus}
+                    className="w-full bg-transparent border-none outline-none px-4 py-2 text-sm text-slate-800 placeholder:text-slate-400 resize-none min-h-[40px] max-h-[120px]"
+                    rows={content.length > 50 ? 3 : 1}
+                    onKeyDown={(e) => {
+                        if (e.key === 'Enter' && !e.shiftKey) {
+                            e.preventDefault();
+                            handleSubmit();
+                        }
+                    }}
+                />
+
+                {/* Toolbar */}
+                <div className="flex justify-between items-center px-2 pb-1">
+                    <div className="flex gap-1">
+                        <button onClick={() => fileInputRef.current?.click()} className="p-2 text-slate-400 hover:bg-slate-200 rounded-full transition-colors" title="Ajouter une photo">
+                            <ImageIcon size={18} />
+                        </button>
+                        <button onClick={() => setShowEmoji(!showEmoji)} className="p-2 text-slate-400 hover:bg-slate-200 rounded-full transition-colors relative" title="Emojis">
+                            <Smile size={18} />
+                        </button>
+                        {/* Simulation Stickers */}
+                        <button className="p-2 text-slate-400 hover:bg-slate-200 rounded-full transition-colors" title="Stickers (Bientôt)">
+                            <Sticker size={18} />
                         </button>
                     </div>
 
-                    {/* Zone de réponse (Formulaire) */}
-                    {isReplying && (
-                        <div className="mt-4 flex gap-2 animate-in slide-in-from-top-2 duration-300">
-                            <div className="flex-1 relative">
-                                <input
-                                    autoFocus
-                                    value={replyText}
-                                    onChange={(e) => setReplyText(e.target.value)}
-                                    placeholder={t('write_comment')}
-                                    className="w-full bg-white border border-slate-200 rounded-xl px-4 py-2 text-sm focus:ring-2 focus:ring-primary-500/20 outline-none"
-                                />
-                            </div>
-                            <button
-                                onClick={handleReply}
-                                disabled={loading || !replyText.trim()}
-                                className="w-10 h-10 bg-primary-800 text-white rounded-xl flex items-center justify-center shadow-md disabled:opacity-50"
-                            >
-                                <Send size={16} />
-                            </button>
-                        </div>
-                    )}
+                    <button
+                        onClick={handleSubmit}
+                        disabled={loading || (!content.trim() && !image)}
+                        className={cn(
+                            "p-2 rounded-full transition-all",
+                            (content.trim() || image) ? "text-primary-600 hover:bg-primary-50" : "text-slate-300 cursor-not-allowed"
+                        )}
+                    >
+                        {loading ? <Loader2 size={18} className="animate-spin" /> : <Send size={18} />}
+                    </button>
+                </div>
 
-                    {/* Rendu récursif des réponses */}
-                    {replies.length > 0 && (
-                        <div className="relative">
-                            {/* Ligne verticale de thread */}
-                            <div className="absolute left-[-20px] lg:left-[-30px] top-0 bottom-0 w-px bg-slate-200" />
-                            {replies.map(reply => (
-                                <CommentItem
-                                    key={reply.id}
-                                    comment={reply}
-                                    publicationId={publicationId}
-                                    allComments={allComments}
-                                    depth={depth + 1}
-                                />
-                            ))}
+                {/* Emoji Picker Popover */}
+                {showEmoji && (
+                    <div className="absolute bottom-full left-0 mb-2 z-50 shadow-2xl rounded-2xl">
+                        <div onClick={() => setShowEmoji(false)} className="fixed inset-0 z-40" /> {/* Overlay close */}
+                        <div className="relative z-50">
+                            <EmojiPicker onEmojiClick={onEmojiClick} width={300} height={400} />
                         </div>
+                    </div>
+                )}
+
+                <input
+                    type="file"
+                    ref={fileInputRef}
+                    className="hidden"
+                    accept="image/*"
+                    onChange={handleImageSelect}
+                />
+            </div>
+        </div>
+    );
+}
+```
+
+## 📄 `components\social\CommentItem.tsx`
+
+```tsx
+"use client";
+
+import { useState } from 'react';
+import { CommentResponseDto } from '@/lib/types/api';
+import { formatDistanceToNow } from 'date-fns';
+import { fr } from 'date-fns/locale';
+import CommentInput from './CommentInput';
+
+interface Props {
+    comment: CommentResponseDto;
+    publicationId: string;
+    allComments: CommentResponseDto[];
+    depth?: number;
+    refresh: () => void;
+}
+
+export default function CommentItem({ comment, publicationId, allComments, depth = 0, refresh }: Props) {
+    const [isReplying, setIsReplying] = useState(false);
+    const replies = allComments.filter(c => c.parentId === comment.id);
+
+    return (
+        <div className={`flex gap-3 ${depth > 0 ? 'mt-3' : 'mt-4'}`}>
+            {/* Avatar */}
+            <div className={`rounded-full bg-slate-200 flex items-center justify-center overflow-hidden shrink-0 border border-white shadow-sm ${depth > 0 ? 'w-6 h-6' : 'w-8 h-8'}`}>
+                <span className="font-bold text-slate-500 text-xs">{comment.authorFullName.charAt(0)}</span>
+            </div>
+
+            <div className="flex-1">
+                {/* Bulle */}
+                <div className="inline-block bg-slate-100 rounded-2xl px-4 py-2.5 max-w-full">
+                    <div className="font-bold text-slate-900 text-sm mb-0.5">{comment.authorFullName}</div>
+
+                    {comment.content && <p className="text-slate-800 text-sm leading-relaxed whitespace-pre-wrap">{comment.content}</p>}
+
+                    {comment.imageUrl && (
+                        <img
+                            src={comment.imageUrl}
+                            alt="Comment attachment"
+                            className="mt-2 rounded-xl max-h-60 object-cover border border-slate-200 cursor-pointer hover:opacity-90 transition-opacity"
+                        />
                     )}
                 </div>
+
+                {/* Actions */}
+                <div className="flex items-center gap-4 mt-1 ml-4">
+                    <span className="text-[11px] font-medium text-slate-400">
+                        {formatDistanceToNow(new Date(comment.createdAt), { locale: fr })}
+                    </span>
+                    <button
+                        onClick={() => setIsReplying(!isReplying)}
+                        className="text-[11px] font-bold text-slate-500 hover:text-slate-800 cursor-pointer"
+                    >
+                        Répondre
+                    </button>
+                    {/* Placeholder pour Like sur commentaire si API dispo */}
+                    {/* <button className="text-[11px] font-bold text-slate-500 hover:text-slate-800">J'aime</button> */}
+                </div>
+
+                {/* Input Réponse */}
+                {isReplying && (
+                    <div className="mt-3">
+                        <CommentInput
+                            publicationId={publicationId}
+                            parentId={comment.id}
+                            onSuccess={() => { setIsReplying(false); refresh(); }}
+                            autoFocus
+                        />
+                    </div>
+                )}
+
+                {/* Réponses imbriquées */}
+                {replies.length > 0 && (
+                    <div className="pl-2 border-l-2 border-slate-100 mt-2">
+                        {replies.map(reply => (
+                            <CommentItem
+                                key={reply.id}
+                                comment={reply}
+                                publicationId={publicationId}
+                                allComments={allComments}
+                                depth={depth + 1}
+                                refresh={refresh}
+                            />
+                        ))}
+                    </div>
+                )}
             </div>
         </div>
     );
@@ -3488,7 +3843,7 @@ import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'react-hot-toast';
-import { cn } from '@/lib/utils';
+import { cn } from '@/lib/ utils';
 
 interface Props {
     isOpen: boolean;
@@ -3498,12 +3853,11 @@ interface Props {
 }
 
 export default function CreateEventModal({ isOpen, onClose, branchId, onSuccess }: Props) {
-    // Si vous n'avez pas encore les traductions, remplacez t('...') par des chaînes en dur
-    // const t = useTranslations('Event');
+    const t = useTranslations('Event');
     const { user } = useAuthStore();
     const [loading, setLoading] = useState(false);
 
-    // Form States
+    // États du formulaire
     const [title, setTitle] = useState('');
     const [description, setDescription] = useState('');
     const [location, setLocation] = useState('');
@@ -3511,7 +3865,7 @@ export default function CreateEventModal({ isOpen, onClose, branchId, onSuccess 
     const [startTime, setStartTime] = useState('');
     const [endTime, setEndTime] = useState('');
 
-    // Media States
+    // État des médias
     const [files, setFiles] = useState<{ file: File, type: 'IMAGE' | 'VIDEO' | 'PDF', preview: string }[]>([]);
 
     const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>, type: 'IMAGE' | 'VIDEO' | 'PDF') => {
@@ -3522,7 +3876,6 @@ export default function CreateEventModal({ isOpen, onClose, branchId, onSuccess 
             preview: URL.createObjectURL(file)
         }));
         setFiles(prev => [...prev, ...newFiles]);
-        // Reset l'input pour permettre de sélectionner le même fichier si besoin
         e.target.value = '';
     };
 
@@ -3535,7 +3888,7 @@ export default function CreateEventModal({ isOpen, onClose, branchId, onSuccess 
 
     const handleSubmit = async () => {
         if (!title || !date || !startTime || !endTime || !location) {
-            return toast.error("Veuillez remplir tous les champs obligatoires (Titre, Date, Heures, Lieu)");
+            return toast.error("Veuillez remplir tous les champs obligatoires");
         }
 
         if (!user?.id) return toast.error("Erreur d'authentification");
@@ -3543,21 +3896,19 @@ export default function CreateEventModal({ isOpen, onClose, branchId, onSuccess 
         setLoading(true);
         const formData = new FormData();
 
-        // Champs Texte
+        // Champs textes
         formData.append('title', title);
         formData.append('description', description);
         formData.append('location', location);
-        formData.append('eventDate', date); // Format YYYY-MM-DD
-        formData.append('startTime', startTime); // Format HH:MM
-        formData.append('endTime', endTime);     // Format HH:MM
+        formData.append('eventDate', date);
+        formData.append('startTime', startTime);
+        formData.append('endTime', endTime);
         formData.append('branchId', branchId);
         formData.append('creatorId', user.id);
 
-        // Fichiers
+        // CORRECTION : Tous les médias sont envoyés dans le champ 'images'
         files.forEach(f => {
-            if (f.type === 'IMAGE') formData.append('images', f.file);
-            if (f.type === 'VIDEO') formData.append('videos', f.file);
-            if (f.type === 'PDF') formData.append('files', f.file);
+            formData.append('images', f.file);
         });
 
         try {
@@ -3566,14 +3917,9 @@ export default function CreateEventModal({ isOpen, onClose, branchId, onSuccess 
             });
             toast.success("Événement créé avec succès !");
 
-            // Reset form
-            setTitle('');
-            setDescription('');
-            setLocation('');
-            setDate('');
-            setStartTime('');
-            setEndTime('');
-            setFiles([]);
+            // Réinitialisation
+            setTitle(''); setDescription(''); setLocation('');
+            setDate(''); setStartTime(''); setEndTime(''); setFiles([]);
 
             onSuccess();
             onClose();
@@ -3589,13 +3935,11 @@ export default function CreateEventModal({ isOpen, onClose, branchId, onSuccess 
 
     return (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-            {/* Backdrop */}
             <motion.div
                 initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
                 onClick={onClose} className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm"
             />
 
-            {/* Modal Content */}
             <motion.div
                 initial={{ scale: 0.95, opacity: 0, y: 20 }}
                 animate={{ scale: 1, opacity: 1, y: 0 }}
@@ -3607,22 +3951,21 @@ export default function CreateEventModal({ isOpen, onClose, branchId, onSuccess 
                         <div className="w-10 h-10 bg-primary-800 text-white rounded-xl flex items-center justify-center shadow-lg shadow-primary-900/20">
                             <Calendar size={20} />
                         </div>
-                        <h2 className="text-xl font-bold text-slate-900">Nouvel Événement</h2>
+                        <h2 className="text-xl font-bold text-slate-900">{t('create_title')}</h2>
                     </div>
                     <button onClick={onClose} className="p-2 hover:bg-slate-100 rounded-full transition-colors text-slate-500">
                         <X size={20} />
                     </button>
                 </div>
 
-                {/* Formulaire Scrollable */}
+                {/* Formulaire */}
                 <div className="p-8 space-y-6 overflow-y-auto custom-scrollbar flex-1 bg-white">
 
-                    {/* Titre & Description */}
                     <div className="space-y-5">
                         <div className="space-y-1.5">
                             <label className="text-xs font-bold uppercase tracking-wider text-slate-500 ml-1">Titre de l'événement</label>
                             <Input
-                                placeholder="Ex: Assemblée Générale 2026"
+                                placeholder="Ex: Réunion de branche"
                                 value={title}
                                 onChange={(e) => setTitle(e.target.value)}
                                 className="font-bold text-lg bg-slate-50 border-transparent focus:bg-white focus:border-primary-500 transition-all"
@@ -3632,13 +3975,12 @@ export default function CreateEventModal({ isOpen, onClose, branchId, onSuccess 
                             <label className="text-xs font-bold uppercase tracking-wider text-slate-500 ml-1">Description</label>
                             <textarea
                                 className="w-full p-4 rounded-2xl border border-transparent bg-slate-50 focus:bg-white focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 outline-none transition-all min-h-[120px] text-sm font-medium text-slate-700 resize-none"
-                                placeholder="Détails, ordre du jour, instructions..."
+                                placeholder="Détails de l'événement..."
                                 value={description} onChange={(e) => setDescription(e.target.value)}
                             />
                         </div>
                     </div>
 
-                    {/* Date & Lieu */}
                     <div className="grid md:grid-cols-2 gap-6">
                         <div className="space-y-1.5">
                             <label className="text-xs font-bold uppercase tracking-wider text-slate-500 ml-1">Date</label>
@@ -3653,7 +3995,7 @@ export default function CreateEventModal({ isOpen, onClose, branchId, onSuccess 
                         <div className="space-y-1.5">
                             <label className="text-xs font-bold uppercase tracking-wider text-slate-500 ml-1">Lieu</label>
                             <Input
-                                placeholder="Salle des fêtes, Zoom..."
+                                placeholder="Localisation"
                                 icon={MapPin}
                                 value={location}
                                 onChange={(e) => setLocation(e.target.value)}
@@ -3662,7 +4004,6 @@ export default function CreateEventModal({ isOpen, onClose, branchId, onSuccess 
                         </div>
                     </div>
 
-                    {/* Heures */}
                     <div className="grid grid-cols-2 gap-6">
                         <div className="space-y-1.5">
                             <label className="text-xs font-bold uppercase tracking-wider text-slate-500 ml-1">Début</label>
@@ -3686,26 +4027,24 @@ export default function CreateEventModal({ isOpen, onClose, branchId, onSuccess 
                         </div>
                     </div>
 
-                    {/* Zone Upload Médias */}
                     <div className="space-y-3 pt-2">
                         <label className="text-xs font-bold uppercase tracking-wider text-slate-500 ml-1">Médias & Documents</label>
 
                         <div className="flex gap-2 mb-4 overflow-x-auto pb-2 no-scrollbar">
                             <label className="flex items-center gap-2 px-4 py-2.5 bg-emerald-50 text-emerald-700 border border-emerald-100 rounded-xl cursor-pointer hover:bg-emerald-100 transition-colors font-bold text-xs whitespace-nowrap">
-                                <ImageIcon size={16} /> Ajouter Image
+                                <ImageIcon size={16} /> Photo
                                 <input type="file" className="hidden" accept="image/*" multiple onChange={(e) => handleFileSelect(e, 'IMAGE')} />
                             </label>
                             <label className="flex items-center gap-2 px-4 py-2.5 bg-blue-50 text-blue-700 border border-blue-100 rounded-xl cursor-pointer hover:bg-blue-100 transition-colors font-bold text-xs whitespace-nowrap">
-                                <Video size={16} /> Ajouter Vidéo
+                                <Video size={16} /> Vidéo
                                 <input type="file" className="hidden" accept="video/*" multiple onChange={(e) => handleFileSelect(e, 'VIDEO')} />
                             </label>
                             <label className="flex items-center gap-2 px-4 py-2.5 bg-red-50 text-red-700 border border-red-100 rounded-xl cursor-pointer hover:bg-red-100 transition-colors font-bold text-xs whitespace-nowrap">
-                                <FileText size={16} /> Ajouter PDF
+                                <FileText size={16} /> PDF
                                 <input type="file" className="hidden" accept="application/pdf" multiple onChange={(e) => handleFileSelect(e, 'PDF')} />
                             </label>
                         </div>
 
-                        {/* Preview Zone */}
                         {files.length > 0 ? (
                             <div className="grid grid-cols-3 sm:grid-cols-4 gap-3 animate-in fade-in">
                                 {files.map((f, i) => (
@@ -3720,7 +4059,6 @@ export default function CreateEventModal({ isOpen, onClose, branchId, onSuccess 
                                         >
                                             <Trash2 size={12} />
                                         </button>
-
                                         <div className="absolute bottom-0 left-0 right-0 bg-black/50 text-white text-[9px] p-1 truncate px-2 text-center backdrop-blur-sm">
                                             {f.file.name}
                                         </div>
@@ -3730,13 +4068,12 @@ export default function CreateEventModal({ isOpen, onClose, branchId, onSuccess 
                         ) : (
                             <div className="border-2 border-dashed border-slate-200 rounded-2xl p-8 text-center text-slate-400 bg-slate-50/50">
                                 <UploadCloud className="mx-auto mb-3 opacity-50" size={32} />
-                                <p className="text-xs font-medium">Aucun fichier sélectionné</p>
+                                <p className="text-xs font-medium">Glissez-déposez ou sélectionnez des fichiers</p>
                             </div>
                         )}
                     </div>
                 </div>
 
-                {/* Footer Actions */}
                 <div className="p-6 border-t border-slate-100 bg-slate-50/50 flex justify-end gap-3 z-10">
                     <Button variant="ghost" onClick={onClose} className="font-bold text-slate-500 hover:bg-slate-100">Annuler</Button>
                     <Button
@@ -3765,11 +4102,16 @@ import { useAuthStore } from '@/lib/store';
 import { ugateApi } from '@/lib/axios';
 import {
     Image as ImageIcon, Video, FileText,
-    Send, X, Loader2, Paperclip
+    Send, X, Loader2
 } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 
-export default function CreatePost({ syndicateId }: { syndicateId: string }) {
+interface CreatePostProps {
+    syndicateId: string;
+    branchName?: string;
+}
+
+export default function CreatePost({ syndicateId, branchName }: CreatePostProps) {
     const t = useTranslations('Feed');
     const { user } = useAuthStore();
 
@@ -3778,9 +4120,6 @@ export default function CreatePost({ syndicateId }: { syndicateId: string }) {
     const [loading, setLoading] = useState(false);
     const [files, setFiles] = useState<{ file: File, type: 'IMAGE' | 'VIDEO' | 'PDF', preview: string }[]>([]);
 
-    const fileInputRef = useRef<HTMLInputElement>(null);
-    const [filterType, setFilterType] = useState<'IMAGE' | 'VIDEO' | 'PDF' | 'ALL'>('ALL');
-
     // Gestion de la sélection de fichiers
     const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>, type: 'IMAGE' | 'VIDEO' | 'PDF') => {
         const selectedFiles = Array.from(e.target.files || []);
@@ -3788,17 +4127,16 @@ export default function CreatePost({ syndicateId }: { syndicateId: string }) {
         const newFiles = selectedFiles.map(file => ({
             file,
             type,
-            preview: URL.createObjectURL(file) // Créer une URL temporaire pour la miniature
+            preview: URL.createObjectURL(file)
         }));
 
         setFiles(prev => [...prev, ...newFiles]);
-        // Reset l'input pour pouvoir sélectionner le même fichier deux fois si besoin
         e.target.value = '';
     };
 
     const removeFile = (index: number) => {
         const newFiles = [...files];
-        URL.revokeObjectURL(newFiles[index].preview); // Libérer la mémoire
+        URL.revokeObjectURL(newFiles[index].preview);
         newFiles.splice(index, 1);
         setFiles(newFiles);
     };
@@ -3811,12 +4149,11 @@ export default function CreatePost({ syndicateId }: { syndicateId: string }) {
         setLoading(true);
         const formData = new FormData();
 
-        // Champs obligatoires selon ton Swagger
         formData.append('content', content);
         formData.append('authorId', user.id);
-        formData.append('branchId', syndicateId); // On utilise l'ID de la branche/syndicat actuel
+        formData.append('branchId', syndicateId);
 
-        // Ajout des fichiers par catégories
+        // CORRECTION : Envoi via les champs spécifiques de l'API
         files.forEach(f => {
             if (f.type === 'IMAGE') formData.append('images', f.file);
             if (f.type === 'VIDEO') formData.append('videos', f.file);
@@ -3828,22 +4165,29 @@ export default function CreatePost({ syndicateId }: { syndicateId: string }) {
                 headers: { 'Content-Type': 'multipart/form-data' }
             });
 
-            toast.success("Publication partagée avec succès !");
+            toast.success("Publication réussie !");
+
             // Reset
             setContent('');
             setFiles([]);
-            window.location.reload(); // Recharger pour voir le nouveau post
+
+            window.location.reload();
         } catch (error: any) {
+            console.error("Erreur publication:", error);
             toast.error(error.response?.data?.message || "Erreur lors de la publication");
         } finally {
             setLoading(false);
         }
     };
 
+    const placeholderText = branchName
+        ? `Quoi de neuf à ${branchName}, ${user?.firstName} ?`
+        : t('create_post_placeholder', { name: user?.firstName });
+
     return (
         <div className="bg-white rounded-[2.5rem] p-6 lg:p-8 shadow-xl shadow-slate-200/50 border border-slate-100 transition-all">
 
-            {/* Input Zone */}
+            {/* Zone de Saisie */}
             <div className="flex gap-4 mb-6">
                 <div className="w-12 h-12 bg-primary-800 rounded-2xl flex items-center justify-center text-white font-black text-xl shadow-inner shrink-0">
                     {user?.firstName?.charAt(0) || 'U'}
@@ -3851,23 +4195,33 @@ export default function CreatePost({ syndicateId }: { syndicateId: string }) {
                 <textarea
                     value={content}
                     onChange={(e) => setContent(e.target.value)}
-                    placeholder={t('create_post_placeholder', { name: user?.firstName })}
-                    className="flex-1 bg-slate-50 hover:bg-slate-100 transition-colors rounded-2xl p-4 text-slate-700 font-medium outline-none border-none min-h-[100px] resize-none"
+                    placeholder={placeholderText}
+                    className="flex-1 bg-slate-50 hover:bg-slate-100 transition-colors rounded-2xl p-4 text-slate-700 font-medium outline-none border-none min-h-[100px] resize-none placeholder:text-slate-400"
                 />
             </div>
 
-            {/* Previews Zone */}
+            {/* Zone de Prévisualisation des fichiers */}
             {files.length > 0 && (
                 <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3 mb-6 animate-in zoom-in-95">
                     {files.map((f, i) => (
                         <div key={i} className="relative aspect-square rounded-2xl overflow-hidden border border-slate-200 bg-slate-50 group">
-                            {f.type === 'IMAGE' && <img src={f.preview} className="w-full h-full object-cover" />}
-                            {f.type === 'VIDEO' && <div className="w-full h-full flex items-center justify-center bg-slate-900 text-white"><Video size={20} /></div>}
-                            {f.type === 'PDF' && <div className="w-full h-full flex items-center justify-center bg-red-50 text-red-500"><FileText size={24} /></div>}
+                            {f.type === 'IMAGE' && (
+                                <img src={f.preview} className="w-full h-full object-cover" alt="preview" />
+                            )}
+                            {f.type === 'VIDEO' && (
+                                <div className="w-full h-full flex items-center justify-center bg-slate-900 text-white">
+                                    <Video size={24} />
+                                </div>
+                            )}
+                            {f.type === 'PDF' && (
+                                <div className="w-full h-full flex items-center justify-center bg-red-50 text-red-500">
+                                    <FileText size={24} />
+                                </div>
+                            )}
 
                             <button
                                 onClick={() => removeFile(i)}
-                                className="absolute top-1 right-1 p-1 bg-black/50 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                                className="absolute top-1 right-1 p-1.5 bg-black/60 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-500"
                             >
                                 <X size={14} />
                             </button>
@@ -3876,25 +4230,22 @@ export default function CreatePost({ syndicateId }: { syndicateId: string }) {
                 </div>
             )}
 
-            {/* Actions Zone */}
+            {/* Barre d'Actions */}
             <div className="flex flex-col sm:flex-row items-center justify-between pt-5 border-t border-slate-100 gap-4">
-                <div className="flex items-center gap-1">
-                    {/* Bouton IMAGE */}
-                    <label className="flex items-center gap-2 px-4 py-2.5 hover:bg-emerald-50 text-emerald-600 rounded-xl transition-all cursor-pointer font-bold text-sm">
+                <div className="flex items-center gap-1 overflow-x-auto w-full sm:w-auto pb-2 sm:pb-0 no-scrollbar">
+                    <label className="flex items-center gap-2 px-4 py-2.5 hover:bg-emerald-50 text-emerald-600 rounded-xl transition-all cursor-pointer font-bold text-sm whitespace-nowrap">
                         <ImageIcon size={18} />
                         <span className="hidden md:inline">Photo</span>
                         <input type="file" className="hidden" accept="image/*" multiple onChange={(e) => handleFileSelect(e, 'IMAGE')} />
                     </label>
 
-                    {/* Bouton VIDÉO */}
-                    <label className="flex items-center gap-2 px-4 py-2.5 hover:bg-blue-50 text-blue-600 rounded-xl transition-all cursor-pointer font-bold text-sm">
+                    <label className="flex items-center gap-2 px-4 py-2.5 hover:bg-blue-50 text-blue-600 rounded-xl transition-all cursor-pointer font-bold text-sm whitespace-nowrap">
                         <Video size={18} />
                         <span className="hidden md:inline">Vidéo</span>
                         <input type="file" className="hidden" accept="video/*" multiple onChange={(e) => handleFileSelect(e, 'VIDEO')} />
                     </label>
 
-                    {/* Bouton PDF */}
-                    <label className="flex items-center gap-2 px-4 py-2.5 hover:bg-red-50 text-red-600 rounded-xl transition-all cursor-pointer font-bold text-sm">
+                    <label className="flex items-center gap-2 px-4 py-2.5 hover:bg-red-50 text-red-600 rounded-xl transition-all cursor-pointer font-bold text-sm whitespace-nowrap">
                         <FileText size={18} />
                         <span className="hidden md:inline">PDF</span>
                         <input type="file" className="hidden" accept="application/pdf" multiple onChange={(e) => handleFileSelect(e, 'PDF')} />
@@ -4086,12 +4437,9 @@ export default function CreateVoteModal({ isOpen, onClose, branchId, onSuccess }
 
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { Event, MediaInfo } from '@/lib/types/api';
+import { Event } from '@/lib/types/api';
 import { ugateApi } from '@/lib/axios';
-import {
-    Calendar, MapPin, Clock,
-    CheckCircle2, Share2
-} from 'lucide-react';
+import { Calendar, MapPin, Clock, CheckCircle2, Share2 } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { toast } from 'react-hot-toast';
 import { cn } from '@/lib/ utils';
@@ -4103,7 +4451,7 @@ export default function EventCard({ event }: { event: Event }) {
     const [loading, setLoading] = useState(false);
 
     const formatTime = (time: any) => {
-        if (!time?.hour || !time?.minute) return "--:--";
+        if (!time?.hour && time?.hour !== 0) return "--:--";
         return `${time.hour.toString().padStart(2, '0')}:${time.minute.toString().padStart(2, '0')}`;
     };
 
@@ -4122,97 +4470,93 @@ export default function EventCard({ event }: { event: Event }) {
 
     const eventDate = event.date ? new Date(event.date) : new Date();
 
-    const mediaList: MediaInfo[] = [
-        ...(event.imageUrls || []).map(url => ({ url, type: 'IMAGE' as const })),
-        ...(event.videos || []).map(url => ({ url, type: 'VIDEO' as const })),
-        ...(event.files || []).map(url => ({ url, type: 'PDF' as const })),
+    // Fusion de tous les médias pour MediaGallery (tout passe par images selon votre besoin)
+    const mediaList = [
+        ...(event.imageUrls || []),
+        // @ts-ignore
+        ...(event.videoUrls || []),
+        // @ts-ignore
+        ...(event.fileUrls || [])
     ];
 
     return (
-        <div className="bg-white rounded-[2rem] border border-slate-200 shadow-sm overflow-hidden animate-in fade-in duration-500 max-w-2xl mx-auto">
+        <div className="bg-white rounded-[2.5rem] border border-slate-200 shadow-sm hover:shadow-xl hover:shadow-slate-200/50 transition-all duration-500 overflow-hidden flex flex-col h-full">
 
-            {/* Header : Date & Titre */}
-            <div className="p-6 pb-2 flex gap-5">
-                {/* Date Box */}
-                <div className="w-16 h-16 bg-primary-50 rounded-2xl flex flex-col items-center justify-center text-primary-800 border border-primary-100 shrink-0 shadow-sm">
+            {/* 1. Header avec Date & Titre */}
+            <div className="p-8 pb-4 flex gap-6">
+                {/* Bloc Date Premium */}
+                <div className="w-16 h-16 bg-primary-800 rounded-2xl flex flex-col items-center justify-center text-white shrink-0 shadow-lg shadow-primary-900/20">
                     <span className="text-xl font-black leading-none">{eventDate.getDate()}</span>
-                    <span className="text-[10px] font-bold uppercase tracking-wider mt-1">
+                    <span className="text-[10px] font-bold uppercase tracking-wider mt-1 opacity-80">
                         {eventDate.toLocaleString('fr', { month: 'short' })}
                     </span>
                 </div>
 
                 <div className="flex-1">
-                    <div className="flex justify-between items-start">
-                        <span className="inline-block px-2 py-1 bg-red-50 text-red-600 text-[10px] font-bold uppercase tracking-widest rounded-lg mb-2">
+                    <div className="flex justify-between items-start mb-1">
+                        <span className="px-2 py-0.5 bg-red-50 text-red-600 text-[10px] font-black uppercase tracking-widest rounded-md border border-red-100">
                             Événement
                         </span>
-                        <button className="p-2 -mr-2 -mt-2 text-slate-400 hover:text-slate-600 hover:bg-slate-50 rounded-full transition-colors">
+                        <button className="p-2 -mt-2 -mr-2 text-slate-400 hover:text-primary-600 hover:bg-primary-50 rounded-full transition-all">
                             <Share2 size={18} />
                         </button>
                     </div>
-                    <h3 className="text-2xl font-bold text-slate-900 leading-tight">
-                        {event.title || "Événement"}
+                    <h3 className="text-2xl font-bold text-slate-900 leading-tight group-hover:text-primary-800 transition-colors">
+                        {event.title}
                     </h3>
                 </div>
             </div>
 
-            {/* Infos Pratiques */}
-            <div className="px-6 py-4">
-                <div className="flex flex-wrap gap-3">
-                    <div className="flex items-center gap-2 px-3 py-1.5 bg-slate-50 rounded-lg border border-slate-100 text-xs font-bold text-slate-600">
-                        <Clock size={14} className="text-primary-500" />
-                        {formatTime(event.startTime)}
-                    </div>
-                    <div className="flex items-center gap-2 px-3 py-1.5 bg-slate-50 rounded-lg border border-slate-100 text-xs font-bold text-slate-600">
-                        <MapPin size={14} className="text-primary-500" />
-                        {event.location || "Lieu à définir"}
-                    </div>
+            {/* 2. Infos Pratiques (Lieu & Heure) */}
+            <div className="px-8 py-2 flex flex-wrap gap-3">
+                <div className="flex items-center gap-2 px-3 py-1.5 bg-slate-50 rounded-xl border border-slate-100 text-xs font-bold text-slate-600">
+                    <Clock size={14} className="text-primary-600" />
+                    {formatTime(event.startTime)}
+                </div>
+                <div className="flex items-center gap-2 px-3 py-1.5 bg-slate-50 rounded-xl border border-slate-100 text-xs font-bold text-slate-600 max-w-[200px]">
+                    <MapPin size={14} className="text-primary-600" />
+                    <span className="truncate">{event.location || "Lieu à définir"}</span>
                 </div>
             </div>
 
-            {/* Description */}
-            {event.description && (
-                <div className="px-6 pb-4 text-slate-600 text-sm leading-relaxed line-clamp-3">
-                    {event.description}
-                </div>
-            )}
+            {/* 3. Description */}
+            <div className="px-8 py-4 text-slate-600 text-sm leading-relaxed flex-grow">
+                {event.description}
+            </div>
 
-            {/* ZONE MÉDIA - Taille standardisée */}
+            {/* 4. ZONE MÉDIA (Utilisation du composant universel) */}
             {mediaList.length > 0 && (
                 <div className="w-full">
                     <MediaGallery media={mediaList} />
                 </div>
             )}
 
-            {/* Footer : Participants & Action */}
-            <div className="px-6 py-4 border-t border-slate-50 flex items-center justify-between bg-slate-50/30">
-                <div className="flex items-center gap-2 text-xs font-bold text-slate-500">
+            {/* 5. Footer avec Action */}
+            <div className="px-8 py-6 border-t border-slate-50 flex items-center justify-between bg-slate-50/30 mt-auto">
+                <div className="flex items-center gap-3">
                     <div className="flex -space-x-2">
                         {[1, 2, 3].map(i => (
-                            <div key={i} className="w-6 h-6 rounded-full bg-slate-200 border-2 border-white" />
+                            <div key={i} className="w-8 h-8 rounded-full bg-slate-200 border-2 border-white flex items-center justify-center text-[10px] font-black text-slate-400">
+                                U
+                            </div>
                         ))}
                     </div>
-                    {t('participants', { count: event.participantCount || 0 })}
+                    <span className="text-xs font-bold text-slate-500 uppercase tracking-tighter">
+                        {event.participantCount || 0} participants
+                    </span>
                 </div>
 
                 <Button
                     onClick={handleJoin}
                     disabled={isJoined || loading}
                     className={cn(
-                        "rounded-xl px-6 h-10 text-sm font-bold shadow-lg transition-all",
+                        "rounded-xl px-8 h-12 font-bold shadow-lg transition-all text-sm",
                         isJoined
-                            ? "bg-emerald-500 text-white hover:bg-emerald-600"
+                            ? "bg-emerald-500 text-white hover:bg-emerald-600 shadow-emerald-500/20"
                             : "bg-primary-800 text-white hover:bg-primary-900 shadow-primary-900/20"
                     )}
                 >
-                    {isJoined ? (
-                        <>
-                            <CheckCircle2 size={16} className="mr-2" />
-                            {t('joined')}
-                        </>
-                    ) : (
-                        t('join')
-                    )}
+                    {isJoined ? <><CheckCircle2 size={18} className="mr-2" /> J'y vais</> : "Participer"}
                 </Button>
             </div>
         </div>
@@ -4283,24 +4627,77 @@ import HorizontalPDFReader from './HorizontalPDFReader';
 
 interface MediaItem {
     url: string;
-    type?: 'IMAGE' | 'VIDEO' | 'PDF';
+    type?: 'IMAGE' | 'VIDEO' | 'PDF' | 'AUDIO' | 'UNSUPPORTED';
 }
 
-export const getMediaType = (url: string, explicitType?: 'IMAGE' | 'VIDEO' | 'PDF'): 'IMAGE' | 'VIDEO' | 'PDF' => {
-    if (explicitType) return explicitType;
+type MediaType = 'IMAGE' | 'VIDEO' | 'PDF' | 'AUDIO' | 'UNSUPPORTED';
 
-    const extension = url.split('.').pop()?.split('?')[0]?.toLowerCase();
-    if (['mp4', 'webm', 'ogg', 'mov'].includes(extension || '')) return 'VIDEO';
-    if (['pdf'].includes(extension || '')) return 'PDF';
-    if (['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg'].includes(extension || '')) return 'IMAGE';
+// Fonction pour détecter le type réel du média via les headers HTTP
+export const detectMediaType = async (url: string): Promise<MediaType> => {
+    try {
+        // 1. Tentative HEAD
+        const headResponse = await fetch(url, { method: 'HEAD' });
+        const contentType = headResponse.headers.get('Content-Type')?.toLowerCase() || '';
 
-    return 'IMAGE';
+        if (contentType.includes('application/pdf')) return 'PDF';
+        if (contentType.startsWith('image/')) return 'IMAGE';
+        if (contentType.startsWith('video/')) return 'VIDEO';
+        if (contentType.startsWith('audio/')) return 'AUDIO';
+    } catch (_) {
+        // HEAD échoué → fallback
+    }
+
+    try {
+        // 2. Fallback : GET partiel pour lire les magic bytes
+        const response = await fetch(url, {
+            headers: { Range: 'bytes=0-1023' },
+        });
+        const buffer = await response.arrayBuffer();
+        const bytes = new Uint8Array(buffer);
+
+        // PDF → "%PDF-" = 0x25 0x50 0x44 0x46 0x2D
+        if (
+            bytes[0] === 0x25 &&
+            bytes[1] === 0x50 &&
+            bytes[2] === 0x44 &&
+            bytes[3] === 0x46 &&
+            bytes[4] === 0x2d
+        ) {
+            return 'PDF';
+        }
+
+        // Images
+        if (bytes[0] === 0xff && bytes[1] === 0xd8) return 'IMAGE'; // JPEG
+        if (bytes[0] === 0x89 && bytes[1] === 0x50) return 'IMAGE'; // PNG
+        if (bytes[0] === 0x47 && bytes[1] === 0x49) return 'IMAGE'; // GIF
+        if (bytes[0] === 0x52 && bytes[1] === 0x49 && bytes[2] === 0x46 && bytes[3] === 0x46) return 'IMAGE'; // WEBP
+
+        // MP4 → "ftyp" at offset 4
+        if (
+            bytes[4] === 0x66 &&
+            bytes[5] === 0x74 &&
+            bytes[6] === 0x79 &&
+            bytes[7] === 0x70
+        ) {
+            return 'VIDEO';
+        }
+
+        // MP3 → "ID3"
+        if (bytes[0] === 0x49 && bytes[1] === 0x44 && bytes[2] === 0x33) return 'AUDIO';
+
+    } catch (error) {
+        console.warn('Impossible de détecter le type du média:', error);
+    }
+
+    return 'UNSUPPORTED';
 };
 
-function MediaContent({ url, type, index }: { url: string; type: 'IMAGE' | 'VIDEO' | 'PDF'; index: number }) {
-    const [actualType, setActualType] = useState<'IMAGE' | 'VIDEO' | 'PDF'>(type);
-    const [hasError, setHasError] = useState(false);
+
+function MediaContent({ url, type, index }: { url: string; type: MediaType; index: number }) {
+    const [actualType, setActualType] = useState<MediaType>(type);
+    const [attemptedTypes, setAttemptedTypes] = useState<Set<MediaType>>(new Set([type]));
     const videoRef = useRef<HTMLVideoElement>(null);
+    const audioRef = useRef<HTMLAudioElement>(null);
 
     // Observer pour la lecture automatique des vidéos
     useEffect(() => {
@@ -4310,33 +4707,66 @@ function MediaContent({ url, type, index }: { url: string; type: 'IMAGE' | 'VIDE
             (entries) => {
                 entries.forEach((entry) => {
                     if (entry.isIntersecting) {
-                        videoRef.current?.play().catch(() => {
-                            // Échec de lecture automatique (navigateur bloque)
-                        });
+                        videoRef.current?.play().catch(() => {});
                     } else {
                         videoRef.current?.pause();
                     }
                 });
             },
-            { threshold: 0.5 } // Joue quand 50% de la vidéo est visible
+            { threshold: 0.5 }
         );
 
         observer.observe(videoRef.current);
-
         return () => observer.disconnect();
     }, [actualType]);
 
     const handleError = () => {
-        if (hasError) return;
+        console.log(`Erreur pour ${actualType}, tentatives:`, attemptedTypes);
 
-        setHasError(true);
+        // Définir l'ordre des tentatives
+        const tryOrder: MediaType[] = ['IMAGE', 'VIDEO', 'AUDIO', 'PDF'];
 
-        if (actualType === 'IMAGE') {
-            setActualType('VIDEO');
-        } else if (actualType === 'VIDEO') {
-            setActualType('IMAGE');
+        // Trouver le prochain type à essayer
+        let nextType: MediaType | null = null;
+        for (const tryType of tryOrder) {
+            if (!attemptedTypes.has(tryType)) {
+                nextType = tryType;
+                break;
+            }
+        }
+
+        if (nextType) {
+            setAttemptedTypes(prev => new Set([...prev, nextType!]));
+            setActualType(nextType);
+        } else {
+            // Tous les types ont été testés
+            setActualType('UNSUPPORTED');
         }
     };
+
+    if (actualType === 'UNSUPPORTED') {
+        return (
+            <div className="w-full h-full flex items-center justify-center bg-slate-100">
+                <div className="text-center p-6">
+                    <svg
+                        className="w-16 h-16 mx-auto text-slate-400 mb-3"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                    >
+                        <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+                        />
+                    </svg>
+                    <p className="text-slate-600 font-medium">Média non supporté</p>
+                    <p className="text-slate-400 text-sm mt-1">Ce format ne peut pas être affiché</p>
+                </div>
+            </div>
+        );
+    }
 
     if (actualType === 'VIDEO') {
         return (
@@ -4345,14 +4775,49 @@ function MediaContent({ url, type, index }: { url: string; type: 'IMAGE' | 'VIDE
                 src={url}
                 controls
                 loop
-                muted // Nécessaire pour l'autoplay sur la plupart des navigateurs
-                playsInline // Important pour iOS
+                muted
+                playsInline
                 className="w-full h-full object-cover"
                 onError={handleError}
                 preload="metadata"
             >
                 Votre navigateur ne supporte pas la lecture de vidéos.
             </video>
+        );
+    }
+
+    if (actualType === 'AUDIO') {
+        return (
+            <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-slate-800 to-slate-900 p-6">
+                <div className="w-full max-w-md">
+                    <div className="mb-4 text-center">
+                        <svg
+                            className="w-16 h-16 mx-auto text-white/80"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                        >
+                            <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"
+                            />
+                        </svg>
+                        <p className="text-white/60 text-sm mt-2">Fichier audio</p>
+                    </div>
+                    <audio
+                        ref={audioRef}
+                        src={url}
+                        controls
+                        className="w-full"
+                        onError={handleError}
+                        preload="metadata"
+                    >
+                        Votre navigateur ne supporte pas la lecture audio.
+                    </audio>
+                </div>
+            </div>
         );
     }
 
@@ -4370,23 +4835,55 @@ function MediaContent({ url, type, index }: { url: string; type: 'IMAGE' | 'VIDE
 export default function MediaGallery({ media }: { media: (MediaItem | string)[] }) {
     if (!media || media.length === 0) return null;
 
-    const normalizedMedia = media.map(item => {
-        const url = typeof item === 'string' ? item : item.url;
-        const explicitType = typeof item === 'object' ? item.type : undefined;
-        const type = getMediaType(url, explicitType);
-        return { url, type };
-    });
+    const [normalizedMedia, setNormalizedMedia] = useState<{ url: string; type: MediaType }[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
 
-    const visuals = normalizedMedia.filter(m => m.type === 'IMAGE' || m.type === 'VIDEO');
+    // Détection asynchrone des types de médias
+    useEffect(() => {
+        const detectAllTypes = async () => {
+            setIsLoading(true);
+
+            const detected = await Promise.all(
+                media.map(async (item) => {
+                    const url = typeof item === 'string' ? item : item.url;
+                    const explicitType = typeof item === 'object' ? item.type : undefined;
+
+                    // Si le type est explicitement fourni, on l'utilise
+                    if (explicitType) {
+                        return { url, type: explicitType };
+                    }
+
+                    // Sinon, on détecte automatiquement
+                    const detectedType = await detectMediaType(url);
+                    return { url, type: detectedType };
+                })
+            );
+
+            setNormalizedMedia(detected);
+            setIsLoading(false);
+        };
+
+        detectAllTypes();
+    }, [media]);
+
+    if (isLoading) {
+        return (
+            <div className="w-full aspect-video bg-slate-100 animate-pulse flex items-center justify-center">
+                <div className="text-slate-400">Chargement des médias...</div>
+            </div>
+        );
+    }
+
+    const visuals = normalizedMedia.filter(m => m.type === 'IMAGE' || m.type === 'VIDEO' || m.type === 'AUDIO' || m.type === 'UNSUPPORTED');
     const pdfs = normalizedMedia.filter(m => m.type === 'PDF');
 
     return (
         <div className="w-full">
-            {/* Galerie Visuelle - Taille standardisée type Facebook/Instagram */}
+            {/* Galerie Visuelle - Images, Vidéos, Audios et Non supportés */}
             {visuals.length > 0 && (
                 <div className={cn(
                     "w-full overflow-hidden bg-black",
-                    visuals.length === 1 && "aspect-[4/5] max-h-[600px]", // Style Instagram pour 1 média
+                    visuals.length === 1 && "aspect-[4/5] max-h-[600px]",
                     visuals.length === 2 && "grid grid-cols-2 gap-0.5 aspect-[16/9] max-h-[500px]",
                     visuals.length === 3 && "grid grid-cols-2 gap-0.5 aspect-[4/3] max-h-[500px]",
                     visuals.length >= 4 && "grid grid-cols-2 gap-0.5 aspect-square max-h-[500px]"
@@ -4396,12 +4893,11 @@ export default function MediaGallery({ media }: { media: (MediaItem | string)[] 
                             key={i}
                             className={cn(
                                 "relative w-full h-full bg-black flex items-center justify-center overflow-hidden",
-                                visuals.length === 3 && i === 0 && "row-span-2" // Premier item plus grand si 3 médias
+                                visuals.length === 3 && i === 0 && "row-span-2"
                             )}
                         >
                             <MediaContent url={m.url} type={m.type} index={i} />
 
-                            {/* Overlay pour "plus de médias" */}
                             {i === 3 && visuals.length > 4 && (
                                 <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
                                     <span className="text-white text-4xl font-bold">
@@ -4414,7 +4910,7 @@ export default function MediaGallery({ media }: { media: (MediaItem | string)[] 
                 </div>
             )}
 
-            {/* Documents PDF */}
+            {/* Documents PDF - Section séparée */}
             {pdfs.length > 0 && (
                 <div className="px-4 py-4 space-y-3 bg-slate-50">
                     {pdfs.map((pdf, i) => (
@@ -4436,238 +4932,234 @@ export default function MediaGallery({ media }: { media: (MediaItem | string)[] 
 ```tsx
 "use client";
 
-import { useState, useEffect } from 'react';
-import { useTranslations } from 'next-intl';
-import { Publication, CommentResponseDto } from '@/lib/types/api';
-import { ugateApi } from '@/lib/axios';
-import {
-    MessageCircle, Share2, MoreHorizontal,
-    ThumbsUp, Heart, Clock, Send, Loader2
-} from 'lucide-react';
+import { useState } from 'react';
+import { Publication } from '@/lib/types/api';
+import { MessageCircle, Share2, ThumbsUp, Heart, Clock } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { fr } from 'date-fns/locale';
-import { cn } from '@/lib/ utils';
-import { toast } from 'react-hot-toast';
-
-import ReactionPicker from './ReactionPicker';
-import HorizontalPDFReader from './HorizontalPDFReader';
-import CommentItem from './CommentItem';
+import { cn } from '@/lib/utils';
+import MediaGallery from './MediaGallery';
+import PostModal from './PostModal'; // Import de la modale
 
 export default function PostCard({ publication }: { publication: Publication }) {
-    const t = useTranslations('Feed');
-    const ct = useTranslations('Comments');
+    const [isModalOpen, setIsModalOpen] = useState(false);
 
-    // États pour les Réactions
-    const [showReactions, setShowReactions] = useState(false);
-    const [myReaction, setMyReaction] = useState<string | null>(null);
+    return (
+        <>
+            <div className="bg-white rounded-[2rem] shadow-sm border border-slate-200 overflow-hidden animate-in fade-in duration-500 max-w-2xl mx-auto">
+                {/* ... Header et Contenu restent identiques ... */}
+                <div className="p-5 flex items-center gap-3">
+                    {/* ... Avatar et Nom ... */}
+                    <div className="w-10 h-10 bg-primary-800 rounded-full flex items-center justify-center text-white font-bold">{publication.authorFullName.charAt(0)}</div>
+                    <div>
+                        <div className="font-bold text-slate-900">{publication.authorFullName}</div>
+                        <div className="text-xs text-slate-400">{formatDistanceToNow(new Date(publication.createdAt), { addSuffix: true, locale: fr })}</div>
+                    </div>
+                </div>
 
-    // États pour les Commentaires
-    const [showComments, setShowComments] = useState(false);
+                <div className="px-5 pb-3 text-slate-800 text-[15px] line-clamp-3">
+                    {publication.content}
+                </div>
+
+                {/* Zone Media */}
+                {publication.fileUrlAndType?.length > 0 && (
+                    <div className="cursor-pointer" onClick={() => setIsModalOpen(true)}>
+                        <MediaGallery media={publication.fileUrlAndType} />
+                    </div>
+                )}
+
+                {/* Footer Stats & Actions */}
+                <div className="px-5 py-3 border-t border-slate-50 flex justify-between items-center">
+                    <div className="flex items-center gap-1 text-slate-500 text-xs font-bold">
+                        <ThumbsUp size={14} className="text-blue-500 fill-current" />
+                        {publication.nlikes}
+                    </div>
+                    <div className="text-slate-500 text-xs font-bold hover:underline cursor-pointer" onClick={() => setIsModalOpen(true)}>
+                        {publication.ncomments} commentaires
+                    </div>
+                </div>
+
+                <div className="grid grid-cols-3 gap-1 px-2 pb-2">
+                    <button className="py-2.5 rounded-xl hover:bg-slate-50 text-slate-600 font-bold text-sm flex items-center justify-center gap-2">
+                        <ThumbsUp size={18} /> J'aime
+                    </button>
+                    {/* Le clic sur Commenter ouvre la Modale */}
+                    <button
+                        onClick={() => setIsModalOpen(true)}
+                        className="py-2.5 rounded-xl hover:bg-slate-50 text-slate-600 font-bold text-sm flex items-center justify-center gap-2"
+                    >
+                        <MessageCircle size={18} /> Commenter
+                    </button>
+                    <button className="py-2.5 rounded-xl hover:bg-slate-50 text-slate-600 font-bold text-sm flex items-center justify-center gap-2">
+                        <Share2 size={18} /> Partager
+                    </button>
+                </div>
+            </div>
+
+            {/* La Modale Facebook-style */}
+            <PostModal
+                publication={publication}
+                isOpen={isModalOpen}
+                onClose={() => setIsModalOpen(false)}
+            />
+        </>
+    );
+}
+```
+
+## 📄 `components\social\PostModal.tsx`
+
+```tsx
+"use client";
+
+import { useEffect, useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Publication, CommentResponseDto } from '@/lib/types/api';
+import { ugateApi } from '@/lib/axios';
+import { X, MoreHorizontal, ThumbsUp, MessageCircle, Share2 } from 'lucide-react';
+import MediaGallery from './MediaGallery';
+import CommentInput from './CommentInput';
+import CommentItem from './CommentItem';
+import { formatDistanceToNow } from 'date-fns';
+import { fr } from 'date-fns/locale';
+
+interface Props {
+    publication: Publication;
+    isOpen: boolean;
+    onClose: () => void;
+}
+
+export default function PostModal({ publication, isOpen, onClose }: Props) {
     const [comments, setComments] = useState<CommentResponseDto[]>([]);
-    const [newComment, setNewComment] = useState('');
-    const [isPosting, setIsPosting] = useState(false);
-    const [isLoadingComments, setIsLoadingComments] = useState(false);
+    const [loading, setLoading] = useState(false);
 
-    // Séparation des médias
-    const images = publication.fileUrlAndType.filter(m => m.type === 'IMAGE');
-    const videos = publication.fileUrlAndType.filter(m => m.type === 'VIDEO');
-    const pdfs = publication.fileUrlAndType.filter(m => m.type === 'PDF');
-
-    // Charger les commentaires
     const fetchComments = async () => {
-        setIsLoadingComments(true);
+        setLoading(true);
         try {
             const res = await ugateApi.get(`/publications/${publication.id}/comments`);
             setComments(res.data);
-        } catch (e) {
-            console.error("Erreur comments", e);
-        } finally {
-            setIsLoadingComments(false);
+        } catch (e) { console.error(e); }
+        finally { setLoading(false); }
+    };
+
+    useEffect(() => {
+        if (isOpen) {
+            document.body.style.overflow = 'hidden'; // Bloquer le scroll
+            fetchComments();
+        } else {
+            document.body.style.overflow = 'auto';
         }
-    };
+        return () => { document.body.style.overflow = 'auto'; };
+    }, [isOpen]);
 
-    const toggleComments = () => {
-        if (!showComments) fetchComments();
-        setShowComments(!showComments);
-    };
+    if (!isOpen) return null;
 
-    const handlePostComment = async () => {
-        if (!newComment.trim()) return;
-        setIsPosting(true);
-        try {
-            const formData = new FormData();
-            formData.append('content', newComment);
-
-            await ugateApi.post(`/publications/${publication.id}/comments`, formData);
-
-            setNewComment('');
-            fetchComments(); // Recharger la liste
-            toast.success("Commentaire publié");
-        } catch (e) {
-            toast.error("Erreur lors de la publication");
-        } finally {
-            setIsPosting(false);
-        }
-    };
+    // Détection si c'est un post purement textuel ou avec média
+    const hasMedia = publication.fileUrlAndType && publication.fileUrlAndType.length > 0;
 
     return (
-        <div className="bg-white rounded-[2rem] shadow-sm border border-slate-200 overflow-hidden animate-in fade-in duration-500">
+        <AnimatePresence>
+            <div className="fixed inset-0 z-[100] flex items-center justify-center">
+                {/* Backdrop Noir avec flou */}
+                <motion.div
+                    initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                    onClick={onClose}
+                    className="absolute inset-0 bg-black/90 backdrop-blur-sm"
+                />
 
-            {/* --- HEADER : AUTEUR --- */}
-            <div className="p-5 flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                    <div className="w-11 h-11 bg-primary-800 rounded-full flex items-center justify-center text-white font-black border border-white shadow-sm shrink-0">
-                        {publication.authorFullName.charAt(0)}
-                    </div>
-                    <div>
-                        <h4 className="font-bold text-slate-900 leading-none mb-1.5">{publication.authorFullName}</h4>
-                        <div className="flex items-center gap-1.5 text-slate-400 text-[11px] font-bold uppercase tracking-widest">
-                            <Clock size={12} />
-                            {formatDistanceToNow(new Date(publication.createdAt), { addSuffix: true, locale: fr })}
-                        </div>
-                    </div>
-                </div>
-                <button className="p-2 text-slate-400 hover:bg-slate-50 rounded-full transition-colors">
-                    <MoreHorizontal size={20} />
-                </button>
-            </div>
-
-            {/* --- CONTENU TEXTE --- */}
-            <div className="px-6 pb-4 text-slate-700 leading-relaxed text-[15px]">
-                {publication.content}
-            </div>
-
-            {/* --- ZONE MÉDIAS (Grille Facebook Style) --- */}
-            <div className="px-2 pb-2">
-                {(images.length > 0 || videos.length > 0) && (
-                    <div className={cn(
-                        "grid gap-1 rounded-2xl overflow-hidden",
-                        (images.length + videos.length) >= 2 ? "grid-cols-2" : "grid-cols-1"
-                    )}>
-                        {images.map((img, i) => (
-                            <img key={i} src={img.url} className="w-full h-full object-cover max-h-[500px] hover:brightness-95 transition-all cursor-pointer" alt="Post content" />
-                        ))}
-                        {videos.map((vid, i) => (
-                            <video key={i} src={vid.url} controls className="w-full h-full object-cover max-h-[500px] bg-black" />
-                        ))}
-                    </div>
-                )}
-
-                {/* Lecteurs PDF intégrés */}
-                {pdfs.length > 0 && (
-                    <div className="mt-2 space-y-2">
-                        {pdfs.map((pdf, i) => (
-                            <HorizontalPDFReader key={i} url={pdf.url} title={`Document de la branche - ${i + 1}`} />
-                        ))}
-                    </div>
-                )}
-            </div>
-
-            {/* --- STATS BAR --- */}
-            <div className="px-6 py-3 flex items-center justify-between border-b border-slate-50">
-                <div className="flex items-center -space-x-1">
-                    <div className="w-5 h-5 bg-blue-500 rounded-full flex items-center justify-center border-2 border-white shadow-sm">
-                        <ThumbsUp size={10} className="text-white fill-current" />
-                    </div>
-                    <div className="w-5 h-5 bg-red-500 rounded-full flex items-center justify-center border-2 border-white shadow-sm">
-                        <Heart size={10} className="text-white fill-current" />
-                    </div>
-                    <span className="pl-3 text-xs font-bold text-slate-500">
-                        {publication.nlikes + (myReaction ? 1 : 0)}
-                    </span>
-                </div>
-                <button
-                    onClick={toggleComments}
-                    className="text-xs font-bold text-slate-400 uppercase tracking-widest hover:underline"
+                <motion.div
+                    initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.95, opacity: 0 }}
+                    className="relative w-full h-full md:h-[90vh] md:max-w-[95vw] bg-white md:rounded-2xl overflow-hidden flex flex-col md:flex-row shadow-2xl"
                 >
-                    {publication.ncomments} {t('comments')}
-                </button>
-            </div>
-
-            {/* --- ACTIONS BAR (LIKE / COMMENT / SHARE) --- */}
-            <div className="px-2 py-1.5 flex gap-1 relative">
-                <div
-                    className="relative flex-1"
-                    onMouseEnter={() => setShowReactions(true)}
-                    onMouseLeave={() => setShowReactions(false)}
-                >
-                    <button className={cn(
-                        "w-full flex items-center justify-center gap-2 py-2.5 rounded-xl transition-all font-bold text-sm",
-                        myReaction ? "text-primary-600 bg-primary-50/50" : "text-slate-600 hover:bg-slate-50"
-                    )}>
-                        <ThumbsUp size={18} className={myReaction ? "fill-current" : ""} />
-                        {myReaction || t('reactions.like')}
+                    <button onClick={onClose} className="absolute top-4 left-4 z-50 p-2 bg-black/50 text-white rounded-full hover:bg-black/70 md:hidden">
+                        <X size={20} />
                     </button>
-                    {showReactions && (
-                        <ReactionPicker onSelect={(type) => {
-                            setMyReaction(type);
-                            setShowReactions(false);
-                            toast.success(`Réaction : ${type}`);
-                        }} />
-                    )}
-                </div>
 
-                <button
-                    onClick={toggleComments}
-                    className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl hover:bg-slate-50 text-slate-600 font-bold text-sm transition-colors"
-                >
-                    <MessageCircle size={18} />
-                    {t('comments')}
-                </button>
-
-                <button className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl hover:bg-slate-50 text-slate-600 font-bold text-sm transition-colors">
-                    <Share2 size={18} />
-                    Partager
-                </button>
-            </div>
-
-            {/* --- SECTION COMMENTAIRES --- */}
-            {showComments && (
-                <div className="px-6 pb-6 pt-4 border-t border-slate-50 bg-slate-50/40 animate-in slide-in-from-top-2 duration-300">
-
-                    {/* Input principal */}
-                    <div className="flex gap-3 mb-6">
-                        <div className="w-9 h-9 bg-primary-800 rounded-full flex items-center justify-center text-white text-[10px] font-black shrink-0 shadow-sm">
-                            U
+                    {/* COLONNE GAUCHE : MÉDIAS (Noir) */}
+                    {hasMedia && (
+                        <div className="flex-1 bg-black flex items-center justify-center overflow-y-auto md:overflow-hidden relative min-h-[40vh]">
+                            <div className="w-full max-w-4xl p-4">
+                                <MediaGallery media={publication.fileUrlAndType} />
+                            </div>
                         </div>
-                        <div className="flex-1 relative">
-                            <input
-                                value={newComment}
-                                onChange={(e) => setNewComment(e.target.value)}
-                                onKeyDown={(e) => e.key === 'Enter' && handlePostComment()}
-                                placeholder={ct('write_comment')}
-                                className="w-full bg-white border border-slate-200 rounded-2xl px-5 py-2.5 text-sm focus:ring-4 focus:ring-primary-500/10 focus:border-primary-500 outline-none transition-all shadow-sm"
+                    )}
+
+                    {/* COLONNE DROITE : INFO & COMMENTAIRES (Blanc) */}
+                    <div className={`flex flex-col bg-white h-full ${hasMedia ? 'w-full md:w-[450px] shrink-0' : 'w-full max-w-3xl mx-auto border-x border-slate-100'}`}>
+
+                        {/* Header Post */}
+                        <div className="p-4 border-b border-slate-100 flex justify-between items-center sticky top-0 bg-white z-10">
+                            <div className="flex items-center gap-3">
+                                <div className="w-10 h-10 bg-primary-800 rounded-full flex items-center justify-center text-white font-bold">
+                                    {publication.authorFullName.charAt(0)}
+                                </div>
+                                <div>
+                                    <h3 className="font-bold text-slate-900 text-sm">{publication.authorFullName}</h3>
+                                    <div className="text-xs text-slate-500">
+                                        {formatDistanceToNow(new Date(publication.createdAt), { addSuffix: true, locale: fr })}
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="flex gap-2">
+                                <button className="p-2 hover:bg-slate-100 rounded-full text-slate-500"><MoreHorizontal size={20} /></button>
+                                <button onClick={onClose} className="p-2 hover:bg-slate-100 rounded-full text-slate-500 hidden md:block"><X size={20} /></button>
+                            </div>
+                        </div>
+
+                        {/* Contenu Scrollable */}
+                        <div className="flex-1 overflow-y-auto p-4 custom-scrollbar">
+                            <p className="text-slate-800 text-[15px] leading-relaxed mb-4 whitespace-pre-wrap">
+                                {publication.content}
+                            </p>
+
+                            <div className="border-y border-slate-100 py-2 flex justify-between text-slate-500 text-sm mb-4">
+                                <span>{publication.nlikes} J'aime</span>
+                                <span>{comments.length} commentaires</span>
+                            </div>
+
+                            {/* Actions Rapides */}
+                            <div className="flex gap-1 mb-4">
+                                <button className="flex-1 flex items-center justify-center gap-2 py-2 hover:bg-slate-50 rounded-lg font-semibold text-slate-600 text-sm transition-colors">
+                                    <ThumbsUp size={18} /> J'aime
+                                </button>
+                                <button className="flex-1 flex items-center justify-center gap-2 py-2 hover:bg-slate-50 rounded-lg font-semibold text-slate-600 text-sm transition-colors">
+                                    <MessageCircle size={18} /> Commenter
+                                </button>
+                                <button className="flex-1 flex items-center justify-center gap-2 py-2 hover:bg-slate-50 rounded-lg font-semibold text-slate-600 text-sm transition-colors">
+                                    <Share2 size={18} /> Partager
+                                </button>
+                            </div>
+
+                            {/* Liste Commentaires */}
+                            <div className="space-y-4 pb-4">
+                                {comments.filter(c => !c.parentId).map(comment => (
+                                    <CommentItem
+                                        key={comment.id}
+                                        comment={comment}
+                                        publicationId={publication.id}
+                                        allComments={comments}
+                                        refresh={fetchComments}
+                                    />
+                                ))}
+                                {comments.length === 0 && !loading && (
+                                    <div className="text-center py-10 text-slate-400">
+                                        Soyez le premier à commenter !
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+
+                        {/* Footer Input Fixe */}
+                        <div className="p-4 border-t border-slate-100 bg-white">
+                            <CommentInput
+                                publicationId={publication.id}
+                                onSuccess={fetchComments}
                             />
-                            <button
-                                onClick={handlePostComment}
-                                disabled={isPosting || !newComment.trim()}
-                                className="absolute right-2 top-1/2 -translate-y-1/2 p-2 text-primary-600 hover:bg-primary-50 rounded-xl transition-colors disabled:opacity-30"
-                            >
-                                {isPosting ? <Loader2 size={18} className="animate-spin" /> : <Send size={18} />}
-                            </button>
                         </div>
                     </div>
-
-                    {/* Liste des commentaires (Uniquement les racines, les enfants sont gérés par récursion dans CommentItem) */}
-                    {isLoadingComments ? (
-                        <div className="flex justify-center py-4">
-                            <Loader2 className="animate-spin text-slate-300" size={24} />
-                        </div>
-                    ) : (
-                        <div className="space-y-2">
-                            {comments.filter(c => !c.parentId).map(comment => (
-                                <CommentItem
-                                    key={comment.id}
-                                    comment={comment}
-                                    publicationId={publication.id}
-                                    allComments={comments}
-                                />
-                            ))}
-                        </div>
-                    )}
-                </div>
-            )}
-        </div>
+                </motion.div>
+            </div>
+        </AnimatePresence>
     );
 }
 ```
@@ -4868,6 +5360,91 @@ export default function VoteCard({ voteId }: { voteId: string }) {
                         </div>
                     )}
                 </div>
+            </div>
+        </div>
+    );
+}
+```
+
+## 📄 `components\syndicate\BranchSelector.tsx`
+
+```tsx
+"use client";
+
+import { useState, useEffect } from 'react';
+import { ugateApi } from '@/lib/axios';
+import { Branch } from '@/lib/types/api';
+import { MapPin, ArrowRight, Building2, Loader2 } from 'lucide-react';
+import { motion } from 'framer-motion';
+
+interface Props {
+    syndicateId: string;
+    onSelect: (branchId: string) => void;
+}
+
+export default function BranchSelector({ syndicateId, onSelect }: Props) {
+    const [branches, setBranches] = useState<Branch[]>([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchBranches = async () => {
+            try {
+                const res = await ugateApi.get(`/syndicates/${syndicateId}/branches`);
+                setBranches(res.data);
+            } catch (e) {
+                console.error(e);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchBranches();
+    }, [syndicateId]);
+
+    if (loading) return <div className="flex justify-center py-20"><Loader2 className="animate-spin w-10 h-10 text-primary-800" /></div>;
+
+    return (
+        <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4">
+            <div className="text-center max-w-2xl mx-auto mb-12">
+                <h2 className="text-3xl font-black text-slate-900 mb-3">Choisissez une antenne</h2>
+                <p className="text-slate-500 font-medium">
+                    En tant qu'administrateur, vous avez accès à l'ensemble du réseau.
+                    Sélectionnez l'antenne que vous souhaitez gérer ou consulter.
+                </p>
+            </div>
+
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {branches.map((branch, idx) => (
+                    <motion.button
+                        key={branch.id}
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: idx * 0.1 }}
+                        onClick={() => onSelect(branch.id)}
+                        className="group bg-white p-6 rounded-[2rem] border border-slate-200 text-left shadow-sm hover:shadow-xl hover:border-primary-500 transition-all duration-300 relative overflow-hidden"
+                    >
+                        <div className="absolute top-0 right-0 w-24 h-24 bg-slate-50 rounded-full -mr-10 -mt-10 group-hover:bg-primary-50 transition-colors" />
+
+                        <div className="w-12 h-12 bg-white border border-slate-100 rounded-xl flex items-center justify-center text-primary-600 mb-4 relative z-10 shadow-sm group-hover:scale-110 transition-transform">
+                            <Building2 size={24} />
+                        </div>
+
+                        <h3 className="text-lg font-bold text-slate-900 mb-1 group-hover:text-primary-700 transition-colors relative z-10">
+                            {branch.name}
+                        </h3>
+
+                        <div className="flex items-center gap-2 text-slate-500 text-xs font-bold uppercase tracking-wide mb-6 relative z-10">
+                            <MapPin size={12} />
+                            {branch.location}
+                        </div>
+
+                        <div className="flex items-center justify-between pt-4 border-t border-slate-50 relative z-10">
+                            <span className="text-xs font-medium text-slate-400">Accéder à l'espace</span>
+                            <div className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center group-hover:bg-primary-600 group-hover:text-white transition-all">
+                                <ArrowRight size={14} />
+                            </div>
+                        </div>
+                    </motion.button>
+                ))}
             </div>
         </div>
     );
@@ -5506,6 +6083,10 @@ export const useAuthStore = create<AuthState>()(
             },
 
             logout: () => {
+                // Nettoyage manuel du localStorage au cas où
+                if (typeof window !== 'undefined') {
+                    localStorage.removeItem('ugate-auth-storage');
+                }
                 set({
                     user: null,
                     accessToken: null,
@@ -5661,6 +6242,8 @@ export interface SyndicateStats {
     totalBranches: number;
 }
 
+// lib/types/api.ts
+
 export interface Syndicate {
     id: string;
     name: string;
@@ -5669,16 +6252,20 @@ export interface Syndicate {
     type: string;
     isApproved: boolean;
     isActive: boolean;
+    createdAt: string;
+    updatedAt: string;
+
     documents: SyndicateDocuments;
     organization: OrganizationInfo;
     creator: CreatorInfo;
     stats: SyndicateStats;
-    createdAt: string;
-    updatedAt: string;
-    // Fallbacks pour compatibilité avec les listes simples
-    logoUrl?: string;
-    statusUrl?: string;
+
+    userBranchId?: string;     // ID de la branche du membre
+    userBranchName?: string;   // Nom de la branche
+    userRole?: 'CUSTOMER' | 'DRIVER' | 'FLEET_MANAGER' | 'ADMIN' | 'PASSENGER' | 'PRESIDENT' | 'MODERATOR' | 'CLIENT';
 }
+
+
 
 export interface Branch {
     id: string;
@@ -5764,6 +6351,17 @@ export interface LocalTime {
     nano: number;
 }
 
+export interface MemberResponse {
+    userId: string;         // UUID de l'utilisateur
+    firstName: string;      // Prénom
+    lastName: string;       // Nom
+    email: string;          // Email de l'utilisateur
+    profileImageUrl?: string; // URL de la photo de profil (optionnel)
+    role: 'CUSTOMER' | 'DRIVER' | 'FLEET_MANAGER' | 'ADMIN' | 'PASSENGER' | 'PRESIDENT' | 'MODERATOR' | 'CLIENT';
+    branchId: string;       // C'est cet ID qui est crucial pour filtrer vos publications/événements
+    joinedAt: string;       // Date d'adhésion au format ISO string
+}
+
 export interface Event {
     id: string;
     creatorId: string;
@@ -5772,12 +6370,14 @@ export interface Event {
     description: string;
     location: string;
     date: string;
-    startTime?: LocalTime; // Ajoute le ?
+    startTime?: LocalTime;
     endTime?: LocalTime;
     createdAt: string;
     updatedAt: string;
     participantCount: number;
     imageUrls: string[];
+    videoUrls?: string[]; // Ajouté
+    fileUrls?: string[];  // Ajouté
 }
 
 // ==========================================
@@ -5844,17 +6444,233 @@ export type UserType = 'VISITOR' | 'MEMBER' | 'PARTNER';
 {
   "Common": {
     "loading": "Laden...",
-    "error": "Ein Fehler ist aufgetreten"
+    "error": "Ein Fehler ist aufgetreten",
+    "copyright": "© {year} U-Gate Platform. Alle Rechte vorbehalten."
   },
   "Nav": {
     "home": "Startseite",
     "explorer": "Erkunden",
+    "services": "Dienstleistungen",
+    "about": "Über uns",
     "login": "Anmelden",
     "register": "Beitreten"
   },
   "Hero": {
-    "title": "Vereinigen Sie Ihre Stimmen, vereinfachen Sie das Handeln",
-    "subtitle": "Die Gewerkschaftsplattform der nächsten Generation."
+    "tagline": "Gewerkschaftsplattform 3.0",
+    "title_part1": "Vereinigen Sie Ihre Stimmen,",
+    "title_part2": "Vereinfachen Sie das Handeln.",
+    "description": "U-Gate revolutioniert das Gewerkschaftsmanagement. Mitgliederverwaltung, sichere Blockchain-Abstimmungen und exklusive Dienste für Profis.",
+    "cta_primary": "Einer Gewerkschaft beitreten",
+    "cta_secondary": "Angebote erkunden",
+    "badge_secure": "100% Sicher",
+    "badge_secure_sub": "Verschlüsselte Daten",
+    "badge_members": "+50.000 Mitglieder",
+    "badge_members_sub": "Aktiv auf der Plattform",
+    "card_dashboard": "Mitglieder-Dashboard",
+    "card_contributions": "Beiträge",
+    "card_status_ok": "Aktuell",
+    "card_votes": "Aktive Abstimmungen"
+  },
+  "Partners": {
+    "title": "Sie vertrauen uns"
+  },
+  "Features": {
+    "title_part1": "Alles was Sie brauchen, um",
+    "title_part2": "Ihre Tätigkeit zu verwalten",
+    "subtitle": "Eine komplette Suite von Tools zur Modernisierung der Interaktionen zwischen Gewerkschaften und ihren Mitgliedern.",
+    "identity_title": "Digitale Identität",
+    "identity_desc": "Ein einzigartiges und verifiziertes Profil für den Zugang zu allen Gewerkschafts- und Partnerdiensten.",
+    "democracy_title": "Direkte Demokratie",
+    "democracy_desc": "Teilnahme an wichtigen Entscheidungen über ein sicheres und transparentes Abstimmungssystem.",
+    "docs_title": "Dokumentenmanagement",
+    "docs_desc": "Jederzeit Zugriff auf Ihre Satzungen, Vorschriften und Zertifikate im PDF-Format.",
+    "member_title": "Mitgliederbereich",
+    "member_desc": "Ein interaktiver Newsfeed zum Austausch mit Ihrer Community und Verfolgung von Ereignissen.",
+    "market_title": "Dedizierter Marktplatz",
+    "market_desc": "Profitieren Sie von Produkten und Dienstleistungen, die speziell für Ihre Branche ausgehandelt wurden.",
+    "compliance_title": "Automatisierte Compliance",
+    "compliance_desc": "Automatische Überprüfung der Konformität für Partnerplattformen (VTC, Logistik)."
+  },
+  "Auth": {
+    "login_title": "Willkommen zurück",
+    "login_subtitle": "Zugang zu Ihrem U-Gate Mitgliederbereich",
+    "register_title": "Exzellenz beitreten",
+    "register_subtitle": "Erstellen Sie Ihr Konto zur Verwaltung Ihrer Mitgliedschaften",
+    "email_label": "E-Mail-Adresse",
+    "password_label": "Passwort",
+    "confirm_password_label": "Passwort bestätigen",
+    "firstname_label": "Vorname",
+    "lastname_label": "Name",
+    "phone_label": "Telefonnummer",
+    "submit_login": "Anmelden",
+    "submit_register": "Konto erstellen",
+    "no_account": "Noch kein Konto?",
+    "already_account": "Bereits Mitglied?",
+    "forgot_password": "Passwort vergessen?",
+    "or_continue_with": "Oder weiter mit",
+    "login_success": "Anmeldung erfolgreich",
+    "login_error": "Ungültige Anmeldeinformationen",
+    "register_success": "Konto erfolgreich erstellt",
+    "register_error": "Fehler bei der Kontoerstellung",
+    "aside": {
+      "tagline1": "Vereinfachtes Gewerkschaftsmanagement",
+      "tagline2": "Sichere Blockchain-Abstimmungen",
+      "tagline3": "Automatisierte VTC-Compliance",
+      "tagline4": "Aktive Gemeinschaft"
+    },
+    "errors": {
+      "required": "Dieses Feld ist erforderlich",
+      "email_invalid": "Ungültige E-Mail",
+      "password_min": "Das Passwort muss mindestens 8 Zeichen lang sein",
+      "passwords_mismatch": "Passwörter stimmen nicht überein"
+    }
+  },
+  "Explorer": {
+    "title": "Gewerkschaften erkunden",
+    "subtitle": "Schließen Sie sich der professionellen Elite an. Entdecken Sie Organisationen, die die Zukunft Ihrer Branche gestalten.",
+    "search_placeholder": "Suche nach Name, Bereich...",
+    "filter_btn": "Filter",
+    "empty_state": "Keine Gewerkschaft entspricht Ihrer Suche.",
+    "view_all": "Alle anzeigen",
+    "members_count": "{count} Mitglieder",
+    "see_details": "Profil ansehen",
+    "active_status": "Verifiziert & Aktiv",
+    "inactive_status": "Ausstehend"
+  },
+  "SyndicateDetails": {
+    "created_in": "Gegründet {year}",
+    "join_btn": "Dieser Gewerkschaft beitreten",
+    "tabs": {
+      "about": "Präsentation & Rechtliches",
+      "branches": "Lokale Zweigstellen",
+      "products": "Dienste & Shop"
+    },
+    "about_title": "Vision & Mission",
+    "legal_docs_title": "Offizielle Dokumentation",
+    "legal_doc_subtitle": "Zertifiziertes PDF-Dokument",
+    "download": "Ansehen",
+    "branches_title": "Wählen Sie Ihren Ankerpunkt",
+    "branches_subtitle": "Wählen Sie die nächstgelegene Zweigstelle für Ihre Mitgliedschaft.",
+    "contact": "Kontakt",
+    "products_title": "Exklusiver Marktplatz",
+    "buy_btn": "Bestellen",
+    "out_of_stock": "Ausverkauft",
+    "price_currency": "XAF"
+  },
+  "Dashboard": {
+    "welcome": "Dashboard",
+    "my_syndicates": "Meine Mitgliedschaften",
+    "my_syndicates_sub": "Zugang zu Ihren Gewerkschafts- und Zweigstellenbereichen.",
+    "enter_space": "Bereich betreten",
+    "no_syndicates": "Sie sind derzeit kein Mitglied einer Gewerkschaft.",
+    "explore_cta": "Gewerkschaften erkunden",
+    "sidebar": {
+      "feed": "Neuigkeiten",
+      "members": "Mitglieder",
+      "events": "Veranstaltungen",
+      "votes": "Abstimmungen",
+      "documents": "Meine Dokumente",
+      "compliance": "Konformität"
+    }
+  },
+  "Feed": {
+    "create_post_placeholder": "Was gibt es Neues in der Community, {name}?",
+    "post_btn": "Veröffentlichen",
+    "reactions": {
+      "like": "Gefällt mir",
+      "love": "Liebe",
+      "haha": "Haha",
+      "wow": "Wow",
+      "sad": "Traurig",
+      "angry": "Wütend"
+    },
+    "comments": "Kommentare",
+    "reply": "Antworten",
+    "see_more": "Mehr sehen",
+    "read_pdf": "PDF lesen"
+  },
+  "Event": {
+    "join": "Teilnehmen",
+    "joined": "Ich gehe hin",
+    "participants": "{count} Teilnehmer",
+    "location": "Ort",
+    "date": "Datum & Uhrzeit",
+    "create_title": "Veranstaltung erstellen",
+    "success_join": "Ihre Teilnahme wurde registriert!"
+  },
+  "Comments": {
+    "write_comment": "Einen Kommentar schreiben...",
+    "reply": "Antworten",
+    "view_replies": "{count} Antworten ansehen",
+    "hide_replies": "Verbergen",
+    "post": "Senden",
+    "success_reply": "Antwort gesendet"
+  },
+  "Votes": {
+    "title": "Umfragen & Entscheidungen",
+    "subtitle": "Geben Sie Ihre Stimme zu den Ausrichtungen Ihrer Zweigstelle ab.",
+    "total_votes": "{count} abgegebene Stimmen",
+    "vote_now": "Abstimmen",
+    "closing_at": "Schließt am {date}",
+    "already_voted": "Sie haben bereits teilgenommen",
+    "results_title": "Ergebnisse in Echtzeit",
+    "create_btn": "Umfrage erstellen",
+    "success_vote": "Ihre Stimme wurde registriert!",
+    "success_create": "Umfrage erfolgreich erstellt",
+    "closed": "Umfrage beendet"
+  },
+  "Profile": {
+    "title": "Mein zertifiziertes Profil",
+    "subtitle": "Verwalten Sie Ihre persönlichen Informationen und Konformitätsdokumente.",
+    "sections": {
+      "identity": "Identität",
+      "compliance": "Gesetzliche Konformität",
+      "account": "Kontosicherheit"
+    },
+    "status": {
+      "verified": "Profil verifiziert",
+      "pending": "Überprüfung läuft",
+      "unverified": "Handlung erforderlich"
+    },
+    "fields": {
+      "cni_number": "Ausweisnummer",
+      "license_number": "Führerscheinnummer",
+      "birth_date": "Geburtsdatum",
+      "nationality": "Nationalität"
+    },
+    "docs": {
+      "cni": "Personalausweis",
+      "license": "Führerschein",
+      "cv": "Lebenslauf",
+      "update_btn": "Dokument aktualisieren",
+      "view_btn": "Aktuelles ansehen"
+    }
+  },
+  "Membership": {
+    "title": "Mitgliedschaftsanfrage",
+    "subtitle": "Sie treten der Zweigstelle {branch} der Gewerkschaft {syndicate} bei",
+    "steps": {
+      "personal": "Persönliche Infos",
+      "documents": "Rechtliche Dokumente",
+      "motivation": "Abschluss"
+    },
+    "partner_notice": "Willkommen Partner! Ihre Profilinformationen wurden automatisch abgerufen.",
+    "firstname_label": "Vorname",
+    "lastname_label": "Name",
+    "email_label": "E-Mail-Adresse",
+    "form": {
+      "motivation_label": "Warum möchten Sie uns beitreten?",
+      "motivation_placeholder": "Erklären Sie kurz Ihre Motivation...",
+      "cni_recto": "Ausweis (Vorderseite)",
+      "cni_verso": "Ausweis (Rückseite)",
+      "license_recto": "Führerschein (Vorderseite)",
+      "cv_label": "Lebenslauf (PDF)",
+      "drop_files": "Dateien hier ablegen oder klicken zum Durchsuchen",
+      "submit": "Anfrage senden",
+      "submitting": "Verarbeitung läuft..."
+    },
+    "success_title": "Anfrage gesendet!",
+    "success_message": "Ihre Akte wird von den Administratoren der Zweigstelle geprüft. Sie erhalten eine Benachrichtigung nach der Validierung."
   }
 }
 ```
@@ -5928,10 +6744,17 @@ export type UserType = 'VISITOR' | 'MEMBER' | 'PARTNER';
     "no_account": "No account yet?",
     "already_account": "Already a member?",
     "forgot_password": "Forgot password?",
+    "or_continue_with": "Or continue with",
     "login_success": "Login successful",
     "login_error": "Invalid credentials",
     "register_success": "Account created successfully",
     "register_error": "Error creating account",
+    "aside": {
+      "tagline1": "Simplified Union Management",
+      "tagline2": "Secure Blockchain Voting",
+      "tagline3": "Automated Compliance",
+      "tagline4": "Active Community"
+    },
     "errors": {
       "required": "This field is required",
       "email_invalid": "Invalid email",
@@ -5939,7 +6762,6 @@ export type UserType = 'VISITOR' | 'MEMBER' | 'PARTNER';
       "passwords_mismatch": "Passwords do not match"
     }
   },
-
   "Explorer": {
     "title": "Explore Syndicates",
     "subtitle": "Join the professional elite. Discover organizations shaping the future of your sector.",
@@ -5971,6 +6793,121 @@ export type UserType = 'VISITOR' | 'MEMBER' | 'PARTNER';
     "buy_btn": "Order",
     "out_of_stock": "Out of Stock",
     "price_currency": "XAF"
+  },
+  "Dashboard": {
+    "welcome": "Dashboard",
+    "my_syndicates": "My Memberships",
+    "my_syndicates_sub": "Access your union and branch member areas.",
+    "enter_space": "Enter Space",
+    "no_syndicates": "You are not a member of any union yet.",
+    "explore_cta": "Explore Syndicates",
+    "sidebar": {
+      "feed": "News Feed",
+      "members": "Members",
+      "events": "Events",
+      "votes": "Votes & Polls",
+      "documents": "My Documents",
+      "compliance": "Compliance"
+    }
+  },
+  "Feed": {
+    "create_post_placeholder": "What's new in the community, {name}?",
+    "post_btn": "Post",
+    "reactions": {
+      "like": "Like",
+      "love": "Love",
+      "haha": "Haha",
+      "wow": "Wow",
+      "sad": "Sad",
+      "angry": "Angry"
+    },
+    "comments": "Comments",
+    "reply": "Reply",
+    "see_more": "See more",
+    "read_pdf": "Read PDF"
+  },
+  "Event": {
+    "join": "Join",
+    "joined": "Going",
+    "participants": "{count} participants",
+    "location": "Location",
+    "date": "Date & Time",
+    "create_title": "Create an Event",
+    "success_join": "Your participation has been recorded!"
+  },
+  "Comments": {
+    "write_comment": "Write a comment...",
+    "reply": "Reply",
+    "view_replies": "View {count} replies",
+    "hide_replies": "Hide",
+    "post": "Send",
+    "success_reply": "Reply sent"
+  },
+  "Votes": {
+    "title": "Polls & Decisions",
+    "subtitle": "Express your voice on your branch orientations.",
+    "total_votes": "{count} votes cast",
+    "vote_now": "Vote",
+    "closing_at": "Closes on {date}",
+    "already_voted": "You have already participated",
+    "results_title": "Real-time results",
+    "create_btn": "Create Poll",
+    "success_vote": "Your vote has been recorded!",
+    "success_create": "Poll created successfully",
+    "closed": "Poll closed"
+  },
+  "Profile": {
+    "title": "My Certified Profile",
+    "subtitle": "Manage your personal information and compliance documents.",
+    "sections": {
+      "identity": "Identity",
+      "compliance": "Legal Compliance",
+      "account": "Account Security"
+    },
+    "status": {
+      "verified": "Verified Profile",
+      "pending": "Verification Pending",
+      "unverified": "Action Required"
+    },
+    "fields": {
+      "cni_number": "ID Card Number",
+      "license_number": "License Number",
+      "birth_date": "Date of Birth",
+      "nationality": "Nationality"
+    },
+    "docs": {
+      "cni": "National ID Card",
+      "license": "Driving License",
+      "cv": "Curriculum Vitae",
+      "update_btn": "Update Document",
+      "view_btn": "View Current"
+    }
+  },
+  "Membership": {
+    "title": "Membership Request",
+    "subtitle": "You are joining the {branch} branch of the {syndicate} union",
+    "steps": {
+      "personal": "Personal Info",
+      "documents": "Legal Documents",
+      "motivation": "Finalization"
+    },
+    "partner_notice": "Welcome Partner! Your profile information has been automatically retrieved.",
+    "firstname_label": "First Name",
+    "lastname_label": "Last Name",
+    "email_label": "Email Address",
+    "form": {
+      "motivation_label": "Why do you want to join us?",
+      "motivation_placeholder": "Briefly explain your motivations...",
+      "cni_recto": "ID Card (Front)",
+      "cni_verso": "ID Card (Back)",
+      "license_recto": "Driving License (Front)",
+      "cv_label": "Curriculum Vitae (PDF)",
+      "drop_files": "Drop files here or click to browse",
+      "submit": "Send Request",
+      "submitting": "Processing..."
+    },
+    "success_title": "Request Sent!",
+    "success_message": "Your file is being reviewed by branch administrators. You will be notified upon validation."
   }
 }
 ```
@@ -6062,7 +6999,6 @@ export type UserType = 'VISITOR' | 'MEMBER' | 'PARTNER';
       "passwords_mismatch": "Les mots de passe ne correspondent pas"
     }
   },
-
   "Explorer": {
     "title": "Explorer les Syndicats",
     "subtitle": "Rejoignez l'élite professionnelle. Découvrez les organisations qui façonnent l'avenir de votre secteur.",
@@ -6127,7 +7063,6 @@ export type UserType = 'VISITOR' | 'MEMBER' | 'PARTNER';
     "see_more": "Voir plus",
     "read_pdf": "Lire le PDF"
   },
-
   "Event": {
     "join": "Participer",
     "joined": "J'y vais",
@@ -6142,7 +7077,8 @@ export type UserType = 'VISITOR' | 'MEMBER' | 'PARTNER';
     "reply": "Répondre",
     "view_replies": "Voir les {count} réponses",
     "hide_replies": "Masquer",
-    "post": "Envoyer"
+    "post": "Envoyer",
+    "success_reply": "Réponse envoyée"
   },
   "Votes": {
     "title": "Sondages & Décisions",
@@ -6154,9 +7090,9 @@ export type UserType = 'VISITOR' | 'MEMBER' | 'PARTNER';
     "results_title": "Résultats en temps réel",
     "create_btn": "Créer un vote",
     "success_vote": "Votre vote a été enregistré !",
+    "success_create": "Vote créé avec succès",
     "closed": "Sondage terminé"
   },
-
   "Profile": {
     "title": "Mon Profil Certifié",
     "subtitle": "Gérez vos informations personnelles et vos documents de conformité.",
@@ -6184,7 +7120,6 @@ export type UserType = 'VISITOR' | 'MEMBER' | 'PARTNER';
       "view_btn": "Consulter l'actuel"
     }
   },
-
   "Membership": {
     "title": "Demande d'adhésion",
     "subtitle": "Vous rejoignez l'antenne {branch} du syndicat {syndicate}",
@@ -6218,6 +7153,6 @@ export type UserType = 'VISITOR' | 'MEMBER' | 'PARTNER';
 
 ## 📈 Statistiques
 
-- **Fichiers traités**: 66
-- **Taille totale**: 259KB
-- **Date de génération**: 02/02/2026 10:22:47
+- **Fichiers traités**: 72
+- **Taille totale**: 297KB
+- **Date de génération**: 08/02/2026 23:15:32

@@ -1,143 +1,140 @@
 "use client";
 
-import { motion } from 'framer-motion';
+import { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslations } from 'next-intl';
 import { Link } from '@/navigation';
-import { ArrowRight, ShieldCheck, Users, Zap, Globe, Lock } from 'lucide-react';
+import { ArrowRight, PlayCircle, ShieldCheck } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
+
+// Images haute qualité pour le slider (VTC, Logistique, Transport, Réunion)
+const backgroundImages = [
+    "https://images.unsplash.com/photo-1766330301961-6366c58297d0?q=80&w=1171&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+
+    // 2. Digital & Mobilité : Femme professionnelle utilisant la technologie (cœur de U-Gate)
+    "https://images.unsplash.com/photo-1531482615713-2afd69097998?auto=format&fit=crop&q=80",
+
+    // 3. Communauté & Accord : Poignée de main ou collaboration (L'esprit syndical)
+    "https://media.istockphoto.com/id/2221927313/fr/photo/des-partenaires-commerciaux-se-serrent-la-main-apr%C3%A8s-une-r%C3%A9union-r%C3%A9ussie-dans-un-bureau.jpg?s=1024x1024&w=is&k=20&c=DteM6a43cq4Vb8yEHpDERUAef43T5oVXcJDPbd3TcrY=",
+
+    // 4. Innovation & Jeunesse : Équipe tech/startup africaine (Le futur de la gestion)
+    "https://plus.unsplash.com/premium_photo-1664300108565-fdd8a6132123?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+];
 
 export default function Hero() {
     const t = useTranslations('Hero');
+    const [index, setIndex] = useState(0);
+
+    // Rotation des images toutes les 5 secondes
+    useEffect(() => {
+        const timer = setInterval(() => {
+            setIndex((prev) => (prev + 1) % backgroundImages.length);
+        }, 5000);
+        return () => clearInterval(timer);
+    }, []);
 
     return (
-        <section className="relative min-h-[90vh] flex items-center pt-20 overflow-hidden bg-grid-pattern">
-            <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#020617]/80 to-[#020617] pointer-events-none" />
+        <section className="relative h-screen min-h-[800px] flex items-center justify-center overflow-hidden">
 
-            <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary-600/20 blur-[120px] rounded-full mix-blend-screen" />
-            <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-purple-600/10 blur-[120px] rounded-full mix-blend-screen" />
+            {/* --- SLIDER D'ARRIÈRE-PLAN --- */}
+            <div className="absolute inset-0 z-0">
+                <AnimatePresence mode="popLayout">
+                    <motion.div
+                        key={index}
+                        initial={{ opacity: 0, scale: 1.1 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        exit={{ opacity: 0 }}
+                        transition={{ duration: 1.5, ease: "easeInOut" }}
+                        className="absolute inset-0"
+                    >
+                        <img
+                            src={backgroundImages[index]}
+                            alt="Background"
+                            className="w-full h-full object-cover"
+                        />
+                    </motion.div>
+                </AnimatePresence>
 
-            <div className="max-w-7xl mx-auto px-6 relative z-10 grid lg:grid-cols-2 gap-16 items-center">
+                {/* Overlay Dégradé Premium (Navy Profond) */}
+                <div className="absolute inset-0 bg-gradient-to-b from-[#020617]/80 via-[#020617]/60 to-[#020617] z-10" />
+                <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-20 z-10 mix-blend-overlay" />
+            </div>
+
+            {/* --- CONTENU --- */}
+            <div className="max-w-7xl mx-auto px-6 relative z-20 text-center">
                 <motion.div
                     initial={{ opacity: 0, y: 30 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.8, ease: "easeOut" }}
                 >
-                    <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 text-primary-400 text-xs font-bold mb-8 tracking-widest uppercase backdrop-blur-md">
-                        <Zap size={14} className="fill-current" />
+                    {/* Badge "Nouveau" */}
+                    <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 border border-white/20 text-primary-300 text-xs font-bold mb-8 backdrop-blur-md shadow-lg">
+                        <span className="relative flex h-2 w-2">
+                          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                          <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                        </span>
                         {t('tagline')}
                     </div>
 
-                    <h1 className="text-5xl lg:text-7xl font-black tracking-tight text-white leading-[1.1] mb-6">
-                        {t('title_part1')}<br />
-                        <span className="text-gradient">{t('title_part2')}</span>
+                    {/* Titre Impactant */}
+                    <h1 className="text-5xl lg:text-7xl font-black tracking-tight text-white leading-[1.1] mb-6 drop-shadow-2xl">
+                        {t('title_part1')} <br className="hidden md:block" />
+                        <span className="bg-clip-text text-transparent bg-gradient-to-r from-primary-400 via-blue-200 to-primary-400 bg-[length:200%_auto] animate-gradient">
+                            {t('title_part2')}
+                        </span>
                     </h1>
 
-                    <p className="text-lg text-slate-400 max-w-xl mb-10 leading-relaxed font-light">
+                    <p className="text-lg md:text-xl text-slate-300 max-w-2xl mx-auto mb-10 leading-relaxed font-light">
                         {t('description')}
                     </p>
 
-                    <div className="flex flex-col sm:flex-row gap-4">
-                        <Link href="/register">
-                            <Button size="lg" className="w-full sm:w-auto rounded-full text-base px-8 h-14">
-                                {t('cta_primary')}
+                    {/* CTAs : Distinction Claire entre Créateur et Membre */}
+                    <div className="flex flex-col sm:flex-row items-center justify-center gap-5">
+                        {/* 1. Rejoindre (Public) */}
+                        <Link href="/explorer" className="w-full sm:w-auto">
+                            <Button size="lg" className="w-full h-14 rounded-full text-base px-8 bg-white text-slate-900 hover:bg-slate-100 hover:scale-105 transition-all shadow-[0_0_40px_-10px_rgba(255,255,255,0.3)]">
+                                {t('cta_secondary')} {/* "Explorer les syndicats" */}
                                 <ArrowRight className="ml-2 h-5 w-5" />
                             </Button>
                         </Link>
-                        <Link href="/explorer">
-                            <Button variant="outline" size="lg" className="w-full sm:w-auto rounded-full text-base px-8 h-14 bg-white/5 border-white/10 hover:bg-white/10 text-white">
-                                {t('cta_secondary')}
+
+                        {/* 2. Créer (Admin - Lien Externe) */}
+                        <a
+                            href="https://ugate-admin-frontend.vercel.app/"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="w-full sm:w-auto"
+                        >
+                            <Button variant="outline" size="lg" className="w-full h-14 rounded-full text-base px-8 border-white/20 text-white hover:bg-white/10 backdrop-blur-sm group">
+                                <PlayCircle className="mr-2 h-5 w-5 group-hover:text-primary-400 transition-colors" />
+                                Créer mon syndicat
                             </Button>
-                        </Link>
+                        </a>
                     </div>
 
-                    <div className="mt-12 pt-8 border-t border-white/10 flex flex-wrap gap-8">
-                        <div className="flex items-center gap-3">
-                            <div className="p-2 bg-emerald-500/10 rounded-lg text-emerald-400">
-                                <ShieldCheck size={20} />
-                            </div>
-                            <div className="flex flex-col">
-                                <span className="text-white font-bold">{t('badge_secure')}</span>
-                                <span className="text-xs text-slate-500">{t('badge_secure_sub')}</span>
-                            </div>
+                    {/* Trust Badges */}
+                    <div className="mt-12 flex flex-wrap justify-center gap-8 text-sm font-medium text-slate-400">
+                        <div className="flex items-center gap-2">
+                            <ShieldCheck className="text-emerald-500" size={18} />
+                            Données Sécurisées
                         </div>
-                        <div className="flex items-center gap-3">
-                            <div className="p-2 bg-blue-500/10 rounded-lg text-blue-400">
-                                <Users size={20} />
-                            </div>
-                            <div className="flex flex-col">
-                                <span className="text-white font-bold">{t('badge_members')}</span>
-                                <span className="text-xs text-slate-500">{t('badge_members_sub')}</span>
-                            </div>
+                        <div className="flex items-center gap-2">
+                            <ShieldCheck className="text-blue-500" size={18} />
+                            Certifié conforme
                         </div>
                     </div>
-                </motion.div>
-
-                <motion.div
-                    initial={{ opacity: 0, scale: 0.9 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ duration: 1, delay: 0.2 }}
-                    className="relative hidden lg:block perspective-1000"
-                >
-                    <div className="relative z-10 animate-float">
-                        <div className="glass-panel p-1 rounded-3xl shadow-2xl bg-gradient-to-b from-white/10 to-transparent">
-                            <div className="bg-slate-950 rounded-[22px] overflow-hidden border border-white/5 relative h-[500px]">
-                                <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-20" />
-
-                                <div className="p-6 border-b border-white/5 flex items-center justify-between">
-                                    <div className="flex gap-2">
-                                        <div className="w-3 h-3 rounded-full bg-red-500/50" />
-                                        <div className="w-3 h-3 rounded-full bg-yellow-500/50" />
-                                        <div className="w-3 h-3 rounded-full bg-emerald-500/50" />
-                                    </div>
-                                    <div className="px-3 py-1 rounded-full bg-white/5 text-[10px] text-slate-400">
-                                        {t('card_dashboard')}
-                                    </div>
-                                </div>
-
-                                <div className="p-6 space-y-6">
-                                    <div className="flex gap-4">
-                                        <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary-500 to-purple-600 flex items-center justify-center text-white font-bold text-xl">
-                                            U
-                                        </div>
-                                        <div>
-                                            <div className="h-4 w-32 bg-white/10 rounded animate-pulse mb-2" />
-                                            <div className="h-3 w-48 bg-white/5 rounded" />
-                                        </div>
-                                    </div>
-
-                                    <div className="grid grid-cols-2 gap-4">
-                                        <div className="p-4 rounded-xl bg-white/5 border border-white/5">
-                                            <div className="text-slate-400 text-xs mb-1">{t('card_contributions')}</div>
-                                            <div className="text-2xl font-bold text-white">{t('card_status_ok')}</div>
-                                        </div>
-                                        <div className="p-4 rounded-xl bg-white/5 border border-white/5">
-                                            <div className="text-slate-400 text-xs mb-1">{t('card_votes')}</div>
-                                            <div className="text-2xl font-bold text-white">3</div>
-                                        </div>
-                                    </div>
-
-                                    <div className="space-y-3">
-                                        <div className="flex items-center gap-3 p-3 rounded-lg bg-white/5">
-                                            <Globe size={16} className="text-primary-400" />
-                                            <div className="h-2 w-full bg-white/10 rounded-full overflow-hidden">
-                                                <div className="h-full w-2/3 bg-primary-500" />
-                                            </div>
-                                        </div>
-                                        <div className="flex items-center gap-3 p-3 rounded-lg bg-white/5">
-                                            <Lock size={16} className="text-purple-400" />
-                                            <div className="h-2 w-full bg-white/10 rounded-full overflow-hidden">
-                                                <div className="h-full w-1/2 bg-purple-500" />
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div className="absolute -z-10 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[120%] h-[120%] bg-primary-500/20 blur-[100px] rounded-full" />
                 </motion.div>
             </div>
+
+            {/* Scroll Indicator */}
+            <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 1, duration: 1 }}
+                className="absolute bottom-10 left-1/2 -translate-x-1/2"
+            >
+                <div className="w-[1px] h-16 bg-gradient-to-b from-transparent via-white/50 to-transparent" />
+            </motion.div>
         </section>
     );
 }

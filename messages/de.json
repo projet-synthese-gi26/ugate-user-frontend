@@ -1,16 +1,232 @@
 {
   "Common": {
     "loading": "Laden...",
-    "error": "Ein Fehler ist aufgetreten"
+    "error": "Ein Fehler ist aufgetreten",
+    "copyright": "© {year} U-Gate Platform. Alle Rechte vorbehalten."
   },
   "Nav": {
     "home": "Startseite",
     "explorer": "Erkunden",
+    "services": "Dienstleistungen",
+    "about": "Über uns",
     "login": "Anmelden",
     "register": "Beitreten"
   },
   "Hero": {
-    "title": "Vereinigen Sie Ihre Stimmen, vereinfachen Sie das Handeln",
-    "subtitle": "Die Gewerkschaftsplattform der nächsten Generation."
+    "tagline": "Gewerkschaftsplattform 3.0",
+    "title_part1": "Vereinigen Sie Ihre Stimmen,",
+    "title_part2": "Vereinfachen Sie das Handeln.",
+    "description": "U-Gate revolutioniert das Gewerkschaftsmanagement. Mitgliederverwaltung, sichere Blockchain-Abstimmungen und exklusive Dienste für Profis.",
+    "cta_primary": "Einer Gewerkschaft beitreten",
+    "cta_secondary": "Angebote erkunden",
+    "badge_secure": "100% Sicher",
+    "badge_secure_sub": "Verschlüsselte Daten",
+    "badge_members": "+50.000 Mitglieder",
+    "badge_members_sub": "Aktiv auf der Plattform",
+    "card_dashboard": "Mitglieder-Dashboard",
+    "card_contributions": "Beiträge",
+    "card_status_ok": "Aktuell",
+    "card_votes": "Aktive Abstimmungen"
+  },
+  "Partners": {
+    "title": "Sie vertrauen uns"
+  },
+  "Features": {
+    "title_part1": "Alles was Sie brauchen, um",
+    "title_part2": "Ihre Tätigkeit zu verwalten",
+    "subtitle": "Eine komplette Suite von Tools zur Modernisierung der Interaktionen zwischen Gewerkschaften und ihren Mitgliedern.",
+    "identity_title": "Digitale Identität",
+    "identity_desc": "Ein einzigartiges und verifiziertes Profil für den Zugang zu allen Gewerkschafts- und Partnerdiensten.",
+    "democracy_title": "Direkte Demokratie",
+    "democracy_desc": "Teilnahme an wichtigen Entscheidungen über ein sicheres und transparentes Abstimmungssystem.",
+    "docs_title": "Dokumentenmanagement",
+    "docs_desc": "Jederzeit Zugriff auf Ihre Satzungen, Vorschriften und Zertifikate im PDF-Format.",
+    "member_title": "Mitgliederbereich",
+    "member_desc": "Ein interaktiver Newsfeed zum Austausch mit Ihrer Community und Verfolgung von Ereignissen.",
+    "market_title": "Dedizierter Marktplatz",
+    "market_desc": "Profitieren Sie von Produkten und Dienstleistungen, die speziell für Ihre Branche ausgehandelt wurden.",
+    "compliance_title": "Automatisierte Compliance",
+    "compliance_desc": "Automatische Überprüfung der Konformität für Partnerplattformen (VTC, Logistik)."
+  },
+  "Auth": {
+    "login_title": "Willkommen zurück",
+    "login_subtitle": "Zugang zu Ihrem U-Gate Mitgliederbereich",
+    "register_title": "Exzellenz beitreten",
+    "register_subtitle": "Erstellen Sie Ihr Konto zur Verwaltung Ihrer Mitgliedschaften",
+    "email_label": "E-Mail-Adresse",
+    "password_label": "Passwort",
+    "confirm_password_label": "Passwort bestätigen",
+    "firstname_label": "Vorname",
+    "lastname_label": "Name",
+    "phone_label": "Telefonnummer",
+    "submit_login": "Anmelden",
+    "submit_register": "Konto erstellen",
+    "no_account": "Noch kein Konto?",
+    "already_account": "Bereits Mitglied?",
+    "forgot_password": "Passwort vergessen?",
+    "or_continue_with": "Oder weiter mit",
+    "login_success": "Anmeldung erfolgreich",
+    "login_error": "Ungültige Anmeldeinformationen",
+    "register_success": "Konto erfolgreich erstellt",
+    "register_error": "Fehler bei der Kontoerstellung",
+    "aside": {
+      "tagline1": "Vereinfachtes Gewerkschaftsmanagement",
+      "tagline2": "Sichere Blockchain-Abstimmungen",
+      "tagline3": "Automatisierte VTC-Compliance",
+      "tagline4": "Aktive Gemeinschaft"
+    },
+    "errors": {
+      "required": "Dieses Feld ist erforderlich",
+      "email_invalid": "Ungültige E-Mail",
+      "password_min": "Das Passwort muss mindestens 8 Zeichen lang sein",
+      "passwords_mismatch": "Passwörter stimmen nicht überein"
+    }
+  },
+  "Explorer": {
+    "title": "Gewerkschaften erkunden",
+    "subtitle": "Schließen Sie sich der professionellen Elite an. Entdecken Sie Organisationen, die die Zukunft Ihrer Branche gestalten.",
+    "search_placeholder": "Suche nach Name, Bereich...",
+    "filter_btn": "Filter",
+    "empty_state": "Keine Gewerkschaft entspricht Ihrer Suche.",
+    "view_all": "Alle anzeigen",
+    "members_count": "{count} Mitglieder",
+    "see_details": "Profil ansehen",
+    "active_status": "Verifiziert & Aktiv",
+    "inactive_status": "Ausstehend"
+  },
+  "SyndicateDetails": {
+    "created_in": "Gegründet {year}",
+    "join_btn": "Dieser Gewerkschaft beitreten",
+    "tabs": {
+      "about": "Präsentation & Rechtliches",
+      "branches": "Lokale Zweigstellen",
+      "products": "Dienste & Shop"
+    },
+    "about_title": "Vision & Mission",
+    "legal_docs_title": "Offizielle Dokumentation",
+    "legal_doc_subtitle": "Zertifiziertes PDF-Dokument",
+    "download": "Ansehen",
+    "branches_title": "Wählen Sie Ihren Ankerpunkt",
+    "branches_subtitle": "Wählen Sie die nächstgelegene Zweigstelle für Ihre Mitgliedschaft.",
+    "contact": "Kontakt",
+    "products_title": "Exklusiver Marktplatz",
+    "buy_btn": "Bestellen",
+    "out_of_stock": "Ausverkauft",
+    "price_currency": "XAF"
+  },
+  "Dashboard": {
+    "welcome": "Dashboard",
+    "my_syndicates": "Meine Mitgliedschaften",
+    "my_syndicates_sub": "Zugang zu Ihren Gewerkschafts- und Zweigstellenbereichen.",
+    "enter_space": "Bereich betreten",
+    "no_syndicates": "Sie sind derzeit kein Mitglied einer Gewerkschaft.",
+    "explore_cta": "Gewerkschaften erkunden",
+    "sidebar": {
+      "feed": "Neuigkeiten",
+      "members": "Mitglieder",
+      "events": "Veranstaltungen",
+      "votes": "Abstimmungen",
+      "documents": "Meine Dokumente",
+      "compliance": "Konformität"
+    }
+  },
+  "Feed": {
+    "create_post_placeholder": "Was gibt es Neues in der Community, {name}?",
+    "post_btn": "Veröffentlichen",
+    "reactions": {
+      "like": "Gefällt mir",
+      "love": "Liebe",
+      "haha": "Haha",
+      "wow": "Wow",
+      "sad": "Traurig",
+      "angry": "Wütend"
+    },
+    "comments": "Kommentare",
+    "reply": "Antworten",
+    "see_more": "Mehr sehen",
+    "read_pdf": "PDF lesen"
+  },
+  "Event": {
+    "join": "Teilnehmen",
+    "joined": "Ich gehe hin",
+    "participants": "{count} Teilnehmer",
+    "location": "Ort",
+    "date": "Datum & Uhrzeit",
+    "create_title": "Veranstaltung erstellen",
+    "success_join": "Ihre Teilnahme wurde registriert!"
+  },
+  "Comments": {
+    "write_comment": "Einen Kommentar schreiben...",
+    "reply": "Antworten",
+    "view_replies": "{count} Antworten ansehen",
+    "hide_replies": "Verbergen",
+    "post": "Senden",
+    "success_reply": "Antwort gesendet"
+  },
+  "Votes": {
+    "title": "Umfragen & Entscheidungen",
+    "subtitle": "Geben Sie Ihre Stimme zu den Ausrichtungen Ihrer Zweigstelle ab.",
+    "total_votes": "{count} abgegebene Stimmen",
+    "vote_now": "Abstimmen",
+    "closing_at": "Schließt am {date}",
+    "already_voted": "Sie haben bereits teilgenommen",
+    "results_title": "Ergebnisse in Echtzeit",
+    "create_btn": "Umfrage erstellen",
+    "success_vote": "Ihre Stimme wurde registriert!",
+    "success_create": "Umfrage erfolgreich erstellt",
+    "closed": "Umfrage beendet"
+  },
+  "Profile": {
+    "title": "Mein zertifiziertes Profil",
+    "subtitle": "Verwalten Sie Ihre persönlichen Informationen und Konformitätsdokumente.",
+    "sections": {
+      "identity": "Identität",
+      "compliance": "Gesetzliche Konformität",
+      "account": "Kontosicherheit"
+    },
+    "status": {
+      "verified": "Profil verifiziert",
+      "pending": "Überprüfung läuft",
+      "unverified": "Handlung erforderlich"
+    },
+    "fields": {
+      "cni_number": "Ausweisnummer",
+      "license_number": "Führerscheinnummer",
+      "birth_date": "Geburtsdatum",
+      "nationality": "Nationalität"
+    },
+    "docs": {
+      "cni": "Personalausweis",
+      "license": "Führerschein",
+      "cv": "Lebenslauf",
+      "update_btn": "Dokument aktualisieren",
+      "view_btn": "Aktuelles ansehen"
+    }
+  },
+  "Membership": {
+    "title": "Mitgliedschaftsanfrage",
+    "subtitle": "Sie treten der Zweigstelle {branch} der Gewerkschaft {syndicate} bei",
+    "steps": {
+      "personal": "Persönliche Infos",
+      "documents": "Rechtliche Dokumente",
+      "motivation": "Abschluss"
+    },
+    "partner_notice": "Willkommen Partner! Ihre Profilinformationen wurden automatisch abgerufen.",
+    "firstname_label": "Vorname",
+    "lastname_label": "Name",
+    "email_label": "E-Mail-Adresse",
+    "form": {
+      "motivation_label": "Warum möchten Sie uns beitreten?",
+      "motivation_placeholder": "Erklären Sie kurz Ihre Motivation...",
+      "cni_recto": "Ausweis (Vorderseite)",
+      "cni_verso": "Ausweis (Rückseite)",
+      "license_recto": "Führerschein (Vorderseite)",
+      "cv_label": "Lebenslauf (PDF)",
+      "drop_files": "Dateien hier ablegen oder klicken zum Durchsuchen",
+      "submit": "Anfrage senden",
+      "submitting": "Verarbeitung läuft..."
+    },
+    "success_title": "Anfrage gesendet!",
+    "success_message": "Ihre Akte wird von den Administratoren der Zweigstelle geprüft. Sie erhalten eine Benachrichtigung nach der Validierung."
   }
 }

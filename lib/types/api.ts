@@ -54,6 +54,8 @@ export interface SyndicateStats {
     totalBranches: number;
 }
 
+// lib/types/api.ts
+
 export interface Syndicate {
     id: string;
     name: string;
@@ -62,16 +64,20 @@ export interface Syndicate {
     type: string;
     isApproved: boolean;
     isActive: boolean;
+    createdAt: string;
+    updatedAt: string;
+
     documents: SyndicateDocuments;
     organization: OrganizationInfo;
     creator: CreatorInfo;
     stats: SyndicateStats;
-    createdAt: string;
-    updatedAt: string;
-    // Fallbacks pour compatibilité avec les listes simples
-    logoUrl?: string;
-    statusUrl?: string;
+
+    userBranchId?: string;     // ID de la branche du membre
+    userBranchName?: string;   // Nom de la branche
+    userRole?: 'CUSTOMER' | 'DRIVER' | 'FLEET_MANAGER' | 'ADMIN' | 'PASSENGER' | 'PRESIDENT' | 'MODERATOR' | 'CLIENT';
 }
+
+
 
 export interface Branch {
     id: string;
@@ -176,12 +182,14 @@ export interface Event {
     description: string;
     location: string;
     date: string;
-    startTime?: LocalTime; // Ajoute le ?
+    startTime?: LocalTime;
     endTime?: LocalTime;
     createdAt: string;
     updatedAt: string;
     participantCount: number;
     imageUrls: string[];
+    videoUrls?: string[]; // Ajouté
+    fileUrls?: string[];  // Ajouté
 }
 
 // ==========================================

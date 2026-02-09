@@ -24,7 +24,7 @@ export default function AuthAside({ animatedTexts }: AuthAsideProps) {
             <div className="absolute inset-0 z-0">
                 {/* Tu peux changer l'URL de l'image ici */}
                 <img
-                    src="https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&q=80"
+                    src="https://images.unsplash.com/photo-1610473068533-b68dbcd23543?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
                     alt="Office"
                     className="w-full h-full object-cover opacity-20"
                 />

@@ -1,6 +1,8 @@
 // types/api.d.ts
 
 // --- AUTH API TYPES ---
+import {CreatorInfo, OrganizationInfo} from "@/lib/types/api";
+
 export interface User {
     id: string;
     username: string;
@@ -51,6 +53,8 @@ export interface SyndicateStats {
     totalBranches: number;
 }
 
+// lib/types/api.ts
+
 export interface Syndicate {
     id: string;
     name: string;
@@ -62,16 +66,20 @@ export interface Syndicate {
     createdAt: string;
     updatedAt: string;
 
-    // Nouveaux objets imbriqués
+    // Objets imbriqués existants
     documents: SyndicateDocuments;
-    organization: SyndicateOrganization;
-    creator: SyndicateCreator;
+    organization: OrganizationInfo;
+    creator: CreatorInfo;
     stats: SyndicateStats;
 
-    // Champs optionnels pour compatibilité avec la liste simple
-    logoUrl?: string;
-    statusUrl?: string;
+    // --- NOUVEAUX CHAMPS API AJOUTÉS ---
+    // Ces champs arrivent quand on appelle /syndicates/mine
+    userBranchId?: string;     // ID de la branche du membre
+    userBranchName?: string;   // Nom de la branche
+    userRole?: 'CUSTOMER' | 'DRIVER' | 'FLEET_MANAGER' | 'ADMIN' | 'PASSENGER' | 'PRESIDENT' | 'MODERATOR' | 'CLIENT';
 }
+
+
 export interface Branch {
     id: string;
     syndicatId: string;

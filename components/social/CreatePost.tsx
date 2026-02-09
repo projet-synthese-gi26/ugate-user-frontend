@@ -10,7 +10,12 @@ import {
 } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 
-export default function CreatePost({ syndicateId }: { syndicateId: string }) {
+interface CreatePostProps {
+    syndicateId: string;
+    branchName?: string;
+}
+
+export default function CreatePost({ syndicateId, branchName }: CreatePostProps) {
     const t = useTranslations('Feed');
     const { user } = useAuthStore();
 
@@ -26,17 +31,16 @@ export default function CreatePost({ syndicateId }: { syndicateId: string }) {
         const newFiles = selectedFiles.map(file => ({
             file,
             type,
-            preview: URL.createObjectURL(file) // Créer une URL temporaire pour la miniature
+            preview: URL.createObjectURL(file)
         }));
 
         setFiles(prev => [...prev, ...newFiles]);
-        // Reset l'input pour pouvoir sélectionner le même fichier deux fois si besoin
         e.target.value = '';
     };
 
     const removeFile = (index: number) => {
         const newFiles = [...files];
-        URL.revokeObjectURL(newFiles[index].preview); // Libérer la mémoire
+        URL.revokeObjectURL(newFiles[index].preview);
         newFiles.splice(index, 1);
         setFiles(newFiles);
     };
@@ -49,15 +53,15 @@ export default function CreatePost({ syndicateId }: { syndicateId: string }) {
         setLoading(true);
         const formData = new FormData();
 
-        // Champs obligatoires
         formData.append('content', content);
         formData.append('authorId', user.id);
         formData.append('branchId', syndicateId);
 
-        // CORRECTION MAJEURE : Tous les fichiers vont dans 'images'
-        // C'est ce que votre backend attend pour le moment
+        // CORRECTION : Envoi via les champs spécifiques de l'API
         files.forEach(f => {
-            formData.append('images', f.file);
+            if (f.type === 'IMAGE') formData.append('images', f.file);
+            if (f.type === 'VIDEO') formData.append('videos', f.file);
+            if (f.type === 'PDF') formData.append('files', f.file);
         });
 
         try {
@@ -67,11 +71,10 @@ export default function CreatePost({ syndicateId }: { syndicateId: string }) {
 
             toast.success("Publication réussie !");
 
-            // Reset du formulaire
+            // Reset
             setContent('');
             setFiles([]);
 
-            // Recharger la page pour voir le nouveau post (Idéalement via un callback onSuccess)
             window.location.reload();
         } catch (error: any) {
             console.error("Erreur publication:", error);
@@ -80,6 +83,10 @@ export default function CreatePost({ syndicateId }: { syndicateId: string }) {
             setLoading(false);
         }
     };
+
+    const placeholderText = branchName
+        ? `Quoi de neuf à ${branchName}, ${user?.firstName} ?`
+        : t('create_post_placeholder', { name: user?.firstName });
 
     return (
         <div className="bg-white rounded-[2.5rem] p-6 lg:p-8 shadow-xl shadow-slate-200/50 border border-slate-100 transition-all">
@@ -92,7 +99,7 @@ export default function CreatePost({ syndicateId }: { syndicateId: string }) {
                 <textarea
                     value={content}
                     onChange={(e) => setContent(e.target.value)}
-                    placeholder={t('create_post_placeholder', { name: user?.firstName })}
+                    placeholder={placeholderText}
                     className="flex-1 bg-slate-50 hover:bg-slate-100 transition-colors rounded-2xl p-4 text-slate-700 font-medium outline-none border-none min-h-[100px] resize-none placeholder:text-slate-400"
                 />
             </div>
@@ -102,7 +109,6 @@ export default function CreatePost({ syndicateId }: { syndicateId: string }) {
                 <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3 mb-6 animate-in zoom-in-95">
                     {files.map((f, i) => (
                         <div key={i} className="relative aspect-square rounded-2xl overflow-hidden border border-slate-200 bg-slate-50 group">
-                            {/* Affichage selon le type */}
                             {f.type === 'IMAGE' && (
                                 <img src={f.preview} className="w-full h-full object-cover" alt="preview" />
                             )}
@@ -117,7 +123,6 @@ export default function CreatePost({ syndicateId }: { syndicateId: string }) {
                                 </div>
                             )}
 
-                            {/* Bouton Supprimer */}
                             <button
                                 onClick={() => removeFile(i)}
                                 className="absolute top-1 right-1 p-1.5 bg-black/60 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-500"
@@ -132,21 +137,18 @@ export default function CreatePost({ syndicateId }: { syndicateId: string }) {
             {/* Barre d'Actions */}
             <div className="flex flex-col sm:flex-row items-center justify-between pt-5 border-t border-slate-100 gap-4">
                 <div className="flex items-center gap-1 overflow-x-auto w-full sm:w-auto pb-2 sm:pb-0 no-scrollbar">
-                    {/* Bouton PHOTO */}
                     <label className="flex items-center gap-2 px-4 py-2.5 hover:bg-emerald-50 text-emerald-600 rounded-xl transition-all cursor-pointer font-bold text-sm whitespace-nowrap">
                         <ImageIcon size={18} />
                         <span className="hidden md:inline">Photo</span>
                         <input type="file" className="hidden" accept="image/*" multiple onChange={(e) => handleFileSelect(e, 'IMAGE')} />
                     </label>
 
-                    {/* Bouton VIDÉO */}
                     <label className="flex items-center gap-2 px-4 py-2.5 hover:bg-blue-50 text-blue-600 rounded-xl transition-all cursor-pointer font-bold text-sm whitespace-nowrap">
                         <Video size={18} />
                         <span className="hidden md:inline">Vidéo</span>
                         <input type="file" className="hidden" accept="video/*" multiple onChange={(e) => handleFileSelect(e, 'VIDEO')} />
                     </label>
 
-                    {/* Bouton PDF */}
                     <label className="flex items-center gap-2 px-4 py-2.5 hover:bg-red-50 text-red-600 rounded-xl transition-all cursor-pointer font-bold text-sm whitespace-nowrap">
                         <FileText size={18} />
                         <span className="hidden md:inline">PDF</span>
@@ -154,7 +156,6 @@ export default function CreatePost({ syndicateId }: { syndicateId: string }) {
                     </label>
                 </div>
 
-                {/* Bouton Publier */}
                 <button
                     onClick={handlePublish}
                     disabled={loading || (!content.trim() && files.length === 0)}

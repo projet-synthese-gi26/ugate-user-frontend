@@ -82,7 +82,6 @@
       "passwords_mismatch": "Les mots de passe ne correspondent pas"
     }
   },
-
   "Explorer": {
     "title": "Explorer les Syndicats",
     "subtitle": "Rejoignez l'élite professionnelle. Découvrez les organisations qui façonnent l'avenir de votre secteur.",
@@ -147,7 +146,6 @@
     "see_more": "Voir plus",
     "read_pdf": "Lire le PDF"
   },
-
   "Event": {
     "join": "Participer",
     "joined": "J'y vais",
@@ -162,7 +160,8 @@
     "reply": "Répondre",
     "view_replies": "Voir les {count} réponses",
     "hide_replies": "Masquer",
-    "post": "Envoyer"
+    "post": "Envoyer",
+    "success_reply": "Réponse envoyée"
   },
   "Votes": {
     "title": "Sondages & Décisions",
@@ -174,9 +173,9 @@
     "results_title": "Résultats en temps réel",
     "create_btn": "Créer un vote",
     "success_vote": "Votre vote a été enregistré !",
+    "success_create": "Vote créé avec succès",
     "closed": "Sondage terminé"
   },
-
   "Profile": {
     "title": "Mon Profil Certifié",
     "subtitle": "Gérez vos informations personnelles et vos documents de conformité.",
@@ -204,7 +203,6 @@
       "view_btn": "Consulter l'actuel"
     }
   },
-
   "Membership": {
     "title": "Demande d'adhésion",
     "subtitle": "Vous rejoignez l'antenne {branch} du syndicat {syndicate}",

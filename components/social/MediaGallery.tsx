@@ -5,24 +5,77 @@ import HorizontalPDFReader from './HorizontalPDFReader';
 
 interface MediaItem {
     url: string;
-    type?: 'IMAGE' | 'VIDEO' | 'PDF';
+    type?: 'IMAGE' | 'VIDEO' | 'PDF' | 'AUDIO' | 'UNSUPPORTED';
 }
 
-export const getMediaType = (url: string, explicitType?: 'IMAGE' | 'VIDEO' | 'PDF'): 'IMAGE' | 'VIDEO' | 'PDF' => {
-    if (explicitType) return explicitType;
+type MediaType = 'IMAGE' | 'VIDEO' | 'PDF' | 'AUDIO' | 'UNSUPPORTED';
 
-    const extension = url.split('.').pop()?.split('?')[0]?.toLowerCase();
-    if (['mp4', 'webm', 'ogg', 'mov'].includes(extension || '')) return 'VIDEO';
-    if (['pdf'].includes(extension || '')) return 'PDF';
-    if (['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg'].includes(extension || '')) return 'IMAGE';
+// Fonction pour détecter le type réel du média via les headers HTTP
+export const detectMediaType = async (url: string): Promise<MediaType> => {
+    try {
+        // 1. Tentative HEAD
+        const headResponse = await fetch(url, { method: 'HEAD' });
+        const contentType = headResponse.headers.get('Content-Type')?.toLowerCase() || '';
 
-    return 'IMAGE';
+        if (contentType.includes('application/pdf')) return 'PDF';
+        if (contentType.startsWith('image/')) return 'IMAGE';
+        if (contentType.startsWith('video/')) return 'VIDEO';
+        if (contentType.startsWith('audio/')) return 'AUDIO';
+    } catch (_) {
+        // HEAD échoué → fallback
+    }
+
+    try {
+        // 2. Fallback : GET partiel pour lire les magic bytes
+        const response = await fetch(url, {
+            headers: { Range: 'bytes=0-1023' },
+        });
+        const buffer = await response.arrayBuffer();
+        const bytes = new Uint8Array(buffer);
+
+        // PDF → "%PDF-" = 0x25 0x50 0x44 0x46 0x2D
+        if (
+            bytes[0] === 0x25 &&
+            bytes[1] === 0x50 &&
+            bytes[2] === 0x44 &&
+            bytes[3] === 0x46 &&
+            bytes[4] === 0x2d
+        ) {
+            return 'PDF';
+        }
+
+        // Images
+        if (bytes[0] === 0xff && bytes[1] === 0xd8) return 'IMAGE'; // JPEG
+        if (bytes[0] === 0x89 && bytes[1] === 0x50) return 'IMAGE'; // PNG
+        if (bytes[0] === 0x47 && bytes[1] === 0x49) return 'IMAGE'; // GIF
+        if (bytes[0] === 0x52 && bytes[1] === 0x49 && bytes[2] === 0x46 && bytes[3] === 0x46) return 'IMAGE'; // WEBP
+
+        // MP4 → "ftyp" at offset 4
+        if (
+            bytes[4] === 0x66 &&
+            bytes[5] === 0x74 &&
+            bytes[6] === 0x79 &&
+            bytes[7] === 0x70
+        ) {
+            return 'VIDEO';
+        }
+
+        // MP3 → "ID3"
+        if (bytes[0] === 0x49 && bytes[1] === 0x44 && bytes[2] === 0x33) return 'AUDIO';
+
+    } catch (error) {
+        console.warn('Impossible de détecter le type du média:', error);
+    }
+
+    return 'UNSUPPORTED';
 };
 
-function MediaContent({ url, type, index }: { url: string; type: 'IMAGE' | 'VIDEO' | 'PDF'; index: number }) {
-    const [actualType, setActualType] = useState<'IMAGE' | 'VIDEO' | 'PDF'>(type);
-    const [hasError, setHasError] = useState(false);
+
+function MediaContent({ url, type, index }: { url: string; type: MediaType; index: number }) {
+    const [actualType, setActualType] = useState<MediaType>(type);
+    const [attemptedTypes, setAttemptedTypes] = useState<Set<MediaType>>(new Set([type]));
     const videoRef = useRef<HTMLVideoElement>(null);
+    const audioRef = useRef<HTMLAudioElement>(null);
 
     // Observer pour la lecture automatique des vidéos
     useEffect(() => {
@@ -32,9 +85,7 @@ function MediaContent({ url, type, index }: { url: string; type: 'IMAGE' | 'VIDE
             (entries) => {
                 entries.forEach((entry) => {
                     if (entry.isIntersecting) {
-                        videoRef.current?.play().catch(() => {
-                            // Échec de lecture automatique
-                        });
+                        videoRef.current?.play().catch(() => {});
                     } else {
                         videoRef.current?.pause();
                     }
@@ -44,21 +95,56 @@ function MediaContent({ url, type, index }: { url: string; type: 'IMAGE' | 'VIDE
         );
 
         observer.observe(videoRef.current);
-
         return () => observer.disconnect();
     }, [actualType]);
 
     const handleError = () => {
-        if (hasError) return;
+        console.log(`Erreur pour ${actualType}, tentatives:`, attemptedTypes);
 
-        setHasError(true);
+        // Définir l'ordre des tentatives
+        const tryOrder: MediaType[] = ['IMAGE', 'VIDEO', 'AUDIO', 'PDF'];
 
-        if (actualType === 'IMAGE') {
-            setActualType('VIDEO');
-        } else if (actualType === 'VIDEO') {
-            setActualType('IMAGE');
+        // Trouver le prochain type à essayer
+        let nextType: MediaType | null = null;
+        for (const tryType of tryOrder) {
+            if (!attemptedTypes.has(tryType)) {
+                nextType = tryType;
+                break;
+            }
+        }
+
+        if (nextType) {
+            setAttemptedTypes(prev => new Set([...prev, nextType!]));
+            setActualType(nextType);
+        } else {
+            // Tous les types ont été testés
+            setActualType('UNSUPPORTED');
         }
     };
+
+    if (actualType === 'UNSUPPORTED') {
+        return (
+            <div className="w-full h-full flex items-center justify-center bg-slate-100">
+                <div className="text-center p-6">
+                    <svg
+                        className="w-16 h-16 mx-auto text-slate-400 mb-3"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                    >
+                        <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+                        />
+                    </svg>
+                    <p className="text-slate-600 font-medium">Média non supporté</p>
+                    <p className="text-slate-400 text-sm mt-1">Ce format ne peut pas être affiché</p>
+                </div>
+            </div>
+        );
+    }
 
     if (actualType === 'VIDEO') {
         return (
@@ -78,6 +164,41 @@ function MediaContent({ url, type, index }: { url: string; type: 'IMAGE' | 'VIDE
         );
     }
 
+    if (actualType === 'AUDIO') {
+        return (
+            <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-slate-800 to-slate-900 p-6">
+                <div className="w-full max-w-md">
+                    <div className="mb-4 text-center">
+                        <svg
+                            className="w-16 h-16 mx-auto text-white/80"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                        >
+                            <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"
+                            />
+                        </svg>
+                        <p className="text-white/60 text-sm mt-2">Fichier audio</p>
+                    </div>
+                    <audio
+                        ref={audioRef}
+                        src={url}
+                        controls
+                        className="w-full"
+                        onError={handleError}
+                        preload="metadata"
+                    >
+                        Votre navigateur ne supporte pas la lecture audio.
+                    </audio>
+                </div>
+            </div>
+        );
+    }
+
     return (
         <img
             src={url}
@@ -92,19 +213,51 @@ function MediaContent({ url, type, index }: { url: string; type: 'IMAGE' | 'VIDE
 export default function MediaGallery({ media }: { media: (MediaItem | string)[] }) {
     if (!media || media.length === 0) return null;
 
-    const normalizedMedia = media.map(item => {
-        const url = typeof item === 'string' ? item : item.url;
-        const explicitType = typeof item === 'object' ? item.type : undefined;
-        const type = getMediaType(url, explicitType);
-        return { url, type };
-    });
+    const [normalizedMedia, setNormalizedMedia] = useState<{ url: string; type: MediaType }[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
 
-    const visuals = normalizedMedia.filter(m => m.type === 'IMAGE' || m.type === 'VIDEO');
+    // Détection asynchrone des types de médias
+    useEffect(() => {
+        const detectAllTypes = async () => {
+            setIsLoading(true);
+
+            const detected = await Promise.all(
+                media.map(async (item) => {
+                    const url = typeof item === 'string' ? item : item.url;
+                    const explicitType = typeof item === 'object' ? item.type : undefined;
+
+                    // Si le type est explicitement fourni, on l'utilise
+                    if (explicitType) {
+                        return { url, type: explicitType };
+                    }
+
+                    // Sinon, on détecte automatiquement
+                    const detectedType = await detectMediaType(url);
+                    return { url, type: detectedType };
+                })
+            );
+
+            setNormalizedMedia(detected);
+            setIsLoading(false);
+        };
+
+        detectAllTypes();
+    }, [media]);
+
+    if (isLoading) {
+        return (
+            <div className="w-full aspect-video bg-slate-100 animate-pulse flex items-center justify-center">
+                <div className="text-slate-400">Chargement des médias...</div>
+            </div>
+        );
+    }
+
+    const visuals = normalizedMedia.filter(m => m.type === 'IMAGE' || m.type === 'VIDEO' || m.type === 'AUDIO' || m.type === 'UNSUPPORTED');
     const pdfs = normalizedMedia.filter(m => m.type === 'PDF');
 
     return (
         <div className="w-full">
-            {/* Galerie Visuelle - Images et Vidéos mélangées */}
+            {/* Galerie Visuelle - Images, Vidéos, Audios et Non supportés */}
             {visuals.length > 0 && (
                 <div className={cn(
                     "w-full overflow-hidden bg-black",
@@ -123,7 +276,6 @@ export default function MediaGallery({ media }: { media: (MediaItem | string)[] 
                         >
                             <MediaContent url={m.url} type={m.type} index={i} />
 
-                            {/* Overlay pour médias supplémentaires */}
                             {i === 3 && visuals.length > 4 && (
                                 <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
                                     <span className="text-white text-4xl font-bold">

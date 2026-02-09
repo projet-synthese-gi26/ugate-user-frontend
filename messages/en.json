@@ -64,10 +64,17 @@
     "no_account": "No account yet?",
     "already_account": "Already a member?",
     "forgot_password": "Forgot password?",
+    "or_continue_with": "Or continue with",
     "login_success": "Login successful",
     "login_error": "Invalid credentials",
     "register_success": "Account created successfully",
     "register_error": "Error creating account",
+    "aside": {
+      "tagline1": "Simplified Union Management",
+      "tagline2": "Secure Blockchain Voting",
+      "tagline3": "Automated Compliance",
+      "tagline4": "Active Community"
+    },
     "errors": {
       "required": "This field is required",
       "email_invalid": "Invalid email",
@@ -75,7 +82,6 @@
       "passwords_mismatch": "Passwords do not match"
     }
   },
-
   "Explorer": {
     "title": "Explore Syndicates",
     "subtitle": "Join the professional elite. Discover organizations shaping the future of your sector.",
@@ -107,5 +113,120 @@
     "buy_btn": "Order",
     "out_of_stock": "Out of Stock",
     "price_currency": "XAF"
+  },
+  "Dashboard": {
+    "welcome": "Dashboard",
+    "my_syndicates": "My Memberships",
+    "my_syndicates_sub": "Access your union and branch member areas.",
+    "enter_space": "Enter Space",
+    "no_syndicates": "You are not a member of any union yet.",
+    "explore_cta": "Explore Syndicates",
+    "sidebar": {
+      "feed": "News Feed",
+      "members": "Members",
+      "events": "Events",
+      "votes": "Votes & Polls",
+      "documents": "My Documents",
+      "compliance": "Compliance"
+    }
+  },
+  "Feed": {
+    "create_post_placeholder": "What's new in the community, {name}?",
+    "post_btn": "Post",
+    "reactions": {
+      "like": "Like",
+      "love": "Love",
+      "haha": "Haha",
+      "wow": "Wow",
+      "sad": "Sad",
+      "angry": "Angry"
+    },
+    "comments": "Comments",
+    "reply": "Reply",
+    "see_more": "See more",
+    "read_pdf": "Read PDF"
+  },
+  "Event": {
+    "join": "Join",
+    "joined": "Going",
+    "participants": "{count} participants",
+    "location": "Location",
+    "date": "Date & Time",
+    "create_title": "Create an Event",
+    "success_join": "Your participation has been recorded!"
+  },
+  "Comments": {
+    "write_comment": "Write a comment...",
+    "reply": "Reply",
+    "view_replies": "View {count} replies",
+    "hide_replies": "Hide",
+    "post": "Send",
+    "success_reply": "Reply sent"
+  },
+  "Votes": {
+    "title": "Polls & Decisions",
+    "subtitle": "Express your voice on your branch orientations.",
+    "total_votes": "{count} votes cast",
+    "vote_now": "Vote",
+    "closing_at": "Closes on {date}",
+    "already_voted": "You have already participated",
+    "results_title": "Real-time results",
+    "create_btn": "Create Poll",
+    "success_vote": "Your vote has been recorded!",
+    "success_create": "Poll created successfully",
+    "closed": "Poll closed"
+  },
+  "Profile": {
+    "title": "My Certified Profile",
+    "subtitle": "Manage your personal information and compliance documents.",
+    "sections": {
+      "identity": "Identity",
+      "compliance": "Legal Compliance",
+      "account": "Account Security"
+    },
+    "status": {
+      "verified": "Verified Profile",
+      "pending": "Verification Pending",
+      "unverified": "Action Required"
+    },
+    "fields": {
+      "cni_number": "ID Card Number",
+      "license_number": "License Number",
+      "birth_date": "Date of Birth",
+      "nationality": "Nationality"
+    },
+    "docs": {
+      "cni": "National ID Card",
+      "license": "Driving License",
+      "cv": "Curriculum Vitae",
+      "update_btn": "Update Document",
+      "view_btn": "View Current"
+    }
+  },
+  "Membership": {
+    "title": "Membership Request",
+    "subtitle": "You are joining the {branch} branch of the {syndicate} union",
+    "steps": {
+      "personal": "Personal Info",
+      "documents": "Legal Documents",
+      "motivation": "Finalization"
+    },
+    "partner_notice": "Welcome Partner! Your profile information has been automatically retrieved.",
+    "firstname_label": "First Name",
+    "lastname_label": "Last Name",
+    "email_label": "Email Address",
+    "form": {
+      "motivation_label": "Why do you want to join us?",
+      "motivation_placeholder": "Briefly explain your motivations...",
+      "cni_recto": "ID Card (Front)",
+      "cni_verso": "ID Card (Back)",
+      "license_recto": "Driving License (Front)",
+      "cv_label": "Curriculum Vitae (PDF)",
+      "drop_files": "Drop files here or click to browse",
+      "submit": "Send Request",
+      "submitting": "Processing..."
+    },
+    "success_title": "Request Sent!",
+    "success_message": "Your file is being reviewed by branch administrators. You will be notified upon validation."
   }
 }

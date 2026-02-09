@@ -1,126 +1,88 @@
 "use client";
 
 import { useState } from 'react';
-import { useTranslations } from 'next-intl';
 import { CommentResponseDto } from '@/lib/types/api';
-import { ugateApi } from '@/lib/axios';
 import { formatDistanceToNow } from 'date-fns';
 import { fr } from 'date-fns/locale';
-import { MessageCircle, CornerDownRight, Send } from 'lucide-react';
-import { toast } from 'react-hot-toast';
+import CommentInput from './CommentInput';
 
 interface Props {
     comment: CommentResponseDto;
     publicationId: string;
     allComments: CommentResponseDto[];
     depth?: number;
+    refresh: () => void;
 }
 
-export default function CommentItem({ comment, publicationId, allComments, depth = 0 }: Props) {
-    const t = useTranslations('Comments');
+export default function CommentItem({ comment, publicationId, allComments, depth = 0, refresh }: Props) {
     const [isReplying, setIsReplying] = useState(false);
-    const [replyText, setReplyText] = useState('');
-    const [loading, setLoading] = useState(false);
-
-    // Filtrer les réponses à ce commentaire précis
     const replies = allComments.filter(c => c.parentId === comment.id);
 
-    const handleReply = async () => {
-        if (!replyText.trim()) return;
-        setLoading(true);
-        try {
-            const formData = new FormData();
-            formData.append('content', replyText);
-            formData.append('parentId', comment.id);
-
-            await ugateApi.post(`/publications/${publicationId}/comments`, formData, {
-                headers: { 'Content-Type': 'multipart/form-data' }
-            });
-
-            toast.success(t('success_reply'));
-            setReplyText('');
-            setIsReplying(false);
-            // Ici, idéalement, on rafraîchit la liste via un callback
-        } catch (error) {
-            toast.error("Erreur d'envoi");
-        } finally {
-            setLoading(false);
-        }
-    };
-
     return (
-        <div className={`group ${depth > 0 ? 'mt-4 ml-6 lg:ml-10' : 'mt-6'}`}>
-            <div className="flex gap-3">
-                {/* Avatar */}
-                <div className="w-8 h-8 lg:w-9 lg:h-9 bg-slate-200 rounded-full flex items-center justify-center font-bold text-slate-600 text-xs shrink-0 border border-white shadow-sm">
-                    {comment.authorFullName.charAt(0)}
-                </div>
+        <div className={`flex gap-3 ${depth > 0 ? 'mt-3' : 'mt-4'}`}>
+            {/* Avatar */}
+            <div className={`rounded-full bg-slate-200 flex items-center justify-center overflow-hidden shrink-0 border border-white shadow-sm ${depth > 0 ? 'w-6 h-6' : 'w-8 h-8'}`}>
+                <span className="font-bold text-slate-500 text-xs">{comment.authorFullName.charAt(0)}</span>
+            </div>
 
-                <div className="flex-1">
-                    {/* Bulle de commentaire */}
-                    <div className="bg-slate-50 rounded-2xl rounded-tl-none p-3 lg:p-4 border border-slate-100 group-hover:border-primary-100 transition-colors">
-                        <div className="flex justify-between items-center mb-1">
-                            <span className="font-bold text-slate-900 text-sm">{comment.authorFullName}</span>
-                            <span className="text-[10px] font-bold text-slate-400 uppercase">
-                                {formatDistanceToNow(new Date(comment.createdAt), { locale: fr })}
-                            </span>
-                        </div>
-                        <p className="text-slate-700 text-sm leading-relaxed">{comment.content}</p>
-                        {comment.imageUrl && (
-                            <img src={comment.imageUrl} className="mt-3 rounded-xl max-h-60 object-cover border border-slate-200" />
-                        )}
-                    </div>
+            <div className="flex-1">
+                {/* Bulle */}
+                <div className="inline-block bg-slate-100 rounded-2xl px-4 py-2.5 max-w-full">
+                    <div className="font-bold text-slate-900 text-sm mb-0.5">{comment.authorFullName}</div>
 
-                    {/* Actions de commentaire */}
-                    <div className="flex items-center gap-4 mt-2 ml-1">
-                        <button
-                            onClick={() => setIsReplying(!isReplying)}
-                            className="text-xs font-bold text-slate-500 hover:text-primary-600 transition-colors flex items-center gap-1"
-                        >
-                            <MessageCircle size={14} />
-                            {t('reply')}
-                        </button>
-                    </div>
+                    {comment.content && <p className="text-slate-800 text-sm leading-relaxed whitespace-pre-wrap">{comment.content}</p>}
 
-                    {/* Zone de réponse (Formulaire) */}
-                    {isReplying && (
-                        <div className="mt-4 flex gap-2 animate-in slide-in-from-top-2 duration-300">
-                            <div className="flex-1 relative">
-                                <input
-                                    autoFocus
-                                    value={replyText}
-                                    onChange={(e) => setReplyText(e.target.value)}
-                                    placeholder={t('write_comment')}
-                                    className="w-full bg-white border border-slate-200 rounded-xl px-4 py-2 text-sm focus:ring-2 focus:ring-primary-500/20 outline-none"
-                                />
-                            </div>
-                            <button
-                                onClick={handleReply}
-                                disabled={loading || !replyText.trim()}
-                                className="w-10 h-10 bg-primary-800 text-white rounded-xl flex items-center justify-center shadow-md disabled:opacity-50"
-                            >
-                                <Send size={16} />
-                            </button>
-                        </div>
-                    )}
-
-                    {/* Rendu récursif des réponses */}
-                    {replies.length > 0 && (
-                        <div className="relative">
-                            {/* Ligne verticale de thread */}
-                            <div className="absolute left-[-20px] lg:left-[-30px] top-0 bottom-0 w-px bg-slate-200" />
-                            {replies.map(reply => (
-                                <CommentItem
-                                    key={reply.id}
-                                    comment={reply}
-                                    publicationId={publicationId}
-                                    allComments={allComments}
-                                    depth={depth + 1}
-                                />
-                            ))}
-                        </div>
+                    {comment.imageUrl && (
+                        <img
+                            src={comment.imageUrl}
+                            alt="Comment attachment"
+                            className="mt-2 rounded-xl max-h-60 object-cover border border-slate-200 cursor-pointer hover:opacity-90 transition-opacity"
+                        />
                     )}
                 </div>
+
+                {/* Actions */}
+                <div className="flex items-center gap-4 mt-1 ml-4">
+                    <span className="text-[11px] font-medium text-slate-400">
+                        {formatDistanceToNow(new Date(comment.createdAt), { locale: fr })}
+                    </span>
+                    <button
+                        onClick={() => setIsReplying(!isReplying)}
+                        className="text-[11px] font-bold text-slate-500 hover:text-slate-800 cursor-pointer"
+                    >
+                        Répondre
+                    </button>
+                    {/* Placeholder pour Like sur commentaire si API dispo */}
+                    {/* <button className="text-[11px] font-bold text-slate-500 hover:text-slate-800">J'aime</button> */}
+                </div>
+
+                {/* Input Réponse */}
+                {isReplying && (
+                    <div className="mt-3">
+                        <CommentInput
+                            publicationId={publicationId}
+                            parentId={comment.id}
+                            onSuccess={() => { setIsReplying(false); refresh(); }}
+                            autoFocus
+                        />
+                    </div>
+                )}
+
+                {/* Réponses imbriquées */}
+                {replies.length > 0 && (
+                    <div className="pl-2 border-l-2 border-slate-100 mt-2">
+                        {replies.map(reply => (
+                            <CommentItem
+                                key={reply.id}
+                                comment={reply}
+                                publicationId={publicationId}
+                                allComments={allComments}
+                                depth={depth + 1}
+                                refresh={refresh}
+                            />
+                        ))}
+                    </div>
+                )}
             </div>
         </div>
     );
