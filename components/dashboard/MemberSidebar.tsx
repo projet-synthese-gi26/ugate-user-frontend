@@ -9,6 +9,7 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/ utils';
 import { useAuthStore } from '@/lib/store';
+import LanguageSwitcher from '@/components/ui/LanguageSwitcher';
 
 interface MemberSidebarProps {
     syndicateId: string;

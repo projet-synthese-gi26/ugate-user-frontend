@@ -3,6 +3,7 @@ import { getTranslations } from 'next-intl/server';
 import AuthAside from '@/components/AuthAside';
 import { Link } from '@/navigation';
 import { ArrowLeft } from 'lucide-react';
+import LanguageSwitcher from '@/components/ui/LanguageSwitcher';
 
 interface AuthLayoutProps {
     children: ReactNode;
@@ -23,14 +24,18 @@ export default async function AuthLayout({ children, params }: AuthLayoutProps) 
 
     return (
         <div className="min-h-screen grid lg:grid-cols-2 bg-navy-950 overflow-hidden">
+            <div className="absolute top-6 right-6">
+                <LanguageSwitcher/>
+            </div>
             {/* Colonne Gauche : Visuel & Animations (C'est ton AuthAside) */}
-            <AuthAside animatedTexts={animatedTexts} />
+            <AuthAside animatedTexts={animatedTexts}/>
 
             {/* Colonne Droite : Formulaire */}
             <div className="flex flex-col justify-center px-6 sm:px-12 lg:px-24 py-12 relative z-10 bg-navy-950">
                 {/* Bouton Retour Accueil */}
-                <Link href="/" className="absolute top-8 left-8 text-slate-400 hover:text-white transition-colors flex items-center gap-2 text-sm font-medium group">
-                    <ArrowLeft size={16} className="group-hover:-translate-x-1 transition-transform" />
+                <Link href="/"
+                      className="absolute top-8 left-8 text-slate-400 hover:text-white transition-colors flex items-center gap-2 text-sm font-medium group">
+                    <ArrowLeft size={16} className="group-hover:-translate-x-1 transition-transform"/>
                     Retour
                 </Link>
 

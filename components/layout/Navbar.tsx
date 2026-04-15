@@ -5,6 +5,7 @@ import { Link, usePathname } from '@/navigation';
 import { useTranslations } from 'next-intl';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Menu, X, Globe, LogIn } from 'lucide-react';
+import LanguageSwitcher from '@/components/ui/LanguageSwitcher';
 
 export default function Navbar() {
     const t = useTranslations('Nav');
@@ -41,6 +42,7 @@ export default function Navbar() {
 
                 {/* Actions */}
                 <div className="hidden md:flex items-center gap-4">
+                    <LanguageSwitcher />
                     <Link href="/login" className="text-sm font-semibold text-white hover:opacity-80 transition">
                         {t('login')}
                     </Link>
@@ -64,6 +66,7 @@ export default function Navbar() {
                         exit={{ opacity: 0, y: -20 }}
                         className="absolute top-full left-0 w-full bg-navy-900 border-b border-white/10 p-6 flex flex-col gap-4 md:hidden glass"
                     >
+                        <LanguageSwitcher className="mb-4" />
                         <Link href="/explorer" onClick={() => setMobileMenu(false)}>{t('explorer')}</Link>
                         <Link href="/login" onClick={() => setMobileMenu(false)}>{t('login')}</Link>
                         <Link href="/register" className="bg-primary-600 text-white p-3 rounded-xl text-center" onClick={() => setMobileMenu(false)}>
