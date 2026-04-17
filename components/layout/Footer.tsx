@@ -39,15 +39,32 @@ export default function Footer() {
                     <div>
                         <h4 className="text-white font-bold mb-6">Légal</h4>
                         <ul className="space-y-4 text-slate-400">
-                            <li><Link href="#" className="hover:text-primary-400 transition-colors">Confidentialité</Link></li>
-                            <li><Link href="#" className="hover:text-primary-400 transition-colors">Conditions d'utilisation</Link></li>
-                            <li><Link href="#" className="hover:text-primary-400 transition-colors">Mentions légales</Link></li>
-                            <li><Link href="#" className="hover:text-primary-400 transition-colors">Cookies</Link></li>
+                            <li>
+                                <Link href="/legal/privacy" className="hover:text-primary-400 transition-colors">
+                                    Confidentialité
+                                </Link>
+                            </li>
+                            <li>
+                                <Link href="/legal/terms" className="hover:text-primary-400 transition-colors">
+                                    Conditions d'utilisation
+                                </Link>
+                            </li>
+                            <li>
+                                <Link href="/legal/mentions" className="hover:text-primary-400 transition-colors">
+                                    Mentions légales
+                                </Link>
+                            </li>
+                            <li>
+                                <Link href="/legal/cookies" className="hover:text-primary-400 transition-colors">
+                                    Cookies
+                                </Link>
+                            </li>
                         </ul>
                     </div>
                 </div>
 
-                <div className="border-t border-white/5 pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-slate-500">
+                <div
+                    className="border-t border-white/5 pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-slate-500">
                     <p>© {year} U-Gate. Tous droits réservés.</p>
                     <p>Fait avec passion au Cameroun.</p>
                 </div>
