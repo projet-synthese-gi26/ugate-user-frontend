@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { UserPlus, Building, CheckCircle2, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { Link } from '@/navigation';
+import {ADMIN_DASHBOARD_URL} from "@/lib/axios";
 
 const steps = [
     {
@@ -12,7 +13,7 @@ const steps = [
         desc: "Les leaders utilisent le Dashboard Admin pour créer leur entité. Une seule création autorisée par compte président.",
         icon: Building,
         action: "Lien Admin",
-        link: "https://ugate-admin-frontend.vercel.app/"
+        link: ADMIN_DASHBOARD_URL,
     },
     {
         num: "02",

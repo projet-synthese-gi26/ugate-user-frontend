@@ -1,6 +1,10 @@
 import axios from "axios";
 
 
+export const ADMIN_DASHBOARD_URL =
+    process.env.NEXT_PUBLIC_ADMIN_DASHBOARD_URL ??
+    "https://ugate-dev.yowyob.com/admin";
+
 const AUTH_BASE_URL = process.env.NEXT_PUBLIC_AUTH_API_URL;
 const UGATE_BASE_URL = process.env.NEXT_PUBLIC_UGATE_API_URL;
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;

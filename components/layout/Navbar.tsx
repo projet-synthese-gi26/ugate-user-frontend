@@ -7,14 +7,22 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Menu, X } from 'lucide-react';
 import LanguageSwitcher from '@/components/ui/LanguageSwitcher';
 import { cn } from '@/lib/ utils';
+import { useAuthStore } from '@/lib/store';
+import { LogOut } from 'lucide-react';
+import { useRouter } from '@/navigation';
+import {router} from "next/client";
 
 export default function Navbar() {
     const t = useTranslations('Nav');
     const [isScrolled, setIsScrolled] = useState(false);
     const [mobileMenu, setMobileMenu] = useState(false);
+    const { isAuthenticated, logout, user } = useAuthStore();
+    const handleLogout = () => {
+        logout();
+        router.replace('/login');
+    };
 
-    // Si on n'a pas scrollé, le fond derrière est sombre (sur toutes nos pages principales)
-    // Donc le texte doit être clair.
+
     const isDarkBackground = !isScrolled;
 
     useEffect(() => {
@@ -35,7 +43,8 @@ export default function Navbar() {
 
                 {/* Logo */}
                 <Link href="/" className="flex items-center gap-2 group">
-                    <div className="w-10 h-10 bg-primary-600 rounded-xl flex items-center justify-center shadow-lg group-hover:rotate-6 transition-transform">
+                    <div
+                        className="w-10 h-10 bg-primary-600 rounded-xl flex items-center justify-center shadow-lg group-hover:rotate-6 transition-transform">
                         <span className="text-white font-black text-xl">U</span>
                     </div>
                     <span className={cn(
@@ -48,26 +57,67 @@ export default function Navbar() {
 
                 {/* Desktop Links */}
                 <div className="hidden md:flex items-center gap-8 text-sm font-bold">
-                    <Link href="/explorer" className={cn("transition-colors hover:text-primary-500", isDarkBackground ? "text-slate-300" : "text-slate-600")}>{t('explorer')}</Link>
-                    <Link href="/services" className={cn("transition-colors hover:text-primary-500", isDarkBackground ? "text-slate-300" : "text-slate-600")}>Services</Link>
-                    <Link href="/about" className={cn("transition-colors hover:text-primary-500", isDarkBackground ? "text-slate-300" : "text-slate-600")}>À Propos</Link>
+                    <Link href="/explorer"
+                          className={cn("transition-colors hover:text-primary-500", isDarkBackground ? "text-slate-300" : "text-slate-600")}>{t('explorer')}</Link>
+                    <Link href="/services"
+                          className={cn("transition-colors hover:text-primary-500", isDarkBackground ? "text-slate-300" : "text-slate-600")}>Services</Link>
+                    <Link href="/about"
+                          className={cn("transition-colors hover:text-primary-500", isDarkBackground ? "text-slate-300" : "text-slate-600")}>À
+                        Propos</Link>
                 </div>
 
                 {/* Actions */}
                 <div className="hidden md:flex items-center gap-4">
-                    <LanguageSwitcher variant={isDarkBackground ? "dark" : "light"} />
-                    <Link href="/login" className={cn(
-                        "text-sm font-bold transition-colors hover:text-primary-500",
-                        isDarkBackground ? "text-white" : "text-slate-800"
-                    )}>
-                        {t('login')}
-                    </Link>
-                    <Link href="/register" className={cn(
-                        "px-6 py-2.5 rounded-full font-bold text-sm transition-all shadow-lg hover:scale-105",
-                        isDarkBackground ? "bg-white text-slate-900 hover:bg-slate-100" : "bg-primary-600 text-white hover:bg-primary-700"
-                    )}>
-                        {t('register')}
-                    </Link>
+                    <LanguageSwitcher variant={isDarkBackground ? "dark" : "light"}/>
+
+                    {!isAuthenticated ? (
+                        <>
+                            <Link
+                                href="/login"
+                                className={cn(
+                                    "text-sm font-bold transition-colors hover:text-primary-500",
+                                    isDarkBackground ? "text-white" : "text-slate-800"
+                                )}
+                            >
+                                {t('login')}
+                            </Link>
+
+                            <Link
+                                href="/register"
+                                className={cn(
+                                    "px-6 py-2.5 rounded-full font-bold text-sm transition-all shadow-lg hover:scale-105",
+                                    isDarkBackground
+                                        ? "bg-white text-slate-900 hover:bg-slate-100"
+                                        : "bg-primary-600 text-white hover:bg-primary-700"
+                                )}
+                            >
+                                {t('register')}
+                            </Link>
+                        </>
+                    ) : (
+
+                        <button
+                            onClick={handleLogout}
+                            className={cn(
+                                "group flex items-center gap-2 px-4 py-2 rounded-full",
+                                "border border-white/20 backdrop-blur-md",
+                                "text-sm font-semibold transition-all",
+                                isDarkBackground
+                                    ? "text-white hover:bg-white/10"
+                                    : "text-slate-700 hover:bg-slate-100"
+                            )}
+                            aria-label="Déconnexion"
+                        >
+                            <LogOut
+                                size={16}
+                                className="opacity-70 group-hover:opacity-100 transition-opacity"
+                            />
+                            <span className="hidden lg:inline">
+                {user?.firstName ?? "Déconnexion"}
+              </span>
+                        </button>
+
+                    )}
                 </div>
 
                 {/* Mobile Toggle */}
@@ -75,7 +125,7 @@ export default function Navbar() {
                     className={cn("md:hidden", isDarkBackground ? "text-white" : "text-slate-900")}
                     onClick={() => setMobileMenu(!mobileMenu)}
                 >
-                    {mobileMenu ? <X size={28} /> : <Menu size={28} />}
+                    {mobileMenu ? <X size={28}/> : <Menu size={28}/>}
                 </button>
             </div>
 
@@ -83,16 +133,19 @@ export default function Navbar() {
             <AnimatePresence>
                 {mobileMenu && (
                     <motion.div
-                        initial={{ opacity: 0, y: -20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: -20 }}
+                        initial={{opacity: 0, y: -20}}
+                        animate={{opacity: 1, y: 0}}
+                        exit={{opacity: 0, y: -20}}
                         className="absolute top-full left-4 right-4 mt-2 bg-slate-900 rounded-3xl p-6 flex flex-col gap-4 md:hidden shadow-2xl border border-slate-800"
                     >
-                        <LanguageSwitcher variant="dark" className="mb-2" />
-                        <Link href="/explorer" className="text-white font-bold text-lg" onClick={() => setMobileMenu(false)}>{t('explorer')}</Link>
-                        <Link href="/services" className="text-white font-bold text-lg" onClick={() => setMobileMenu(false)}>Services</Link>
-                        <Link href="/about" className="text-white font-bold text-lg" onClick={() => setMobileMenu(false)}>À Propos</Link>
-                        <hr className="border-slate-800 my-2" />
+                        <LanguageSwitcher variant="dark" className="mb-2"/>
+                        <Link href="/explorer" className="text-white font-bold text-lg"
+                              onClick={() => setMobileMenu(false)}>{t('explorer')}</Link>
+                        <Link href="/services" className="text-white font-bold text-lg"
+                              onClick={() => setMobileMenu(false)}>Services</Link>
+                        <Link href="/about" className="text-white font-bold text-lg"
+                              onClick={() => setMobileMenu(false)}>À Propos</Link>
+                        <hr className="border-slate-800 my-2"/>
                         <Link href="/login" className="text-white font-bold text-lg" onClick={() => setMobileMenu(false)}>{t('login')}</Link>
                         <Link href="/register" className="bg-primary-600 text-white p-4 rounded-xl text-center font-bold" onClick={() => setMobileMenu(false)}>
                             {t('register')}

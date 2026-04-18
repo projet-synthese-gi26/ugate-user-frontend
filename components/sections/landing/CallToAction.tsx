@@ -3,6 +3,7 @@
 import { Link } from '@/navigation';
 import { Button } from '@/components/ui/Button';
 import { ArrowRight } from 'lucide-react';
+import {ADMIN_DASHBOARD_URL} from "@/lib/axios";
 
 export default function CallToAction() {
     return (
@@ -28,7 +29,7 @@ export default function CallToAction() {
                                 Créer un compte membre
                             </Button>
                         </Link>
-                        <a href="https://ugate-admin-frontend.vercel.app/" target="_blank" rel="noreferrer">
+                        <a href={ADMIN_DASHBOARD_URL} target="_blank" rel="noreferrer">
                             <Button variant="outline" size="lg" className="h-16 px-10 rounded-2xl text-lg border-white/20 text-white hover:bg-white/10">
                                 Je veux créer un syndicat
                                 <ArrowRight className="ml-2" />

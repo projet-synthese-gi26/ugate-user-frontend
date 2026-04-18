@@ -6,6 +6,7 @@ import { useTranslations } from 'next-intl';
 import { Link } from '@/navigation';
 import { ArrowRight, PlayCircle, ShieldCheck } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
+import {ADMIN_DASHBOARD_URL} from "@/lib/axios";
 
 // Images haute qualité pour le slider (VTC, Logistique, Transport, Réunion)
 const backgroundImages = [
@@ -100,7 +101,7 @@ export default function Hero() {
 
                         {/* 2. Créer (Admin - Lien Externe) */}
                         <a
-                            href="https://ugate-admin-frontend.vercel.app/"
+                            href={ADMIN_DASHBOARD_URL}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="w-full sm:w-auto"

@@ -1,8 +1,9 @@
 "use client";
 
-import { Logo } from '@/components/ui/Logo';
-import { Link } from '@/navigation';
-import { Twitter, Linkedin, Facebook, Github } from 'lucide-react';
+import { Logo } from "@/components/ui/Logo";
+import { Link } from "@/navigation";
+import { Twitter, Linkedin, Facebook, Github } from "lucide-react";
+import { ADMIN_DASHBOARD_URL } from "@/lib/axios";
 
 export default function Footer() {
     const year = new Date().getFullYear();
@@ -29,10 +30,40 @@ export default function Footer() {
                     <div>
                         <h4 className="text-white font-bold mb-6">Plateforme</h4>
                         <ul className="space-y-4 text-slate-400">
-                            <li><Link href="/explorer" className="hover:text-primary-400 transition-colors">Explorer</Link></li>
-                            <li><Link href="/about" className="hover:text-primary-400 transition-colors">À propos</Link></li>
-                            <li><Link href="/services" className="hover:text-primary-400 transition-colors">Services</Link></li>
-                            <li><a href="https://ugate-admin-frontend.vercel.app/" target="_blank" className="hover:text-primary-400 transition-colors">Espace Admin</a></li>
+                            <li>
+                                <Link
+                                    href="/explorer"
+                                    className="hover:text-primary-400 transition-colors"
+                                >
+                                    Explorer
+                                </Link>
+                            </li>
+                            <li>
+                                <Link
+                                    href="/about"
+                                    className="hover:text-primary-400 transition-colors"
+                                >
+                                    À propos
+                                </Link>
+                            </li>
+                            <li>
+                                <Link
+                                    href="/services"
+                                    className="hover:text-primary-400 transition-colors"
+                                >
+                                    Services
+                                </Link>
+                            </li>
+                            <li>
+                                <a
+                                    href={ADMIN_DASHBOARD_URL}
+                                    target="_blank"
+                                    rel="noreferrer"
+                                    className="hover:text-primary-400 transition-colors"
+                                >
+                                    Espace Admin
+                                </a>
+                            </li>
                         </ul>
                     </div>
 
@@ -40,22 +71,34 @@ export default function Footer() {
                         <h4 className="text-white font-bold mb-6">Légal</h4>
                         <ul className="space-y-4 text-slate-400">
                             <li>
-                                <Link href="/legal/privacy" className="hover:text-primary-400 transition-colors">
+                                <Link
+                                    href="/legal/privacy"
+                                    className="hover:text-primary-400 transition-colors"
+                                >
                                     Confidentialité
                                 </Link>
                             </li>
                             <li>
-                                <Link href="/legal/terms" className="hover:text-primary-400 transition-colors">
-                                    Conditions d'utilisation
+                                <Link
+                                    href="/legal/terms"
+                                    className="hover:text-primary-400 transition-colors"
+                                >
+                                    Conditions d&apos;utilisation
                                 </Link>
                             </li>
                             <li>
-                                <Link href="/legal/mentions" className="hover:text-primary-400 transition-colors">
+                                <Link
+                                    href="/legal/mentions"
+                                    className="hover:text-primary-400 transition-colors"
+                                >
                                     Mentions légales
                                 </Link>
                             </li>
                             <li>
-                                <Link href="/legal/cookies" className="hover:text-primary-400 transition-colors">
+                                <Link
+                                    href="/legal/cookies"
+                                    className="hover:text-primary-400 transition-colors"
+                                >
                                     Cookies
                                 </Link>
                             </li>
@@ -63,8 +106,7 @@ export default function Footer() {
                     </div>
                 </div>
 
-                <div
-                    className="border-t border-white/5 pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-slate-500">
+                <div className="border-t border-white/5 pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-slate-500">
                     <p>© {year} U-Gate. Tous droits réservés.</p>
                     <p>Fait avec passion au Cameroun.</p>
                 </div>
