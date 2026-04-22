@@ -17,13 +17,13 @@ if (!AUTH_BASE_URL || !UGATE_BASE_URL) {
 
 export const authApi = axios.create({
     baseURL: AUTH_BASE_URL || API_BASE_URL,
-    withCredentials: true,
+    withCredentials: false,
 });
 
 
 export const ugateApi = axios.create({
     baseURL: UGATE_BASE_URL || API_BASE_URL,
-    withCredentials: true,
+    withCredentials: false,
 });
 
 
