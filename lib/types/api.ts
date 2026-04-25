@@ -86,8 +86,10 @@ export interface Branch {
     location: string;
     contact: string;
     bannerUrl?: string;
-    createdAt: string;
-    updatedAt: string;
+    latitude?: number;
+    longitude?: number;
+    createdAt?: string;
+    updatedAt?: string;
 }
 
 // ==========================================
