@@ -4,21 +4,15 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslations } from 'next-intl';
 import { Link } from '@/navigation';
-import { ArrowRight, PlayCircle, ShieldCheck } from 'lucide-react';
+import { ArrowRight, PlayCircle, ShieldCheck, LayoutDashboard } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
-import {ADMIN_DASHBOARD_URL} from "@/lib/axios";
+import { ADMIN_DASHBOARD_URL } from "@/lib/axios";
+import { useAuthStore } from '@/lib/store';
 
-// Images haute qualité pour le slider (VTC, Logistique, Transport, Réunion)
-const backgroundImages = [
+const backgroundImages =[
     "https://images.unsplash.com/photo-1766330301961-6366c58297d0?q=80&w=1171&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-
-    // 2. Digital & Mobilité : Femme professionnelle utilisant la technologie (cœur de U-Gate)
     "https://images.unsplash.com/photo-1531482615713-2afd69097998?auto=format&fit=crop&q=80",
-
-    // 3. Communauté & Accord : Poignée de main ou collaboration (L'esprit syndical)
     "https://media.istockphoto.com/id/2221927313/fr/photo/des-partenaires-commerciaux-se-serrent-la-main-apr%C3%A8s-une-r%C3%A9union-r%C3%A9ussie-dans-un-bureau.jpg?s=1024x1024&w=is&k=20&c=DteM6a43cq4Vb8yEHpDERUAef43T5oVXcJDPbd3TcrY=",
-
-    // 4. Innovation & Jeunesse : Équipe tech/startup africaine (Le futur de la gestion)
     "https://plus.unsplash.com/premium_photo-1664300108565-fdd8a6132123?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
 ];
 
@@ -26,7 +20,9 @@ export default function Hero() {
     const t = useTranslations('Hero');
     const [index, setIndex] = useState(0);
 
-    // Rotation des images toutes les 5 secondes
+    // Vérifier l'état de connexion de l'utilisateur
+    const { isAuthenticated } = useAuthStore();
+
     useEffect(() => {
         const timer = setInterval(() => {
             setIndex((prev) => (prev + 1) % backgroundImages.length);
@@ -56,7 +52,6 @@ export default function Hero() {
                     </motion.div>
                 </AnimatePresence>
 
-                {/* Overlay Dégradé Premium (Navy Profond) */}
                 <div className="absolute inset-0 bg-gradient-to-b from-[#020617]/80 via-[#020617]/60 to-[#020617] z-10" />
                 <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-20 z-10 mix-blend-overlay" />
             </div>
@@ -68,7 +63,7 @@ export default function Hero() {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.8, ease: "easeOut" }}
                 >
-                    {/* Badge "Nouveau" */}
+                    {/* Badge */}
                     <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 border border-white/20 text-primary-300 text-xs font-bold mb-8 backdrop-blur-md shadow-lg">
                         <span className="relative flex h-2 w-2">
                           <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
@@ -77,7 +72,7 @@ export default function Hero() {
                         {t('tagline')}
                     </div>
 
-                    {/* Titre Impactant */}
+                    {/* Titre */}
                     <h1 className="text-5xl lg:text-7xl font-black tracking-tight text-white leading-[1.1] mb-6 drop-shadow-2xl">
                         {t('title_part1')} <br className="hidden md:block" />
                         <span className="bg-clip-text text-transparent bg-gradient-to-r from-primary-400 via-blue-200 to-primary-400 bg-[length:200%_auto] animate-gradient">
@@ -89,28 +84,48 @@ export default function Hero() {
                         {t('description')}
                     </p>
 
-                    {/* CTAs : Distinction Claire entre Créateur et Membre */}
+                    {/* CTAs DYNAMIQUES SELON L'ÉTAT DE CONNEXION */}
                     <div className="flex flex-col sm:flex-row items-center justify-center gap-5">
-                        {/* 1. Rejoindre (Public) */}
-                        <Link href="/explorer" className="w-full sm:w-auto">
-                            <Button size="lg" className="w-full h-14 rounded-full text-base px-8 bg-white text-slate-900 hover:bg-slate-100 hover:scale-105 transition-all shadow-[0_0_40px_-10px_rgba(255,255,255,0.3)]">
-                                {t('cta_secondary')} {/* "Explorer les syndicats" */}
-                                <ArrowRight className="ml-2 h-5 w-5" />
-                            </Button>
-                        </Link>
 
-                        {/* 2. Créer (Admin - Lien Externe) */}
-                        <a
-                            href={ADMIN_DASHBOARD_URL}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="w-full sm:w-auto"
-                        >
-                            <Button variant="outline" size="lg" className="w-full h-14 rounded-full text-base px-8 border-white/20 text-white hover:bg-white/10 backdrop-blur-sm group">
-                                <PlayCircle className="mr-2 h-5 w-5 group-hover:text-primary-400 transition-colors" />
-                                Créer mon syndicat
-                            </Button>
-                        </a>
+                        {isAuthenticated ? (
+                            // --- BOUTONS POUR UTILISATEUR CONNECTÉ ---
+                            <>
+                                <Link href="/dashboard" className="w-full sm:w-auto outline-none">
+                                    <Button size="lg" className="w-full h-14 rounded-full text-base px-8 bg-primary-600 text-white hover:bg-primary-500 hover:scale-105 transition-all shadow-[0_0_40px_-10px_rgba(37,99,235,0.5)] border-none group">
+                                        <LayoutDashboard className="mr-2 h-5 w-5" />
+                                        Accéder à mon espace
+                                        <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
+                                    </Button>
+                                </Link>
+                                <Link href="/explorer" className="w-full sm:w-auto outline-none">
+                                    <Button variant="outline" size="lg" className="w-full h-14 rounded-full text-base px-8 border-white/20 text-white hover:bg-white/10 backdrop-blur-sm group">
+                                        Explorer les réseaux
+                                    </Button>
+                                </Link>
+                            </>
+                        ) : (
+                            // --- BOUTONS POUR VISITEUR ---
+                            <>
+                                <Link href="/explorer" className="w-full sm:w-auto outline-none">
+                                    <Button size="lg" className="w-full h-14 rounded-full text-base px-8 bg-white text-slate-900 hover:bg-slate-100 hover:scale-105 transition-all shadow-[0_0_40px_-10px_rgba(255,255,255,0.3)] group">
+                                        {t('cta_secondary')}
+                                        <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
+                                    </Button>
+                                </Link>
+                                <a
+                                    href={ADMIN_DASHBOARD_URL}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="w-full sm:w-auto outline-none"
+                                >
+                                    <Button variant="outline" size="lg" className="w-full h-14 rounded-full text-base px-8 border-white/20 text-white hover:bg-white/10 backdrop-blur-sm group">
+                                        <PlayCircle className="mr-2 h-5 w-5 group-hover:text-primary-400 transition-colors" />
+                                        Créer mon syndicat
+                                    </Button>
+                                </a>
+                            </>
+                        )}
+
                     </div>
 
                     {/* Trust Badges */}
@@ -127,7 +142,6 @@ export default function Hero() {
                 </motion.div>
             </div>
 
-            {/* Scroll Indicator */}
             <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
