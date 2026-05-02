@@ -3,29 +3,36 @@
 import { use, useState, useEffect } from 'react';
 import { ugateApi } from '@/lib/axios';
 import { useAuthStore } from '@/lib/store';
-import { Event } from '@/lib/types/api';
+import { Event, Syndicate } from '@/lib/types/api';
 import EventCard from '@/components/social/EventCard';
 import CreateEventModal from '@/components/social/CreateEventModal';
-import { Loader2, Plus, CalendarSearch, Calendar } from 'lucide-react';
+import { Loader2, Plus, Calendar, Tent } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
+import { motion } from 'framer-motion';
 
 export default function SyndicateEventsPage({ params }: { params: Promise<{ id: string, branchId: string }> }) {
-    // Extraction des IDs
     const { id: syndicateId, branchId } = use(params);
     const { user } = useAuthStore();
 
     const [events, setEvents] = useState<Event[]>([]);
+    const [isCreator, setIsCreator] = useState(false);
     const [loading, setLoading] = useState(true);
     const [isModalOpen, setIsModalOpen] = useState(false);
 
-    const isAdmin = user?.roles.includes('ADMIN') || user?.roles.includes('PRESIDENT') || user?.roles.includes('MODERATOR');
-
-    const fetchEvents = async () => {
+    const fetchData = async () => {
         try {
-            // Appel API ciblé sur la branche
-            const res = await ugateApi.get(`/events/branch/${branchId}`);
-            const data = Array.isArray(res.data) ? res.data : (res.data.content || []);
+            const [eventsRes, syndRes] = await Promise.all([
+                ugateApi.get(`/events/branch/${branchId}`),
+                ugateApi.get(`/syndicates/${syndicateId}/details`)
+            ]);
+
+            const data = Array.isArray(eventsRes.data) ? eventsRes.data : (eventsRes.data.content || []);
             setEvents(data);
+
+            const syndicateData: Syndicate = syndRes.data;
+            if (user?.id && syndicateData.creator?.id === user.id) {
+                setIsCreator(true);
+            }
         } catch (e) {
             console.error("Erreur chargement événements", e);
         } finally {
@@ -34,63 +41,71 @@ export default function SyndicateEventsPage({ params }: { params: Promise<{ id: 
     };
 
     useEffect(() => {
-        fetchEvents();
-    }, [branchId]);
+        fetchData();
+    }, [branchId, syndicateId, user?.id]);
 
     return (
-        <div className="max-w-5xl mx-auto space-y-12 animate-in fade-in slide-in-from-bottom-4 duration-700">
+        // max-w-2xl permet d'aligner la largeur avec le fil d'actualité (PostCard)
+        <div className="max-w-2xl mx-auto space-y-6 animate-in fade-in duration-500 pb-20">
 
-            {/* En-tête de section centré */}
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 border-b border-slate-200 pb-10">
-                <div>
-                    <div className="flex items-center gap-3 mb-3">
-                        <div className="w-12 h-12 bg-primary-100 text-primary-700 rounded-2xl flex items-center justify-center shadow-sm">
-                            <Calendar size={24} />
-                        </div>
-                        <h1 className="text-4xl font-black text-slate-900 tracking-tight">Agenda</h1>
+            {/* En-tête Premium Façon "Carte" */}
+            <div className="bg-white rounded-[2rem] p-6 border border-slate-200 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 bg-primary-50 text-primary-600 rounded-2xl flex items-center justify-center shrink-0">
+                        <Calendar size={24} />
                     </div>
-                    <p className="text-slate-500 font-medium text-lg max-w-xl leading-relaxed">
-                        Retrouvez toutes les réunions, assemblées et activités organisées par votre branche.
-                    </p>
+                    <div>
+                        <h1 className="text-xl font-black text-slate-900">Événements</h1>
+                        <p className="text-sm font-medium text-slate-500">Rencontres et activités de l'antenne</p>
+                    </div>
                 </div>
 
-                {isAdmin && (
+                {isCreator && (
                     <Button
                         onClick={() => setIsModalOpen(true)}
-                        className="rounded-2xl h-14 px-8 bg-slate-900 hover:bg-black text-white shadow-xl transition-all hover:scale-105 active:scale-95 font-bold flex items-center gap-3"
+                        className="w-full sm:w-auto rounded-xl bg-slate-900 hover:bg-black text-white shadow-md transition-all active:scale-95 shrink-0"
                     >
-                        <Plus size={20} />
-                        Programmer un événement
+                        <Plus size={18} className="mr-2" />
+                        Créer
                     </Button>
                 )}
             </div>
 
-            {/* Grille d'événements */}
+            {/* Liste des Événements (Stack Vertical) */}
             {loading ? (
-                <div className="">
-                    <Loader2 className="animate-spin text-primary-800 w-12 h-12" />
+                <div className="flex justify-center py-10">
+                    <Loader2 className="animate-spin text-primary-600 w-8 h-8" />
                 </div>
             ) : events.length > 0 ? (
-                <div className="grid md:grid-cols-2 gap-8">
-                    {events.map((evt) => (
-                        <EventCard key={evt.id} event={evt} />
+                <div className="space-y-6">
+                    {events.map((evt, idx) => (
+                        <motion.div
+                            key={evt.id}
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: idx * 0.05 }}
+                        >
+                            <EventCard event={evt} onJoinSuccess={fetchData} />
+                        </motion.div>
                     ))}
                 </div>
             ) : (
-                <div className="bg-white rounded-[3rem] p-20 text-center border border-slate-100 shadow-xl shadow-slate-200/50 mt-8">
-                    <div className="w-24 h-24 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-6 text-slate-300">
-                        <CalendarSearch size={48} />
+                <div className="bg-white rounded-[2rem] p-12 text-center border border-slate-200 shadow-sm">
+                    <div className="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <Tent className="text-slate-300" size={32} />
                     </div>
-                    <h2 className="text-2xl font-bold text-slate-400 mb-2">Aucun événement à l'horizon</h2>
-                    <p className="text-slate-400 font-medium">Revenez plus tard pour découvrir les prochaines dates.</p>
+                    <h2 className="text-lg font-bold text-slate-900 mb-2">Aucun événement prévu</h2>
+                    <p className="text-slate-500 font-medium text-sm mb-6">
+                        Il n'y a pas encore de rassemblement organisé pour cette antenne.
+                    </p>
 
-                    {isAdmin && (
+                    {isCreator && (
                         <Button
                             variant="outline"
                             onClick={() => setIsModalOpen(true)}
-                            className="mt-8 border-dashed border-2 py-6 px-10 rounded-2xl"
+                            className="border-dashed border-2 border-slate-200 text-slate-600 hover:text-primary-600 hover:bg-primary-50 rounded-xl"
                         >
-                            Créer le premier événement
+                            <Plus size={18} className="mr-2" /> Organiser un événement
                         </Button>
                     )}
                 </div>
@@ -100,7 +115,7 @@ export default function SyndicateEventsPage({ params }: { params: Promise<{ id: 
                 isOpen={isModalOpen}
                 onClose={() => setIsModalOpen(false)}
                 branchId={branchId}
-                onSuccess={fetchEvents}
+                onSuccess={fetchData}
             />
         </div>
     );
